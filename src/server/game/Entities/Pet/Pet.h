@@ -20,6 +20,7 @@
 #define TRINITYCORE_PET_H
 
 #include "PetDefines.h"
+#include "Unit.h"
 #include "TemporarySummon.h"
 
 #define PET_FOCUS_REGEN_INTERVAL 4 * IN_MILLISECONDS

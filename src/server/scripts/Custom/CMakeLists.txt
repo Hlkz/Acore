@@ -10,6 +10,23 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
+  Custom/beast_master.cpp
+  Custom/bienvenue.cpp
+  Custom/news_serv.cpp
+  Custom/job_master.cpp
+  Custom/char_custom.cpp
+  Custom/rand_item.cpp
+  Custom/universal_teleporter.cpp
+  Custom/class_master.cpp
+  Custom/enchant_npc.cpp
+  Custom/comarena.cpp
+  Custom/comtalent.cpp
+  Custom/comrand.cpp
+  Custom/comsuffix.cpp
+  Custom/comiteminfo.cpp
+  Custom/Transmogrification.cpp
+  Custom/transmochange.cpp
+  Custom/kahz.cpp
 )
 
 message("  -> Prepared: Custom")

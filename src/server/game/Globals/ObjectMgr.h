@@ -1177,6 +1177,8 @@ class ObjectMgr
         void LoadFactionChangeSpells();
         void LoadFactionChangeReputations();
         void LoadFactionChangeTitles();
+		
+		ItemFakeEntryContainer _itemFakeEntryStore; // custom transmo
 
     private:
         // first free id for selected id type

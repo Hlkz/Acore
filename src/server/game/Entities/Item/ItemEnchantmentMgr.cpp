@@ -197,3 +197,44 @@ uint32 GenerateEnchSuffixFactor(uint32 item_id)
     return 0;
 }
 
+std::string randitemsuffix[32];
+std::string* RandItemSuffix(int32 item_id) {
+	uint32 count = 0; ItemTemplate const* item = sObjectMgr->GetItemTemplate(item_id);
+    if (item->RandomProperty) {
+		EnchantmentStore::const_iterator tab = RandomItemEnch.find(item->RandomProperty);
+		if (tab == RandomItemEnch.end()) return randitemsuffix;
+		EnchStoreList::const_iterator ench_iter = tab->second.begin();
+		for (EnchStoreList::const_iterator ench_iter = tab->second.begin(); ench_iter != tab->second.end(); ++ench_iter) {
+			const ItemRandomPropertiesEntry* random_id = sItemRandomPropertiesStore.LookupEntry(ench_iter->ench);		
+			if ((count <= 31) && (ench_iter->ench != 0)) {
+				randitemsuffix[count] = random_id->nameSuffix[2]; }
+			count++; } }
+    else {
+		EnchantmentStore::const_iterator tab = RandomItemEnch.find(item->RandomSuffix);
+		if (tab == RandomItemEnch.end()) return randitemsuffix;
+		EnchStoreList::const_iterator ench_iter = tab->second.begin();
+		for (EnchStoreList::const_iterator ench_iter = tab->second.begin(); ench_iter != tab->second.end(); ++ench_iter) {
+			const ItemRandomSuffixEntry* random_id = sItemRandomSuffixStore.LookupEntry(ench_iter->ench);		
+			if ((count <= 31) && (ench_iter->ench != 0)) {
+				randitemsuffix[count] = random_id->nameSuffix[2]; }
+			count++; } }
+		return randitemsuffix; }
+
+int randitemench[80];
+int* RandItemEnch(int32 item_id) {
+	uint32 count = 0; ItemTemplate const* item = sObjectMgr->GetItemTemplate(item_id);
+    if (item->RandomProperty) {
+		EnchantmentStore::const_iterator tab = RandomItemEnch.find(item->RandomProperty);
+		if (tab == RandomItemEnch.end()) return randitemench; 
+		EnchStoreList::const_iterator ench_iter = tab->second.begin();
+		for (EnchStoreList::const_iterator ench_iter = tab->second.begin(); ench_iter != tab->second.end(); ++ench_iter) {
+			randitemench[count] = ench_iter->ench;
+			count++; } }
+	else {
+		EnchantmentStore::const_iterator tab = RandomItemEnch.find(item->RandomSuffix);
+		if (tab == RandomItemEnch.end()) return randitemench;
+		EnchStoreList::const_iterator ench_iter = tab->second.begin();
+		for (EnchStoreList::const_iterator ench_iter = tab->second.begin(); ench_iter != tab->second.end(); ++ench_iter) {
+			randitemench[count] = ench_iter->ench;
+			count++; } }
+	return randitemench; }

@@ -1276,13 +1276,47 @@ void AddBattlegroundScripts()
 
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
-
+void AddSc_beast_master();
+void AddSc_job_master();
+void AddSc_char_custom();
+void AddSc_Bienvenue();
+void AddSc_News_Serv();
+void AddSc_universal_teleporter();
+void AddSc_rand_item();
+void AddSc_class_master();
+void AddSc_enchant_npc();
+void AddSc_Com_Arena();
+void AddSc_Com_Talent();
+void AddSc_Com_Rand();
+void AddSc_Com_Suffix();
+void AddSc_Com_Item_Info();
+void AddSC_NPC_Transmogrify();
+void AddSc_transmochange();
+//boss
+void AddSC_kahz();
 #endif
 
 void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
-
+    AddSc_beast_master();
+	AddSc_job_master();
+	AddSc_char_custom();
+	AddSc_Bienvenue();
+	AddSc_News_Serv();
+    AddSc_universal_teleporter();
+    AddSc_rand_item();
+	AddSc_class_master();
+	AddSc_enchant_npc();
+	AddSc_Com_Arena();
+	AddSc_Com_Talent();
+	AddSc_Com_Rand();
+	AddSc_Com_Suffix();
+	AddSc_Com_Item_Info();
+	AddSC_NPC_Transmogrify();
+	AddSc_transmochange();
+	//boss
+	AddSC_kahz();
 #endif
 }
