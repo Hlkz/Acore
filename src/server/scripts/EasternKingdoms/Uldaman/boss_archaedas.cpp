@@ -31,16 +31,16 @@ EndScriptData */
 #include "uldaman.h"
 #include "Player.h"
 
-#define SAY_AGGRO           "Who dares awaken Archaedas? Who dares the wrath of the makers!"
+#define SAY_AGGRO           "Qui ose réveiller Archaedas ? Qui ose courroucer les faiseurs !"
 #define SOUND_AGGRO         5855
 
-#define SAY_SUMMON          "Awake ye servants, defend the discs!"
+#define SAY_SUMMON          "Debout, serviteurs, défendez le disque !"
 #define SOUND_SUMMON        5856
 
-#define SAY_SUMMON2         "To my side, brothers. For the makers!"
+#define SAY_SUMMON2         "À moi, mes frères. Pour les faiseurs !"
 #define SOUND_SUMMON2       5857
 
-#define SAY_KILL            "Reckless mortal."
+#define SAY_KILL            "Stupides mortels."
 #define SOUND_KILL          5858
 
 enum eSpells

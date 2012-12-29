@@ -798,6 +798,18 @@ void ArenaTeam::MemberWon(Player* player, uint32 againstMatchmakerRating, int32 
             itr->SeasonGames +=1;
             itr->SeasonWins += 1;
             itr->WeekWins += 1;
+			
+		    // Update arena points
+			uint32 pointsToAdd;
+            pointsToAdd = (itr->PersonalRating / 100) + itr->WeekGames;
+            if (pointsToAdd >= 30) {
+                pointsToAdd = 30; }
+            SQLTransaction trans = CharacterDatabase.BeginTransaction();
+            PreparedStatement* stmt;
+            player->ModifyArenaPoints(pointsToAdd, &trans);
+            CharacterDatabase.CommitTransaction(trans);
+            SaveToDB();
+
             // update unit fields
             player->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_WEEK, itr->WeekGames);
             player->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_SEASON, itr->SeasonGames);
@@ -822,7 +834,7 @@ void ArenaTeam::UpdateArenaPointsHelper(std::map<uint32, uint32>& playerPoints)
         // The player participated in enough games, update his points
         uint32 pointsToAdd = 0;
         if (itr->WeekGames >= requiredGames)
-            pointsToAdd = GetPoints(itr->PersonalRating);
+            pointsToAdd = GetPoints(0);
 
         std::map<uint32, uint32>::iterator plr_itr = playerPoints.find(GUID_LOPART(itr->Guid));
         if (plr_itr != playerPoints.end())

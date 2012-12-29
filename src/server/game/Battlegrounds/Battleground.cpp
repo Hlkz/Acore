@@ -562,7 +562,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                 }
             // Announce BG starting
             if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE))
-                sWorld->SendWorldText(LANG_BG_STARTED_ANNOUNCE_WORLD, GetName(), GetMinLevel(), GetMaxLevel());
+                sWorld->SendWorldText(LANG_BG_STARTED_ANNOUNCE_WORLD, GetName());
         }
     }
 }

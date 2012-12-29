@@ -1,16 +1,18 @@
 #include "ScriptPCH.h"
+#include "Pet.h"
 
 class beast_master : public CreatureScript {
 public: beast_master() : CreatureScript("beast_master"){}
 
 void CreatePet(Player *player, Creature * m_creature, uint32 entry){
+	
     if(player->getClass() != CLASS_HUNTER){
-		player->ADD_GOSSIP_ITEM(0, "Au revoir.", GOSSIP_SENDER_MAIN, 3);
+		player->ADD_GOSSIP_ITEM(0, player->GetSession()->GetTrinityString(12000), GOSSIP_SENDER_MAIN, 3);
 		player->SEND_GOSSIP_MENU(1000005, m_creature->GetGUID());
 		return; }
 
     if(player->GetPet()){
-        m_creature->MonsterWhisper("Vous devez d'abord abandonner votre familier.", player->GetGUID());
+        m_creature->MonsterWhisper(player->GetSession()->GetTrinityString(12001), player->GetGUID());
         player->PlayerTalkClass->SendCloseGossip();
         return; }
 
@@ -24,7 +26,7 @@ void CreatePet(Player *player, Creature * m_creature, uint32 entry){
     creatureTarget->setDeathState(JUST_DIED);
     creatureTarget->RemoveCorpse();
     creatureTarget->SetHealth(0);              // just for nice GM-mode view
-	/*
+
     pet->SetPower(POWER_HAPPINESS, 1048000);
 
     //pet->SetUInt32Value(UNIT_FIELD_PETEXPERIENCE,0);
@@ -43,66 +45,65 @@ void CreatePet(Player *player, Creature * m_creature, uint32 entry){
     // caster have pet now
     player->SetMinion(pet, true);
     pet->SavePetToDB(PET_SAVE_AS_CURRENT);
-    pet->InitTalentForLevel(); */
+    pet->InitTalentForLevel();
     player->PetSpellInitialize();
     //end
     player->PlayerTalkClass->SendCloseGossip();
-    m_creature->MonsterWhisper("Familier ajouté.", player->GetGUID());
+    m_creature->MonsterWhisper(player->GetSession()->GetTrinityString(12002), player->GetGUID());
         }
 
 
 bool OnGossipHello(Player *player, Creature * m_creature){
+	
+	WorldSession* session = player->GetSession();
 
     if(player->getClass() != CLASS_HUNTER){
-		player->ADD_GOSSIP_ITEM(0, "Au revoir.", GOSSIP_SENDER_MAIN, 150);
+		player->ADD_GOSSIP_ITEM(0, session->GetTrinityString(12000), GOSSIP_SENDER_MAIN, 150);
 		player->SEND_GOSSIP_MENU(1000005, m_creature->GetGUID());
     return true; }
 
-    player->ADD_GOSSIP_ITEM(4, "J'aimerais nouveau familier.", GOSSIP_SENDER_MAIN, 30);
-    player->ADD_GOSSIP_ITEM(2, "Ecurie", GOSSIP_SENDER_MAIN, GOSSIP_OPTION_STABLEPET);
-    player->ADD_GOSSIP_ITEM(6, "J'aimerais de quoi nourrir mon familier.", GOSSIP_SENDER_MAIN, GOSSIP_OPTION_VENDOR);
-    player->ADD_GOSSIP_ITEM(5, "Au revoir.", GOSSIP_SENDER_MAIN, 150);
+    player->ADD_GOSSIP_ITEM(4, session->GetTrinityString(12003), GOSSIP_SENDER_MAIN, 30);
+    player->ADD_GOSSIP_ITEM(2, session->GetTrinityString(12004), GOSSIP_SENDER_MAIN, GOSSIP_OPTION_STABLEPET);
+    player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12005), GOSSIP_SENDER_MAIN, GOSSIP_OPTION_VENDOR);
+    player->ADD_GOSSIP_ITEM(5, session->GetTrinityString(12000), GOSSIP_SENDER_MAIN, 150);
     player->SEND_GOSSIP_MENU(1000008, m_creature->GetGUID());
     return true; }
 
 bool OnGossipSelect(Player *player, Creature * m_creature, uint32 sender, uint32 action){
 	player->PlayerTalkClass->ClearMenus();
+	WorldSession* session = player->GetSession();
 	
     switch (action){
 	
     case 100:
-		player->ADD_GOSSIP_ITEM(4, "J'aimerais un nouveau familier.", GOSSIP_SENDER_MAIN, 30);
-		player->ADD_GOSSIP_ITEM(2, "Ecurie", GOSSIP_SENDER_MAIN, GOSSIP_OPTION_STABLEPET);
-		player->ADD_GOSSIP_ITEM(6, "J'aimerais de quoi nourrir mon familier.", GOSSIP_SENDER_MAIN, GOSSIP_OPTION_VENDOR);
-		player->ADD_GOSSIP_ITEM(5, "Au revoir.", GOSSIP_SENDER_MAIN, 150);
-		player->SEND_GOSSIP_MENU(1000008, m_creature->GetGUID());
+		OnGossipHello(player, m_creature);
 	break;
 
     case 150:	player->CLOSE_GOSSIP_MENU();	break;
 
     case 30:
-        player->ADD_GOSSIP_ITEM(2, "<= Menu Principal", GOSSIP_SENDER_MAIN, 100);
-        player->ADD_GOSSIP_ITEM(6, "Araignée.", GOSSIP_SENDER_MAIN, 1);
-        player->ADD_GOSSIP_ITEM(6, "Charognard.", GOSSIP_SENDER_MAIN, 2);
-        player->ADD_GOSSIP_ITEM(6, "Chauve-souris.", GOSSIP_SENDER_MAIN, 93);
-        player->ADD_GOSSIP_ITEM(6, "Crabe.", GOSSIP_SENDER_MAIN, 4);
-        player->ADD_GOSSIP_ITEM(6, "Crocilisque.", GOSSIP_SENDER_MAIN, 5);
-        player->ADD_GOSSIP_ITEM(6, "Faucon-dragon.", GOSSIP_SENDER_MAIN, 6);
-        player->ADD_GOSSIP_ITEM(6, "Félin.", GOSSIP_SENDER_MAIN, 7);
-        player->ADD_GOSSIP_ITEM(6, "Gorille.", GOSSIP_SENDER_MAIN, 8);
-        player->ADD_GOSSIP_ITEM(6, "Haut-trotteur.", GOSSIP_SENDER_MAIN, 9);
-        player->ADD_GOSSIP_ITEM(6, "Hyene.", GOSSIP_SENDER_MAIN, 10);
-        player->ADD_GOSSIP_ITEM(6, "Loup.", GOSSIP_SENDER_MAIN, 11);
-        player->ADD_GOSSIP_ITEM(6, "Oiseau de proie.", GOSSIP_SENDER_MAIN, 12);
-        player->ADD_GOSSIP_ITEM(6, "Ours.", GOSSIP_SENDER_MAIN, 13);
-        player->ADD_GOSSIP_ITEM(6, "Phalène.", GOSSIP_SENDER_MAIN, 914);
-        player->ADD_GOSSIP_ITEM(6, "Raptor.", GOSSIP_SENDER_MAIN, 15);
-        player->ADD_GOSSIP_ITEM(6, "Ravageur.", GOSSIP_SENDER_MAIN, 16);
-        player->ADD_GOSSIP_ITEM(6, "Sanglier.", GOSSIP_SENDER_MAIN, 17);
-        player->ADD_GOSSIP_ITEM(6, "Scorpide.", GOSSIP_SENDER_MAIN, 18);
-        player->ADD_GOSSIP_ITEM(6, "Serpent.", GOSSIP_SENDER_MAIN, 19);
-        player->ADD_GOSSIP_ITEM(6, "Serpent des vents.", GOSSIP_SENDER_MAIN, 20);
-        player->ADD_GOSSIP_ITEM(6, "Tortue.", GOSSIP_SENDER_MAIN, 21);
+        player->ADD_GOSSIP_ITEM(2, session->GetTrinityString(12006), GOSSIP_SENDER_MAIN, 100);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12007), GOSSIP_SENDER_MAIN, 1);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12008), GOSSIP_SENDER_MAIN, 2);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12009), GOSSIP_SENDER_MAIN, 93);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12010), GOSSIP_SENDER_MAIN, 4);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12011), GOSSIP_SENDER_MAIN, 5);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12012), GOSSIP_SENDER_MAIN, 6);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12013), GOSSIP_SENDER_MAIN, 7);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12014), GOSSIP_SENDER_MAIN, 8);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12015), GOSSIP_SENDER_MAIN, 9);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12016), GOSSIP_SENDER_MAIN, 10);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12017), GOSSIP_SENDER_MAIN, 11);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12018), GOSSIP_SENDER_MAIN, 12);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12019), GOSSIP_SENDER_MAIN, 13);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12020), GOSSIP_SENDER_MAIN, 914);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12021), GOSSIP_SENDER_MAIN, 15);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12022), GOSSIP_SENDER_MAIN, 16);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12023), GOSSIP_SENDER_MAIN, 17);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12024), GOSSIP_SENDER_MAIN, 18);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12025), GOSSIP_SENDER_MAIN, 19);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12026), GOSSIP_SENDER_MAIN, 20);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12027), GOSSIP_SENDER_MAIN, 21);
         player->SEND_GOSSIP_MENU(1000008, m_creature->GetGUID());
     break;
 

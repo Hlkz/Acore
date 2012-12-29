@@ -51,6 +51,21 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
 
     player->SendDuelCountdown(3000);
     plTarget->SendDuelCountdown(3000);
+	
+	if (player->GetZoneId() == 1537 || player->GetZoneId() == 3457 || player->GetZoneId() == 3428) {
+	player->RemoveAllSpellCooldown();
+	plTarget->RemoveAllSpellCooldown();
+	player->RemoveAura(25771); // longanimité
+	plTarget->RemoveAura(25771);
+	player->RemoveAura(41425); // hypothermie
+	plTarget->RemoveAura(41425);
+	player->RemoveAura(11196); // bandage
+	plTarget->RemoveAura(11196); }
+	player->SetHealth(player->GetMaxHealth());
+	player->SetPower(POWER_MANA, player->GetMaxPower(POWER_MANA));
+	plTarget->SetHealth(plTarget->GetMaxHealth());
+	plTarget->SetPower(POWER_MANA,  plTarget->GetMaxPower(POWER_MANA));
+
 }
 
 void WorldSession::HandleDuelCancelledOpcode(WorldPacket& recvPacket)
