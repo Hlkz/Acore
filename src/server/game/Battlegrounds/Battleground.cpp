@@ -561,8 +561,16 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                     player->ResetAllPowers();
                 }
             // Announce BG starting
-            if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE))
-                sWorld->SendWorldText(LANG_BG_STARTED_ANNOUNCE_WORLD, GetName());
+            if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE)) {
+				if (GetTypeID() == 2) sWorld->SendWorldText(694);
+				else {
+					if (GetTypeID() == 3) sWorld->SendWorldText(693);
+					else {
+						if (GetTypeID() == 12) sWorld->SendWorldText(692);
+						else  sWorld->SendWorldText(LANG_BG_STARTED_ANNOUNCE_WORLD, GetName());
+					}
+				}
+			}
         }
     }
 }

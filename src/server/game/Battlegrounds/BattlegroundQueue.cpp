@@ -220,9 +220,6 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
                 {
                     ChatHandler(leader->GetSession()).PSendSysMessage(LANG_BG_QUEUE_ANNOUNCE_SELF, bgName, q_min_level, q_max_level,
                          qAlliance, (MinPlayers > qAlliance) ? MinPlayers : (uint32)0, qHorde, (MinPlayers > qHorde) ? MinPlayers : (uint32)0);
-
-					ChatHandler(leader->GetSession()).PSendSysMessage(LANG_BG_QUEUE_ANNOUNCE_SELF, bgName, q_min_level, q_max_level,
-						qAlliance, (MinPlayers > qAlliance) ? MinPlayers : (uint32)0, qHorde, (MinPlayers > qHorde) ? MinPlayers : (uint32)0);
                 }
                 // System message
                 else
@@ -230,8 +227,18 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
 					if (MinPlayers == 0) {
 						sWorld->SendWorldText(LANG_BG_QUEUE_ANNOUNCE_SELF, ArenaType,  ArenaType, qAlliance, qHorde); }
 					else {
-						sWorld->SendWorldText(LANG_BG_QUEUE_ANNOUNCE_WORLD, bgName,
-							qAlliance, MinPlayers, qHorde, MinPlayers); }
+						if (bg->GetTypeID() == 2)
+							sWorld->SendWorldText(699, qAlliance, MinPlayers, qHorde, MinPlayers);
+						else {
+							if (bg->GetTypeID() == 3)
+								sWorld->SendWorldText(698, qAlliance, MinPlayers, qHorde, MinPlayers);
+							else {
+								if (bg->GetTypeID() == 12)
+									sWorld->SendWorldText(697, qAlliance, MinPlayers, qHorde, MinPlayers);
+								else  sWorld->SendWorldText(LANG_BG_QUEUE_ANNOUNCE_WORLD, bgName, qAlliance, MinPlayers, qHorde, MinPlayers);
+							}
+						}
+					}
 				}
             }
         }

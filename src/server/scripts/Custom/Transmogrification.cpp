@@ -1,13 +1,5 @@
-#define GOLD_COST    0 // 0 for no gold cost
-
 #include "ScriptPCH.h"
 #include "Language.h"
-
-#if (GOLD_COST)
-#define GOLD_COST_FUNCTION GetFakePrice(oldItem)
-#else
-#define GOLD_COST_FUNCTION 0
-#endif
 
 class NPC_Transmogrify : public CreatureScript {
 public: NPC_Transmogrify() : CreatureScript("NPC_Transmogrify") {}
@@ -43,7 +35,6 @@ bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 ui
 								limit++;
 								_items[lowGUID][display] = newItem;
 								player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_INTERACT_1, GetItemName(newItem, session), uiAction, display, session->GetTrinityString(LANG_POPUP_TRANSMOGRIFY)+GetItemName(newItem, session), 0, false);
-								//player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_INTERACT_1, GetItemName(newItem, session), uiAction, display, session->GetTrinityString(LANG_POPUP_TRANSMOGRIFY)+GetItemName(newItem, session), GOLD_COST_FUNCTION, false);
 								} } } }
 
 				for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++) {
@@ -57,7 +48,6 @@ bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 ui
 										limit++;
 										_items[lowGUID][display] = newItem;
 										player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_INTERACT_1, GetItemName(newItem, session), uiAction, display, session->GetTrinityString(LANG_POPUP_TRANSMOGRIFY)+GetItemName(newItem, session), 0, false);
-										//player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_INTERACT_1, GetItemName(newItem, session), uiAction, display, session->GetTrinityString(LANG_POPUP_TRANSMOGRIFY)+GetItemName(newItem, session), GOLD_COST_FUNCTION, false);
 										} } } } } }
 
 				char popup[250];
@@ -94,13 +84,14 @@ bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 ui
 			
         default: { // Transmogrify
 			uint32 lowGUID = player->GetGUIDLow();
+			if (!player->HasEnoughMoney(10000)) {
+				creature->MonsterWhisper(session->GetTrinityString(11129), player->GetGUID());
+				return false; }
 			if (Item* oldItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, sender)) {
 				if (_items[lowGUID].find(uiAction) != _items[lowGUID].end() && _items[lowGUID][uiAction]->IsInWorld()) {
 					Item* newItem = _items[lowGUID][uiAction];
 					if (newItem->GetOwnerGUID() == player->GetGUIDLow() && (newItem->IsInBag() || newItem->GetBagSlot() == INVENTORY_SLOT_BAG_0) && player->SuitableForTransmogrification(oldItem, newItem) == ERR_FAKE_OK) {
-#if (GOLD_COST)
-						player->ModifyMoney(-1*GetFakePrice(oldItem)); // take cost
-#endif
+						player->ModifyMoney(-10000); // take cost
 						oldItem->SetFakeEntry(newItem->GetEntry());
 //						player->DestroyItemCount(newItem->GetTemplate()->ItemId, 1, true, false);
 						player->PlayDirectSound(3337);
@@ -141,14 +132,6 @@ private: std::map<uint64, std::map<uint32, Item*> > _items; // _items[lowGUID][D
                 ObjectMgr::GetLocaleString(il->Name, loc_idx, name);
         return name; }
 
-#if (GOLD_COST)
-    uint32 GetFakePrice(Item* item) {
-        uint32 sellPrice = item->GetTemplate()->SellPrice;
-        uint32 minPrice = item->GetTemplate()->RequiredLevel * 1176;
-        if (sellPrice < minPrice)
-            sellPrice = minPrice;
-        return sellPrice; }
-#endif
 };
 
 void AddSC_NPC_Transmogrify() {
