@@ -494,13 +494,17 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
     if (!itemguid)
         return;
 
-    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
-    if (!creature)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleSellItemOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(vendorguid)));
-        _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, NULL, itemguid, 0);
-        return;
-    }
+	Creature* creature;
+	if(GetPlayer()->GetGUID()!=vendorguid)
+	{
+		creature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
+		if (!creature)
+		{
+		    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleSellItemOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(vendorguid)));
+		    _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, NULL, itemguid, 0);
+		    return;
+		}
+	}
 
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
@@ -603,6 +607,7 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
 
     recvData >> vendorguid >> slot;
 
+	/*
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
     if (!creature)
     {
@@ -610,6 +615,7 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
         _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, NULL, 0, 0);
         return;
     }
+	*/
 
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
@@ -621,7 +627,7 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
         uint32 price = _player->GetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE_1 + slot - BUYBACK_SLOT_START);
         if (!_player->HasEnoughMoney(price))
         {
-            _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, pItem->GetEntry(), 0);
+            //_player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, pItem->GetEntry(), 0);
             return;
         }
 
@@ -639,8 +645,8 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
             _player->SendEquipError(msg, pItem, NULL);
         return;
     }
-    else
-        _player->SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, 0, 0);
+  /*else
+        _player->SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, 0, 0);*/
 }
 
 void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket& recvData)
@@ -808,6 +814,52 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
         return;
     }
 
+    data.put<uint8>(countPos, count);
+    SendPacket(&data);
+}
+
+void WorldSession::SendVendor(uint32 entry) {
+	GetPlayer()->SetVendorEntry(entry);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_LIST_INVENTORY");
+    VendorItemData const* items = sObjectMgr->GetNpcVendorItemList(entry);
+    if (!items) {
+        WorldPacket data(SMSG_LIST_INVENTORY, 8 + 1 + 1);
+        data << (GetPlayer()->GetGUID());
+        data << uint8(0);
+        data << uint8(0);
+        SendPacket(&data);
+        return; }
+    uint8 itemCount = items->GetItemCount();
+    uint8 count = 0;
+    WorldPacket data(SMSG_LIST_INVENTORY, 8 + 1 + itemCount * 8 * 4);
+	data << uint64(GetPlayer()->GetGUID());
+    size_t countPos = data.wpos();
+    data << uint8(count);
+    for (uint8 slot = 0; slot < itemCount; ++slot) {
+        if (VendorItem const* item = items->GetItem(slot)) {
+            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(item->item)) {
+                if (!(itemTemplate->AllowableClass & _player->getClassMask()) && itemTemplate->Bonding == BIND_WHEN_PICKED_UP && !_player->isGameMaster())
+                    continue;
+                if (!_player->isGameMaster() && ((itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY && _player->GetTeam() == ALLIANCE) || (itemTemplate->Flags2 == ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && _player->GetTeam() == HORDE)))
+                    continue;
+                uint32 leftInStock = !item->maxcount ? 0xFFFFFFFF : 6;
+                if (!_player->isGameMaster() && !leftInStock)
+                    continue;
+                ConditionList conditions = sConditionMgr->GetConditionsForNpcVendorEvent(entry, item->item);
+                ++count;
+                int32 price = item->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->BuyPrice * 1.0)) : 0; // reputation discount
+                data << uint32(slot + 1);       // client expects counting to start at 1
+                data << uint32(item->item);
+                data << uint32(itemTemplate->DisplayInfoID);
+                data << int32(leftInStock);
+                data << uint32(price);
+                data << uint32(itemTemplate->MaxDurability);
+                data << uint32(itemTemplate->BuyCount);
+                data << uint32(item->ExtendedCost); } } }
+    if (count == 0) {
+        data << uint8(0);
+        SendPacket(&data);
+        return; }
     data.put<uint8>(countPos, count);
     SendPacket(&data);
 }

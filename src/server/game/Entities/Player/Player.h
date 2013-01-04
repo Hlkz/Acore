@@ -1341,8 +1341,8 @@ class Player : public Unit, public GridObject<Player>
         }
         void SendNewItem(Item* item, uint32 count, bool received, bool created, bool broadcast = false);
         bool BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot);
-        bool _StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int32 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore);
-
+        bool _StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int32 price, ItemTemplate const* pProto, uint64 vguid, VendorItem const* crItem, bool bStore);
+		
         float GetReputationPriceDiscount(Creature const* creature) const;
 
         Player* GetTrader() const { return m_trade ? m_trade->GetTrader() : NULL; }
@@ -2561,6 +2561,12 @@ class Player : public Unit, public GridObject<Player>
         void SetRandRetour(uint32 retour) { m_RandRetour = retour; }
         uint32 GetRandItId() const { return m_RandItId; }
         void SetRandItId(uint32 itemid) { m_RandItId = itemid; }
+		
+        uint32 GetVendorEntry() const { return m_VendorEntry; }
+        void SetVendorEntry(uint32 entry) { m_VendorEntry = entry; }
+
+        bool IsSpectator() const { return m_spectator; }
+        void SetSpectator(bool bSpectator);
 
     protected:
         // Gamemaster whisper whitelist
@@ -2906,6 +2912,10 @@ class Player : public Unit, public GridObject<Player>
         std::string* m_RandRis;
         uint32 m_RandRetour;
         uint32 m_RandItId;
+		
+        uint32 m_VendorEntry;
+
+		bool m_spectator; // sets to true when player uses '.spectate' command
 };
 
 void AddItemsSetItem(Player*player, Item* item);

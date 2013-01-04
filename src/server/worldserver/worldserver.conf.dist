@@ -1294,8 +1294,8 @@ AllowTwoSide.WhoList = 0
 #
 #    AllowTwoSide.AddFriend
 #        Description: Allow adding friends from other faction the friends list.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
 
 AllowTwoSide.AddFriend = 0
 
@@ -1315,6 +1315,14 @@ AllowTwoSide.Trade = 0
 #                     0 - (Disabled)
 
 TalentsInspecting = 1
+
+#
+#    Arena.Spectators.Enable
+#        Description: Arena spectators system state.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+Arena.Spectators.Enable = 0
 
 #
 ###################################################################################################

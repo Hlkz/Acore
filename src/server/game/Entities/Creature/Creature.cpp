@@ -2591,3 +2591,18 @@ Unit* Creature::SelectNearestHostileUnitInAggroRange(bool useLOS) const
 
     return target;
 }
+
+void Creature::HasQuestForPlayer(Player* player) {
+	if (isQuestGiver()) {
+		player->PrepareQuestMenu(GetGUID());
+		QuestRelationBounds objectQR = sObjectMgr->GetCreatureQuestRelationBounds(GetEntry());
+		QuestRelationBounds objectQIR = sObjectMgr->GetCreatureQuestInvolvedRelationBounds(GetEntry());
+		QuestMenu& qm = player->PlayerTalkClass->GetQuestMenu();
+        qm.ClearMenu();
+		for (QuestRelations::const_iterator i = objectQIR.first; i != objectQIR.second; ++i) {
+			uint32 questId = i->second;
+			QuestStatus status = player->GetQuestStatus(questId);
+			const Quest* quest = sObjectMgr->GetQuestTemplate(questId);
+			if (status==1 || status==3)
+				qm.AddMenuItem(questId, 4);
+			else if(player->CanSeeStartQuest(quest)) qm.AddMenuItem(questId, 1); } } }

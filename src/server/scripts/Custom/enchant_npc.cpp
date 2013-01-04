@@ -61,6 +61,7 @@ void Ench(Player *player, Creature *creature, uint32 slotid, uint32 enchid, uint
 	player->ApplyEnchantment(item, PERM_ENCHANTMENT_SLOT, false);
 	item->SetEnchantment(PERM_ENCHANTMENT_SLOT, enchid, 0, 0);
 	player->ApplyEnchantment(item, PERM_ENCHANTMENT_SLOT, true);
+	creature->CastSpell(creature,60888,false);
 	MainMenu(player, creature); }
 
 bool OnGossipSelect(Player *player, Creature * creature, uint32 sender, uint32 action) {

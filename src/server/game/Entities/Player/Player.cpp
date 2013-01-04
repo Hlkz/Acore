@@ -5539,6 +5539,21 @@ void Player::RepopAtGraveyard()
             data << ClosestGrave->y;
             data << ClosestGrave->z;
             GetSession()->SendPacket(&data);
+			
+			// rez/effets à la mort selon la map
+			if (GetZoneId() != 4080 && GetZoneId() != 2266 && !InBattleground()) {
+				ResurrectPlayer(1);
+				SpawnCorpseBones(); }
+				
+			if (GetMapId() == 603) {
+				CastSpell(this,13874,false); } //bubul
+
+			if (GetMapId() == 585 || GetMapId() == 230 || GetZoneId() == 2079 || GetAreaId() == 3357) {
+				CastSpell(this,32612,false); } // invisibilité
+
+			if (GetMapId() == 37 || GetMapId() == 532)
+				RemoveAllSpellCooldown();
+
         }
     }
     else if (GetPositionZ() < -500.0f)
@@ -7582,7 +7597,7 @@ void Player::CheckDuelDistance(time_t currTime)
 
     if (duel->outOfBound == 0)
     {
-        if (!IsWithinDistInMap(obj, 50))
+        if (!IsWithinDistInMap(obj, 150))
         {
             duel->outOfBound = currTime;
 
@@ -7592,7 +7607,7 @@ void Player::CheckDuelDistance(time_t currTime)
     }
     else
     {
-        if (IsWithinDistInMap(obj, 40))
+        if (IsWithinDistInMap(obj, 140))
         {
             duel->outOfBound = 0;
 
@@ -12380,7 +12395,11 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
 {
     if (pItem)
     {
-        SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2), pItem->GetEntry());
+        SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2), pItem->GetEntry()); // custom transmo
+		if (pItem->GetFakeEntry())
+			SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2), pItem->GetFakeEntry());
+		else
+			SetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (slot * 2), pItem->GetEntry());
         SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (slot * 2), 0, pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
         SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (slot * 2), 1, pItem->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT));
     }
@@ -12501,6 +12520,7 @@ void Player::MoveItemFromInventory(uint8 bag, uint8 slot, bool update)
 {
     if (Item* it = GetItemByPos(bag, slot))
     {
+		it->DeleteFakeFromDB(it->GetGUIDLow()); // custom transmo
         ItemRemovedQuestCheck(it->GetEntry(), it->GetCount());
         RemoveItem(bag, slot, update);
         it->SetNotRefundable(this, false);
@@ -17368,6 +17388,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS));
 
+    SetSpectator(false);
+	
     return true;
 }
 
@@ -21066,7 +21088,7 @@ void Player::InitDisplayIds()
     }
 }
 
-inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int32 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore)
+inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int32 price, ItemTemplate const* pProto, uint64 vguid, VendorItem const* crItem, bool bStore)
 {
     ItemPosCountVec vDest;
     uint16 uiDest = 0;
@@ -21102,10 +21124,13 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
         EquipNewItem(uiDest, item, true);
     if (it)
     {
-        uint32 new_count = pVendor->UpdateVendorItemCurrentCount(crItem, pProto->BuyCount * count);
+		uint32 new_count = -1;
+		if(GetGUID()!=vguid) {
+			Creature* pVendor = GetMap()->GetCreature(vguid);
+			uint32 new_count = pVendor->UpdateVendorItemCurrentCount(crItem, pProto->BuyCount * count); }
 
         WorldPacket data(SMSG_BUY_ITEM, (8+4+4+4));
-        data << uint64(pVendor->GetGUID());
+        data << uint64(vguid);
         data << uint32(vendorslot + 1);                   // numbered from 1 at client
         data << int32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
         data << uint32(count);
@@ -21148,12 +21173,75 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
         return false;
     }
 
+if(GetGUID()==vendorguid) {
+	
+	VendorItemData const* vItems = sObjectMgr->GetNpcVendorItemList(GetVendorEntry());
+    if (!vItems || vItems->Empty())
+        return false;
+    if (vendorslot >= vItems->GetItemCount())
+        return false;
+    VendorItem const* crItem = vItems->GetItem(vendorslot);
+    if (!crItem || crItem->item != item)
+        return false;
+    if (pProto->RequiredReputationFaction && (uint32(GetReputationRank(pProto->RequiredReputationFaction)) < pProto->RequiredReputationRank))
+        return false;
+
+    if (crItem->ExtendedCost) {
+        ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(crItem->ExtendedCost);
+        if (!iece) {
+            sLog->outError(LOG_FILTER_PLAYER, "Item %u have wrong ExtendedCost field value %u", pProto->ItemId, crItem->ExtendedCost);
+            return false; }
+
+        if (GetHonorPoints() < (iece->reqhonorpoints * count)) {
+            SendEquipError(EQUIP_ERR_NOT_ENOUGH_HONOR_POINTS, NULL, NULL);
+            return false; }
+        if (GetArenaPoints() < (iece->reqarenapoints * count)) {
+            SendEquipError(EQUIP_ERR_NOT_ENOUGH_ARENA_POINTS, NULL, NULL);
+            return false; }
+
+        for (uint8 i = 0; i < MAX_ITEM_EXTENDED_COST_REQUIREMENTS; ++i) {
+            if (iece->reqitem[i] && !HasItemCount(iece->reqitem[i], (iece->reqitemcount[i] * count))) {
+                SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL);
+                return false; } }
+
+        if (GetMaxPersonalArenaRatingRequirement(iece->reqarenaslot) < iece->reqpersonalarenarating) {
+            SendEquipError(EQUIP_ERR_CANT_EQUIP_RANK, NULL, NULL);
+            return false; } }
+
+    uint32 price = 0;
+    if (crItem->IsGoldRequired(pProto) && pProto->BuyPrice > 0) {
+        uint32 maxCount = MAX_MONEY_AMOUNT / pProto->BuyPrice;
+        if ((uint32)count > maxCount) {
+            sLog->outError(LOG_FILTER_PLAYER, "Player %s tried to buy %u item id %u, causing overflow", GetName().c_str(), (uint32)count, pProto->ItemId);
+            count = (uint8)maxCount; }
+        price = pProto->BuyPrice * count; //it should not exceed MAX_MONEY_AMOUNT
+
+        if (!HasEnoughMoney(price))
+            return false; }
+
+    if ((bag == NULL_BAG && slot == NULL_SLOT) || IsInventoryPos(bag, slot)) {
+        if (!_StoreOrEquipNewItem(vendorslot, item, count, bag, slot, price, pProto, GetGUID(), crItem, true))
+            return false;  }
+    else if (IsEquipmentPos(bag, slot)) {
+        if (pProto->BuyCount * count != 1) {
+            SendEquipError(EQUIP_ERR_ITEM_CANT_BE_EQUIPPED, NULL, NULL);
+            return false; }
+        if (!_StoreOrEquipNewItem(vendorslot, item, count, bag, slot, price, pProto, GetGUID(), crItem, false))
+            return false; }
+    else {
+        SendEquipError(EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, NULL, NULL);
+        return false; }
+
+	return crItem->maxcount != 0;
+}
+else {
+
     Creature* creature = GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
     if (!creature)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: BuyItemFromVendor - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(vendorguid)));
-        SendBuyError(BUY_ERR_DISTANCE_TOO_FAR, NULL, item, 0);
-        return false;
+		sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: BuyItemFromVendor - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(vendorguid)));
+		SendBuyError(BUY_ERR_DISTANCE_TOO_FAR, NULL, item, 0);
+		return false;
     }
 
     VendorItemData const* vItems = creature->GetVendorItems();
@@ -21258,7 +21346,7 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
 
     if ((bag == NULL_BAG && slot == NULL_SLOT) || IsInventoryPos(bag, slot))
     {
-        if (!_StoreOrEquipNewItem(vendorslot, item, count, bag, slot, price, pProto, creature, crItem, true))
+		if (!_StoreOrEquipNewItem(vendorslot, item, count, bag, slot, price, pProto, creature->GetGUID(), crItem, true))
             return false;
     }
     else if (IsEquipmentPos(bag, slot))
@@ -21268,7 +21356,7 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
             SendEquipError(EQUIP_ERR_ITEM_CANT_BE_EQUIPPED, NULL, NULL);
             return false;
         }
-        if (!_StoreOrEquipNewItem(vendorslot, item, count, bag, slot, price, pProto, creature, crItem, false))
+        if (!_StoreOrEquipNewItem(vendorslot, item, count, bag, slot, price, pProto, creature->GetGUID(), crItem, false))
             return false;
     }
     else
@@ -21277,7 +21365,8 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
         return false;
     }
 
-    return crItem->maxcount != 0;
+	return crItem->maxcount != 0;
+}
 }
 
 uint32 Player::GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const
@@ -25863,8 +25952,8 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 
 uint32 Player::SuitableForTransmogrification(Item* oldItem, Item* newItem) { // custom transmo
 	
-    if (!newItem->HasGoodFakeQuality())
-        return ERR_FAKE_NEW_BAD_QUALITY;
+//    if (!newItem->HasGoodFakeQuality())
+//        return ERR_FAKE_NEW_BAD_QUALITY;
     if (!oldItem->HasGoodFakeQuality())
         return ERR_FAKE_OLD_BAD_QUALITY;
     if (oldItem->GetTemplate()->DisplayInfoID == newItem->GetTemplate()->DisplayInfoID)
@@ -25902,3 +25991,21 @@ uint32 Player::SuitableForTransmogrification(Item* oldItem, Item* newItem) { // 
 	if (newInventorytype == oldInventorytype || (newInventorytype == INVTYPE_CHEST && oldInventorytype == INVTYPE_ROBE) || (newInventorytype == INVTYPE_ROBE && oldInventorytype == INVTYPE_CHEST))
 		return ERR_FAKE_OK;
 	return ERR_FAKE_BAD_INVENTORYTYPE; }
+
+void Player::SetSpectator(bool bSpectator)
+{
+    if (bSpectator)
+    {
+        if (IsSpectator())
+        {
+            sLog->outError(LOG_FILTER_ARENAS, "Player::SetSpectator: trying to set spectator state for player (GUID: %u) but he already has this state.", GetGUIDLow());
+            return;
+        }
+        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(8326))
+            Aura::TryCreate(spellInfo, MAX_EFFECT_MASK, this, this);
+    }
+    else
+        RemoveAurasDueToSpell(8326);
+
+    m_spectator = bSpectator;
+}

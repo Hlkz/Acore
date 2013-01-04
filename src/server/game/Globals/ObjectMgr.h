@@ -892,6 +892,7 @@ class ObjectMgr
         void LoadItemLocales();
         void LoadItemSetNames();
         void LoadItemSetNameLocales();
+		void LoadTransmogrifications(); // custom transmo
         void LoadQuestLocales();
         void LoadNpcTextLocales();
         void LoadPageTextLocales();

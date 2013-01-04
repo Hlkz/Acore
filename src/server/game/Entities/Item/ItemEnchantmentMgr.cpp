@@ -198,7 +198,7 @@ uint32 GenerateEnchSuffixFactor(uint32 item_id)
 }
 
 std::string randitemsuffix[32];
-std::string* RandItemSuffix(int32 item_id) {
+std::string* RandItemSuffix(int32 item_id, int32 loc) {
 	uint32 count = 0; ItemTemplate const* item = sObjectMgr->GetItemTemplate(item_id);
     if (item->RandomProperty) {
 		EnchantmentStore::const_iterator tab = RandomItemEnch.find(item->RandomProperty);
@@ -229,12 +229,13 @@ int* RandItemEnch(int32 item_id) {
 		EnchStoreList::const_iterator ench_iter = tab->second.begin();
 		for (EnchStoreList::const_iterator ench_iter = tab->second.begin(); ench_iter != tab->second.end(); ++ench_iter) {
 			randitemench[count] = ench_iter->ench;
-			count++; } }
+			count++; } randitemench[count] = 2; }
 	else {
 		EnchantmentStore::const_iterator tab = RandomItemEnch.find(item->RandomSuffix);
 		if (tab == RandomItemEnch.end()) return randitemench;
 		EnchStoreList::const_iterator ench_iter = tab->second.begin();
 		for (EnchStoreList::const_iterator ench_iter = tab->second.begin(); ench_iter != tab->second.end(); ++ench_iter) {
 			randitemench[count] = ench_iter->ench;
-			count++; } }
+			count++; }
+		randitemench[count] = 2; }
 	return randitemench; }

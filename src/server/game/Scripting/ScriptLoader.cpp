@@ -77,6 +77,7 @@ void AddSC_ticket_commandscript();
 void AddSC_titles_commandscript();
 void AddSC_wp_commandscript();
 void AddSC_mmaps_commandscript();
+void AddSC_spectate_commandscript();
 
 #ifdef SCRIPTS
 //world
@@ -702,6 +703,7 @@ void AddCommandScripts()
     AddSC_titles_commandscript();
     AddSC_wp_commandscript();
     AddSC_mmaps_commandscript();
+	AddSC_spectate_commandscript();
 }
 
 void AddWorldScripts()
@@ -1279,7 +1281,6 @@ void AddBattlegroundScripts()
 void AddSc_beast_master();
 void AddSc_job_master();
 void AddSc_char_custom();
-void AddSc_Bienvenue();
 void AddSc_News_Serv();
 void AddSc_universal_teleporter();
 void AddSc_rand_item();
@@ -1303,7 +1304,6 @@ void AddCustomScripts()
     AddSc_beast_master();
 	AddSc_job_master();
 	AddSc_char_custom();
-	AddSc_Bienvenue();
 	AddSc_News_Serv();
     AddSc_universal_teleporter();
     AddSc_rand_item();
@@ -1315,7 +1315,6 @@ void AddCustomScripts()
 	AddSc_Com_Suffix();
 	AddSc_Com_Item_Info();
 	AddSC_NPC_Transmogrify();
-	AddSc_transmochange();
 	//boss
 	AddSC_kahz();
 #endif

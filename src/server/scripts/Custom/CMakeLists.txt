@@ -19,14 +19,9 @@ set(scripts_STAT_SRCS
   Custom/universal_teleporter.cpp
   Custom/class_master.cpp
   Custom/enchant_npc.cpp
-  Custom/comarena.cpp
-  Custom/comtalent.cpp
-  Custom/comrand.cpp
-  Custom/comsuffix.cpp
-  Custom/comiteminfo.cpp
-  Custom/Transmogrification.cpp
-  Custom/transmochange.cpp
+  Custom/transmo.cpp
   Custom/kahz.cpp
+  Custom/arenaspectator.cpp
 )
 
 message("  -> Prepared: Custom")

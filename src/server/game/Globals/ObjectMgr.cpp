@@ -1997,6 +1997,26 @@ uint32 ObjectMgr::GetPlayerAccountIdByPlayerName(const std::string& name) const
     return 0;
 }
 
+void ObjectMgr::LoadTransmogrifications() { // custom transmo
+	sLog->outError(LOG_FILTER_GENERAL, "Deleting non-existing transmogrification entries...");
+	CharacterDatabase.Execute("DELETE FROM custom_transmogrification WHERE NOT EXISTS (SELECT 1 FROM item_instance WHERE item_instance.guid = custom_transmogrification.GUID)");
+	
+ 	uint32 oldMSTime = getMSTime();
+ 	_itemFakeEntryStore.clear();
+ 	QueryResult result = CharacterDatabase.Query("SELECT GUID, FakeEntry FROM custom_transmogrification WHERE EXISTS (SELECT 1 FROM item_instance WHERE item_instance.guid = custom_transmogrification.GUID)");
+ 	if (result)
+ 	    do {
+ 	        uint32 lowGUID = (*result)[0].GetUInt32();
+ 	        uint32 entry = (*result)[1].GetUInt32();
+ 	        if (GetItemTemplate(entry))
+ 	            _itemFakeEntryStore[lowGUID] = entry;
+ 	        else {
+				sLog->outError(LOG_FILTER_SQL, "Item entry (Entry: %u, GUID: %u) does not exist, deleting.", entry, lowGUID);
+ 	            CharacterDatabase.PExecute("DELETE FROM custom_transmogrification WHERE GUID = %u", lowGUID); }
+ 	   } while (result->NextRow());
+	sLog->outError(LOG_FILTER_GENERAL, ">> Loaded %lu Item fake entries in %u ms", (unsigned long)_itemFakeEntryStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
 void ObjectMgr::LoadItemLocales()
 {
     uint32 oldMSTime = getMSTime();

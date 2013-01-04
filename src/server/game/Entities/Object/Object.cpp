@@ -1764,6 +1764,10 @@ bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
 
     if (obj->IsAlwaysVisibleFor(this) || CanAlwaysSee(obj))
         return true;
+	
+    if (ToPlayer())
+        if (ToPlayer()->IsSpectator() && GetMap()->IsBattleArena() && ToPlayer()->HasAura(8326)) // Prevent exploits
+            return true;
 
     bool corpseVisibility = false;
     if (distanceCheck)

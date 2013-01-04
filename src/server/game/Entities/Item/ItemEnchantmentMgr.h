@@ -24,7 +24,7 @@
 void LoadRandomEnchantmentsTable();
 uint32 GetItemEnchantMod(int32 entry);
 uint32 GenerateEnchSuffixFactor(uint32 item_id);
-std::string* RandItemSuffix(int32 item_id);
+std::string* RandItemSuffix(int32 item_id, int32 loc);
 int* RandItemEnch(int32 item_id);
 #endif
 

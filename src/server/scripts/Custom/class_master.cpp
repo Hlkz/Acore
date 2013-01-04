@@ -55,7 +55,9 @@ bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint3
 		break;
 	
 	case 3:
-		player->GetSession()->SendListInventory(creature->GetGUID());
+		if(player->getClass()==1 || player->getClass()==2 || player->getClass()==7)
+			player->GetSession()->SendVendor(1000008);
+		else player->GetSession()->SendListInventory(creature->GetGUID());
 		break;
 
 	case 30:
