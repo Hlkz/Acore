@@ -4,6 +4,7 @@ class class_master : public CreatureScript {
     public: class_master() : CreatureScript("class_master") {}
 
 bool OnGossipHello(Player* player, Creature* creature) {
+	creature->SetControlled(true, UNIT_STATE_STUNNED);
 	MainMenu(player, creature);
 	return true; }
 		
@@ -57,7 +58,7 @@ bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint3
 	case 3:
 		if(player->getClass()==1 || player->getClass()==2 || player->getClass()==7)
 			player->GetSession()->SendVendor(1000008);
-		else player->GetSession()->SendListInventory(creature->GetGUID());
+		else player->GetSession()->SendVendor(100006);
 		break;
 
 	case 30:

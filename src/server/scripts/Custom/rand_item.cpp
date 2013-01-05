@@ -42,7 +42,9 @@ void MainMenu(Player *player, Creature *creature) {
 	player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12054), GOSSIP_SENDER_MAIN, 200);
 	player->SEND_GOSSIP_MENU(1000023, creature->GetGUID()); }
 	
-bool OnGossipHello(Player *player, Creature * creature) { MainMenu(player, creature); return true; }
+bool OnGossipHello(Player *player, Creature * creature) {
+	creature->SetControlled(true, UNIT_STATE_STUNNED);
+	MainMenu(player, creature); return true; }
 	
 bool OnGossipSelect(Player *player, Creature * creature, uint32 sender, uint32 action) {
     player->PlayerTalkClass->ClearMenus();
@@ -206,25 +208,6 @@ lmenu2:
 			goto lmenu; break;
 		}
 	return true; }
-
-	struct npc_training_dummyAI : Scripted_NoMovementAI {
-        npc_training_dummyAI(Creature* creature) : Scripted_NoMovementAI(creature) {
-            entry = creature->GetEntry(); }
-
-        uint32 entry;
-        uint32 resetTimer;
-        uint32 despawnTimer;
-
-        void Reset() { me->SetControlled(true, UNIT_STATE_STUNNED); }
-        void EnterEvadeMode() {
-            if (!_EnterEvadeMode()) return;
-			Reset(); }
-		void UpdateAI(uint32 const diff) {
-            if (!me->HasUnitState(UNIT_STATE_STUNNED))
-                me->SetControlled(true, UNIT_STATE_STUNNED); }
-        void MoveInLineOfSight(Unit* /*who*/){return;}
-    };
-
 };
 
 void AddSc_rand_item() {
