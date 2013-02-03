@@ -2,8 +2,9 @@
 #define CACHE_H
 #include <string>
 #include <map>
-#include "Common.h"
-#include "ace/Synch.h"
+#include "Define.h"
+#include <ace/Guard_T.h>
+#include <ace/Synch.h>
 
 class WorldModelRoot;
 class Model;
@@ -14,7 +15,7 @@ class GenericCache
 public:
     GenericCache() {}
 
-    static const int32 FlushLimit = 1000;
+    static const uint32 FlushLimit = 1000;
 
     void Insert(K key, T* val)
     {

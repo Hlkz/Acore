@@ -235,7 +235,7 @@ void Guild::BankEventLogEntry::WritePacket(WorldPacket& data) const
     data << uint8(m_eventType);
     data << uint64(MAKE_NEW_GUID(m_playerGuid, 0, HIGHGUID_PLAYER));
 
-    switch(m_eventType)
+    switch (m_eventType)
     {
         case GUILD_BANK_LOG_DEPOSIT_ITEM:
         case GUILD_BANK_LOG_WITHDRAW_ITEM:
@@ -1755,16 +1755,20 @@ bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint32 amount, bool
     sScriptMgr->OnGuildMemberWitdrawMoney(this, player, amount, repair);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    // Add money to player (if required)
+    if (!repair)
+    {
+        if (!player->ModifyMoney(amount))
+            return false;
+
+        player->SaveGoldToDB(trans);
+    }
+
     // Update remaining money amount
     member->UpdateBankWithdrawValue(trans, GUILD_BANK_MAX_TABS, amount);
     // Remove money from bank
     _ModifyBankMoney(trans, amount, false);
-    // Add money to player (if required)
-    if (!repair)
-    {
-        player->ModifyMoney(amount);
-        player->SaveGoldToDB(trans);
-    }
+
     // Log guild bank event
     _LogBankEvent(trans, repair ? GUILD_BANK_LOG_REPAIR_MONEY : GUILD_BANK_LOG_WITHDRAW_MONEY, uint8(0), player->GetGUIDLow(), amount);
     CharacterDatabase.CommitTransaction(trans);

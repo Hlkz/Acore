@@ -25,6 +25,7 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <ace/INET_Addr.h>
 
 // Searcher for map of structs
 template<typename T, class S> struct Finder
@@ -39,7 +40,7 @@ template<typename T, class S> struct Finder
 class Tokenizer
 {
 public:
-    typedef std::vector<char const *> StorageType;
+    typedef std::vector<char const*> StorageType;
 
     typedef StorageType::size_type size_type;
 
@@ -343,6 +344,13 @@ void utf8printf(FILE* out, const char *str, ...);
 void vutf8printf(FILE* out, const char *str, va_list* ap);
 
 bool IsIPAddress(char const* ipaddress);
+
+/// Checks if address belongs to the a network with specified submask
+bool IsIPAddrInNetwork(ACE_INET_Addr const& net, ACE_INET_Addr const& addr, ACE_INET_Addr const& subnetMask);
+
+/// Transforms ACE_INET_Addr address into string format "dotted_ip:port"
+std::string GetAddressString(ACE_INET_Addr const& addr);
+
 uint32 CreatePIDFile(const std::string& filename);
 
 std::string ByteArrayToHexStr(uint8 const* bytes, uint32 length, bool reverse = false);

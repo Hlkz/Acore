@@ -33,12 +33,10 @@ enum Spells
     SPELL_WING_FLAP                   = 12882,
     SPELL_PIERCE_ARMOR                = 6016,
     SPELL_DISARM                      = 8379,
-
     SPELL_KIRTONOS_TRANSFORM          = 16467,
-
     SPELL_SHADOW_BOLT                 = 17228,
     SPELL_CURSE_OF_TONGUES            = 12889,
-    SPELL_DONINATE_MIND               = 14515
+    SPELL_DOMINATE_MIND               = 14515
 };
 
 enum Events
@@ -55,37 +53,21 @@ enum Events
     EVENT_DISARM                      = 10,
     EVENT_SHADOW_BOLT                 = 11,
     EVENT_CURSE_OF_TONGUES            = 12,
-    EVENT_DONINATE_MIND               = 13,
+    EVENT_DOMINATE_MIND               = 13,
     EVENT_KIRTONOS_TRANSFORM          = 14
 };
 
-enum Points
+enum eMisc
 {
-    MAX_KIRTONOS_WAYPOINTS_INTRO      = 14,
-    POINT_KIRTONOS_LAND               = 14
+    WEAPON_KIRTONOS_STAFF             = 11365,
+    POINT_KIRTONOS_LAND               = 13,
+    KIRTONOS_PATH                     = 105061
 };
 
-enum Misc
+Position const PosMove[2] =
 {
-    WEAPON_KIRTONOS_STAFF             = 11365
-};
-
-Position const kirtonosIntroWaypoint[MAX_KIRTONOS_WAYPOINTS_INTRO] =
-{
-    {316.7087f, 71.26834f, 104.5843f, 0.0f},
-    {321.1605f, 72.80973f, 104.6676f, 0.0f},
-    {332.3713f, 77.98991f, 105.8621f, 0.0f},
-    {333.3254f, 86.60159f, 106.6399f, 0.0f},
-    {334.1263f, 101.6836f, 106.8343f, 0.0f},
-    {331.0458f, 114.5935f, 106.3621f, 0.0f},
-    {329.5439f, 126.7019f, 106.1399f, 0.0f},
-    {335.2471f, 136.5460f, 105.7232f, 0.0f},
-    {343.2100f, 139.9459f, 107.6399f, 0.0f},
-    {364.3288f, 140.9012f, 109.9454f, 0.0f},
-    {362.6760f, 115.6384f, 110.3065f, 0.0f},
-    {341.7896f, 91.94390f, 107.1676f, 0.0f},
-    {313.4945f, 93.45945f, 104.0565f, 0.0f},
-    {306.3839f, 93.61675f, 104.0565f, 0.0f},
+    { 299.4884f, 92.76137f, 105.6335f, 0.0f },
+    { 314.8673f, 90.30210f, 101.6459f, 0.0f }
 };
 
 class boss_kirtonos_the_herald : public CreatureScript
@@ -94,26 +76,22 @@ class boss_kirtonos_the_herald : public CreatureScript
 
         struct boss_kirtonos_the_heraldAI : public BossAI
         {
-            boss_kirtonos_the_heraldAI(Creature* creature) : BossAI(creature, TYPE_KIRTONOS) { }
+            boss_kirtonos_the_heraldAI(Creature* creature) : BossAI(creature, DATA_KIRTONOS) { }
 
             void Reset()
             {
-                _introEvent  = 0;
-                _introTimer  = 0;
                 _Reset();
             }
 
             void EnterCombat(Unit* /*who*/)
             {
-                _introTimer = 0;
-                _introEvent = 0;
                 events.ScheduleEvent(EVENT_SWOOP, urand(8000, 8000));
                 events.ScheduleEvent(EVENT_WING_FLAP, urand(15000, 15000));
                 events.ScheduleEvent(EVENT_PIERCE_ARMOR, urand(18000, 18000));
                 events.ScheduleEvent(EVENT_DISARM, urand(22000, 22000));
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(42000, 42000));
                 events.ScheduleEvent(EVENT_CURSE_OF_TONGUES, urand(53000, 53000));
-                events.ScheduleEvent(EVENT_DONINATE_MIND, urand(34000, 48000));
+                events.ScheduleEvent(EVENT_DOMINATE_MIND, urand(34000, 48000));
                 events.ScheduleEvent(EVENT_KIRTONOS_TRANSFORM, urand(20000, 20000));
                 _EnterCombat();
             }
@@ -142,19 +120,12 @@ class boss_kirtonos_the_herald : public CreatureScript
                 me->DespawnOrUnsummon(5000);
             }
 
-            void DamageTaken(Unit* /*killer*/, uint32 &damage)
+            void IsSummonedBy(Unit* /*summoner*/)
             {
-
-            }
-
-            void IsSummonedBy(Unit* summoner)
-            {
+                events.ScheduleEvent(INTRO_1, 500);
                 me->SetDisableGravity(true);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
-                _introEvent = INTRO_1;
-                _introTimer = 1;
-                _currentPoint = 0;
                 Talk(EMOTE_SUMMONED);
             }
 
@@ -163,74 +134,61 @@ class boss_kirtonos_the_herald : public CreatureScript
                 BossAI::JustSummoned(summon);
             }
 
-            void MovementInform(uint32 movementType, uint32 pointId)
+            void MovementInform(uint32 type, uint32 id)
             {
-                if (movementType != POINT_MOTION_TYPE)
-                    return;
-
-                _currentPoint = pointId + 1;
+                if (type == WAYPOINT_MOTION_TYPE && id == POINT_KIRTONOS_LAND)
+                {
+                    events.ScheduleEvent(INTRO_2, 1500);
+                }
             }
 
             void UpdateAI(uint32 const diff)
             {
-                if (_introEvent)
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent() && !UpdateVictim())
                 {
-                    if (_introTimer <= diff)
+                    switch (eventId)
                     {
-                        switch (_introEvent)
-                        {
-                            case INTRO_1:
-                                if (_currentPoint < POINT_KIRTONOS_LAND)
-                                    me->GetMotionMaster()->MovePoint(_currentPoint, kirtonosIntroWaypoint[_currentPoint]);
-                                else
-                                {
-                                    _introTimer = 1000;
-                                    _introEvent = INTRO_2;
-                                }
-                                break;
-                            case INTRO_2:
-                                me->SetWalk(true);
-                                me->GetMotionMaster()->MovePoint(0, 299.4884f, 92.76137f, 105.6335f);
-                                _introTimer = 1000;
-                                _introEvent = INTRO_3;
-                                break;
-                            case INTRO_3:
-                                if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_GATE_KIRTONOS)))
-                                    gate->SetGoState(GO_STATE_READY);
-                                me->SetFacingTo(0.01745329f);
-                                _introTimer = 3000;
-                                _introEvent = INTRO_4;
-                                break;
-                            case INTRO_4:
-                                if (GameObject* brazier = me->GetMap()->GetGameObject(instance->GetData64(GO_BRAZIER_OF_THE_HERALD)))
-                                    brazier->SetGoState(GO_STATE_READY);
-                                me->SetDisableGravity(false);
-                                DoCast(me, SPELL_KIRTONOS_TRANSFORM);
-                                _introTimer = 1000;
-                                _introEvent = INTRO_5;
-                                break;
-                            case INTRO_5:
-                                me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
-                                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_KIRTONOS_STAFF));
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
-                                me->SetReactState(REACT_AGGRESSIVE);
-                                _introTimer = 5000;
-                                _introEvent = INTRO_6;
-                            case INTRO_6:
-                                me->GetMotionMaster()->MovePoint(0, 314.8673f, 90.3021f, 101.6459f);
-                                _introTimer = 0;
-                                _introEvent = 0;
+                        case INTRO_1:
+                            me->GetMotionMaster()->MovePath(KIRTONOS_PATH, false);
                             break;
-                        }
+                        case INTRO_2:
+                            me->GetMotionMaster()->MovePoint(0, PosMove[0]);
+                            events.ScheduleEvent(INTRO_3, 1000);
+                            break;
+                        case INTRO_3:
+                            if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_GATE_KIRTONOS)))
+                                gate->SetGoState(GO_STATE_READY);
+                            me->SetFacingTo(0.01745329f);
+                            events.ScheduleEvent(INTRO_4, 3000);
+                            break;
+                        case INTRO_4:
+                            if (GameObject* brazier = me->GetMap()->GetGameObject(instance->GetData64(GO_BRAZIER_OF_THE_HERALD)))
+                                brazier->SetGoState(GO_STATE_READY);
+                            me->SetWalk(true);
+                            me->SetDisableGravity(false);
+                            DoCast(me, SPELL_KIRTONOS_TRANSFORM);
+                            me->SetCanFly(false);
+                            events.ScheduleEvent(INTRO_5, 1000);
+                            break;
+                        case INTRO_5:
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+                            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_KIRTONOS_STAFF));
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                            me->SetReactState(REACT_AGGRESSIVE);
+                            events.ScheduleEvent(INTRO_6, 5000);
+                            break;
+                        case INTRO_6:
+                            me->GetMotionMaster()->MovePoint(0, PosMove[1]);
+                            break;
+                        default:
+                            break;
                     }
-                    else
-                    _introTimer -= diff;
                 }
 
-            if (!UpdateVictim())
+                if (!UpdateVictim())
                     return;
-
-                events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
@@ -241,42 +199,44 @@ class boss_kirtonos_the_herald : public CreatureScript
                     {
                         case EVENT_SWOOP:
                             DoCast(me, SPELL_SWOOP);
-                            events.ScheduleEvent(EVENT_SWOOP, urand(15000, 15000));
+                            events.ScheduleEvent(EVENT_SWOOP, 15000);
                             break;
                         case EVENT_WING_FLAP:
                             DoCast(me, SPELL_WING_FLAP);
-                            events.ScheduleEvent(EVENT_WING_FLAP, urand(13000, 13000));
+                            events.ScheduleEvent(EVENT_WING_FLAP, 13000);
                             break;
                         case EVENT_PIERCE_ARMOR:
                             DoCastVictim(SPELL_PIERCE_ARMOR, true);
-                            events.ScheduleEvent(EVENT_PIERCE_ARMOR, urand(12000, 12000));
+                            events.ScheduleEvent(EVENT_PIERCE_ARMOR, 12000);
                             break;
                         case EVENT_DISARM:
                             DoCastVictim(SPELL_DISARM, true);
-                            events.ScheduleEvent(EVENT_DISARM, urand(11000, 11000));
+                            events.ScheduleEvent(EVENT_DISARM, 11000);
                             break;
                         case EVENT_SHADOW_BOLT:
                             DoCastVictim(SPELL_SHADOW_BOLT, true);
-                            events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(42000, 42000));
+                            events.ScheduleEvent(EVENT_SHADOW_BOLT, 42000);
                             break;
                         case EVENT_CURSE_OF_TONGUES:
                             DoCastVictim(SPELL_CURSE_OF_TONGUES, true);
-                            events.ScheduleEvent(EVENT_CURSE_OF_TONGUES, urand(35000, 35000));
+                            events.ScheduleEvent(EVENT_CURSE_OF_TONGUES, 35000);
                             break;
-                        case EVENT_DONINATE_MIND:
-                            DoCastVictim(SPELL_DONINATE_MIND, true);
-                            events.ScheduleEvent(EVENT_DONINATE_MIND, urand(44000, 48000));
+                        case EVENT_DOMINATE_MIND:
+                            DoCastVictim(SPELL_DOMINATE_MIND, true);
+                            events.ScheduleEvent(EVENT_DOMINATE_MIND, urand(44000, 48000));
                             break;
                         case EVENT_KIRTONOS_TRANSFORM:
                             if (me->HasAura(SPELL_KIRTONOS_TRANSFORM))
                             {
                                 me->RemoveAura(SPELL_KIRTONOS_TRANSFORM);
                                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(0));
+                                me->SetCanFly(false);
                             }
                             else
                             {
                                 DoCast(me, SPELL_KIRTONOS_TRANSFORM);
                                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_KIRTONOS_STAFF));
+                                me->SetCanFly(true);
                             }
                             events.ScheduleEvent(EVENT_KIRTONOS_TRANSFORM, urand(16000, 18000));
                             break;
@@ -287,11 +247,6 @@ class boss_kirtonos_the_herald : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-
-        private:
-            uint8 _introEvent;
-            uint32 _introTimer;
-            uint32 _currentPoint;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -310,18 +265,23 @@ enum Brazier_Of_The_Herald
     SOUND_SCREECH = 557
 };
 
+Position const PosSummon[1] =
+{
+    { 315.028f, 70.53845f, 102.1496f, 0.3859715f }
+};
+
 class go_brazier_of_the_herald : public GameObjectScript
 {
-public:
-    go_brazier_of_the_herald() : GameObjectScript("go_brazier_of_the_herald") { }
+    public:
+        go_brazier_of_the_herald() : GameObjectScript("go_brazier_of_the_herald") { }
 
-    bool OnGossipHello(Player* player, GameObject* go)
-    {
-        go->UseDoorOrButton();
-        go->PlayDirectSound(SOUND_SCREECH,0);
-        player->SummonCreature(NPC_KIRTONOS, 315.028f, 70.53845f, 102.1496f, 0.3859715f, TEMPSUMMON_DEAD_DESPAWN, 900000);
-        return true;
-    }
+        bool OnGossipHello(Player* player, GameObject* go)
+        {
+            go->UseDoorOrButton();
+            go->PlayDirectSound(SOUND_SCREECH, 0);
+            player->SummonCreature(NPC_KIRTONOS, PosSummon[0], TEMPSUMMON_DEAD_DESPAWN, 900000);
+            return true;
+        }
 };
 
 void AddSC_boss_kirtonos_the_herald()

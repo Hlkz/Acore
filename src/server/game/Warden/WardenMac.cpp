@@ -38,7 +38,7 @@ WardenMac::~WardenMac()
 {
 }
 
-void WardenMac::Init(WorldSession *pClient, BigNumber *K)
+void WardenMac::Init(WorldSession* pClient, BigNumber* K)
 {
     _session = pClient;
     // Generate Warden Key
@@ -206,7 +206,7 @@ void WardenMac::RequestData()
     buff.hexlike();
 
     // Encrypt with warden RC4 key.
-    EncryptData(const_cast<uint8*>(buff.contents()), buff.size());
+    EncryptData(buff.contents(), buff.size());
 
     WorldPacket pkt(SMSG_WARDEN_DATA, buff.size());
     pkt.append(buff);

@@ -27,12 +27,12 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
 {
     public:
         PointMovementGenerator(uint32 _id, float _x, float _y, float _z, bool _generatePath, float _speed = 0.0f) : id(_id),
-            i_x(_x), i_y(_y), i_z(_z), m_generatePath(_generatePath), speed(_speed), i_recalculateSpeed(false) {}
+            i_x(_x), i_y(_y), i_z(_z), speed(_speed), m_generatePath(_generatePath), i_recalculateSpeed(false) {}
 
-        void Initialize(T*);
-        void Finalize(T*);
-        void Reset(T*);
-        bool Update(T*, uint32);
+        void DoInitialize(T*);
+        void DoFinalize(T*);
+        void DoReset(T*);
+        bool DoUpdate(T*, uint32);
 
         void MovementInform(T*);
 
@@ -74,4 +74,3 @@ class EffectMovementGenerator : public MovementGenerator
 };
 
 #endif
-

@@ -165,12 +165,7 @@ enum Phases
     PHASE_INTRO         = 1,
     PHASE_ONE           = 2,
     PHASE_TWO           = 3,
-    PHASE_THREE         = 4,
-
-    PHASE_INTRO_MASK    = 1 << PHASE_INTRO,
-    PHASE_ONE_MASK      = 1 << PHASE_ONE,
-    PHASE_TWO_MASK      = 1 << PHASE_TWO,
-    PHASE_THREE_MASK    = 1 << PHASE_THREE
+    PHASE_THREE         = 4
 };
 
 enum Misc
@@ -226,9 +221,9 @@ struct generic_halionAI : public BossAI
 {
     generic_halionAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId), _canEvade(false) { }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
-        BossAI::EnterCombat(who);
+        _EnterCombat();
         me->AddAura(SPELL_TWILIGHT_PRECISION, me);
         _canEvade = false;
         events.ScheduleEvent(EVENT_CLEAVE, urand(8000, 10000));
@@ -239,13 +234,13 @@ struct generic_halionAI : public BossAI
     void Reset()
     {
         _canEvade = false;
-        BossAI::Reset();
+        _Reset();
     }
 
-    void EnterEvadeMode()
+    void JustReachedHome()
     {
-        BossAI::EnterEvadeMode();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        _JustReachedHome();
     }
 
     void ExecuteEvent(uint32 const eventId)
@@ -325,7 +320,7 @@ class boss_halion : public CreatureScript
             void EnterEvadeMode()
             {
                 // Phase 1: We always can evade. Phase 2 & 3: We can evade if and only if the controller tells us to.
-                if ((events.GetPhaseMask() & PHASE_ONE_MASK) || _canEvade)
+                if (events.IsInPhase(PHASE_ONE) || _canEvade)
                     generic_halionAI::EnterEvadeMode();
             }
 
@@ -349,22 +344,27 @@ class boss_halion : public CreatureScript
                     controller->AI()->SetData(DATA_FIGHT_PHASE, PHASE_ONE);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
-                BossAI::JustDied(killer);
+                _JustDied();
 
                 Talk(SAY_DEATH);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
+                if (Creature* twilightHalion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TWILIGHT_HALION)))
+                    if (twilightHalion->isAlive())
+                        twilightHalion->Kill(twilightHalion);
+
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
-                    me->Kill(controller);
+                    if (controller->isAlive())
+                        controller->Kill(controller);
             }
 
             Position const* GetMeteorStrikePosition() const { return &_meteorStrikePos; }
 
             void DamageTaken(Unit* attacker, uint32& damage)
             {
-                if (me->HealthBelowPctDamaged(75, damage) && (events.GetPhaseMask() & PHASE_ONE_MASK))
+                if (me->HealthBelowPctDamaged(75, damage) && events.IsInPhase(PHASE_ONE))
                 {
                     events.SetPhase(PHASE_TWO);
                     Talk(SAY_PHASE_TWO);
@@ -378,7 +378,7 @@ class boss_halion : public CreatureScript
                     return;
                 }
 
-                if (events.GetPhaseMask() & PHASE_THREE_MASK)
+                if (events.IsInPhase(PHASE_THREE))
                 {
                     // Don't consider copied damage.
                     if (!me->InSamePhase(attacker))
@@ -391,7 +391,7 @@ class boss_halion : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if (events.GetPhaseMask() & PHASE_TWO_MASK)
+                if (events.IsInPhase(PHASE_TWO))
                     return;
 
                 generic_halionAI::UpdateAI(diff);
@@ -515,14 +515,15 @@ class boss_twilight_halion : public CreatureScript
                 }
 
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
-                    controller->Kill(controller);
+                    if (controller->isAlive())
+                        controller->Kill(controller);
 
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
             void DamageTaken(Unit* attacker, uint32& damage)
             {
-                if (me->HealthBelowPctDamaged(50, damage) && (events.GetPhaseMask() & PHASE_TWO_MASK))
+                if (me->HealthBelowPctDamaged(50, damage) && events.IsInPhase(PHASE_TWO))
                 {
                     events.SetPhase(PHASE_THREE);
                     me->CastStop();
@@ -531,7 +532,7 @@ class boss_twilight_halion : public CreatureScript
                     return;
                 }
 
-                if (events.GetPhaseMask() & PHASE_THREE_MASK)
+                if (events.IsInPhase(PHASE_THREE))
                 {
                     // Don't consider copied damage.
                     if (!me->InSamePhase(attacker))
@@ -592,7 +593,6 @@ class npc_halion_controller : public CreatureScript
                 _instance(creature->GetInstanceScript()), _summons(me)
             {
                 me->SetPhaseMask(me->GetPhaseMask() | 0x20, true);
-                _events.SetPhase(PHASE_INTRO);
             }
 
             void Reset()
@@ -688,7 +688,7 @@ class npc_halion_controller : public CreatureScript
                 // The isInCombat() check is needed because that check should be false when Halion is
                 // not engaged, while it would return true without as UpdateVictim() checks for
                 // combat state.
-                if (!(_events.GetPhaseMask() & PHASE_INTRO_MASK) && me->isInCombat() && !UpdateVictim())
+                if (!(_events.IsInPhase(PHASE_INTRO)) && me->isInCombat() && !UpdateVictim())
                 {
                     EnterEvadeMode();
                     return;

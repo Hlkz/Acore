@@ -245,11 +245,13 @@ class boss_high_astromancer_solarian : public CreatureScript
                         }
                         else
                         {
-                            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                            if (!me->HasInArc(2.5f, target))
-                                target = me->getVictim();
-                            if (target)
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            {
+                                if (!me->HasInArc(2.5f, target))
+                                    target = me->getVictim();
+
                                 DoCast(target, SPELL_ARCANE_MISSILES);
+                            }
                         }
                         ArcaneMissiles_Timer = 3000;
                     }
@@ -518,7 +520,7 @@ class spell_astromancer_wrath_of_the_astromancer : public SpellScriptLoader
                     return;
 
                 Unit* target = GetUnitOwner();
-                target->CastSpell(target, GetSpellInfo()->Effects[EFFECT_1].CalcValue(),false);
+                target->CastSpell(target, GetSpellInfo()->Effects[EFFECT_1].CalcValue(), false);
             }
 
             void Register()

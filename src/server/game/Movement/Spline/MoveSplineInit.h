@@ -161,8 +161,7 @@ namespace Movement
 
     inline void MoveSplineInit::MoveTo(float x, float y, float z, bool generatePath, bool forceDestination)
     {
-        MoveTo(G3D::Vector3(x, y, z));
-        MoveTo(v, generatePath, forceDestination);
+        MoveTo(G3D::Vector3(x, y, z), generatePath, forceDestination);
     }
 
     inline void MoveSplineInit::SetParabolic(float amplitude, float time_shift)

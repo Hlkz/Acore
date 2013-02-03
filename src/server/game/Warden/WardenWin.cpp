@@ -42,7 +42,7 @@ WardenWin::~WardenWin()
 {
 }
 
-void WardenWin::Init(WorldSession* session, BigNumber *k)
+void WardenWin::Init(WorldSession* session, BigNumber* k)
 {
     _session = session;
     // Generate Warden Key
@@ -310,7 +310,7 @@ void WardenWin::RequestData()
     buff.hexlike();
 
     // Encrypt with warden RC4 key
-    EncryptData(const_cast<uint8*>(buff.contents()), buff.size());
+    EncryptData(buff.contents(), buff.size());
 
     WorldPacket pkt(SMSG_WARDEN_DATA, buff.size());
     pkt.append(buff);
@@ -368,7 +368,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
         sLog->outDebug(LOG_FILTER_WARDEN, "Ticks diff %u", ourTicks - newClientTicks);
     }
 
-    WardenCheckResult *rs;
+    WardenCheckResult* rs;
     WardenCheck *rd;
     uint8 type;
     uint16 checkFailed = 0;

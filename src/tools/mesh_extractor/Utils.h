@@ -7,11 +7,15 @@
 #include "G3D/Matrix4.h"
 #include "DetourNavMesh.h"
 
-#include "Common.h"
+#include "Define.h"
 #include "Constants.h"
+
+#include <ace/Stack_Trace.h>
 
 struct WorldModelDefinition;
 class DoodadInstance;
+
+#define ASSERT(assertion) { if (!(assertion)) { ACE_Stack_Trace st; fprintf(stderr, "\n%s:%i in %s ASSERTION FAILED:\n  %s\n%s\n", __FILE__, __LINE__, __FUNCTION__, #assertion, st.c_str()); *((volatile int*)NULL) = 0; } }
 
 struct Vector3
 {
@@ -40,7 +44,7 @@ template<typename T>
 struct Triangle
 {
     Triangle() {}
-    Triangle(Constants::TriangleType type, T v0, T v1, T v2) : Type(type), V0(v0), V1(v1), V2(v2) {}
+    Triangle(Constants::TriangleType type, T v0, T v1, T v2) : V0(v0), V1(v1), V2(v2), Type(type) {}
     T V0;
     T V1;
     T V2;
