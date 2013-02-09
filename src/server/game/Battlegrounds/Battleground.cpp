@@ -456,6 +456,10 @@ inline void Battleground::_ProcessJoin(uint32 diff)
     // *********************************************************
     // ***           BATTLEGROUND STARTING SYSTEM            ***
     // *********************************************************
+
+  if(GetMapId()!=782)
+  {
+
     ModifyStartDelayTime(diff);
 
     if (m_ResetStatTimer > 5000)
@@ -572,7 +576,51 @@ inline void Battleground::_ProcessJoin(uint32 diff)
 				}
 			}
         }
-    }
+	}
+  }
+  else { //if BG_AO
+
+	ModifyStartDelayTime(diff);
+
+    for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+        if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+			player->ResetAllPowers();
+    
+    if (!(m_Events & BG_STARTING_EVENT_1))
+    {
+        if (!FindBgMap())
+        {
+            sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::_ProcessJoin: map (map id: %u, instance id: %u) is not created!", m_MapId, m_InstanceID);
+            EndNow();
+            return;
+        }
+
+        // Setup here, only when at least one player has ported to the map
+        if (!SetupBattleground())
+        {
+            EndNow();
+            return;
+        }
+
+
+        m_Events |= BG_STARTING_EVENT_4;
+
+        StartingEvent();
+
+        SetStatus(STATUS_IN_PROGRESS);
+        SetStartDelayTime(StartDelayTimes[BG_STARTING_EVENT_FOURTH]);
+
+        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+			if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+		    {
+	            player->RemoveAurasDueToSpell(SPELL_PREPARATION);
+                player->ResetAllPowers();
+			}
+
+		sLog->outError(LOG_FILTER_GENERAL, "là");
+
+	}
+  }
 }
 
 inline void Battleground::_ProcessLeave(uint32 diff)

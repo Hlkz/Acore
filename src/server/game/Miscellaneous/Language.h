@@ -1169,8 +1169,21 @@ enum TrinityStrings
     LANG_SPEC_ON_ARENA_OR_BG            = 11612,
     LANG_SPEC_ALREADY_SPECTATOR         = 11613,
     LANG_SPEC_DISABLED                  = 11614,
-    LANG_SPEC_CAN_NOT_CHAT              = 11615
-
+    LANG_SPEC_CAN_NOT_CHAT              = 11615,
+	
+    LANG_BG_AO_ALLY                     = 17810,
+    LANG_BG_AO_HORDE                    = 17811,
+    LANG_BG_AO_NODE_SANCTUM             = 17812,
+    LANG_BG_AO_NODE_PALAIS		        = 17813,
+    LANG_BG_AO_NODE_PUITS               = 17814,
+    LANG_BG_AO_NODE_RUINES		        = 17815,
+    LANG_BG_AO_NODE_LAC		            = 17816,
+    LANG_BG_AO_NODE_CATACOMBES          = 17817,
+    LANG_BG_AO_NODE_TEMPLE	            = 17818,
+	LANG_BG_AO_NODE_TAKEN               = 17819,
+    LANG_BG_AO_NODE_DEFENDED            = 17820,
+    LANG_BG_AO_NODE_ASSAULTED           = 17821,
+    LANG_BG_AO_NODE_CLAIMED             = 17822,
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
     // For other tables maybe             2000010000-2147483647 (max index)
