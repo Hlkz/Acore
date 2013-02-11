@@ -59,6 +59,8 @@ EndContentData */
 #include "CellImpl.h"
 #include "SpellAuras.h"
 #include "Pet.h"
+#include "MapManager.h"
+#include "Map.h"
 
 /*########
 # npc_air_force_bots
@@ -292,7 +294,7 @@ public:
     {
         if (player->GetQuestStatus(QUEST_BODY_HEART_A) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_BODY_HEART_H) == QUEST_STATUS_INCOMPLETE)
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_GRANT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
+        
         player->SEND_GOSSIP_MENU(TEXT_ID_DEFAULT, creature->GetGUID());
         return true;
     }
@@ -2981,8 +2983,48 @@ public:
     }
 };
 
+
+class npc_invisiblemaker : public CreatureScript
+{
+public:
+    npc_invisiblemaker() : CreatureScript("npc_invisiblemaker") { }
+
+    struct npc_invisiblemakerAI : public ScriptedAI
+    {
+        npc_invisiblemakerAI(Creature* creature) : ScriptedAI(creature) {}
+
+        void UpdateAI(const uint32 diff)
+        {
+            Map* map = me->GetMap();
+            Map::PlayerList const &PlayerList = map->GetPlayers();
+            if (!PlayerList.isEmpty())
+            {
+                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                {
+                    if (Player* player = i->getSource())
+                        if (!player->isInCombat())
+                        {
+                            if (player->IsInRange(me, 0.0f, 1.0f, false))
+                                    player->AddAura(58984, player);
+                            else if (player->IsInRange(me, 1.1f, 1.2f, false))
+                                player->RemoveAura(58984, AURA_REMOVE_BY_DEFAULT);
+                        }   
+                        return;    
+                }      
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_invisiblemakerAI(creature);
+    }
+};
+
+
 void AddSC_npcs_special()
 {
+    new npc_invisiblemaker();
     new npc_air_force_bots();
     new npc_lunaclaw_spirit();
     new npc_chicken_cluck();
