@@ -151,9 +151,9 @@ bool OnGossipSelect(Player *player, Creature * creature, uint32 sender, uint32 a
         player->SEND_GOSSIP_MENU(1000023, creature->GetGUID());
 		break;
 		case 501: player->SetRandItId(15156); goto l276276; break;
-		case 502: player->SetRandItId(8389); goto l276276; break;
-		case 503: player->SetRandItId(8776); goto l276276; break;
-		case 504: player->SetRandItId(0025); goto l276276; break;
+		case 502: player->SetRandItId(9389); goto l276276; break;
+		case 503: player->SetRandItId(9887); goto l276276; break;
+		case 504: player->SetRandItId(9925); goto l276276; break;
 		case 505: player->SetRandItId(9920); goto l276276; break;
 		case 506: player->SetRandItId(9916); goto l276276; break;
 		case 507: player->SetRandItId(15374); goto l276276; break;
