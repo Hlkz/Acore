@@ -93,7 +93,7 @@ bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uin
 		player->TeleportTo(0, -10420.893f, -3794.955f, 32.67f, 3.85f); break;
 
 	case 40: player->CLOSE_GOSSIP_MENU(); // Taerar
-		player->TeleportTo(0, -10365.477539f, -353.624908f, 50.124760f, 3.231669f); break;
+		player->TeleportTo(0, -10712.433594f, -422.857239f, 126.675827f, 0.493374f); break;
 
 		}
     return true; }
