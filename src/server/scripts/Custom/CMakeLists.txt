@@ -22,7 +22,6 @@ set(scripts_STAT_SRCS
   Custom/transmo.cpp
   Custom/kahz.cpp
   Custom/arenaspectator.cpp
-  Custom/zone_AO.cpp
 )
 
 message("  -> Prepared: Custom")
