@@ -719,8 +719,8 @@ class MarkOfNatureTargetSelector
         bool operator()(WorldObject* object)
         {
             // return those not tagged or already under the influence of Aura of Nature
-            if (Unit* unit = object->ToUnit())
-                return !(unit->HasAura(SPELL_MARK_OF_NATURE) && !unit->HasAura(SPELL_AURA_OF_NATURE));
+            //if (Unit* unit = object->ToUnit())
+            //    return !(unit->HasAura(SPELL_MARK_OF_NATURE) && !unit->HasAura(SPELL_AURA_OF_NATURE));
             return true;
         }
 };
