@@ -187,7 +187,7 @@ class npc_dream_fog : public CreatureScript
                     // Chase target, but don't attack - otherwise just roam around
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                     {
-                        _roamTimer = urand(15000, 30000);
+                        _roamTimer = urand(1000, 3000);
                         me->GetMotionMaster()->Clear(false);
                         me->GetMotionMaster()->MoveChase(target, 0.2f);
                     }
