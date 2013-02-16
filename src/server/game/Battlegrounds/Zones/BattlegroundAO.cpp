@@ -25,8 +25,6 @@ void BattlegroundAO::PostUpdateImpl(uint32 diff)
 {
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        int team_points[BG_TEAMS_COUNT] = { 0, 0 };
-
         for (int node = 0; node < BG_AO_DYNAMIC_NODES_COUNT; ++node)
         {
             // 3 sec delay to spawn new banner instead previous despawned one
@@ -75,37 +73,7 @@ void BattlegroundAO::PostUpdateImpl(uint32 diff)
                     }
                 }
             }
-
-            for (int team = 0; team < BG_TEAMS_COUNT; ++team)
-                if (m_Nodes[node] == team + BG_AO_NODE_TYPE_OCCUPIED)
-                    ++team_points[team];
         }
-
-        // Accumulate points
-        for (int team = 0; team < BG_TEAMS_COUNT; ++team)
-        {
-            int points = team_points[team];
-            if (!points)
-                continue;
-            m_lastTick[team] += diff;
-            if (m_lastTick[team] > BG_AO_TickIntervals[points])
-            {
-                m_lastTick[team] -= BG_AO_TickIntervals[points];
-                m_TeamScores[team] += BG_AO_TickPoints[points];
-                if (m_TeamScores[team] > BG_AO_MAX_TEAM_SCORE)
-                    m_TeamScores[team] = BG_AO_MAX_TEAM_SCORE;
-                if (team == TEAM_ALLIANCE)
-                    UpdateWorldState(BG_AO_OP_RESOURCES_ALLY, m_TeamScores[team]);
-                if (team == TEAM_HORDE)
-                    UpdateWorldState(BG_AO_OP_RESOURCES_HORDE, m_TeamScores[team]);
-            }
-        }
-
-        // Test win condition
-        if (m_TeamScores[TEAM_ALLIANCE] >= BG_AO_MAX_TEAM_SCORE)
-            m_TeamScores[TEAM_ALLIANCE] = 0;
-        if (m_TeamScores[TEAM_HORDE] >= BG_AO_MAX_TEAM_SCORE)
-            m_TeamScores[TEAM_HORDE] = 0;
     }
 }
 
@@ -122,7 +90,7 @@ void BattlegroundAO::StartingEvent()
     _NodeOccupied(BG_AO_SPIRIT_HORDE, HORDE);
 
     // spawn neutral banners
-    for (int banner = BG_AO_OBJECT_BANNER_NEUTRAL, i = 0; i < 5; banner += 8, ++i)
+    for (int banner = BG_AO_OBJECT_BANNER_NEUTRAL, i = 0; i < BG_AO_DYNAMIC_NODES_COUNT; banner += 8, ++i)
         SpawnBGObject(banner, RESPAWN_IMMEDIATELY);
 }
 
@@ -217,11 +185,6 @@ void BattlegroundAO::FillInitialWorldStates(WorldPacket& data)
     data << uint32(BG_AO_OP_OCCUPIED_BASES_ALLY)  << uint32(ally);
     data << uint32(BG_AO_OP_OCCUPIED_BASES_HORDE) << uint32(horde);
 
-    // Team scores
-    data << uint32(BG_AO_OP_RESOURCES_MAX)      << uint32(BG_AO_MAX_TEAM_SCORE);
-    data << uint32(BG_AO_OP_RESOURCES_ALLY)     << uint32(m_TeamScores[TEAM_ALLIANCE]);
-    data << uint32(BG_AO_OP_RESOURCES_HORDE)    << uint32(m_TeamScores[TEAM_HORDE]);
-
     // other unknown
     data << uint32(0x745) << uint32(0x2);           // 37 1861 unk
 }
@@ -252,8 +215,14 @@ void BattlegroundAO::_SendNodeUpdate(uint8 node)
 
 void BattlegroundAO::_NodeOccupied(uint8 node, Team team)
 {
-    if (!AddSpiritGuide(node, BG_AO_SpiritGuidePos[node][0], BG_AO_SpiritGuidePos[node][1], BG_AO_SpiritGuidePos[node][2], BG_AO_SpiritGuidePos[node][3], team))
-        sLog->outError(LOG_FILTER_BATTLEGROUND, "Failed to spawn spirit guide! point: %u, team: %u, ", node, team);
+	if(node==0) //TODO script condition progressif
+		;
+
+
+
+	if (node==0||node>5) //sanctum/temple/a2/h2
+	    if (!AddSpiritGuide(node, BG_AO_SpiritGuidePos[node][0], BG_AO_SpiritGuidePos[node][1], BG_AO_SpiritGuidePos[node][2], BG_AO_SpiritGuidePos[node][3], team))
+	        sLog->outError(LOG_FILTER_BATTLEGROUND, "Failed to spawn spirit guide! point: %u, team: %u, ", node, team);
 
     uint8 capturedNodes = 0;
     for (uint8 i = 0; i < BG_AO_DYNAMIC_NODES_COUNT; ++i)
@@ -265,42 +234,48 @@ void BattlegroundAO::_NodeOccupied(uint8 node, Team team)
     if (node >= BG_AO_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
         return;
 
-    Creature* trigger = BgCreatures[node+9] ? GetBGCreature(node+9) : NULL;//0-6 spirit guides TOFIX
-    if (!trigger)
-        trigger = AddCreature(WORLD_TRIGGER, node+9, team, BG_AO_NodePositions[node][0], BG_AO_NodePositions[node][1], BG_AO_NodePositions[node][2], BG_AO_NodePositions[node][3]);
+	
+	if (node==0||node>5) //sanctum/temple/a2/h2
+	{
+		Creature* trigger = BgCreatures[node+9] ? GetBGCreature(node+9) : NULL;//0-6 spirit guides TOFIX
+		if (!trigger)
+		    trigger = AddCreature(WORLD_TRIGGER, node+9, team, BG_AO_NodePositions[node][0], BG_AO_NodePositions[node][1], BG_AO_NodePositions[node][2], BG_AO_NodePositions[node][3]);
+	}
 }
 
 void BattlegroundAO::_NodeDeOccupied(uint8 node)
 {
     if (node >= BG_AO_DYNAMIC_NODES_COUNT)
         return;
+	
+	if (node==0||node>5) //sanctum/temple/a2/h2
+	{
+	    //remove bonus honor aura trigger creature when node is lost
+	    if (node < BG_AO_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
+	        DelCreature(node+7);//NULL checks are in DelCreature! 0-6 spirit guides
 
-    //remove bonus honor aura trigger creature when node is lost
-    if (node < BG_AO_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
-        DelCreature(node+7);//NULL checks are in DelCreature! 0-6 spirit guides
+	    // Those who are waiting to resurrect at this node are taken to the closest own node's graveyard
+	    std::vector<uint64> ghost_list = m_ReviveQueue[BgCreatures[node]];
+	    if (!ghost_list.empty())
+	    {
+	        WorldSafeLocsEntry const* ClosestGrave = NULL;
+	        for (std::vector<uint64>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
+	        {
+	            Player* player = ObjectAccessor::FindPlayer(*itr);
+	            if (!player)
+	                continue;
 
-    // Those who are waiting to resurrect at this node are taken to the closest own node's graveyard
-    std::vector<uint64> ghost_list = m_ReviveQueue[BgCreatures[node]];
-    if (!ghost_list.empty())
-    {
-        WorldSafeLocsEntry const* ClosestGrave = NULL;
-        for (std::vector<uint64>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
-        {
-            Player* player = ObjectAccessor::FindPlayer(*itr);
-            if (!player)
-                continue;
-
-            if (!ClosestGrave)                              // cache
-                ClosestGrave = GetClosestGraveYard(player);
-
-            if (ClosestGrave)
-                player->TeleportTo(GetMapId(), ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, player->GetOrientation());
-        }
-    }
+		        if (!ClosestGrave)                              // cache
+				    ClosestGrave = GetClosestGraveYard(player);
+				
+				if (ClosestGrave)
+				    player->TeleportTo(GetMapId(), ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, player->GetOrientation());
+			}
+		}
 
     if (BgCreatures[node])
         DelCreature(node);
-
+	}
     // buff object isn't despawned
 }
 
@@ -425,25 +400,6 @@ void BattlegroundAO::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
     PlaySoundToAll(sound);
 }
 
-uint32 BattlegroundAO::GetPrematureWinner()
-{
-    // How many bases each team owns
-    uint8 ally = 0, horde = 0;
-    for (uint8 i = 0; i < BG_AO_DYNAMIC_NODES_COUNT; ++i)
-        if (m_Nodes[i] == BG_AO_NODE_STATUS_ALLY_OCCUPIED)
-            ++ally;
-        else if (m_Nodes[i] == BG_AO_NODE_STATUS_HORDE_OCCUPIED)
-            ++horde;
-
-    if (ally > horde)
-        return ALLIANCE;
-    else if (horde > ally)
-        return HORDE;
-
-    // If the values are equal, fall back to the original result (based on number of players on each team)
-    return Battleground::GetPrematureWinner();
-}
-
 bool BattlegroundAO::SetupBattleground()
 {
     for (int i = 0; i < BG_AO_DYNAMIC_NODES_COUNT; ++i)
@@ -505,8 +461,11 @@ WorldSafeLocsEntry const* BattlegroundAO::GetClosestGraveYard(Player* player)
     // Is there any occupied node for this team?
     std::vector<uint8> nodes;
     for (uint8 i = 0; i < BG_AO_DYNAMIC_NODES_COUNT; ++i)
-        if (m_Nodes[i] == teamIndex + 3)
-            nodes.push_back(i);
+			if (m_Nodes[i] == teamIndex + 3)
+			{
+				nodes.push_back(i);
+				sLog->outError(LOG_FILTER_GENERAL, "nodeeee : %u", i);
+			}
 
     WorldSafeLocsEntry const* good_entry = NULL;
     // If so, select the closest node to place ghost on

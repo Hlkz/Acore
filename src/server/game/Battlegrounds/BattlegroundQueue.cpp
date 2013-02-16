@@ -826,6 +826,13 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
 
     if (bg_template->isBattleground())
     {
+		Map* map = sMapMgr->CreateBaseMap(782);
+		for (Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
+			if (Player* player = itr->getSource())
+		        if (player)
+					return;
+		sLog->outError(LOG_FILTER_GENERAL, "coucou");
+
         if (CheckPremadeMatch(bracket_id, MinPlayersPerTeam, MaxPlayersPerTeam))
         {
             // create new battleground

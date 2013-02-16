@@ -108,8 +108,8 @@ struct emerald_dragonAI : public WorldBossAI
     // Target killed during encounter, mark them as suspectible for Aura Of Nature
     void KilledUnit(Unit* who)
     {
-        if (who->GetTypeId() == TYPEID_PLAYER)
-            who->CastSpell(who, SPELL_MARK_OF_NATURE, true);
+        //if (who->GetTypeId() == TYPEID_PLAYER)
+        //    who->CastSpell(who, SPELL_MARK_OF_NATURE, true);
     }
 
     // Execute and reschedule base events shared between all Emerald Dragons

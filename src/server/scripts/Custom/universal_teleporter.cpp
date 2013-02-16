@@ -9,6 +9,7 @@ void MainMenu(Player *player, Creature *creature) {
 	std::ostringstream ostr;
 	ostr << ConfigMgr::GetStringDefault("u_t_s", "");
 	
+	creature->HasQuestForPlayer(player);
 	player->ADD_GOSSIP_ITEM(6, "[Shop] Karazhan", GOSSIP_SENDER_MAIN, 10);
 /*	if (player->GetTeam() == ALLIANCE) {
 		player->ADD_GOSSIP_ITEM(9, "[PvP sauvage] Cratère d'Azshara", GOSSIP_SENDER_MAIN, 12); }
@@ -18,6 +19,8 @@ void MainMenu(Player *player, Creature *creature) {
 //	player->ADD_GOSSIP_ITEM(9, ostr.str().c_str(), GOSSIP_SENDER_MAIN, 20);
 //	player->ADD_GOSSIP_ITEM(2, "[PvE] Donjons...", GOSSIP_SENDER_MAIN, 30);
 //	player->ADD_GOSSIP_ITEM(6, "Dalaran (accès au monde...)", GOSSIP_SENDER_MAIN, 14);
+	if(player->GetQuestStatus(100054) == QUEST_STATUS_REWARDED)
+		player->ADD_GOSSIP_ITEM(9, "[World Event] Bosquet du crépuscule", GOSSIP_SENDER_MAIN, 40);
 	player->SEND_GOSSIP_MENU(1, creature->GetGUID()); }
 	
 bool OnGossipHello(Player* player, Creature* creature) {
@@ -88,6 +91,9 @@ bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uin
 		player->TeleportTo(1, -6815.779f, -2892.542f, 8.89f, 0.78f); break;
 	case 38: player->CLOSE_GOSSIP_MENU(); // Temple Englouti
 		player->TeleportTo(0, -10420.893f, -3794.955f, 32.67f, 3.85f); break;
+
+	case 40: player->CLOSE_GOSSIP_MENU(); // Taerar
+		player->TeleportTo(0, -10712.433594f, -422.857239f, 126.675827f, 0.493374f); break;
 
 		}
     return true; }

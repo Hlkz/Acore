@@ -421,7 +421,11 @@ inline void Battleground::_ProcessProgress(uint32 diff)
     // ***           BATTLEGROUND BALLANCE SYSTEM            ***
     // *********************************************************
     // if less then minimum players are in on one side, then start premature finish timer
-    if (!m_PrematureCountDown)
+
+	if(GetTypeID()==33)
+		return;
+
+	if (!m_PrematureCountDown)
     {
         m_PrematureCountDown = true;
         m_PrematureCountDownTimer = sBattlegroundMgr->GetPrematureFinishTime();
@@ -1056,6 +1060,8 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
             player->SpawnCorpseBones();
         }
     }
+	
+	sLog->outError(LOG_FILTER_GENERAL, "jskdk");
 
     RemovePlayer(player, guid, team);                           // BG subclass specific code
 

@@ -294,7 +294,7 @@ public:
     {
         if (player->GetQuestStatus(QUEST_BODY_HEART_A) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_BODY_HEART_H) == QUEST_STATUS_INCOMPLETE)
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_GRANT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
+        
         player->SEND_GOSSIP_MENU(TEXT_ID_DEFAULT, creature->GetGUID());
         return true;
     }
@@ -2983,6 +2983,7 @@ public:
     }
 };
 
+
 class npc_invisiblemaker : public CreatureScript
 {
 public:
@@ -3005,6 +3006,8 @@ public:
                         {
                             if (player->IsInRange(me, 0.0f, 1.0f, false))
                                     player->AddAura(58984, player);
+                            else if (player->IsInRange(me, 1.1f, 1.2f, false))
+                                player->RemoveAura(58984, AURA_REMOVE_BY_DEFAULT);
                         }   
                         return;    
                 }      
@@ -3017,6 +3020,7 @@ public:
         return new npc_invisiblemakerAI(creature);
     }
 };
+
 
 void AddSC_npcs_special()
 {

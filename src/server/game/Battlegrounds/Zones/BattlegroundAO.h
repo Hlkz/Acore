@@ -114,10 +114,10 @@ enum BG_AO_Sounds
 // x, y, z, o
 const float BG_AO_NodePositions[BG_AO_DYNAMIC_NODES_COUNT][4] =
 {
-    {-5221.211f, 47.205f, 4.132f, 4.1f},		// SANCTUM
+    { -5220.876953f, 46.953575f, 4.131935f, 2.886742f},		// SANCTUM
     {-5275.479f, -600.858f, -22.92f, 1.5f},		// PALAIS
-    {-5589.874f, 201.077f, 48.414f, 6.2f},      // PUITS
-    {-5621.801f, -290.359f, 6.708f, 4.7f},      // RUINES
+    {-5589.555664f, 200.720764f, 48.408962f, 6.139848f},	// PUITS
+    {-5639.259766f, -286.192535f, 35.868763f, 3.184386f},	// RUINES
     {-5618.657f, -780.007f, -17.64f, 4.4f},     // LAC
     {-5875.652f, 36.29f, 4.171f, 5.9f},			// CATACOMBES
     {-5953.658f, -669.85f, 9.932f, 1.0f},		// TEMPLE
@@ -125,8 +125,7 @@ const float BG_AO_NodePositions[BG_AO_DYNAMIC_NODES_COUNT][4] =
 };
 
 // Tick intervals and given points: case 0, 1, 2, 3, 4, 5 captured nodes
-const uint32 BG_AO_TickIntervals[8] = {0, 12000, 10000, 8000, 6000, 4000, 2000, 1000};
-const uint32 BG_AO_TickPoints[8] = {0, 10, 10, 10, 10, 10, 10, 30};
+// const uint32 BG_AO_TickIntervals[8] = {0, 12000, 10000, 8000, 6000, 4000, 2000, 1000};
 
 // WorldSafeLocs ids for 7 nodes, and for ally, and horde starting location
 const uint32 BG_AO_GraveyardIds[BG_AO_ALL_NODES_COUNT] = {1751, 1752, 1753, 1754, 1755, 1756, 1757, 1749, 1750};
@@ -134,15 +133,15 @@ const uint32 BG_AO_GraveyardIds[BG_AO_ALL_NODES_COUNT] = {1751, 1752, 1753, 1754
 // x, y, z, o
 const float BG_AO_SpiritGuidePos[BG_AO_ALL_NODES_COUNT][4] =
 {
-    {-5092.913574f, 104.957771f, 3.598722f, 1.098505f},			// SANCTUM
+    {-5386.287598f, -23.405453f, 2.260530f, 5.496217f},		// SANCTUM
     {-5379.100586f, -570.493774f, -22.859629f, 0.119578f},		// PALAIS
     {-5555.607422f, 239.693176f, 46.319450f, 1.621639f},		// PUIT
     {-5615.315430f, -138.574020f, 2.389513f, 2.661840f},		// RUINES
     {-5654.692871f, -809.568237f, -89.913498f, 5.287887f},		// LAC
     {-5797.379395f, 128.326675f, -2.847505f, 4.325370f},		// CATACOMBES
-    {-5989.118652f, -720.192749f, 34.235634f, 1.016887f},		// TEMPLE
-    {-5012.809082f, -359.128479f, 1.168994f, 3.397050f},		// A2
-    { -6129.404785f, -324.064911f, 0.000663f, 3.869837f},		// H2
+    {-5736.541016f, -549.076477f, -0.984098f, 0.326719f},	// TEMPLE
+    {-5144.786133f, -261.154907f, 17.076521f, 1.459654f},	// A2
+    {-6146.755859f, -199.270859f, -0.118240f, 1.681535f},	// H2
 };
 
 struct BG_AO_BannerTimer
@@ -181,7 +180,6 @@ class BattlegroundAO : public Battleground
         /* Nodes occupying */
         void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj);
 
-        uint32 GetPrematureWinner();
     private:
         void PostUpdateImpl(uint32 diff);
         /* Gameobject spawning/despawning */
