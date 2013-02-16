@@ -1305,7 +1305,6 @@ void AddSC_NPC_Transmogrify();
 void AddSc_transmochange();
 //boss
 void AddSC_kahz();
-void AddSC_zone_AO();
 #endif
 
 void AddCustomScripts()
@@ -1328,6 +1327,5 @@ void AddCustomScripts()
 	AddSC_NPC_Transmogrify();
 	//boss
 	AddSC_kahz();
-    AddSC_zone_AO();
 #endif
 }
