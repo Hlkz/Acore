@@ -324,7 +324,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                         *data << uint32(0x00000002);            // count of next fields
                         *data << uint32(((BattlegroundICScore*)itr2->second)->BasesAssaulted);       // bases asssulted
                         *data << uint32(((BattlegroundICScore*)itr2->second)->BasesDefended);        // bases defended
-                    case 781:
+                    case 782:
                         *data << uint32(0x00000002);            // count of next fields
                         *data << uint32(((BattlegroundAOScore*)itr2->second)->BasesAssaulted);      // bases asssulted
                         *data << uint32(((BattlegroundAOScore*)itr2->second)->BasesDefended);       // bases defended
