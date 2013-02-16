@@ -3635,6 +3635,11 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             case 24314: // Threatening Gaze
                 spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_CAST | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_JUMP;
+                break;
+            // END OCULUS SPELLS
+            case 5171: // débiter
+                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
+                break;
             default:
                 break;
         }
