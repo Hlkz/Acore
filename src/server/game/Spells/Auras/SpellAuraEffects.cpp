@@ -4687,6 +4687,9 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     if (Aura* newAura = target->AddAura(71564, target))
                         newAura->SetStackAmount(newAura->GetSpellInfo()->StackAmount);
                         break;
+                case 43827: // Deuillegivre
+                    target->SetDisplayId(22235);
+                    break;
             }
         }
         // AT REMOVE
@@ -4726,6 +4729,9 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 case SPELLFAMILY_GENERIC:
                     switch (GetId())
                     {
+                        case 43827: // Deuillegivre
+                            target->RestoreDisplayId();
+                            break;
                         case 2584: // Waiting to Resurrect
                             // Waiting to resurrect spell cancel, we must remove player from resurrect queue
                             if (target->GetTypeId() == TYPEID_PLAYER)
