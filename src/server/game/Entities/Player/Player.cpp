@@ -4250,27 +4250,6 @@ void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
             RemoveSpellCooldown(itr->first, true);
         }
     }
-
-	if (Pet* pet = GetPet())
-	{
-		// notify player
-		for (CreatureSpellCooldowns::const_iterator itr2 = pet->m_CreatureSpellCooldowns.begin(); itr2 != pet->m_CreatureSpellCooldowns.end(); ++itr2)
-	        SendClearCooldown(itr2->first, pet);
-
-        // actually clear cooldowns
-		pet->m_CreatureSpellCooldowns.clear();
-	}
-}
-
-void Player::RemoveAllSpellCooldown()
-{
-    if (!m_spellCooldowns.empty())
-    {
-        for (SpellCooldowns::const_iterator itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end(); ++itr)
-            SendClearCooldown(itr->first, this);
-
-        m_spellCooldowns.clear();
-    }
 	
     // pet cooldowns
     if (removeActivePetCooldowns)
@@ -4283,6 +4262,27 @@ void Player::RemoveAllSpellCooldown()
             // actually clear cooldowns
             pet->m_CreatureSpellCooldowns.clear();
         }
+}
+
+void Player::RemoveAllSpellCooldown()
+{
+    if (!m_spellCooldowns.empty())
+    {
+        for (SpellCooldowns::const_iterator itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end(); ++itr)
+            SendClearCooldown(itr->first, this);
+
+        m_spellCooldowns.clear();
+    }
+	
+	if (Pet* pet = GetPet())
+	{
+		// notify player
+		for (CreatureSpellCooldowns::const_iterator itr2 = pet->m_CreatureSpellCooldowns.begin(); itr2 != pet->m_CreatureSpellCooldowns.end(); ++itr2)
+	        SendClearCooldown(itr2->first, pet);
+
+        // actually clear cooldowns
+		pet->m_CreatureSpellCooldowns.clear();
+	}
 }
 
 void Player::_LoadSpellCooldowns(PreparedQueryResult result)
