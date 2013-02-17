@@ -5148,26 +5148,23 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (m_caster->HasUnitState(UNIT_STATE_ROOT))
                     return SPELL_FAILED_ROOTED;
 
-                Unit* target = m_targets.GetUnitTarget();
+                if (GetSpellInfo()->NeedsExplicitUnitTarget())
+                {
+                    Unit* target = m_targets.GetUnitTarget();
+                    if (!target)
+                        return SPELL_FAILED_DONT_REPORT;
 
-                if (!target)
-                    return SPELL_FAILED_DONT_REPORT;
+                    Position pos;
+                    target->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+                    target->GetFirstCollisionPosition(pos, CONTACT_DISTANCE, target->GetRelativeAngle(m_caster));
 
-                if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                    if (!target->isAlive())
-                        return SPELL_FAILED_BAD_TARGETS;
-
-                Position pos;
-                target->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-                target->GetFirstCollisionPosition(pos, CONTACT_DISTANCE, target->GetRelativeAngle(m_caster));
-
-                m_preGeneratedPath.SetPathLengthLimit(m_spellInfo->GetMaxRange(true) * 1.5f);
-                bool result = m_preGeneratedPath.CalculatePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ + target->GetObjectSize());
-                if (m_preGeneratedPath.GetPathType() & PATHFIND_SHORT)
-                    return SPELL_FAILED_OUT_OF_RANGE;
-                else if (!result)
-                    return SPELL_FAILED_NOPATH;
-
+                    m_preGeneratedPath.SetPathLengthLimit(m_spellInfo->GetMaxRange(true) * 1.5f);
+                    bool result = m_preGeneratedPath.CalculatePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ + target->GetObjectSize());
+                    if (m_preGeneratedPath.GetPathType() & PATHFIND_SHORT)
+                        return SPELL_FAILED_OUT_OF_RANGE;
+                    else if (!result || m_preGeneratedPath.GetPathType() & PATHFIND_NOPATH)
+                        return SPELL_FAILED_NOPATH;
+                }
                 break;
             }
             case SPELL_EFFECT_SKINNING:
@@ -6519,7 +6516,7 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff) const
             break;
     }
 
-    if (IsTriggered() || m_spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS)
+    if (IsTriggered() || m_spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS || DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, NULL, SPELL_DISABLE_LOS))
         return true;
 
     // todo: shit below shouldn't be here, but it's temporary
