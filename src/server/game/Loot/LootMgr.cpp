@@ -52,16 +52,27 @@ LootStore LootTemplates_Reference("reference_loot_template",         "reference 
 LootStore LootTemplates_Skinning("skinning_loot_template",           "creature skinning id",            true);
 LootStore LootTemplates_Spell("spell_loot_template",                 "spell id (random item creating)", false);
 
-struct NotMatchingLootMode : public std::unary_function<LootStoreItem*, bool>
+// Selects invalid loot items to be removed from group possible entries (before rolling)
+struct LootGroupInvalidSelector : public std::unary_function<LootStoreItem*, bool>
 {
-    explicit NotMatchingLootMode(uint16 lootMode) : _lootMode(lootMode) { }
+    explicit LootGroupInvalidSelector(Loot const& loot, uint16 lootMode) : _loot(loot), _lootMode(lootMode) { }
 
     bool operator()(LootStoreItem* item) const
     {
-        return !(item->lootmode & _lootMode);
+        if (!(item->lootmode & _lootMode))
+            return true;
+
+        uint8 foundDuplicates = 0;
+        for (std::vector<LootItem>::const_iterator itr = _loot.items.begin(); itr != _loot.items.end(); ++itr)
+            if (itr->itemid == item->itemid)
+                if (++foundDuplicates == _loot.maxDuplicates)
+                    return true;
+
+        return false;
     }
 
 private:
+    Loot const& _loot;
     uint16 _lootMode;
 };
 
@@ -89,7 +100,7 @@ class LootTemplate::LootGroup                               // A set of loot def
         LootStoreItemList ExplicitlyChanced;                // Entries with chances defined in DB
         LootStoreItemList EqualChanced;                     // Zero chances - every entry takes the same chance
 
-        LootStoreItem const* Roll(uint16 lootMode) const;   // Rolls an item from the group, returns NULL if all miss their chances
+        LootStoreItem const* Roll(Loot& loot, uint16 lootMode) const;   // Rolls an item from the group, returns NULL if all miss their chances
 
         // This class must never be copied - storing pointers
         LootGroup(LootGroup const&);
@@ -351,7 +362,6 @@ LootItem::LootItem(LootStoreItem const& li)
 
     needs_quest = li.needs_quest;
 
-    count       = urand(li.mincountOrRef, li.maxcount);     // constructor called for mincountOrRef > 0 only
     randomSuffix = GenerateEnchSuffixFactor(itemid);
     randomPropertyId = Item::GenerateItemRandomPropertyId(itemid);
     is_looted = 0;
@@ -400,26 +410,30 @@ void LootItem::AddAllowedLooter(const Player* player)
 //
 
 // Inserts the item into the loot (called by LootTemplate processors)
-void Loot::AddItem(LootStoreItem const & item)
+void Loot::AddItem(LootStoreItem const& item)
 {
-    if (item.needs_quest)                                   // Quest drop
+    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item.itemid);
+    if (!proto)
+        return;
+
+    uint32 count = urand(item.mincountOrRef, item.maxcount);
+    uint32 stacks = count / proto->GetMaxStackSize() + (count % proto->GetMaxStackSize() ? 1 : 0);
+
+    std::vector<LootItem>& lootItems = item.needs_quest ? quest_items : items;
+    uint32 limit = item.needs_quest ? MAX_NR_QUEST_ITEMS : MAX_NR_LOOT_ITEMS;
+
+    for (uint32 i = 0; i < stacks && lootItems.size() < limit; ++i)
     {
-        if (quest_items.size() < MAX_NR_QUEST_ITEMS)
-            quest_items.push_back(LootItem(item));
-    }
-    else if (items.size() < MAX_NR_LOOT_ITEMS)              // Non-quest drop
-    {
-        items.push_back(LootItem(item));
+        LootItem generatedLoot(item);
+        generatedLoot.count = std::min(count, proto->GetMaxStackSize());
+        lootItems.push_back(generatedLoot);
+        count -= proto->GetMaxStackSize();
 
         // non-conditional one-player only items are counted here,
         // free for all items are counted in FillFFALoot(),
         // non-ffa conditionals are counted in FillNonQuestNonFFAConditionalLoot()
-        if (item.conditions.empty())
-        {
-            ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item.itemid);
-            if (!proto || (proto->Flags & ITEM_PROTO_FLAG_PARTY_LOOT) == 0)
-                ++unlootedCount;
-        }
+        if (!item.needs_quest && item.conditions.empty() && !(proto->Flags & ITEM_PROTO_FLAG_PARTY_LOOT))
+            ++unlootedCount;
     }
 }
 
@@ -1073,10 +1087,10 @@ void LootTemplate::LootGroup::AddEntry(LootStoreItem* item)
 }
 
 // Rolls an item from the group, returns NULL if all miss their chances
-LootStoreItem const* LootTemplate::LootGroup::Roll(uint16 lootMode) const
+LootStoreItem const* LootTemplate::LootGroup::Roll(Loot& loot, uint16 lootMode) const
 {
     LootStoreItemList possibleLoot = ExplicitlyChanced;
-    possibleLoot.remove_if(NotMatchingLootMode(lootMode));
+    possibleLoot.remove_if(LootGroupInvalidSelector(loot, lootMode));
 
     if (!possibleLoot.empty())                             // First explicitly chanced entries are checked
     {
@@ -1095,7 +1109,7 @@ LootStoreItem const* LootTemplate::LootGroup::Roll(uint16 lootMode) const
     }
 
     possibleLoot = EqualChanced;
-    possibleLoot.remove_if(NotMatchingLootMode(lootMode));
+    possibleLoot.remove_if(LootGroupInvalidSelector(loot, lootMode));
     if (!possibleLoot.empty())                              // If nothing selected yet - an item is taken from equal-chanced part
         return Trinity::Containers::SelectRandomContainerElement(possibleLoot);
 
@@ -1142,7 +1156,7 @@ void LootTemplate::LootGroup::CopyConditions(ConditionList /*conditions*/)
 // Rolls an item from the group (if any takes its chance) and adds the item to the loot
 void LootTemplate::LootGroup::Process(Loot& loot, uint16 lootMode) const
 {
-    if (LootStoreItem const* item = Roll(lootMode))
+    if (LootStoreItem const* item = Roll(loot, lootMode))
         loot.AddItem(*item);
 }
 
@@ -1282,7 +1296,7 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
     for (LootStoreItemList::const_iterator i = Entries.begin(); i != Entries.end(); ++i)
     {
         LootStoreItem* item = *i;
-        if (item->lootmode &~ lootMode)                         // Do not add if mode mismatch
+        if (!(item->lootmode & lootMode))                       // Do not add if mode mismatch
             continue;
 
         if (!item->Roll(rate))
@@ -1291,7 +1305,6 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
         if (item->mincountOrRef < 0)                            // References processing
         {
             LootTemplate const* Referenced = LootTemplates_Reference.GetLootFor(-item->mincountOrRef);
-
             if (!Referenced)
                 continue;                                       // Error message already printed at loading stage
 
