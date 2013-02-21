@@ -620,9 +620,6 @@ inline void Battleground::_ProcessJoin(uint32 diff)
 	            player->RemoveAurasDueToSpell(SPELL_PREPARATION);
                 player->ResetAllPowers();
 			}
-
-		sLog->outError(LOG_FILTER_GENERAL, "là");
-
 	}
   }
 }
@@ -1070,7 +1067,6 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
             player->SpawnCorpseBones();
         }
 		RemovePlayer(player, guid, team);                           // BG subclass specific code
-		sLog->outError(LOG_FILTER_GENERAL, "coucou atleave : %s %u %u", player->GetName(), Transport, SendPacket);
     }
 
     RemovePlayer(player, guid, team);                           // BG subclass specific code
@@ -1346,7 +1342,6 @@ void Battleground::EventPlayerLoggedOut(Player* player)
     m_Players[guid].OfflineRemoveTime = sWorld->GetGameTime() + MAX_OFFLINE_TIME;
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-		sLog->outError(LOG_FILTER_GENERAL, "logout : %s %u", player->GetName(), player->GetGUID());
         // drop flag and handle other cleanups
         RemovePlayerAtLeave(guid, false, true);
 
