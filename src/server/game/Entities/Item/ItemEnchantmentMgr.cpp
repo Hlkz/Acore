@@ -226,14 +226,12 @@ int* RandItemEnch(int32 item_id) {
     if (item->RandomProperty) {
 		EnchantmentStore::const_iterator tab = RandomItemEnch.find(item->RandomProperty);
 		if (tab == RandomItemEnch.end()) return randitemench; 
-		EnchStoreList::const_iterator ench_iter = tab->second.begin();
 		for (EnchStoreList::const_iterator ench_iter = tab->second.begin(); ench_iter != tab->second.end(); ++ench_iter) {
 			randitemench[count] = ench_iter->ench;
 			count++; } randitemench[count] = 2; }
 	else {
 		EnchantmentStore::const_iterator tab = RandomItemEnch.find(item->RandomSuffix);
 		if (tab == RandomItemEnch.end()) return randitemench;
-		EnchStoreList::const_iterator ench_iter = tab->second.begin();
 		for (EnchStoreList::const_iterator ench_iter = tab->second.begin(); ench_iter != tab->second.end(); ++ench_iter) {
 			randitemench[count] = ench_iter->ench;
 			count++; }
