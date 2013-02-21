@@ -1754,6 +1754,7 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting Battleground System");
     sBattlegroundMgr->CreateInitialBattlegrounds();
     sBattlegroundMgr->InitAutomaticArenaPointDistribution();
+	sBattlegroundMgr->InitAutomaticPvpRankDistribution();
 
     ///- Initialize outdoor pvp
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting Outdoor PvP System");
