@@ -97,8 +97,7 @@ bool World::DistributeRanks()
 	}
 
 	sWorld->SendWorldText(LANG_DIST_RANKS_END);
-	
-	sBattlegroundMgr->InitAutomaticPvpRankDistribution();
+
 	return true;
 };
 
