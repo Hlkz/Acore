@@ -962,6 +962,16 @@ void Battleground::EndBattleground(uint32 winner)
                 if (!player->GetRandomWinner())
                     player->SetRandomWinner(true);
             }
+			
+			if (!isArena())
+			{
+				uint32 bw = player->GetBgWin();
+				if (bw<=2)
+					player->SetPvpLast(player->GetPvpLast()+PvpPointByBW[bw]);
+				else
+					player->SetPvpLast(player->GetPvpLast()+5);
+				player->SetBgWin(bw+1);
+			}
 
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
         }
@@ -1059,9 +1069,9 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
             player->ResurrectPlayer(1.0f);
             player->SpawnCorpseBones();
         }
+		RemovePlayer(player, guid, team);                           // BG subclass specific code
+		sLog->outError(LOG_FILTER_GENERAL, "coucou atleave : %s %u %u", player->GetName(), Transport, SendPacket);
     }
-	
-	sLog->outError(LOG_FILTER_GENERAL, "jskdk");
 
     RemovePlayer(player, guid, team);                           // BG subclass specific code
 
@@ -1336,8 +1346,9 @@ void Battleground::EventPlayerLoggedOut(Player* player)
     m_Players[guid].OfflineRemoveTime = sWorld->GetGameTime() + MAX_OFFLINE_TIME;
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
+		sLog->outError(LOG_FILTER_GENERAL, "logout : %s %u", player->GetName(), player->GetGUID());
         // drop flag and handle other cleanups
-        RemovePlayer(player, guid, GetPlayerTeam(guid));
+        RemovePlayerAtLeave(guid, false, true);
 
         // 1 player is logging out, if it is the last, then end arena!
         if (isArena())

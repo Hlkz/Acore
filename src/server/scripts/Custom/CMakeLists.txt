@@ -23,6 +23,7 @@ set(scripts_STAT_SRCS
   Custom/kahz.cpp
   Custom/arenaspectator.cpp
   Custom/zone_AO.cpp
+  Custom/ranks.cpp
 )
 
 message("  -> Prepared: Custom")

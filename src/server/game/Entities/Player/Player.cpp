@@ -7257,27 +7257,10 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
         }
     }
 
-    if (sWorld->getBoolConfig(CONFIG_PVP_TOKEN_ENABLE) && pvptoken)
-    {
-        if (!victim || victim == this || victim->HasAuraType(SPELL_AURA_NO_PVP_CREDIT))
+	if (!victim || victim == this || victim->HasAuraType(SPELL_AURA_NO_PVP_CREDIT))
             return true;
-
-        if (victim->GetTypeId() == TYPEID_PLAYER)
-        {
-            // Check if allowed to receive it in current map
-            uint8 MapType = sWorld->getIntConfig(CONFIG_PVP_TOKEN_MAP_TYPE);
-            if ((MapType == 1 && !InBattleground() && !HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
-                || (MapType == 2 && !HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
-                || (MapType == 3 && !InBattleground()))
-                return true;
-
-            uint32 itemId = sWorld->getIntConfig(CONFIG_PVP_TOKEN_ID);
-            int32 count = sWorld->getIntConfig(CONFIG_PVP_TOKEN_COUNT);
-
-            if (AddItem(itemId, count))
-                ChatHandler(GetSession()).PSendSysMessage("You have been awarded a token for slaying another player.");
-        }
-    }
+	if (Player* vict = ObjectAccessor::FindPlayer(victim->GetGUID()))
+		SetPvpLast(GetPvpLast()+vict->GetPvpRank()+1);
 
     return true;
 }
@@ -17402,6 +17385,27 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     SetSpectator(false);
 	
+	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[0][0]), true);
+	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[1][0]), true);
+	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[2][0]), true);
+	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[3][0]), true);
+	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[4][0]), true);
+	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[5][0]), true);
+	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[0][1]), true);
+	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[1][1]), true);
+	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[2][1]), true);
+	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[3][1]), true);
+	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[4][1]), true);
+	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[5][1]), true);
+	if (HasPvpRankRec())
+	{
+		uint32 rank = GetPvpRank();
+		if(rank != 0)
+			SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[rank-1][this->GetTeamId()]));
+	}
+	else
+		AddPvpRankRec();
+
     return true;
 }
 
@@ -26017,4 +26021,102 @@ void Player::SetSpectator(bool bSpectator)
         RemoveAurasDueToSpell(8326);
 
     m_spectator = bSpectator;
+}
+
+
+uint32 Player::GetPvpRank()
+{
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PVP_RANK);
+    stmt->setUInt32(0, GUID_LOPART(GetGUID()));
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+    if (!result)
+        return m_PvpRank;
+    m_PvpRank = result->Fetch()[0].GetUInt32();
+	return m_PvpRank;
+}
+
+uint32 Player::GetPvpLast()
+{
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PVP_LAST);
+    stmt->setUInt32(0, GUID_LOPART(GetGUID()));
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+    if (!result)
+        return m_PvpLast;
+    m_PvpLast = result->Fetch()[0].GetUInt32();
+	return m_PvpLast;
+}
+
+void Player::SetPvpLast(uint32 pvplast)
+{
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PVP_LAST);
+	stmt->setUInt32(0, pvplast);
+    stmt->setUInt32(1, GUID_LOPART(GetGUID()));
+    trans->Append(stmt);
+    CharacterDatabase.CommitTransaction(trans);
+	m_PvpLast = pvplast;
+}
+
+uint32 Player::GetBgWin()
+{
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_BG_WIN);
+    stmt->setUInt32(0, GUID_LOPART(GetGUID()));
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+    if (!result)
+        return m_BgWin;
+    m_BgWin = result->Fetch()[0].GetUInt32();
+	return m_BgWin;
+}
+
+void Player::SetBgWin(uint32 bgwin)
+{
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_BG_WIN);
+	stmt->setUInt32(0, bgwin);
+    stmt->setUInt32(1, GUID_LOPART(GetGUID()));
+    trans->Append(stmt);
+    CharacterDatabase.CommitTransaction(trans);
+	m_BgWin = bgwin;
+}
+
+uint32 Player::GetArenaWin()
+{
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ARENA_WIN);
+    stmt->setUInt32(0, GUID_LOPART(GetGUID()));
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+    if (!result)
+        return m_ArenaWin;
+    m_ArenaWin = result->Fetch()[0].GetUInt32();
+	return m_ArenaWin;
+}
+
+void Player::SetArenaWin(uint32 arenawin)
+{
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ARENA_WIN);
+	stmt->setUInt32(0, arenawin);
+    stmt->setUInt32(1, GUID_LOPART(GetGUID()));
+    trans->Append(stmt);
+    CharacterDatabase.CommitTransaction(trans);
+	m_ArenaWin = arenawin;
+}
+
+bool Player::HasPvpRankRec()
+{
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PVP_REC);
+    stmt->setUInt32(0, GUID_LOPART(GetGUID()));
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+	if (!result)
+		return false;
+	// if (guid != result->Fetch()[0].GetUInt32();)
+	return true;
+}
+
+void Player::AddPvpRankRec()
+{
+	SQLTransaction trans = CharacterDatabase.BeginTransaction();
+	PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PVP_REC);
+	stmt->setUInt32(0, GUID_LOPART(GetGUID()));
+	trans->Append(stmt);
+	CharacterDatabase.CommitTransaction(trans);
 }

@@ -259,6 +259,8 @@ enum BGHonorMode
     BG_HONOR_MODE_NUM
 };
 
+const uint32 PvpPointByBW[3] = { 30, 20, 10 };
+
 #define BG_AWARD_ARENA_POINTS_MIN_LEVEL 71
 #define ARENA_TIMELIMIT_POINTS_LOSS    -16
 

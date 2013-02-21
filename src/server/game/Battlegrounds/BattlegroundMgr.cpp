@@ -53,7 +53,8 @@
 
 BattlegroundMgr::BattlegroundMgr() :
     m_NextRatedArenaUpdate(sWorld->getIntConfig(CONFIG_ARENA_RATED_UPDATE_TIMER)),
-    m_AutoDistributionTimeChecker(0), m_ArenaTesting(false), m_Testing(false)
+    m_AutoDistributionTimeChecker(0), m_AutoDistributionRankTimeChecker(0), m_AutoArenaBgWinResetTimeChecker(0),
+	m_ArenaTesting(false), m_Testing(false)
 { }
 
 BattlegroundMgr::~BattlegroundMgr()
@@ -161,6 +162,35 @@ void BattlegroundMgr::Update(uint32 diff)
         else
             m_AutoDistributionTimeChecker -= diff;
     }
+
+	if (m_AutoDistributionRankTimeChecker < diff) //custom ranks
+	{
+		if (time(NULL) > m_NextAutoDistributionRankTime)
+		{
+			sWorld->DistributeRanks();
+			m_NextAutoDistributionRankTime = m_NextAutoDistributionRankTime + BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY * 3;
+			sWorld->setWorldState(WS_PVPRANK_DISTRIBUTION_TIME, uint64(m_NextAutoDistributionRankTime));
+		}
+		m_AutoDistributionRankTimeChecker = 600000; // check 10 minutes
+	}
+	else
+		m_AutoDistributionRankTimeChecker -= diff;
+
+	if (m_AutoArenaBgWinResetTimeChecker < diff)
+	{
+		if (time(NULL) > m_NextAutoArenaBgWinResetTime)
+		{
+			SQLTransaction trans = CharacterDatabase.BeginTransaction();
+			PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_RESET_WIN_DAY);
+			trans->Append(stmt);
+			CharacterDatabase.CommitTransaction(trans);
+			m_NextAutoArenaBgWinResetTime = m_NextAutoArenaBgWinResetTime + BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY;
+			sWorld->setWorldState(WS_ARENABGWIN_RESET_TIME, uint64(m_NextAutoArenaBgWinResetTime));
+		}
+		m_AutoArenaBgWinResetTimeChecker = 600000; // check 10 minutes
+	}
+	else
+		m_AutoArenaBgWinResetTimeChecker -= diff;
 }
 
 void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battleground* bg, uint8 QueueSlot, uint8 StatusID, uint32 Time1, uint32 Time2, uint8 arenatype, uint32 arenaFaction)
@@ -835,6 +865,36 @@ void BattlegroundMgr::InitAutomaticArenaPointDistribution()
     else
         m_NextAutoDistributionTime = wstime;
     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Automatic Arena Point Distribution initialized.");
+}
+
+void BattlegroundMgr::InitAutomaticPvpRankDistribution()
+{
+    time_t wstime = time_t(sWorld->getWorldState(WS_PVPRANK_DISTRIBUTION_TIME));
+    time_t curtime = time(NULL);
+    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Initializing Automatic Pvp Rank Distribution");
+    if (wstime < curtime)
+    {
+        m_NextAutoDistributionRankTime = curtime;           // reset will be called in the next update
+        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Next Pvp Rank distribution time in the past, reseting it now.");
+    }
+    else
+        m_NextAutoDistributionRankTime = wstime;
+    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Automatic Pvp Rank Distribution initialized.");
+}
+
+void BattlegroundMgr::InitAutomaticArenaBgWinReset()
+{
+    time_t wstime = time_t(sWorld->getWorldState(WS_ARENABGWIN_RESET_TIME));
+    time_t curtime = time(NULL);
+    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Initializing Automatic ArenaBgWin Reset");
+    if (wstime < curtime)
+    {
+        m_NextAutoArenaBgWinResetTime = curtime;           // reset will be called in the next update
+        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Next ArenaBgWin Reset time in the past, reseting it now.");
+    }
+    else
+        m_NextAutoArenaBgWinResetTime = wstime;
+    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Automatic ArenaBgWin Reset initialized.");
 }
 
 void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid, Player* player, BattlegroundTypeId bgTypeId, uint8 fromWhere)

@@ -694,6 +694,16 @@ enum TradeSlots
     TRADE_SLOT_INVALID          = -1
 };
 
+const uint32 PvpRankTitle[6][2] =
+{
+	{1, 16}, // rank 1 Soldat Grunt
+	{2, 17}, // rank 2 Caporal Sergent
+	{6, 24}, // rank 3 Chevalier Champion
+	{11, 62}, // rank 4 Commandant Porteguerre
+	{12, 26}, // rank 5 Maréchal Général
+	{14, 27}, // rank 6 Connétable Warlord
+};
+
 enum TransferAbortReason
 {
     TRANSFER_ABORT_NONE                     = 0x00,
@@ -2570,7 +2580,17 @@ class Player : public Unit, public GridObject<Player>
 
         bool IsSpectator() const { return m_spectator; }
         void SetSpectator(bool bSpectator);
-
+		
+        uint32 GetPvpRank();
+        uint32 GetPvpLast();
+		void SetPvpLast(uint32 pvplast);
+        uint32 GetBgWin();
+		void SetBgWin(uint32 bgwin);
+        uint32 GetArenaWin();
+		void SetArenaWin(uint32 arenawin);
+		bool HasPvpRankRec();
+		void AddPvpRankRec();
+		
     protected:
         // Gamemaster whisper whitelist
         WhisperListContainer WhisperList;
@@ -2919,6 +2939,12 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_VendorEntry;
 
 		bool m_spectator; // sets to true when player uses '.spectate' command
+		
+		//Ranks
+		uint32 m_PvpRank;
+		uint32 m_PvpLast;
+		uint32 m_BgWin;
+		uint32 m_ArenaWin;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

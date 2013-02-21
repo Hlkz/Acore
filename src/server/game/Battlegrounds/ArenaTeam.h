@@ -111,6 +111,8 @@ struct ArenaTeamStats
     uint32 Rank;
 };
 
+const uint32 PvpPointByAW[3] = { 10, 7, 4 };
+
 #define MAX_ARENA_SLOT 3                                    // 0..2 slots
 
 class ArenaTeam

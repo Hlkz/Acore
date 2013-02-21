@@ -1308,6 +1308,9 @@ void AddSc_transmochange();
 //boss
 void AddSC_kahz();
 void AddSC_zone_AO();
+
+void AddSc_Com_Ranks();
+
 #endif
 
 void AddCustomScripts()
@@ -1331,5 +1334,8 @@ void AddCustomScripts()
 	//boss
 	AddSC_kahz();
     AddSC_zone_AO();
+
+	AddSc_Com_Ranks();
+
 #endif
 }

@@ -32,6 +32,8 @@ typedef UNORDERED_MAP<uint32, BattlegroundTypeId> BattleMastersMap;
 
 #define BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY 86400     // seconds in a day
 #define WS_ARENA_DISTRIBUTION_TIME 20001                    // Custom worldstate
+#define WS_PVPRANK_DISTRIBUTION_TIME 20002                    // Custom worldstate
+#define WS_ARENABGWIN_RESET_TIME 20003                    // Custom worldstate
 
 struct CreateBattlegroundData
 {
@@ -60,6 +62,26 @@ struct BattlegroundData
     BattlegroundContainer m_Battlegrounds;
     BattlegroundClientIdsContainer m_ClientBattlegroundIds[MAX_BATTLEGROUND_BRACKETS];
     BGFreeSlotQueueContainer BGFreeSlotQueue;
+};
+enum eRanks
+{
+  /* Alliance */
+	PRIVATE = 1,
+	CORPORAL = 2,
+	SERGEANT = 3,
+	KNIGHT = 6,
+	COMMANDER = 11,
+	MARSHAL = 12,
+	FIELD_MARSHAL = 13,
+	GRAND_MARSHAL = 14,
+	OF_THE_ALLIANCE = 126,
+  /* Horde */
+    SCOUT = 15,
+	GRUNT = 16,
+	SERGEANT_H = 17,
+	CHAMPION = 24,
+	GENERAL = 26,
+	WARLORD = 27,
 };
 
 class BattlegroundMgr
@@ -125,6 +147,8 @@ class BattlegroundMgr
         uint32 GetMaxRatingDifference() const;
         uint32 GetRatingDiscardTimer()  const;
         void InitAutomaticArenaPointDistribution();
+        void InitAutomaticPvpRankDistribution();
+        void InitAutomaticArenaBgWinReset();
         void LoadBattleMastersEntry();
         BattlegroundTypeId GetBattleMasterBG(uint32 entry) const
         {
@@ -152,6 +176,10 @@ class BattlegroundMgr
         uint32 m_NextRatedArenaUpdate;
         time_t m_NextAutoDistributionTime;
         uint32 m_AutoDistributionTimeChecker;
+        time_t m_NextAutoDistributionRankTime;
+        uint32 m_AutoDistributionRankTimeChecker;
+		time_t m_NextAutoArenaBgWinResetTime;
+        uint32 m_AutoArenaBgWinResetTimeChecker;
         bool   m_ArenaTesting;
         bool   m_Testing;
         BattleMastersMap mBattleMastersMap;
