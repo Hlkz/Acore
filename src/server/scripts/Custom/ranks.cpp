@@ -18,7 +18,7 @@ const uint32 PvpRankTitle[6][2] =
 typedef std::map<uint64, PlayerInfo> PlayerContainer;
 PlayerContainer playersStore;
 
-const uint32 PvpPointsFloor[6] =
+uint32 PvpPointsFloor[6] =
 {
 	200, // rank 1
 	500, // rank 2
@@ -52,15 +52,14 @@ bool World::DistributeRanks()
 		
 	do {
 		uint64 guid = result->Fetch()[i, 0].GetUInt32();
-		uint64 rank = result->Fetch()[i, 1].GetUInt32();
-		uint64 total = result->Fetch()[i, 2].GetUInt32();
-		uint64 last = result->Fetch()[i, 3].GetUInt32();
+		uint32 rank = result->Fetch()[i, 1].GetUInt32();
+		uint32 total = result->Fetch()[i, 2].GetUInt32();
+		uint32 last = result->Fetch()[i, 3].GetUInt32();
 		int32 points = floor(10*sqrt((float)total/10)+last);
 
-		
 		SQLTransaction trans2 = CharacterDatabase.BeginTransaction();
 		PreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PVP_POINTS);
-		stmt2->setUInt32(0, points > PvpPointsFloor[rank] && rank != 6);
+		stmt2->setUInt32(0, (uint32)points > PvpPointsFloor[rank] && rank != 6);
 		stmt2->setUInt32(1, points);
 		stmt2->setUInt32(2, GUID_LOPART(guid));
 		trans2->Append(stmt2);
