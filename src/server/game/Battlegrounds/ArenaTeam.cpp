@@ -805,7 +805,6 @@ void ArenaTeam::MemberWon(Player* player, uint32 againstMatchmakerRating, int32 
             if (pointsToAdd >= 30) {
                 pointsToAdd = 30; }
             SQLTransaction trans = CharacterDatabase.BeginTransaction();
-            PreparedStatement* stmt;
             player->ModifyArenaPoints(pointsToAdd, &trans);
             CharacterDatabase.CommitTransaction(trans);
             SaveToDB();
