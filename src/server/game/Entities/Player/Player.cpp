@@ -5542,7 +5542,7 @@ void Player::RepopAtGraveyard()
 			if (GetMapId() == 585 || GetMapId() == 230 || GetZoneId() == 2079 || GetAreaId() == 3357) {
 				CastSpell(this,32612,false); } // invisibilité
 
-			if (GetMapId() == 37 || GetMapId() == 532)
+			if (GetMapId() == 0 || GetMapId() == 1 || GetMapId() == 37 || GetMapId() == 530 || GetMapId() == 532)
 				RemoveAllSpellCooldown();
 
         }
