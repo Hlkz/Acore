@@ -16,11 +16,15 @@ void MainMenu(Player *player, Creature *creature) {
 	if (player->GetTeam() == HORDE) {
 		player->ADD_GOSSIP_ITEM(9, "[PvP sauvage] Cratère d'Azshara", GOSSIP_SENDER_MAIN, 13); }*/
 	player->ADD_GOSSIP_ITEM(9, "[Duel] Ahn'Qiraj", GOSSIP_SENDER_MAIN, 16);
-//	player->ADD_GOSSIP_ITEM(9, ostr.str().c_str(), GOSSIP_SENDER_MAIN, 20);
+	player->ADD_GOSSIP_ITEM(9, ostr.str().c_str(), GOSSIP_SENDER_MAIN, 20);
 //	player->ADD_GOSSIP_ITEM(2, "[PvE] Donjons...", GOSSIP_SENDER_MAIN, 30);
 //	player->ADD_GOSSIP_ITEM(6, "Dalaran (accès au monde...)", GOSSIP_SENDER_MAIN, 14);
 	if(player->GetQuestStatus(100054) == QUEST_STATUS_REWARDED)
-		player->ADD_GOSSIP_ITEM(9, "[World Event] Bosquet du crépuscule", GOSSIP_SENDER_MAIN, 40);
+		player->ADD_GOSSIP_ITEM(3, "[World Event] Bosquet du crépuscule", GOSSIP_SENDER_MAIN, 40);
+
+	player->ADD_GOSSIP_ITEM(2, "Elwynn...", GOSSIP_SENDER_MAIN, 60);
+	player->ADD_GOSSIP_ITEM(2, "Durotar...", GOSSIP_SENDER_MAIN, 61);
+
 	player->SEND_GOSSIP_MENU(1, creature->GetGUID()); }
 	
 bool OnGossipHello(Player* player, Creature* creature) {
@@ -35,10 +39,10 @@ bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uin
 	float u_t_z = ConfigMgr::GetFloatDefault("u_t_z", NULL);
 	float u_t_o = ConfigMgr::GetFloatDefault("u_t_o", NULL);
 
-	if (player->isInCombat() && player->GetMapId() != 531 && player->GetMapId() != 532) {
+	/*if (player->isInCombat()) {
 		creature->MonsterWhisper("Vous êtes en combat.", player->GetGUID());
 		player->CLOSE_GOSSIP_MENU();
-		return true; }
+		return true; }*/
 
 	player->PlayerTalkClass->ClearMenus();
 
@@ -91,9 +95,17 @@ bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uin
 		player->TeleportTo(1, -6815.779f, -2892.542f, 8.89f, 0.78f); break;
 	case 38: player->CLOSE_GOSSIP_MENU(); // Temple Englouti
 		player->TeleportTo(0, -10420.893f, -3794.955f, 32.67f, 3.85f); break;
-
+		
 	case 40: player->CLOSE_GOSSIP_MENU(); // Taerar
 		player->TeleportTo(0, -10712.433594f, -422.857239f, 126.675827f, 0.493374f); break;
+
+	case 50: player->CLOSE_GOSSIP_MENU(); // Gurubashi
+		player->TeleportTo(0, -13229.830078f, 225.240143f, 32.587940f, 1.100993f); break;
+		
+	case 60: player->CLOSE_GOSSIP_MENU(); // Elwynn
+		player->TeleportTo(0, -9210.956055f, 366.980072f, 72.539406f, 0.275015f); break;
+	case 61: player->CLOSE_GOSSIP_MENU(); // Durotar
+		player->TeleportTo(1, 1130.409546f, -4359.610840f, 25.287050f, 5.119390f); break;
 
 		}
     return true; }
