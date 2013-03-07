@@ -1217,6 +1217,7 @@ void Battleground::AddPlayer(Player* player)
     BattlegroundPlayer bp;
     bp.OfflineRemoveTime = 0;
     bp.Team = team;
+	bp.Ready = 0;
 
     // Add to list/maps
     m_Players[guid] = bp;
@@ -2023,4 +2024,48 @@ void Battleground::HandleAreaTrigger(Player* player, uint32 trigger)
 {
     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Unhandled AreaTrigger %u in Battleground %u. Player coords (x: %f, y: %f, z: %f)",
                    trigger, player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+}
+
+void Battleground::SetPlayerReady(uint64 guid)
+{
+	if (Player* player = ObjectAccessor::FindPlayer(guid))
+	{
+		if (m_Players[guid].Ready == 1 || GetStartDelayTime() < 0)
+			return;
+
+		m_Players[guid].Ready = 1;
+		uint8 check = 0;
+		for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+			if (m_Players[itr->first].Ready == 1)
+				check++;
+			else
+				return;
+		
+		if (!sBattlegroundMgr->isArenaTesting() && check != GetArenaType() * 2)
+			return;
+		if (sBattlegroundMgr->isArenaTesting() && check != 2)
+			return;
+		
+        m_Events |= BG_STARTING_EVENT_2;
+        m_Events |= BG_STARTING_EVENT_3;
+		SetStartDelayTime(3000);
+		SendMessageToAll(LANG_BG_ALL_READY, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+	}
+}
+
+class go_arena_player_ready : public GameObjectScript
+{
+    public: go_arena_player_ready() : GameObjectScript("go_arena_player_ready") {}
+
+        bool OnGossipHello(Player* player, GameObject* /*go*/)
+        {
+			if (Battleground* bg = player->GetBattleground())
+				bg->SetPlayerReady(player->GetGUID());
+			return true;
+        }
+};
+
+void AddSC_go_arena_player_ready()
+{
+    new go_arena_player_ready();
 }

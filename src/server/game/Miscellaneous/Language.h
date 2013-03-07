@@ -692,6 +692,7 @@ enum TrinityStrings
     LANG_ARENA_THIRTY_SECONDS           = 702,
     LANG_ARENA_FIFTEEN_SECONDS          = 703,
     LANG_ARENA_HAS_BEGUN                = 704,
+    LANG_BG_ALL_READY                = 640,
 
     LANG_WAIT_BEFORE_SPEAKING           = 705,
     LANG_NOT_EQUIPPED_ITEM              = 706,

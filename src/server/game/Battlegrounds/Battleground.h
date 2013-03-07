@@ -79,7 +79,8 @@ enum BattlegroundMarksCount
 enum BattlegroundCreatures
 {
     BG_CREATURE_ENTRY_A_SPIRITGUIDE      = 13116,           // alliance
-    BG_CREATURE_ENTRY_H_SPIRITGUIDE      = 13117            // horde
+    BG_CREATURE_ENTRY_H_SPIRITGUIDE      = 13117,           // horde
+	BG_OBJECT_ENTRY_ARENA_PLAYER_READY	 = 987654			// gob starting arena quicker
 };
 
 enum BattlegroundSpells
@@ -157,6 +158,7 @@ struct BattlegroundPlayer
 {
     time_t  OfflineRemoveTime;                              // for tracking and removing offline players from queue after 5 minutes
     uint32  Team;                                           // Player's team
+    uint8   Ready;                                          // If Player ready
 };
 
 struct BattlegroundObjectInfo
@@ -533,6 +535,8 @@ class Battleground
         uint32 GetTeamScore(uint32 TeamID) const;
 
         virtual uint32 GetPrematureWinner();
+		
+        void SetPlayerReady(uint64 guid);
 
     protected:
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground

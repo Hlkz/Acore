@@ -24,9 +24,11 @@ enum BattlegroundRLObjectTypes
 {
     BG_RL_OBJECT_DOOR_1         = 0,
     BG_RL_OBJECT_DOOR_2         = 1,
-    BG_RL_OBJECT_BUFF_1         = 2,
-    BG_RL_OBJECT_BUFF_2         = 3,
-    BG_RL_OBJECT_MAX            = 4
+    BG_RL_OBJECT_READY_1		= 2,
+	BG_RL_OBJECT_READY_2		= 3,
+    BG_RL_OBJECT_BUFF_1         = 4,
+    BG_RL_OBJECT_BUFF_2         = 5,
+	BG_RL_OBJECT_MAX            = 6
 };
 
 enum BattlegroundRLObjects

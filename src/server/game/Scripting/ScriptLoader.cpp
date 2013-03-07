@@ -614,6 +614,7 @@ void AddSC_zangarmarsh();
 void AddSC_event_childrens_week();
 
 // battlegrounds
+void AddSC_go_arena_player_ready();
 
 // outdoor pvp
 void AddSC_outdoorpvp_ep();
@@ -1285,6 +1286,7 @@ void AddOutdoorPvPScripts()
 void AddBattlegroundScripts()
 {
 #ifdef SCRIPTS
+	AddSC_go_arena_player_ready();
 #endif
 }
 
