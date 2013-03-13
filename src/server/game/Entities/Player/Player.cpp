@@ -16974,6 +16974,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
             // We are not in BG anymore
             m_bgData.bgInstanceID = 0;
+
+			if (isDead())
+				ResurrectPlayer(0.5f);
         }
     }
     // currently we do not support transport in bg
