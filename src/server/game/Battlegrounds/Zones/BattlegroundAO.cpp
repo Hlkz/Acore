@@ -83,8 +83,6 @@ void BattlegroundAO::StartingEvent()
     for (int obj = BG_AO_OBJECT_BANNER_NEUTRAL; obj < BG_AO_DYNAMIC_NODES_COUNT * 8; ++obj)
         SpawnBGObject(obj, RESPAWN_ONE_DAY);
 
-	sLog->outError(LOG_FILTER_GENERAL, "ici");
-
     // Starting base spirit guides
     _NodeOccupied(BG_AO_SPIRIT_ALIANCE, ALLIANCE);
     _NodeOccupied(BG_AO_SPIRIT_HORDE, HORDE);

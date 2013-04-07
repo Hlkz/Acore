@@ -831,7 +831,6 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
 			if (Player* player = itr->getSource())
 		        if (player)
 					return;
-		sLog->outError(LOG_FILTER_GENERAL, "coucou");
 
         if (CheckPremadeMatch(bracket_id, MinPlayersPerTeam, MaxPlayersPerTeam))
         {
