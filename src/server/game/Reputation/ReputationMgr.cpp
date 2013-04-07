@@ -350,7 +350,26 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
         // only this faction gets reported to client, even if it has no own visible standing
         SendState(&faction->second);
     }
-    return res;
+    
+	// switch faction !
+	if(_player->GetTeam() == ALLIANCE)
+	{
+		if((int)_player->GetReputation(HORDE)>=0)
+		{
+			_player->SetTeam(HORDE);
+			_player->GetSession()->SendNotification(_player->GetSession()->GetTrinityString(LANG_ERR_NO_TRANSMOGRIFICATIONS));
+		}
+	}
+	else
+	{
+		if((int)_player->GetReputation(ALLIANCE)>=0)
+		{
+			_player->SetTeam(ALLIANCE);
+			_player->GetSession()->SendNotification(_player->GetSession()->GetTrinityString(LANG_ERR_NO_TRANSMOGRIFICATIONS));
+		}
+	}
+
+	return res;
 }
 
 bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, int32 standing, bool incremental)

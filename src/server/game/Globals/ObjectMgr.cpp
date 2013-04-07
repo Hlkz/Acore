@@ -1931,10 +1931,10 @@ uint32 ObjectMgr::GetPlayerTeamByGUID(uint64 guid) const
     // prevent DB access for online player
     if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
-        return Player::TeamForRace(player->getRace());
+		return player->GetTeamFromDB();
     }
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_RACE);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_TEAM);
 
     stmt->setUInt32(0, GUID_LOPART(guid));
 
@@ -1942,8 +1942,8 @@ uint32 ObjectMgr::GetPlayerTeamByGUID(uint64 guid) const
 
     if (result)
     {
-        uint8 race = (*result)[0].GetUInt8();
-        return Player::TeamForRace(race);
+        uint32 team = (*result)[0].GetUInt32();
+        return team;
     }
 
     return 0;

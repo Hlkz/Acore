@@ -151,7 +151,7 @@ PlayerTaxi::PlayerTaxi()
     memset(m_taximask, 0, sizeof(m_taximask));
 }
 
-void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level)
+void PlayerTaxi::InitTaxiNodesForLevel(uint32 team, uint32 race, uint32 chrClass, uint8 level)
 {
     // class specific initial known nodes
     switch (chrClass)
@@ -181,7 +181,7 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
     }
 
     // new continent starting masks (It will be accessible only at new map)
-    switch (Player::TeamForRace(race))
+    switch (team)
     {
         case ALLIANCE: SetTaximaskNode(100); break;
         case HORDE:    SetTaximaskNode(99);  break;
@@ -6889,6 +6889,18 @@ void Player::CheckAreaExploreAndOutdoor()
     }
 }
 
+uint32 Player::GetTeamFromDB()
+{
+	uint32 team = 0;
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_TEAM);
+    stmt->setUInt32(0, GUID_LOPART(GetGUID()));
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+    if (!result)
+        return team;
+    team = result->Fetch()[0].GetUInt32();
+	return team;
+}
+
 uint32 Player::TeamForRace(uint8 race)
 {
     if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(race))
@@ -6904,6 +6916,13 @@ uint32 Player::TeamForRace(uint8 race)
         sLog->outError(LOG_FILTER_PLAYER, "Race (%u) not found in DBC: wrong DBC files?", uint32(race));
 
     return ALLIANCE;
+}
+
+void Player::SetTeam(uint32 team)
+{
+    m_team = team;
+    ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry((team==HORDE)+1);
+    setFaction(rEntry ? rEntry->FactionID : 0);
 }
 
 void Player::setFactionForRace(uint8 race)
@@ -7144,10 +7163,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     // 'Inactive' this aura prevents the player from gaining honor points and battleground Tokenizer
     if (HasAura(SPELL_AURA_PLAYER_INACTIVE))
         return false;
-
-    uint64 victim_guid = 0;
-    uint32 victim_rank = 0;
-
+	
     // need call before fields update to have chance move yesterday data to appropriate fields before today data change.
     UpdateHonorFields();
 
@@ -7162,14 +7178,9 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     {
         if (!victim || victim == this || victim->HasAuraType(SPELL_AURA_NO_PVP_CREDIT))
             return false;
-
-        victim_guid = victim->GetGUID();
-
+		
         if (Player* plrVictim = victim->ToPlayer())
         {
-            //if (GetTeam() == plrVictim->GetTeam() && !sWorld->IsFFAPvPRealm())
-            //    return false;
-
             uint8 k_level = getLevel();
             uint8 k_grey = Trinity::XP::GetGrayLevel(k_level);
             uint8 v_level = victim->getLevel();
@@ -7177,28 +7188,25 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             if (v_level <= k_grey)
                 return false;
 
-            // PLAYER_CHOSEN_TITLE VALUES DESCRIPTION
-            //  [0]      Just name
-            //  [1..14]  Alliance honor titles and player name
-            //  [15..28] Horde honor titles and player name
-            //  [29..38] Other title and player name
-            //  [39+]    Nothing
-            uint32 victim_title = victim->GetUInt32Value(PLAYER_CHOSEN_TITLE);
-                                                        // Get Killer titles, CharTitlesEntry::bit_index
-            // Ranks:
-            //  title[1..14]  -> rank[5..18]
-            //  title[15..28] -> rank[5..18]
-            //  title[other]  -> 0
-            if (victim_title == 0)
-                victim_guid = 0;                        // Don't show HK: <rank> message, only log.
-            else if (victim_title < 15)
-                victim_rank = victim_title + 4;
-            else if (victim_title < 29)
-                victim_rank = victim_title - 14 + 4;
-            else
-                victim_guid = 0;                        // Don't show HK: <rank> message, only log.
-
             honor_f = ceil(Trinity::Honor::hk_honor_at_level_f(k_level) * (v_level - k_grey) / (k_level - k_grey));
+
+			// reputation
+			if (GetTeam() == plrVictim->GetTeam())
+			{
+				if((int)plrVictim->GetReputation(plrVictim->GetTeam())>=0)
+				{
+					GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(-1*(GetTeam()-536)),3);
+					GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(GetTeam()),-5);
+				}
+			}
+			else
+			{
+				if((int)plrVictim->GetReputation(plrVictim->GetTeam())>=0)
+				{
+					GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(GetTeam()),3);
+					GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(plrVictim->GetTeam()),-5);
+				}
+			}
 
             // count the number of playerkills in one day
             ApplyModUInt32Value(PLAYER_FIELD_KILLS, 1, true);
@@ -7209,14 +7217,6 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HK_RACE, victim->getRace());
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA, GetAreaId());
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL, 1, 0, victim);
-        }
-        else
-        {
-            if (!victim->ToCreature()->isRacialLeader())
-                return false;
-
-            honor_f = 100.0f;                               // ??? need more info
-            victim_rank = 19;                               // HK: Leader
         }
     }
 
@@ -7237,6 +7237,8 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     // victim_rank [1..4]  HK: <dishonored rank>
     // victim_rank [5..19] HK: <alliance\horde rank>
     // victim_rank [0, 20+] HK: <>
+    uint64 victim_guid = 0;
+    uint32 victim_rank = 0;
     WorldPacket data(SMSG_PVP_CREDIT, 4+8+4);
     data << uint32(honor);
     data << uint64(victim_guid);
@@ -16860,9 +16862,22 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Load Basic value of player %s is: ", m_name.c_str());
     outDebugValues();
 
-    //Need to call it to initialize m_team (m_team can be calculated from race)
-    //Other way is to saves m_team into characters table.
-    setFactionForRace(getRace());
+    //Initiate team if new char
+	uint32 team = GetTeamFromDB();
+	if (team != ALLIANCE && team != HORDE)
+	{
+		setFactionForRace(getRace());
+		PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TEAM);
+		stmt->setUInt32(0, m_team);
+		stmt->setUInt32(1, GUID_LOPART(GetGUID()));
+		CharacterDatabase.Execute(stmt);
+	}
+	else
+	{
+		m_team = team;
+		ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry((team==HORDE)+1);
+		setFaction(rEntry ? rEntry->FactionID : 0);
+	}
 
     // load home bind and check in same time class/race pair, it used later for restore broken positions
     if (!_LoadHomeBind(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_HOME_BIND)))
@@ -18760,6 +18775,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt32(index++, GetGUIDLow());
         stmt->setUInt32(index++, GetSession()->GetAccountId());
         stmt->setString(index++, GetName());
+        stmt->setUInt32(index++, GetTeam());
         stmt->setUInt8(index++, getRace());
         stmt->setUInt8(index++, getClass());
         stmt->setUInt8(index++, getGender());

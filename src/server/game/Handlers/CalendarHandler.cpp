@@ -386,13 +386,13 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& recvData)
     else
     {
         // Invitee offline, get data from database
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_RACE_ACC_BY_NAME);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_TEAM_ACC_BY_NAME);
         stmt->setString(0, name);
         if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
         {
             Field* fields = result->Fetch();
             inviteeGuid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
-            inviteeTeam = Player::TeamForRace(fields[1].GetUInt8());
+            inviteeTeam = fields[1].GetUInt32();
             inviteeGuildId = Player::GetGuildIdFromDB(inviteeGuid);
         }
     }
