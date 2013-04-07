@@ -158,6 +158,8 @@ class BattlegroundMgr
             return BATTLEGROUND_WS;
         }
 
+		bool IsAnyAOBattleOn();
+
     private:
         bool CreateBattleground(CreateBattlegroundData& data);
         uint32 CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id);

@@ -793,6 +793,10 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
 
     // finished iterating through the bgs with free slots, maybe we need to create a new bg
 
+	if(bgTypeId==33)
+		if(sBattlegroundMgr->IsAnyAOBattleOn())
+			return;
+
     Battleground* bg_template = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId);
     if (!bg_template)
     {

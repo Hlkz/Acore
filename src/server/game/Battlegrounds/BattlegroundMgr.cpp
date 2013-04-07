@@ -1173,6 +1173,23 @@ void BattlegroundMgr::LoadBattleMastersEntry()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u battlemaster entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+bool BattlegroundMgr::IsAnyAOBattleOn()
+{
+    for (BattlegroundDataContainer::iterator itr1 = bgDataStore.begin(); itr1 != bgDataStore.end(); ++itr1)
+    {
+        BattlegroundContainer& bgs = itr1->second.m_Battlegrounds;
+        BattlegroundContainer::iterator itrDelete = bgs.begin();
+        for (BattlegroundContainer::iterator itr = ++itrDelete; itr != bgs.end();)
+        {
+            itrDelete = itr++;
+            Battleground* bg = itrDelete->second;
+			if(bg->GetTypeID()==BATTLEGROUND_AO)
+				return true;
+        }
+    }
+	return false;
+}
+
 HolidayIds BattlegroundMgr::BGTypeToWeekendHolidayId(BattlegroundTypeId bgTypeId)
 {
     switch (bgTypeId)
