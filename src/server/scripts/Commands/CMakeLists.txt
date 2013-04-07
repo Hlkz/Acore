@@ -51,6 +51,7 @@ set(scripts_STAT_SRCS
   Commands/cs_suffix.cpp
   Commands/cs_talent.cpp
   Commands/cs_spectate.cpp
+  Commands/cs_test.cpp
 #  Commands/cs_pdump.cpp
 #  Commands/cs_channel.cpp
 #  Commands/cs_pet.cpp
