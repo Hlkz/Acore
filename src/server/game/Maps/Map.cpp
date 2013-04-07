@@ -36,12 +36,6 @@
 #include "Vehicle.h"
 #include "VMapFactory.h"
 
-union u_map_magic
-{
-    char asChar[4];
-    uint32 asUInt;
-};
-
 u_map_magic MapMagic        = { {'M','A','P','S'} };
 u_map_magic MapVersionMagic = { {'v','1','.','3'} };
 u_map_magic MapAreaMagic    = { {'A','R','E','A'} };
@@ -77,28 +71,30 @@ Map::~Map()
 
 bool Map::ExistMap(uint32 mapid, int gx, int gy)
 {
-    int len = sWorld->GetDataPath().length()+strlen("maps/%03u%02u%02u.map")+1;
-    char* tmp = new char[len];
-    snprintf(tmp, len, (char *)(sWorld->GetDataPath()+"maps/%03u%02u%02u.map").c_str(), mapid, gx, gy);
+    int len = sWorld->GetDataPath().length() + strlen("maps/%03u%02u%02u.map") + 1;
+    char* fileName = new char[len];
+    snprintf(fileName, len, (char *)(sWorld->GetDataPath() + "maps/%03u%02u%02u.map").c_str(), mapid, gx, gy);
 
     bool ret = false;
-    FILE* pf=fopen(tmp, "rb");
+    FILE* pf = fopen(fileName, "rb");
 
     if (!pf)
-        sLog->outError(LOG_FILTER_MAPS, "Map file '%s': does not exist!", tmp);
+        sLog->outError(LOG_FILTER_MAPS, "Map file '%s': does not exist!", fileName);
     else
     {
         map_fileheader header;
         if (fread(&header, sizeof(header), 1, pf) == 1)
         {
-            if (header.mapMagic != MapMagic.asUInt || header.versionMagic != MapVersionMagic.asUInt)
-                sLog->outError(LOG_FILTER_MAPS, "Map file '%s' is from an incompatible clientversion. Please recreate using the mapextractor.", tmp);
+            if (header.mapMagic.asUInt != MapMagic.asUInt || header.versionMagic.asUInt != MapVersionMagic.asUInt)
+                sLog->outError(LOG_FILTER_MAPS, "Map file '%s' is from an incompatible map version (%.*s %.*s), %.*s %.*s is expected. Please recreate using the mapextractor.",
+                    fileName, 4, header.mapMagic.asChar, 4, header.versionMagic.asChar, 4, MapMagic.asChar, 4, MapVersionMagic.asChar);
             else
                 ret = true;
         }
         fclose(pf);
     }
-    delete [] tmp;
+
+    delete[] fileName;
     return ret;
 }
 
@@ -319,7 +315,7 @@ template<>
 void Map::DeleteFromWorld(Player* player)
 {
     sObjectAccessor->RemoveObject(player);
-    sObjectAccessor->RemoveUpdateObject(player); //TODO: I do not know why we need this, it should be removed in ~Object anyway
+    sObjectAccessor->RemoveUpdateObject(player); /// @todo I do not know why we need this, it should be removed in ~Object anyway
     delete player;
 }
 
@@ -442,7 +438,7 @@ void Map::InitializeObject(Creature* obj)
 template<class T>
 bool Map::AddToMap(T *obj)
 {
-    //TODO: Needs clean up. An object should not be added to map twice.
+    /// @todo Needs clean up. An object should not be added to map twice.
     if (obj->IsInWorld())
     {
         ASSERT(obj->IsInGrid());
@@ -843,7 +839,7 @@ void Map::MoveAllCreaturesInMoveList()
                 //This may happen when a player just logs in and a pet moves to a nearby unloaded cell
                 //To avoid this, we can load nearby cells when player log in
                 //But this check is always needed to ensure safety
-                //TODO: pets will disappear if this is outside CreatureRespawnRelocation
+                /// @todo pets will disappear if this is outside CreatureRespawnRelocation
                 //need to check why pet is frequently relocated to an unloaded cell
                 if (c->isPet())
                     ((Pet*)c)->Remove(PET_SAVE_NOT_IN_SLOT, true);
@@ -1102,23 +1098,23 @@ bool GridMap::loadData(char* filename)
         return false;
     }
 
-    if (header.mapMagic == MapMagic.asUInt && header.versionMagic == MapVersionMagic.asUInt)
+    if (header.mapMagic.asUInt == MapMagic.asUInt && header.versionMagic.asUInt == MapVersionMagic.asUInt)
     {
-        // loadup area data
+        // load up area data
         if (header.areaMapOffset && !loadAreaData(in, header.areaMapOffset, header.areaMapSize))
         {
             sLog->outError(LOG_FILTER_MAPS, "Error loading map area data\n");
             fclose(in);
             return false;
         }
-        // loadup height data
+        // load up height data
         if (header.heightMapOffset && !loadHeightData(in, header.heightMapOffset, header.heightMapSize))
         {
             sLog->outError(LOG_FILTER_MAPS, "Error loading map height data\n");
             fclose(in);
             return false;
         }
-        // loadup liquid data
+        // load up liquid data
         if (header.liquidMapOffset && !loadLiquidData(in, header.liquidMapOffset, header.liquidMapSize))
         {
             sLog->outError(LOG_FILTER_MAPS, "Error loading map liquids data\n");
@@ -1128,7 +1124,9 @@ bool GridMap::loadData(char* filename)
         fclose(in);
         return true;
     }
-    sLog->outError(LOG_FILTER_MAPS, "Map file '%s' is from an incompatible clientversion. Please recreate using the mapextractor.", filename);
+
+    sLog->outError(LOG_FILTER_MAPS, "Map file '%s' is from an incompatible map version (%.*s %.*s), %.*s %.*s is expected. Please recreate using the mapextractor.",
+        filename, 4, header.mapMagic.asChar, 4, header.versionMagic.asChar, 4, MapMagic.asChar, 4, MapVersionMagic.asChar);
     fclose(in);
     return false;
 }
@@ -2389,7 +2387,7 @@ bool InstanceMap::CanEnter(Player* player)
 */
 bool InstanceMap::AddPlayerToMap(Player* player)
 {
-    // TODO: Not sure about checking player level: already done in HandleAreaTriggerOpcode
+    /// @todo Not sure about checking player level: already done in HandleAreaTriggerOpcode
     // GMs still can teleport player in instance.
     // Is it needed?
 
@@ -2543,7 +2541,7 @@ void InstanceMap::CreateInstanceData(bool load)
 
     if (load)
     {
-        // TODO: make a global storage for this
+        /// @todo make a global storage for this
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_INSTANCE);
         stmt->setUInt16(0, uint16(GetId()));
         stmt->setUInt32(1, i_InstanceId);

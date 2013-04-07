@@ -59,7 +59,7 @@ void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlag
 
 void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 {
-    // TODO: add targets.read() check
+    /// @todo add targets.read() check
     Player* pUser = _player;
 
     // ignore for remote control state
@@ -271,12 +271,15 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJ_USE Message [guid=%u]", GUID_LOPART(guid));
 
-    // ignore for remote control state
-    if (_player->m_mover != _player)
-        return;
-
     if (GameObject* obj = GetPlayer()->GetMap()->GetGameObject(guid))
+    {
+        // ignore for remote control state
+        if (_player->m_mover != _player)
+            if (!(_player->IsOnVehicle(_player->m_mover) || _player->IsMounted()) && !obj->GetGOInfo()->IsUsableMounted())
+                return;
+
         obj->Use(_player);
+    }
 }
 
 void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
@@ -320,7 +323,6 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     }
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-
     if (!spellInfo)
     {
         sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown spell id %u", spellId);
@@ -328,31 +330,37 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if (mover->GetTypeId() == TYPEID_PLAYER)
+    if (spellInfo->IsPassive())
     {
-        // not have spell in spellbook or spell passive and not casted by client
-        if (!mover->ToPlayer()->HasActiveSpell (spellId) || spellInfo->IsPassive())
-        {
-            //cheater? kick? ban?
-            recvPacket.rfinish(); // prevent spam at ignore packet
-            return;
-        }
+        recvPacket.rfinish(); // prevent spam at ignore packet
+        return;
     }
-    else
+
+    Unit* caster = mover;
+    if (caster->GetTypeId() == TYPEID_UNIT && !caster->ToCreature()->HasSpell(spellId))
     {
-        // not have spell in spellbook or spell passive and not casted by client
-        if ((mover->GetTypeId() == TYPEID_UNIT && !mover->ToCreature()->HasSpell(spellId)) || spellInfo->IsPassive())
+        // If the vehicle creature does not have the spell but it allows the passenger to cast own spells
+        // change caster to player and let him cast
+        if (!_player->IsOnVehicle(caster) || spellInfo->CheckVehicle(_player) != SPELL_CAST_OK)
         {
-            //cheater? kick? ban?
             recvPacket.rfinish(); // prevent spam at ignore packet
             return;
         }
+
+        caster = _player;
+    }
+
+    if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellId))
+    {
+        // not have spell in spellbook
+        recvPacket.rfinish(); // prevent spam at ignore packet
+        return;
     }
 
     // Client is resending autoshot cast opcode when other spell is casted during shoot rotation
     // Skip it to prevent "interrupt" message
-    if (spellInfo->IsAutoRepeatRangedSpell() && _player->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL)
-        && _player->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL)->m_spellInfo == spellInfo)
+    if (spellInfo->IsAutoRepeatRangedSpell() && caster->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL)
+        && caster->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL)->m_spellInfo == spellInfo)
     {
         recvPacket.rfinish();
         return;
@@ -367,7 +375,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 
     // client provided targets
     SpellCastTargets targets;
-    targets.Read(recvPacket, mover);
+    targets.Read(recvPacket, caster);
     HandleClientCastFlags(recvPacket, castFlags, targets);
 
     // auto-selection buff level base at target level (in spellInfo)
@@ -380,7 +388,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
             spellInfo = actualSpellInfo;
     }
 
-    Spell* spell = new Spell(mover, spellInfo, TRIGGERED_NONE, 0, false);
+    Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, 0, false);
     spell->m_cast_count = castCount;                       // set count of casts
     spell->prepare(&targets);
 }
@@ -542,7 +550,7 @@ void WorldSession::HandleSpellClick(WorldPacket& recvData)
     if (!unit)
         return;
 
-    // TODO: Unit::SetCharmedBy: 28782 is not in world but 0 is trying to charm it! -> crash
+    /// @todo Unit::SetCharmedBy: 28782 is not in world but 0 is trying to charm it! -> crash
     if (!unit->IsInWorld())
         return;
 

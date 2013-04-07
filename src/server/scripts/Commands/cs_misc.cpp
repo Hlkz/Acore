@@ -35,6 +35,7 @@
 #include "Pet.h"
 #include "LFG.h"
 #include "GroupMgr.h"
+#include "MMapFactory.h"
 
 class misc_commandscript : public CommandScript
 {
@@ -191,8 +192,9 @@ public:
 
         uint32 zoneId, areaId;
         object->GetZoneAndAreaId(zoneId, areaId);
+        uint32 mapId = object->GetMapId();
 
-        MapEntry const* mapEntry = sMapStore.LookupEntry(object->GetMapId());
+        MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
         AreaTableEntry const* zoneEntry = GetAreaEntryByAreaID(zoneId);
         AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(areaId);
 
@@ -211,8 +213,9 @@ public:
         int gridX = 63 - gridCoord.x_coord;
         int gridY = 63 - gridCoord.y_coord;
 
-        uint32 haveMap = Map::ExistMap(object->GetMapId(), gridX, gridY) ? 1 : 0;
-        uint32 haveVMap = Map::ExistVMap(object->GetMapId(), gridX, gridY) ? 1 : 0;
+        uint32 haveMap = Map::ExistMap(mapId, gridX, gridY) ? 1 : 0;
+        uint32 haveVMap = Map::ExistVMap(mapId, gridX, gridY) ? 1 : 0;
+        uint32 haveMMap = (MMAP::MMapFactory::IsPathfindingEnabled(mapId) && MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId())) ? 1 : 0;
 
         if (haveVMap)
         {
@@ -225,13 +228,13 @@ public:
             handler->PSendSysMessage("no VMAP available for area info");
 
         handler->PSendSysMessage(LANG_MAP_POSITION,
-            object->GetMapId(), (mapEntry ? mapEntry->name[handler->GetSessionDbcLocale()] : "<unknown>"),
+            mapId, (mapEntry ? mapEntry->name[handler->GetSessionDbcLocale()] : "<unknown>"),
             zoneId, (zoneEntry ? zoneEntry->area_name[handler->GetSessionDbcLocale()] : "<unknown>"),
             areaId, (areaEntry ? areaEntry->area_name[handler->GetSessionDbcLocale()] : "<unknown>"),
             object->GetPhaseMask(),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation(),
             cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
-            zoneX, zoneY, groundZ, floorZ, haveMap, haveVMap);
+            zoneX, zoneY, groundZ, floorZ, haveMap, haveVMap, haveMMap);
 
         LiquidData liquidStatus;
         ZLiquidStatus status = map->getLiquidStatus(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), MAP_ALL_LIQUIDS, &liquidStatus);
@@ -678,7 +681,7 @@ public:
 
         if (target)
         {
-            target->ResurrectPlayer(!AccountMgr::IsPlayerAccount(target->GetSession()->GetSecurity()) ? 1.0f : 0.5f);
+            target->ResurrectPlayer(target->GetSession()->HasPermission(RBAC_PERM_RESURRECT_WITH_FULL_HPS) ? 1.0f : 0.5f);
             target->SpawnCorpseBones();
             target->SaveToDB();
         }
@@ -881,7 +884,7 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
 
         // save GM account without delay and output message
-        if (!AccountMgr::IsPlayerAccount(handler->GetSession()->GetSecurity()))
+        if (handler->GetSession()->HasPermission(RBAC_PERM_COMMANDS_SAVE_WITHOUT_DELAY))
         {
             if (Player* target = handler->getSelectedPlayer())
                 target->SaveToDB();
@@ -938,8 +941,8 @@ public:
 
     static bool HandleUnstuckCommand(ChatHandler* handler, char const* args)
     {
-        //No args required for players
-        if (handler->GetSession() && AccountMgr::IsPlayerAccount(handler->GetSession()->GetSecurity()))
+        // No args required for players
+        if (handler->GetSession() && !handler->GetSession()->HasPermission(RBAC_PERM_COMMANDS_USE_UNSTUCK_WITH_ARGS))
         {
             // 7355: "Stuck"
             if (Player* player = handler->GetSession()->GetPlayer())
@@ -2211,7 +2214,7 @@ public:
         // from console show not existed sender
         MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUIDLow() : 0, MAIL_STATIONERY_GM);
 
-        //- TODO: Fix poor design
+        /// @todo Fix poor design
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
         MailDraft(subject, text)
             .SendMailTo(trans, MailReceiver(target, GUID_LOPART(targetGuid)), sender);

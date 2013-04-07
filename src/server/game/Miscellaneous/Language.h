@@ -376,7 +376,8 @@ enum TrinityStrings
     LANG_COMMAND_CHEAT_CD               = 360,
     LANG_COMMAND_CHEAT_POWER            = 361,
     LANG_COMMAND_CHEAT_WW               = 362,
-    // Room for more level 2              363-399 not used
+    LANG_COMMAND_WHISPEROFFPLAYER       = 363,
+    // Room for more level 2              364-399 not used
 
     // level 3 chat
     LANG_SCRIPTS_RELOADED               = 400,
@@ -888,7 +889,13 @@ enum TrinityStrings
     LANG_GROUP_FULL                     = 1148,
     LANG_GROUP_TYPE                     = 1149,
     LANG_GROUP_PLAYER_NAME_GUID         = 1150,
-    // Room for more level 3              1151-1199 not used
+    LANG_LIST_MAIL_HEADER               = 1151,
+    LANG_LIST_MAIL_INFO_1               = 1152,
+    LANG_LIST_MAIL_INFO_2               = 1153,
+    LANG_LIST_MAIL_INFO_3               = 1154,
+    LANG_LIST_MAIL_INFO_ITEM            = 1155,
+    LANG_LIST_MAIL_NOT_FOUND            = 1156,
+    // Room for more level 3              1157-1199 not used
 
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST            = 1200,
@@ -1034,7 +1041,8 @@ enum TrinityStrings
     LANG_COMMAND_NO_ACHIEVEMENT_CRITERIA_FOUND = 5033,
     LANG_COMMAND_NO_OUTDOOR_PVP_FORUND  = 5034,
     LANG_CALL_FOR_HELP                  = 5035,
-    // Room for more Trinity strings      5036-9999
+    LANG_NPCINFO_EQUIPMENT              = 5036,
+    // Room for more Trinity strings      5037-9999
 
     // Level requirement notifications
     LANG_SAY_REQ                        = 6604,

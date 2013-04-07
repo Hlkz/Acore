@@ -40,7 +40,6 @@ int PetAI::Permissible(const Creature* creature)
 
 PetAI::PetAI(Creature* c) : CreatureAI(c), i_tracker(TIME_INTERVAL_LOOK)
 {
-    m_AllySet.clear();
     UpdateAllies();
 }
 
@@ -74,7 +73,7 @@ void PetAI::_stopAttack()
     HandleReturnMovement();
 }
 
-void PetAI::UpdateAI(const uint32 diff)
+void PetAI::UpdateAI(uint32 diff)
 {
     if (!me->isAlive() || !me->GetCharmInfo())
         return;
