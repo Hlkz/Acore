@@ -1581,7 +1581,7 @@ public:
                 EndianConvertReverse(ip);
 #endif
 
-                PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_IP2NATION_COUNTRY);
+                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP2NATION_COUNTRY);
 
                 stmt->setUInt32(0, ip);
 
