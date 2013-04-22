@@ -26,6 +26,7 @@
 #include "ArenaTeam.h"
 #include "BattlegroundMgr.h"
 #include "Battleground.h"
+#include "BattleAOMgr.h"
 #include "Chat.h"
 #include "Language.h"
 #include "Log.h"
@@ -83,6 +84,79 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
     recvData >> bgTypeId_;                                 // battleground type id (DBC id)
     recvData >> instanceId;                                // instance id, 0 if First Available selected
     recvData >> joinAsGroup;                               // join as group
+
+	if (bgTypeId_ == BATTLEGROUND_AO)
+	{
+		Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_AO);
+		PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), _player->getLevel());
+		if (!bracketEntry)
+			return;
+		if (!joinAsGroup)
+		{
+			if (_player->GetBattlegroundQueueIndex(BATTLEGROUND_QUEUE_AO) < PLAYER_MAX_BATTLEGROUND_QUEUES)
+				return;
+
+			if (!_player->HasFreeBattlegroundQueueId())
+			{
+				WorldPacket data;
+				sBattlegroundMgr->BuildGroupJoinedBattlegroundPacket(&data, ERR_BATTLEGROUND_TOO_MANY_QUEUES);
+				_player->GetSession()->SendPacket(&data);
+				return;
+			}
+			
+			sLog->outError(LOG_FILTER_GENERAL, "coucou tag solo début (handler)");
+			BattleAOQueue& baoQueue = sBattleAOMgr->GetBattleAOQueue();
+			BAOGroupQueueInfo* ginfo = baoQueue.AddGroup(_player, NULL, isPremade);
+			uint32 queueSlot = _player->AddBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);
+			WorldPacket data;
+			sBattleAOMgr->BuildBattleAOStatusPacket(&data, queueSlot, STATUS_WAIT_QUEUE, 10, 0);
+			SendPacket(&data);
+			sLog->outError(LOG_FILTER_GENERAL, "coucou tag solo fin (handler)");
+		}
+		else
+		{
+			grp = _player->GetGroup();
+			if (!grp)
+				return;
+			if (grp->GetLeaderGUID() != _player->GetGUID())
+				return;
+			GroupJoinBattlegroundResult err;
+			err = grp->CanJoinBattlegroundQueue(bg, BATTLEGROUND_QUEUE_AO, 0, bg->GetMaxPlayersPerTeam(), false, 0);
+			isPremade = (grp->GetMembersCount() >= bg->GetMinPlayersPerTeam());
+			BattleAOQueue& baoQueue = sBattleAOMgr->GetBattleAOQueue();
+			BAOGroupQueueInfo* ginfo = NULL;
+			uint32 avgTime = 0;
+
+			if (err > 0)
+			{
+				ginfo = baoQueue.AddGroup(_player, grp, isPremade);
+				avgTime = 10;
+			}
+
+			for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+			{
+				Player* member = itr->getSource();
+				if (!member)
+					continue;   // this should never happen
+
+				WorldPacket data;
+
+				if (err <= 0)
+				{
+					sBattlegroundMgr->BuildGroupJoinedBattlegroundPacket(&data, err);
+					member->GetSession()->SendPacket(&data);
+					continue;
+				}
+
+				uint32 queueSlot = member->AddBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);
+				sBattleAOMgr->BuildBattleAOStatusPacket(&data, queueSlot, STATUS_WAIT_QUEUE, avgTime, 0);            
+				member->GetSession()->SendPacket(&data);
+				sBattlegroundMgr->BuildGroupJoinedBattlegroundPacket(&data, err);
+				member->GetSession()->SendPacket(&data);
+			}
+		}
+		sBattleAOMgr->ScheduleQueueUpdate();
+	}
 
     if (!sBattlemasterListStore.LookupEntry(bgTypeId_))
     {

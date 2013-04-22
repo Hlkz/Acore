@@ -14,6 +14,7 @@ file(GLOB_RECURSE sources_Addons Addons/*.cpp Addons/*.h)
 file(GLOB_RECURSE sources_AI AI/*.cpp AI/*.h)
 file(GLOB_RECURSE sources_AuctionHouse AuctionHouse/*.cpp AuctionHouse/*.h)
 file(GLOB_RECURSE sources_Battlefield Battlefield/*.cpp Battlefield/*.h)
+file(GLOB_RECURSE sources_BattleAO BattleAO/*.cpp BattleAO/*.h)
 file(GLOB_RECURSE sources_Battlegrounds Battlegrounds/*.cpp Battlegrounds/*.h)
 file(GLOB_RECURSE sources_Calendar Calendar/*.cpp Calendar/*.h)
 file(GLOB_RECURSE sources_Chat Chat/*.cpp Chat/*.h)
@@ -64,6 +65,7 @@ set(game_STAT_SRCS
   ${sources_AI}
   ${sources_AuctionHouse}
   ${sources_Battlefield}
+  ${sources_BattleAO}
   ${sources_Battlegrounds}
   ${sources_Calendar}
   ${sources_Chat}
@@ -136,6 +138,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/AuctionHouse
   ${CMAKE_CURRENT_SOURCE_DIR}/Battlefield
   ${CMAKE_CURRENT_SOURCE_DIR}/Battlefield/Zones
+  ${CMAKE_CURRENT_SOURCE_DIR}/BattleAO
   ${CMAKE_CURRENT_SOURCE_DIR}/Battlegrounds
   ${CMAKE_CURRENT_SOURCE_DIR}/Battlegrounds/Zones
   ${CMAKE_CURRENT_SOURCE_DIR}/Calendar

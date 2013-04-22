@@ -21,6 +21,8 @@
 #include "AchievementMgr.h"
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
+#include "BattleAO.h"
+#include "BattleAOMgr.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "BattlefieldWG.h"
@@ -2434,6 +2436,7 @@ void Player::RemoveFromWorld()
         UnsummonPetTemporaryIfAny();
         sOutdoorPvPMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
         sBattlefieldMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
+        sBattleAOMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
     }
 
     ///- Do not add/remove the player from the object storage
@@ -5541,6 +5544,11 @@ void Player::RepopAtGraveyard()
     {
         if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
             ClosestGrave = bf->GetClosestGraveYard(this);
+		else if (GetMapId() == BATTLEAO_MAP)
+		{
+			if(BattleAO* bao = sBattleAOMgr->GetBattleAO())
+				ClosestGrave = bao->GetClosestGraveYard(this);
+		}
         else
             ClosestGrave = sObjectMgr->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam());
     }
@@ -5563,7 +5571,7 @@ void Player::RepopAtGraveyard()
             GetSession()->SendPacket(&data);
 			
 			// rez/effets à la mort selon la map
-			if (GetZoneId() != 4080 && GetZoneId() != 2266 && !InBattleground()) {
+			if (GetZoneId() != 4080 && GetZoneId() != 2266 && !InBattleground() && GetMapId() != 609) {
 				ResurrectPlayer(1);
 				SpawnCorpseBones(); }
 				
@@ -7493,6 +7501,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         sOutdoorPvPMgr->HandlePlayerEnterZone(this, newZone);
         sBattlefieldMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
         sBattlefieldMgr->HandlePlayerEnterZone(this, newZone);
+        sBattleAOMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
+        sBattleAOMgr->HandlePlayerEnterZone(this, newZone);
         SendInitWorldStates(newZone, newArea);              // only if really enters to new zone, not just area change, works strange...
         if (Guild* guild = GetGuild())
             guild->UpdateMemberData(this, GUILD_MEMBER_DATA_ZONEID, newZone);

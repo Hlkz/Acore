@@ -50,6 +50,8 @@
 #include "Group.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "BattleAO.h"
+#include "BattleAOMgr.h"
 
 uint32 GuidHigh2TypeId(uint32 guid_hi)
 {
@@ -2579,6 +2581,11 @@ void WorldObject::SetZoneScript()
         {
             if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
                 m_zoneScript = bf;
+			else if (GetMapId() == BATTLEAO_MAP)
+			{
+				if(BattleAO* bao = sBattleAOMgr->GetBattleAO())
+					m_zoneScript = bao;
+			}
             else
                 m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId());
         }

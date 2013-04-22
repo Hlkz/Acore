@@ -55,6 +55,8 @@
 #include "BattlegroundMgr.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "BattleAO.h"
+#include "BattleAOMgr.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
@@ -1678,6 +1680,10 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket& recvData)
 
     if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetZoneId()))
         bf->SendAreaSpiritHealerQueryOpcode(_player, guid);
+
+	if(_player->GetMapId() == BATTLEAO_MAP)
+		if(BattleAO* bao = sBattleAOMgr->GetBattleAO())
+			bao->SendAreaSpiritHealerQueryOpcode(_player, guid);
 }
 
 void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket& recvData)
@@ -1701,6 +1707,10 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket& recvData)
 
     if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetZoneId()))
         bf->AddPlayerToResurrectQueue(guid, _player->GetGUID());
+	
+	if(_player->GetMapId() == BATTLEAO_MAP)
+		if(BattleAO* bao = sBattleAOMgr->GetBattleAO())
+			bao->AddPlayerToResurrectQueue(guid, _player->GetGUID());
 }
 
 void WorldSession::HandleHearthAndResurrect(WorldPacket& /*recvData*/)

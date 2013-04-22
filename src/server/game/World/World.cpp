@@ -80,6 +80,7 @@
 #include "Warden.h"
 #include "CalendarMgr.h"
 #include "BattlefieldMgr.h"
+#include "BattleAOMgr.h"
 
 ACE_Atomic_Op<ACE_Thread_Mutex, bool> World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -1757,6 +1758,10 @@ void World::SetInitialWorldSettings()
     ///- Initialize Battlefield
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting Battlefield System");
     sBattlefieldMgr->InitBattlefield();
+	
+    ///- Initialize BattleAO
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting BattleAO System");
+    sBattleAOMgr->InitBattleAO();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Transports...");
     sMapMgr->LoadTransports();
@@ -2036,6 +2041,9 @@ void World::Update(uint32 diff)
 
     sBattlefieldMgr->Update(diff);
     RecordTimeDiff("BattlefieldMgr");
+	
+    sBattleAOMgr->Update(diff);
+    RecordTimeDiff("BattleAOMgr");
 
     ///- Delete all characters which have been deleted X days before
     if (m_timers[WUPDATE_DELETECHARS].Passed())

@@ -38,6 +38,8 @@
 #include "Vehicle.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "BattleAO.h"
+#include "BattleAOMgr.h"
 #include "Pet.h"
 #include "ReputationMgr.h"
 
@@ -4734,6 +4736,9 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                                     bg->RemovePlayerFromResurrectQueue(target->GetGUID());
                                 if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(target->GetZoneId()))
                                     bf->RemovePlayerFromResurrectQueue(target->GetGUID());
+								if (target->GetMapId() == BATTLEAO_MAP)
+									if (BattleAO* bao = sBattleAOMgr->GetBattleAO())
+										bao->RemovePlayerFromResurrectQueue(target->GetGUID());
                             }
                             break;
                         case 36730:                                     // Flame Strike

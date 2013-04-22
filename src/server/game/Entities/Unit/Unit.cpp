@@ -20,6 +20,8 @@
 #include "Common.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "BattleAO.h"
+#include "BattleAOMgr.h"
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "ConditionMgr.h"
@@ -15395,6 +15397,9 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
 
         if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(player->GetZoneId()))
             bf->HandleKill(player, victim);
+		if (player->GetMapId() == BATTLEAO_MAP)
+			if (BattleAO* bao = sBattleAOMgr->GetBattleAO())
+				bao->HandleKill(player, victim);
     }
 
     //if (victim->GetTypeId() == TYPEID_PLAYER)

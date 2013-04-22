@@ -2253,9 +2253,14 @@ void Group::SetBattlegroundGroup(Battleground* bg)
     m_bgGroup = bg;
 }
 
-void Group::SetBattlefieldGroup(Battlefield *bg)
+void Group::SetBattlefieldGroup(Battlefield *bf)
 {
-    m_bfGroup = bg;
+    m_bfGroup = bf;
+}
+
+void Group::SetBattleAOGroup(BattleAO *bao)
+{
+    m_baoGroup = bao;
 }
 
 void Group::SetGroupMemberFlag(uint64 guid, bool apply, GroupMemberFlags flag)

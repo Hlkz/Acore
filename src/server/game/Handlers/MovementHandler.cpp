@@ -27,6 +27,8 @@
 #include "MapManager.h"
 #include "Transport.h"
 #include "Battleground.h"
+#include "BattleAO.h"
+#include "BattleAOMgr.h"
 #include "WaypointMovementGenerator.h"
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
@@ -116,6 +118,12 @@ void WorldSession::HandleMoveWorldportAckOpcode()
                 bg->AddPlayer(_player);
         }
     }
+
+	if (_player->GetMapId() == BATTLEAO_MAP)
+	{
+		BattleAO* BAO = sBattleAOMgr->GetBattleAO();
+		BAO->AddPlayer(_player);
+	}
 
     GetPlayer()->SendInitialPacketsAfterAddToMap();
 
