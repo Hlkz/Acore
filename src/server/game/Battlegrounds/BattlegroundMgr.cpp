@@ -35,7 +35,6 @@
 #include "BattlegroundDS.h"
 #include "BattlegroundRV.h"
 #include "BattlegroundIC.h"
-#include "BattlegroundAO.h"
 #include "Chat.h"
 #include "Map.h"
 #include "MapInstanced.h"
@@ -355,10 +354,6 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                         *data << uint32(((BattlegroundICScore*)itr2->second)->BasesAssaulted);       // bases asssulted
                         *data << uint32(((BattlegroundICScore*)itr2->second)->BasesDefended);        // bases defended
                     case 782:
-                        *data << uint32(0x00000002);            // count of next fields
-                        *data << uint32(((BattlegroundAOScore*)itr2->second)->BasesAssaulted);      // bases asssulted
-                        *data << uint32(((BattlegroundAOScore*)itr2->second)->BasesDefended);       // bases defended
-                        break;
                     default:
                         *data << uint32(0);
                         break;
@@ -396,10 +391,6 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                 *data << uint32(((BattlegroundICScore*)itr2->second)->BasesDefended);        // bases defended
                 break;
             case BATTLEGROUND_AO:
-                *data << uint32(0x00000002);                    // count of next fields
-                *data << uint32(((BattlegroundAOScore*)itr2->second)->BasesAssaulted);      // bases assaulted
-                *data << uint32(((BattlegroundAOScore*)itr2->second)->BasesDefended);       // bases defended
-                break;
             case BATTLEGROUND_NA:
             case BATTLEGROUND_BE:
             case BATTLEGROUND_AA:
@@ -612,7 +603,7 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId original
             bg = new BattlegroundIC(*(BattlegroundIC*)bg_template);
             break;
         case BATTLEGROUND_AO:
-            bg = new BattlegroundAO(*(BattlegroundAO*)bg_template);
+            bg = new Battleground(*bg_template);
             break;
         case BATTLEGROUND_RB:
         case BATTLEGROUND_AA:
@@ -698,8 +689,6 @@ bool BattlegroundMgr::CreateBattleground(CreateBattlegroundData& data)
             bg = new BattlegroundIC;
             break;
         case BATTLEGROUND_AO:
-            bg = new BattlegroundAO;
-            break;
         case BATTLEGROUND_AA:
             bg = new Battleground;
             break;

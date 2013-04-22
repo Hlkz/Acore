@@ -36,7 +36,6 @@
 #include "MapManager.h"
 #include "Map.h"
 #include "Battleground.h"
-#include "BattlegroundAO.h"
 
 enum Spells
 {
