@@ -49,7 +49,7 @@ class BattleAOMgr
 
     void HandleDropFlag(Player* player, uint32 spellId);
 	
-    BattleAOQueue& GetBattleAOQueue() { return m_BattleAOQueues[BATTLEGROUND_QUEUE_AO]; }
+    BattleAOQueue& GetBattleAOQueue() { return m_BattleAOQueues[0]; }
 	void RemoveFromBAOFreeSlotQueue();
 	BAOFreeSlotQueueContainer& GetBAOFreeSlotQueueStore();
 	void BuildBattleAOStatusPacket(WorldPacket* data, uint8 QueueSlot, uint8 StatusID, uint32 Time1, uint32 Time2);
