@@ -437,6 +437,52 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
         return;
     }
 
+	//zdq begin
+	if (bgTypeId_ == BATTLEGROUND_AO)
+	{
+		BattleAOQueue& baoQueue = sBattleAOMgr->GetBattleAOQueue();
+		BAOGroupQueueInfo ginfo;
+		if (!baoQueue.GetPlayerGroupInfoData(_player->GetGUID(), &ginfo))
+			return;
+		BattleAO* bao = sBattleAOMgr->GetBattleAO();
+	
+		uint32 queueSlot = _player->GetBattlegroundQueueIndex(BATTLEGROUND_QUEUE_AO);
+		WorldPacket data;
+		if (action)
+		{
+			if (!_player->IsInvitedForBattlegroundQueueType(BATTLEGROUND_QUEUE_AO))
+				return;
+		    if (!_player->isAlive())
+	        {
+	            _player->ResurrectPlayer(1.0f);
+	            _player->SpawnCorpseBones();
+		    }
+			if (_player->isInFlight())
+			{
+			    _player->GetMotionMaster()->MovementExpired();
+			    _player->CleanupAfterTaxiFlight();
+			}
+			
+			sBattleAOMgr->BuildBattleAOStatusPacket(&data, queueSlot, STATUS_IN_PROGRESS, 0, 0); //2e 0 => start time
+			_player->GetSession()->SendPacket(&data);
+
+	        baoQueue.RemovePlayer(_player->GetGUID(), false);
+	        if (Battleground* currentBg = _player->GetBattleground())
+	            currentBg->RemovePlayerAtLeave(_player->GetGUID(), false, true);
+			_player->SetBGTeam(ginfo.Team);
+			sBattleAOMgr->SendToBattleAO(_player);
+		}
+		else
+		{
+		    _player->RemoveBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);
+		    sBattleAOMgr->BuildBattleAOStatusPacket(&data,queueSlot, STATUS_NONE, 0, 0);
+		    baoQueue.RemovePlayer(_player->GetGUID(), true);
+		    SendPacket(&data);
+		}
+		return;
+	}
+	//zdq end
+
     //get GroupQueueInfo from BattlegroundQueue
     BattlegroundTypeId bgTypeId = BattlegroundTypeId(bgTypeId_);
     BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, type);

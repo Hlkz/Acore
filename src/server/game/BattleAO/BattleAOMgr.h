@@ -49,6 +49,8 @@ class BattleAOMgr
 
     void HandleDropFlag(Player* player, uint32 spellId);
 	
+	void SendToBattleAO(Player* player);
+
     BattleAOQueue& GetBattleAOQueue() { return m_BattleAOQueues[0]; }
 	void RemoveFromBAOFreeSlotQueue();
 	BAOFreeSlotQueueContainer& GetBAOFreeSlotQueueStore();

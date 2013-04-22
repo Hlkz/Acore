@@ -29,6 +29,19 @@ void BattleAOMgr::InitBattleAO()
     }
 }
 
+void BattleAOMgr::SendToBattleAO(Player* player)
+{
+        float x, y, z, O;
+		uint32 mapid = BATTLEAO_MAP;
+		x=0.0f;
+		y=0.0f;
+		z=0.0f;
+		O=0.0f;
+        uint32 team;
+        team = player->GetTeamFromDB(); //tofix
+        player->TeleportTo(mapid, x, y, z, O);
+}
+
 void BattleAOMgr::AddZone(uint32 zoneid, BattleAO *handle)
 {
     m_BattleAOMap[zoneid] = handle;
