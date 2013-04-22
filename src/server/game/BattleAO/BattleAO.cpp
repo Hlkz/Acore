@@ -23,9 +23,7 @@ BattleAO::BattleAO() //ctor
     m_InvitedHorde = 0;
     m_PlayersCount[TEAM_ALLIANCE]    = 0;
     m_PlayersCount[TEAM_HORDE]       = 0;
-    m_MaxPlayersPerTeam = 0;
     m_MaxPlayers        = 0;
-    m_MinPlayersPerTeam = 0;
     m_MinPlayers        = 0;
     m_InBAOFreeSlotQueue = false;
     m_LastResurrectTime = 0;
@@ -919,7 +917,6 @@ bool BattleAO::HasFreeSlots() const
 // returns the number how many players can join battleground to MaxPlayersPerTeam
 uint32 BattleAO::GetFreeSlotsForTeam(uint32 Team) const
 {
-    // if BG is already started .. do not allow to join too much players of one faction
     uint32 otherTeam;
     uint32 otherIn;
     if (Team == ALLIANCE)
@@ -933,41 +930,13 @@ uint32 BattleAO::GetFreeSlotsForTeam(uint32 Team) const
         otherIn = GetPlayersCountByTeam(ALLIANCE);
     }
 
-  //if (GetStatus() == STATUS_IN_PROGRESS)
-    {
-        // difference based on ppl invited (not necessarily entered battle)
-        // default: allow 0
-        uint32 diff = 0;
-        // allow join one person if the sides are equal (to fill up bg to minplayersperteam)
-        if (otherTeam == GetInvitedCount(Team))
-            diff = 1;
-        // allow join more ppl if the other side has more players
-        else if (otherTeam > GetInvitedCount(Team))
-            diff = otherTeam - GetInvitedCount(Team);
+	uint32 diff = 0; // default: allow 0
+    if (otherTeam == GetInvitedCount(Team)) // allow join one person if the sides are equal (to fill up bg to minplayersperteam)
+	    diff = 1;
+	else if (otherTeam > GetInvitedCount(Team)) // allow join more ppl if the other side has more players
+		diff = otherTeam - GetInvitedCount(Team);
 
-        // difference based on max players per team (don't allow inviting more)
-        uint32 diff2 = (GetInvitedCount(Team) < GetMaxPlayersPerTeam()) ? GetMaxPlayersPerTeam() - GetInvitedCount(Team) : 0;
-        // difference based on players who already entered
-        // default: allow 0
-        uint32 diff3 = 0;
-        // allow join one person if the sides are equal (to fill up bg minplayersperteam)
-        if (otherIn == GetPlayersCountByTeam(Team))
-            diff3 = 1;
-        // allow join more ppl if the other side has more players
-        else if (otherIn > GetPlayersCountByTeam(Team))
-            diff3 = otherIn - GetPlayersCountByTeam(Team);
-        // or other side has less than minPlayersPerTeam
-        else if (GetInvitedCount(Team) <= GetMinPlayersPerTeam())
-            diff3 = GetMinPlayersPerTeam() - GetInvitedCount(Team) + 1;
-
-        // return the minimum of the 3 differences
-
-        // min of diff and diff 2
-        diff = std::min(diff, diff2);
-        // min of diff, diff2 and diff3
-        return std::min(diff, diff3);
-    }
-    return 0;
+	return diff;
 }
 
 // This method removes this battleground from free queue - it must be called when deleting battleground

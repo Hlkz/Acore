@@ -104,7 +104,6 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
 				return;
 			}
 			
-			sLog->outError(LOG_FILTER_GENERAL, "coucou tag solo début (handler)");
 			BattleAOQueue& baoQueue = sBattleAOMgr->GetBattleAOQueue();
 			BAOGroupQueueInfo* ginfo = baoQueue.AddGroup(_player, NULL, isPremade);
 			uint32 queueSlot = _player->AddBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);

@@ -46,7 +46,7 @@ class BattleAOQueue
         void BattleAOQueueUpdate(uint32 diff);
         void UpdateEvents(uint32 diff);
 
-        void FillPlayersToBAO(BattleAO* BAO);
+        void FillPlayersToBAO();
 		BAOGroupQueueInfo* AddGroup(Player* leader, Group* group, bool isPremade);
         void RemovePlayer(uint64 guid, bool decreaseInvitedCount);
         bool IsPlayerInvited(uint64 pl_guid, const uint32 removeTime);

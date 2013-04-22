@@ -33,12 +33,12 @@ void BattleAOMgr::SendToBattleAO(Player* player)
 {
         float x, y, z, O;
 		uint32 mapid = BATTLEAO_MAP;
-		x=0.0f;
-		y=0.0f;
-		z=0.0f;
+		x=2358.145752f;
+		y=-5657.163574f;
+		z=426.026245f;
 		O=0.0f;
         uint32 team;
-        team = player->GetTeamFromDB(); //tofix
+        team = player->GetTeamFromDB(); //tofix spawn a2 / h2 / neutre
         player->TeleportTo(mapid, x, y, z, O);
 }
 
@@ -91,6 +91,14 @@ void BattleAOMgr::Update(uint32 diff)
         for (BattleAOSet::iterator itr = m_BattleAOSet.begin(); itr != m_BattleAOSet.end(); ++itr)
             (*itr)->Update(m_UpdateTimer);
         m_UpdateTimer = 0;
+    }
+	
+    m_BattleAOQueues[0].UpdateEvents(diff);
+    if (!m_QueueUpdateScheduler.empty())
+    {
+        std::vector<uint64> scheduled;
+        std::swap(scheduled, m_QueueUpdateScheduler);
+		m_BattleAOQueues[0].BattleAOQueueUpdate(diff);
     }
 }
 

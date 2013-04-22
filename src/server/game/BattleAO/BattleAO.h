@@ -267,8 +267,6 @@ class BattleAO : public ZoneScript
 		
         void PlaySoundToAll(uint32 SoundID);
 		
-        uint32 GetMaxPlayersPerTeam() const { return m_MaxPlayersPerTeam; }
-        uint32 GetMinPlayersPerTeam() const { return m_MinPlayersPerTeam; }
         static TeamId GetTeamIndexByTeamId(uint32 Team) { return Team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
         TeamId GetOtherTeam(TeamId team) { return (team == TEAM_HORDE ? TEAM_ALLIANCE : TEAM_HORDE); }
 		uint32 GetPlayersCountByTeam(uint32 Team) const { return m_PlayersCount[GetTeamIndexByTeamId(Team)]; }
@@ -339,9 +337,7 @@ class BattleAO : public ZoneScript
         uint32 m_PlayersCount[BG_TEAMS_COUNT];
         uint32 m_InvitedAlliance;
         uint32 m_InvitedHorde;
-        uint32 m_MaxPlayersPerTeam;
         uint32 m_MaxPlayers;
-        uint32 m_MinPlayersPerTeam;
         uint32 m_MinPlayers;
 		bool   m_InBAOFreeSlotQueue;
 
