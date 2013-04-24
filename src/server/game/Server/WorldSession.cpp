@@ -38,6 +38,7 @@
 #include "World.h"
 #include "ObjectAccessor.h"
 #include "BattlegroundMgr.h"
+#include "BattleAOMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "MapManager.h"
 #include "SocialMgr.h"
@@ -449,6 +450,9 @@ void WorldSession::LogoutPlayer(bool save)
         if (Battleground* bg = _player->GetBattleground())
             bg->EventPlayerLoggedOut(_player);
 
+		if (sBattleAOMgr->GetBattleAO()->HasPlayer(_player))
+			sBattleAOMgr->GetBattleAO()->EventPlayerLoggedOut(_player);
+
         ///- Teleport to home if the player is in an invalid instance
         if (!_player->m_InstanceValid && !_player->isGameMaster())
             _player->TeleportTo(_player->m_homebindMapId, _player->m_homebindX, _player->m_homebindY, _player->m_homebindZ, _player->GetOrientation());
@@ -459,9 +463,18 @@ void WorldSession::LogoutPlayer(bool save)
         {
             if (BattlegroundQueueTypeId bgQueueTypeId = _player->GetBattlegroundQueueTypeId(i))
             {
-                _player->RemoveBattlegroundQueueId(bgQueueTypeId);
-                BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
-                queue.RemovePlayer(_player->GetGUID(), true);
+				if (bgQueueTypeId != BATTLEGROUND_QUEUE_AO)
+				{
+	                _player->RemoveBattlegroundQueueId(bgQueueTypeId);
+	                BattlegroundQueue& queue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
+	                queue.RemovePlayer(_player->GetGUID(), true);
+				}
+				else
+				{
+	                _player->RemoveBattlegroundQueueId(bgQueueTypeId);
+	                BattleAOQueue& queue = sBattleAOMgr->GetBattleAOQueue();
+					queue.RemovePlayer(_player->GetGUID(), true);
+				}
             }
         }
 

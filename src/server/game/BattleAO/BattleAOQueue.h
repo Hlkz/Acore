@@ -48,14 +48,14 @@ class BattleAOQueue
 
         void FillPlayersToBAO();
 		BAOGroupQueueInfo* AddGroup(Player* leader, Group* group, bool isPremade);
-        void RemovePlayer(uint64 guid, bool decreaseInvitedCount);
+        void RemovePlayer(uint64 guid, bool decreasePlayersCount);
         bool IsPlayerInvited(uint64 pl_guid, const uint32 removeTime);
         bool GetPlayerGroupInfoData(uint64 guid, BAOGroupQueueInfo* ginfo);
 		
         typedef std::map<uint64, BAOPlayerQueueInfo> BAOQueuedPlayersMap;
         BAOQueuedPlayersMap m_QueuedPlayers;
         typedef std::deque<BAOGroupQueueInfo*> BAOGroupsQueueType;
-		BAOGroupsQueueType m_QueuedGroups[1][BAO_QUEUE_GROUP_TYPES_COUNT];
+		BAOGroupsQueueType m_QueuedGroups[BAO_QUEUE_GROUP_TYPES_COUNT];
 
         class SelectionPool
         {

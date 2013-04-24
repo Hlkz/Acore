@@ -2351,6 +2351,14 @@ bool Player::TeleportToBGEntryPoint()
     return TeleportTo(m_bgData.joinPos);
 }
 
+bool Player::TeleportToBAOEntryPoint()
+{
+    ScheduleDelayedOperation(DELAYED_BG_MOUNT_RESTORE);
+    ScheduleDelayedOperation(DELAYED_BG_TAXI_RESTORE);
+    ScheduleDelayedOperation(DELAYED_BG_GROUP_RESTORE);
+    return TeleportTo(532, -10945.799805f, -2103.850098f, 92.711197f, 0.900000f);
+}
+
 void Player::ProcessDelayedOperations()
 {
     if (m_DelayedOperations == 0)
@@ -2436,7 +2444,6 @@ void Player::RemoveFromWorld()
         UnsummonPetTemporaryIfAny();
         sOutdoorPvPMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
         sBattlefieldMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
-        sBattleAOMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
     }
 
     ///- Do not add/remove the player from the object storage
@@ -5544,11 +5551,8 @@ void Player::RepopAtGraveyard()
     {
         if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
             ClosestGrave = bf->GetClosestGraveYard(this);
-		else if (GetMapId() == BATTLEAO_MAP)
-		{
-			if(BattleAO* bao = sBattleAOMgr->GetBattleAO())
-				ClosestGrave = bao->GetClosestGraveYard(this);
-		}
+		else if (sBattleAOMgr->GetBattleAO()->HasPlayer(this))
+			ClosestGrave = sBattleAOMgr->GetBattleAO()->GetClosestGraveYard(this);
         else
             ClosestGrave = sObjectMgr->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam());
     }
@@ -7291,12 +7295,10 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     ApplyModUInt32Value(PLAYER_FIELD_TODAY_CONTRIBUTION, honor, true);
 
     if (InBattleground() && honor > 0)
-    {
-        if (Battleground* bg = GetBattleground())
-        {
-            bg->UpdatePlayerScore(this, SCORE_BONUS_HONOR, honor, false); //false: prevent looping
-        }
-    }
+		if (Battleground* bg = GetBattleground())
+			bg->UpdatePlayerScore(this, SCORE_BONUS_HONOR, honor, false); //false: prevent looping
+	if (sBattleAOMgr->GetBattleAO()->HasPlayer(this) && honor > 0)
+			sBattleAOMgr->GetBattleAO()->UpdatePlayerScore(this, SCORE_BONUS_HONOR, honor);
 
 	if (!victim || victim == this || victim->HasAuraType(SPELL_AURA_NO_PVP_CREDIT))
             return true;
@@ -7501,8 +7503,6 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         sOutdoorPvPMgr->HandlePlayerEnterZone(this, newZone);
         sBattlefieldMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
         sBattlefieldMgr->HandlePlayerEnterZone(this, newZone);
-        sBattleAOMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
-        sBattleAOMgr->HandlePlayerEnterZone(this, newZone);
         SendInitWorldStates(newZone, newArea);              // only if really enters to new zone, not just area change, works strange...
         if (Guild* guild = GetGuild())
             guild->UpdateMemberData(this, GUILD_MEMBER_DATA_ZONEID, newZone);
@@ -7521,7 +7521,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     AreaTableEntry const* zone = GetAreaEntryByAreaID(newZone);
     if (!zone)
         return;
-
+	
     if (sWorld->getBoolConfig(CONFIG_WEATHER))
     {
         if (Weather* weather = WeatherMgr::FindWeather(zone->ID))
@@ -17111,7 +17111,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     _LoadBoundInstances(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BOUND_INSTANCES));
     _LoadInstanceTimeRestrictions(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_INSTANCE_LOCK_TIMES));
     _LoadBGData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BG_DATA));
-
+	
     GetSession()->SetPlayer(this);
     MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
     if (!mapEntry || !IsPositionValid())
@@ -17169,6 +17169,24 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 				ResurrectPlayer(0.5f);
         }
     }
+	// Player was saved on BAO
+	else if (mapId == BATTLEAO_MAP)
+	{
+		if (sBattleAOMgr->GetBattleAO()->HasPlayer(this))
+		{
+			AddBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);
+			sBattleAOMgr->GetBattleAO()->EventPlayerLoggedIn(this);
+			SetInviteForBattlegroundQueueType(BATTLEGROUND_QUEUE_AO, true);
+		}
+		else
+		{
+			sBattleAOMgr->GetBattleAO()->RemovePlayerAtLeave(GetGUID(), false, true);
+            mapId = 532; instanceId = 0;
+			Relocate(-10945.799805f, -2103.850098f, 92.711197f, 0.900000f);
+			if (isDead())
+				ResurrectPlayer(0.5f);
+        }
+	}
     // currently we do not support transport in bg
     else if (transGUID)
     {

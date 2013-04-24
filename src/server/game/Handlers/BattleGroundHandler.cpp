@@ -110,7 +110,6 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
 			WorldPacket data;
 			sBattleAOMgr->BuildBattleAOStatusPacket(&data, queueSlot, STATUS_WAIT_QUEUE, 10, 0);
 			SendPacket(&data);
-			sLog->outError(LOG_FILTER_GENERAL, "coucou tag solo fin (handler)");
 		}
 		else
 		{
@@ -155,6 +154,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
 			}
 		}
 		sBattleAOMgr->ScheduleQueueUpdate();
+		sLog->outDebug(LOG_FILTER_BAO, "BAO : group tag");
 	}
 
     if (!sBattlemasterListStore.LookupEntry(bgTypeId_))
@@ -373,9 +373,16 @@ void WorldSession::HandlePVPLogDataOpcode(WorldPacket & /*recvData*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd MSG_PVP_LOG_DATA Message");
 
+	if (sBattleAOMgr->GetBattleAO()->HasPlayer(_player))
+	{
+	    WorldPacket data;
+	    sBattleAOMgr->BuildPvpLogDataPacket(&data);
+	    SendPacket(&data);
+	}
+
     Battleground* bg = _player->GetBattleground();
     if (!bg)
-        return;
+		return;
 
     // Prevent players from sending BuildPvpLogDataPacket in an arena except for when sent in BattleGround::EndBattleGround.
     if (bg->isArena())
@@ -436,7 +443,6 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
         return;
     }
 
-	//zdq begin
 	if (bgTypeId_ == BATTLEGROUND_AO)
 	{
 		BattleAOQueue& baoQueue = sBattleAOMgr->GetBattleAOQueue();
@@ -447,7 +453,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
 	
 		uint32 queueSlot = _player->GetBattlegroundQueueIndex(BATTLEGROUND_QUEUE_AO);
 		WorldPacket data;
-		if (action)
+		if (action) // enter battle
 		{
 			if (!_player->IsInvitedForBattlegroundQueueType(BATTLEGROUND_QUEUE_AO))
 				return;
@@ -471,7 +477,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
 			_player->SetBGTeam(ginfo.Team);
 			sBattleAOMgr->SendToBattleAO(_player);
 		}
-		else
+		else // leave queue
 		{
 		    _player->RemoveBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);
 		    sBattleAOMgr->BuildBattleAOStatusPacket(&data,queueSlot, STATUS_NONE, 0, 0);
@@ -480,7 +486,6 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
 		}
 		return;
 	}
-	//zdq end
 
     //get GroupQueueInfo from BattlegroundQueue
     BattlegroundTypeId bgTypeId = BattlegroundTypeId(bgTypeId_);
@@ -628,14 +633,15 @@ void WorldSession::HandleBattlefieldLeaveOpcode(WorldPacket& recvData)
     recvData.read_skip<uint8>();                           // unk2
     recvData.read_skip<uint32>();                          // BattlegroundTypeId
     recvData.read_skip<uint16>();                          // unk3
-
-    // not allow leave battleground in combat
-    if (_player->isInCombat())
-        if (Battleground* bg = _player->GetBattleground())
-            if (bg->GetStatus() != STATUS_WAIT_LEAVE)
-                return;
-
-    _player->LeaveBattleground();
+	
+    if (Battleground* bg = _player->GetBattleground())
+	{
+		if (_player->isInCombat() && (bg->GetStatus() != STATUS_WAIT_LEAVE))
+			return;
+		_player->LeaveBattleground();
+	}
+	else if (sBattleAOMgr->GetBattleAO()->HasPlayer(_player))
+		sBattleAOMgr->GetBattleAO()->RemovePlayerAtLeave(_player->GetGUID(), true, true);
 }
 
 void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket & /*recvData*/)

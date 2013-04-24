@@ -17,7 +17,6 @@ struct GossipMenuItems;
 struct BattleAOData
 {
     BattleAOContainer m_BattleAOs;
-    BattleAOClientIdsContainer m_ClientBattleAOIds[1];
     BAOFreeSlotQueueContainer BAOFreeSlotQueue;
 };
 
@@ -29,48 +28,29 @@ class BattleAOMgr
 
     // create battleAO events
     void InitBattleAO();
-    // called when a player enters/leaves an battleAO area
-    void HandlePlayerEnterZone(Player* player, uint32 areaflag);
-    void HandlePlayerLeaveZone(Player* player, uint32 areaflag);
 
     void HandlePlayerResurrects(Player* player, uint32 areaflag);
+    void HandleDropFlag(Player* player, uint32 spellId);
 
     BattleAO* GetBattleAO();
-
-    ZoneScript* GetZoneScript(uint32 zoneId);
-
-    void AddZone(uint32 zoneid, BattleAO * handle);
-
-    void Update(uint32 diff);
-
-    void HandleGossipOption(Player* player, uint64 guid, uint32 gossipid);
-
-    bool CanTalkTo(Player* player, Creature* creature, GossipMenuItems gso);
-
-    void HandleDropFlag(Player* player, uint32 spellId);
-	
+	void Update(uint32 diff);
+		
 	void SendToBattleAO(Player* player);
 
-    BattleAOQueue& GetBattleAOQueue() { return m_BattleAOQueues[0]; }
+    BattleAOQueue& GetBattleAOQueue() { return m_BattleAOQueues; }
 	void RemoveFromBAOFreeSlotQueue();
 	BAOFreeSlotQueueContainer& GetBAOFreeSlotQueueStore();
 	void BuildBattleAOStatusPacket(WorldPacket* data, uint8 QueueSlot, uint8 StatusID, uint32 Time1, uint32 Time2);
+	void BuildPvpLogDataPacket(WorldPacket* data);
     void ScheduleQueueUpdate();
 	
     typedef std::vector < BattleAO * >BattleAOSet;
-    typedef std::map < uint32 /* zoneid */, BattleAO * >BattleAOMap;
   private:
-    // contains all initiated battleAO events
-    // used when initing / cleaning up
-      BattleAOSet m_BattleAOSet;
-    // maps the zone ids to an battleAO event
-    // used in player event handling
-    BattleAOMap m_BattleAOMap;
-    // update interval
-    uint32 m_UpdateTimer;
+	BattleAOSet m_BattleAOSet; // BAO list (used for sBattleAOMgr->GetBattleAO())
+    uint32 m_UpdateTimer; // update interval
 	
 	std::vector<uint64> m_QueueUpdateScheduler;
-	BattleAOQueue m_BattleAOQueues[1];
+	BattleAOQueue m_BattleAOQueues;
 	typedef std::map<BattlegroundTypeId, BattleAOData> BattleAODataContainer;
 	BattleAODataContainer baoDataStore;
 };

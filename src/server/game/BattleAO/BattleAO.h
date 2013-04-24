@@ -13,7 +13,7 @@ enum BattleAOIds
 {
     BATTLEAO_MAP = 609,
 	BATTLEAO_AREA = 4298,
-    AO_SPELL_TENACITY	= 58549,
+    AO_SPELL_CHARGE	= 39089,
 };
 
 enum AO_NodeStatus
@@ -128,6 +128,20 @@ enum BattleAOTimers
     BAO_FLAG_CAPTURING_TIME           = 60000
 };
 
+struct BattleAOScore
+{
+    BattleAOScore() : KillingBlows(0), Deaths(0), HonorableKills(0), BonusHonor(0),
+        DamageDone(0), HealingDone(0), BasesAssaulted(0), BasesDefended(0) { }
+
+    uint32 KillingBlows;
+    uint32 Deaths;
+    uint32 HonorableKills;
+    uint32 BonusHonor;
+    uint32 DamageDone;
+    uint32 HealingDone;
+	uint32 BasesAssaulted;
+	uint32 BasesDefended;
+};
 
 const uint32 BAO_GraveyardIds[AO_ALL_NODES_COUNT] = {1900, 1901, 1902, 1903, 1904};
 
@@ -185,51 +199,41 @@ class BattleAO : public ZoneScript
 		
         typedef std::map<uint64, BattleAOPlayer> BattleAOPlayerMap;
         BattleAOPlayerMap const& GetPlayers() const { return m_Players; }
-        uint32 GetPlayersSize() const { return m_Players.size(); }
-
-        /// Update data of a worldstate to all players present in zone
-        void SendUpdateWorldState(uint32 AO, uint32 value);
-
-        virtual bool Update(uint32 diff);
-
-        /// Invite all players in queue to join battle on battle start
-        void InvitePlayersInQueueToWar();
-
-        /// Called when a Unit is kill in battleAO zone
-        virtual void HandleKill(Player* /*killer*/, Unit* /*killed*/) {};
+		bool HasPlayer(Player* player) const;
+		bool HasPlayerByGuid(uint64 guid) const;
 		
-        void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);
+        typedef std::map<uint64, BattleAOScore*> BattleAOScoreMap;
+        BattleAOScoreMap::const_iterator GetPlayerScoresBegin() const { return PlayerScores.begin(); }
+        BattleAOScoreMap::const_iterator GetPlayerScoresEnd() const { return PlayerScores.end(); }
+        uint32 GetPlayerScoresSize() const { return PlayerScores.size(); }
+
+        void SendUpdateWorldState(uint32 Field, uint32 value);
 		
+		void UpdatePlayerScore(Player* Source, uint32 type, uint32 value);
+
+        bool Update(uint32 diff);
+		
+        void HandleKill(Player* killer, Player* victim);
+				
         void KickPlayerFromBattleAO(uint64 guid);
 
-        void HandlePlayerEnterZone(Player* player, uint32 zone);
-        void HandlePlayerLeaveZone(Player* player, uint32 zone);
-
-        // All-purpose data storage 64 bit
-        virtual uint64 GetData64(uint32 dataId) const { return m_Data64[dataId]; }
-        virtual void SetData64(uint32 dataId, uint64 value) { m_Data64[dataId] = value; }
-
-        // All-purpose data storage 32 bit
-        virtual uint32 GetData(uint32 dataId) const { return m_Data32[dataId]; }
-        virtual void SetData(uint32 dataId, uint32 value) { m_Data32[dataId] = value; }
-        virtual void UpdateData(uint32 index, int32 pad) { m_Data32[index] += pad; }
-		
+        void AddPlayer(Player* player);
+        void RemovePlayer(Player* player);
+		void RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPacket);
+        
         Group* GetFreeBAORaid(TeamId TeamId);
         Group* GetGroupPlayer(uint64 guid, TeamId TeamId);
         bool AddOrSetPlayerToCorrectBAOGroup(Player* player);
 		
         void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj);
+        void EventPlayerLoggedIn(Player* player);
+        void EventPlayerLoggedOut(Player* player);
 
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
         virtual void AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid);
         void RemovePlayerFromResurrectQueue(uint64 player_guid);
 
-        // Misc methods
-        Creature* SpawnCreature(uint32 entry, float x, float y, float z, float o, TeamId team);
-        Creature* SpawnCreature(uint32 entry, Position pos, TeamId team);
-        GameObject* SpawnGameObject(uint32 entry, float x, float y, float z, float o);
-		
         typedef std::vector<uint64> AOObjects;
         typedef std::vector<uint64> AOCreatures;
         AOObjects AoObjects;
@@ -260,34 +264,29 @@ class BattleAO : public ZoneScript
 		
 		bool SetupBattleAO();
         void StartBattle();
-		
-        void AddPlayer(Player* player);
 
         uint32 GetReviveQueueSize() const { return m_ReviveQueue.size(); }
 		
+        template<class Do>
+        void BroadcastWorker(Do& _do);
         void PlaySoundToAll(uint32 SoundID);
+		void SendMessage2ToAll(int32 entry, ChatMsg type, Player const* source, int32 arg1, int32 arg2);
 		
         static TeamId GetTeamIndexByTeamId(uint32 Team) { return Team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
-        TeamId GetOtherTeam(TeamId team) { return (team == TEAM_HORDE ? TEAM_ALLIANCE : TEAM_HORDE); }
-		uint32 GetPlayersCountByTeam(uint32 Team) const { return m_PlayersCount[GetTeamIndexByTeamId(Team)]; }
-        void UpdatePlayersCountByTeam(uint32 Team, bool remove)
+        uint32 GetOtherTeam(Team team) { return (team == HORDE ? ALLIANCE : HORDE); }
+        void UpdatePlayersCount(uint32 Team, bool remove) { m_PlayersCount[GetTeamIndexByTeamId(Team)] = m_PlayersCount[GetTeamIndexByTeamId(Team)]+1-2*remove; }
+		uint32 GetPlayersCount(uint32 team) const   { return m_PlayersCount[GetTeamIndexByTeamId(team)]; }
+				
+		void test()
         {
-            if (remove)
-                --m_PlayersCount[GetTeamIndexByTeamId(Team)];
-            else
-                ++m_PlayersCount[GetTeamIndexByTeamId(Team)];
+			sLog->outError(LOG_FILTER_GENERAL, "coucou player count for a2 : %i", m_PlayersCount[GetTeamIndexByTeamId(ALLIANCE)]);
+			sLog->outError(LOG_FILTER_GENERAL, "coucou player count for h2 : %i", m_PlayersCount[GetTeamIndexByTeamId(HORDE)]);
+			sLog->outError(LOG_FILTER_GENERAL, "coucou playersize:%i scoresize:%i", m_Players.size(), PlayerScores.size());
         }
-        uint32 GetInvitedCount(uint32 team) const   { return (team == ALLIANCE) ? m_InvitedAlliance : m_InvitedHorde; }
-        uint32 GetMaxPlayers() const        { return m_MaxPlayers; }
-        uint32 GetMinPlayers() const        { return m_MinPlayers; }
-		
-        bool HasFreeSlots() const;
-        uint32 GetFreeSlotsForTeam(uint32 Team) const;
+
+        uint32 GetFreeSlotsForTeam(Team Team) const;
 		void RemoveFromBAOFreeSlotQueue();
-		void DecreaseInvitedCount(uint32 team)      { (team == ALLIANCE) ? --m_InvitedAlliance : --m_InvitedHorde; }
-        void IncreaseInvitedCount(uint32 team)      { (team == ALLIANCE) ? ++m_InvitedAlliance : ++m_InvitedHorde; }
-		
-        void UpdateTenacity();
+
 		void RemoveAurasFromPlayer(Player* player);
 		
 	private:
@@ -296,11 +295,13 @@ class BattleAO : public ZoneScript
         void _CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay);
         void _DelBanner(uint8 node, uint8 type, uint8 teamIndex);
         void _SendNodeUpdate(uint8 node);
+        int32 _GetNodeNameId(uint8 node);
 
         /* Creature spawning/despawning */
         // TODO: working, scripted peons spawning
         void _NodeOccupied(uint8 node, Team team);
         void _NodeDeOccupied(uint8 node);
+		
         /* Nodes info:
             0: neutral
             1: ally contested
@@ -323,30 +324,21 @@ class BattleAO : public ZoneScript
         Player* _GetPlayerForTeam(uint32 teamId, BattleAOPlayerMap::const_iterator itr, const char* context) const;
 
 		Map* m_Map;
-        uint32 m_tenacityStack;
-        WorldLocation KickPosition;                             // Position where players are teleported if they switch to afk during the battle or if they don't accept invitation
 
         BattleAOPlayerMap  m_Players;
         std::map<uint64, std::vector<uint64> >  m_ReviveQueue;
         std::vector<uint64> m_ResurrectQueue;
         uint32 m_LastResurrectTime;
-        std::deque<uint64> m_OfflineQueue; //utilisée ?
+        std::deque<uint64> m_OfflineQueue;
+        BattleAOScoreMap PlayerScores;
 
-        GuidSet m_Groups[BG_TEAMS_COUNT];                       // Contain different raid group
+        GuidSet m_Groups[BG_TEAMS_COUNT]; // Contain different raid group
 		
         uint32 m_PlayersCount[BG_TEAMS_COUNT];
-        uint32 m_InvitedAlliance;
-        uint32 m_InvitedHorde;
-        uint32 m_MaxPlayers;
-        uint32 m_MinPlayers;
 		bool   m_InBAOFreeSlotQueue;
-
-        std::vector<uint64> m_Data64;
-        std::vector<uint32> m_Data32;
-		
-        void RegisterZone(uint32 zoneid);
+				
         void TeamCastSpell(TeamId team, int32 spellId);
-
+		
 };
 
 #endif

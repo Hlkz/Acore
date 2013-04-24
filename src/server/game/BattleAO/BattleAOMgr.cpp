@@ -42,37 +42,6 @@ void BattleAOMgr::SendToBattleAO(Player* player)
         player->TeleportTo(mapid, x, y, z, O);
 }
 
-void BattleAOMgr::AddZone(uint32 zoneid, BattleAO *handle)
-{
-    m_BattleAOMap[zoneid] = handle;
-}
-
-void BattleAOMgr::HandlePlayerEnterZone(Player* player, uint32 zoneid)
-{
-    BattleAOMap::iterator itr = m_BattleAOMap.find(zoneid);
-    if (itr == m_BattleAOMap.end())
-        return;
-
-    //tofix if (itr->second->HasPlayer(player))
-    //   return;
-
-    itr->second->HandlePlayerEnterZone(player, zoneid);
-    sLog->outDebug(LOG_FILTER_BAO, "Player %u entered BAO", player->GetGUIDLow());
-}
-
-void BattleAOMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
-{
-    BattleAOMap::iterator itr = m_BattleAOMap.find(zoneid);
-    if (itr == m_BattleAOMap.end())
-        return;
-
-    // teleport: remove once in removefromworld, once in updatezone
-    //tofix if (!itr->second->HasPlayer(player))
-    //    return;
-    itr->second->HandlePlayerLeaveZone(player, zoneid);
-    sLog->outDebug(LOG_FILTER_BAO, "Player %u left BAO", player->GetGUIDLow());
-}
-
 BattleAO *BattleAOMgr::GetBattleAO()
 {
     for (BattleAOSet::iterator itr = m_BattleAOSet.begin(); itr != m_BattleAOSet.end(); ++itr)
@@ -88,32 +57,18 @@ void BattleAOMgr::Update(uint32 diff)
     m_UpdateTimer += diff;
     if (m_UpdateTimer > BAO_OBJECTIVE_UPDATE_INTERVAL)
     {
-        for (BattleAOSet::iterator itr = m_BattleAOSet.begin(); itr != m_BattleAOSet.end(); ++itr)
-            (*itr)->Update(m_UpdateTimer);
+        GetBattleAO()->Update(m_UpdateTimer);
         m_UpdateTimer = 0;
     }
 	
-    m_BattleAOQueues[0].UpdateEvents(diff);
+    m_BattleAOQueues.UpdateEvents(diff);
     if (!m_QueueUpdateScheduler.empty())
     {
         std::vector<uint64> scheduled;
         std::swap(scheduled, m_QueueUpdateScheduler);
-		m_BattleAOQueues[0].BattleAOQueueUpdate(diff);
+		m_BattleAOQueues.BattleAOQueueUpdate(diff);
     }
 }
-
-ZoneScript* BattleAOMgr::GetZoneScript(uint32 zoneId)
-{
-    BattleAOMap::iterator itr = m_BattleAOMap.find(zoneId);
-    if (itr != m_BattleAOMap.end())
-        return itr->second;
-    else
-        return NULL;
-}
-
-//////////////////
-// QUEUE SYSTEM //
-//////////////////
 
 BAOFreeSlotQueueContainer& BattleAOMgr::GetBAOFreeSlotQueueStore()
 {
@@ -162,6 +117,40 @@ void BattleAOMgr::BuildBattleAOStatusPacket(WorldPacket* data, uint8 QueueSlot, 
         default:
             break;
     }
+}
+
+void BattleAOMgr::BuildPvpLogDataPacket(WorldPacket* data)
+{
+	BattleAO* bao = sBattleAOMgr->GetBattleAO();
+    uint8 type = 0;
+    data->Initialize(MSG_PVP_LOG_DATA, (1+1+4+40*bao->GetPlayerScoresSize()));
+    *data << uint8(type);                                   // type (battleground=0/arena=1)
+    *data << uint8(0);                                  // bg not ended
+    size_t wpos = data->wpos();
+    uint32 scoreCount = 0;
+    *data << uint32(scoreCount);                            // placeholder
+    BattleAO::BattleAOScoreMap::const_iterator itr2 = bao->GetPlayerScoresBegin();
+    for (BattleAO::BattleAOScoreMap::const_iterator itr = itr2; itr != bao->GetPlayerScoresEnd();)
+    {
+        itr2 = itr++;
+        if (!bao->HasPlayerByGuid(itr2->first))
+        {
+            sLog->outError(LOG_FILTER_BAO, "BAO player %i has scoreboard but is not in bao !", itr->first);
+            continue;
+        }
+        *data << uint64(itr2->first);
+        *data << uint32(itr2->second->KillingBlows);
+        *data << uint32(itr2->second->HonorableKills);
+        *data << uint32(itr2->second->Deaths);
+        *data << uint32(itr2->second->BonusHonor);
+        *data << uint32(itr2->second->DamageDone);              // damage done
+        *data << uint32(itr2->second->HealingDone);             // healing done
+        //*data << uint32(0x00000002);                    // count of next fields
+        *data << uint32(itr2->second->BasesAssaulted);      // bases assaulted
+        *data << uint32(itr2->second->BasesDefended);       // bases defended
+		scoreCount++;
+    }
+    data->put(wpos, scoreCount);
 }
 
 void BattleAOMgr::RemoveFromBAOFreeSlotQueue()

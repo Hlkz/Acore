@@ -1,4 +1,4 @@
-#include "BattleAO.h"
+#include "Language.h"
 #include "BattleAOMgr.h"
 #include "BattlegroundMgr.h"
 #include "ObjectAccessor.h"
@@ -15,32 +15,270 @@
 #include "CreatureTextMgr.h"
 #include "GroupMgr.h"
 
+namespace Trinity
+{
+    class BattleAOChatBuilder
+    {
+        public:
+            BattleAOChatBuilder(ChatMsg msgtype, int32 textId, Player const* source, va_list* args = NULL)
+                : _msgtype(msgtype), _textId(textId), _source(source), _args(args) { }
+
+            void operator()(WorldPacket& data, LocaleConstant loc_idx)
+            {
+                char const* text = sObjectMgr->GetTrinityString(_textId, loc_idx);
+                if (_args)
+                {
+                    // we need copy va_list before use or original va_list will corrupted
+                    va_list ap;
+                    va_copy(ap, *_args);
+
+                    char str[2048];
+                    vsnprintf(str, 2048, text, ap);
+                    va_end(ap);
+
+                    do_helper(data, &str[0]);
+                }
+                else
+                    do_helper(data, text);
+            }
+
+        private:
+            void do_helper(WorldPacket& data, char const* text)
+            {
+                uint64 target_guid = _source ? _source->GetGUID() : 0;
+
+                data << uint8 (_msgtype);
+                data << uint32(LANG_UNIVERSAL);
+                data << uint64(target_guid);                // there 0 for BG messages
+                data << uint32(0);                          // can be chat msg group or something
+                data << uint64(target_guid);
+                data << uint32(strlen(text) + 1);
+                data << text;
+                data << uint8 (_source ? _source->GetChatTag() : 0);
+            }
+
+            ChatMsg _msgtype;
+            int32 _textId;
+            Player const* _source;
+            va_list* _args;
+    };
+
+    class BattleAO2ChatBuilder
+    {
+        public:
+            BattleAO2ChatBuilder(ChatMsg msgtype, int32 textId, Player const* source, int32 arg1, int32 arg2)
+                : _msgtype(msgtype), _textId(textId), _source(source), _arg1(arg1), _arg2(arg2) {}
+
+            void operator()(WorldPacket& data, LocaleConstant loc_idx)
+            {
+                char const* text = sObjectMgr->GetTrinityString(_textId, loc_idx);
+                char const* arg1str = _arg1 ? sObjectMgr->GetTrinityString(_arg1, loc_idx) : "";
+                char const* arg2str = _arg2 ? sObjectMgr->GetTrinityString(_arg2, loc_idx) : "";
+
+                char str[2048];
+                snprintf(str, 2048, text, arg1str, arg2str);
+
+                uint64 target_guid = _source  ? _source->GetGUID() : 0;
+
+                data << uint8 (_msgtype);
+                data << uint32(LANG_UNIVERSAL);
+                data << uint64(target_guid);                // there 0 for BG messages
+                data << uint32(0);                          // can be chat msg group or something
+                data << uint64(target_guid);
+                data << uint32(strlen(str) + 1);
+                data << str;
+                data << uint8 (_source ? _source->GetChatTag() : uint8(0));
+            }
+
+        private:
+            ChatMsg _msgtype;
+            int32 _textId;
+            Player const* _source;
+            int32 _arg1;
+            int32 _arg2;
+    };
+}                                                           // namespace Trinity
+
+template<class Do>
+void BattleAO::BroadcastWorker(Do& _do)
+{
+    for (BattleAOPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+        if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER)))
+            _do(player);
+}
+
 BattleAO::BattleAO() //ctor
 {
     m_Map = sMapMgr->FindMap(BATTLEAO_MAP, 0);
-	m_tenacityStack = 0;
-    m_InvitedAlliance = 0;
-    m_InvitedHorde = 0;
-    m_PlayersCount[TEAM_ALLIANCE]    = 0;
-    m_PlayersCount[TEAM_HORDE]       = 0;
-    m_MaxPlayers        = 0;
-    m_MinPlayers        = 0;
+    m_PlayersCount[TEAM_ALLIANCE] = 0;
+    m_PlayersCount[TEAM_HORDE]    = 0;
     m_InBAOFreeSlotQueue = false;
     m_LastResurrectTime = 0;
 }
 BattleAO::~BattleAO() {} //dtor
 
-void BattleAO::HandlePlayerEnterZone(Player* player, uint32 /*zone*/)
-{
+bool BattleAO::HasPlayer(Player* player) const { return m_Players.find(player->GetGUID()) != m_Players.end(); }
+bool BattleAO::HasPlayerByGuid(uint64 guid) const { return m_Players.find(guid) != m_Players.end(); }
 
+void BattleAO::AddPlayer(Player* player)
+{	
+    if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK))
+        player->ToggleAFK();
+
+    uint64 guid = player->GetGUID();
+    uint32 team = player->GetBGTeam();
+
+    BattleAOPlayer bp;
+    bp.OfflineRemoveTime = 0;
+    bp.Team = team;
+	bp.Ready = 0;
+
+    m_Players[guid] = bp;
+	
+    WorldPacket data;
+    sBattlegroundMgr->BuildPlayerJoinedBattlegroundPacket(&data, player);
+    SendPacketToTeam(team, &data, player, false);
+    sBattleAOMgr->BuildBattleAOStatusPacket(&data, player->GetBattlegroundQueueIndex(BATTLEGROUND_QUEUE_AO), STATUS_IN_PROGRESS, 0, 0);
+    player->GetSession()->SendPacket(&data);
+    //sBattleAOMgr->BuildPvpLogDataPacket(&data);
+    //player->GetSession()->SendPacket(&data);
+
+    player->RemoveAurasByType(SPELL_AURA_MOUNTED);
+
+	AddOrSetPlayerToCorrectBAOGroup(player);
     RemoveAurasFromPlayer(player);
+	
+    BattleAOScore* sc = new BattleAOScore;
+    PlayerScores[player->GetGUID()] = sc;
 }
-void BattleAO::HandlePlayerLeaveZone(Player* player, uint32 /*zone*/)
+
+void BattleAO::RemovePlayer(Player* player)
 {
-    if (Group* group = player->GetGroup()) // Remove the player from the raid group
+	if (!player)
+		return;
+
+	sLog->outDebug(LOG_FILTER_BAO, "BAO remove player %u", player->GetGUID());
+
+    if (Group* group = player->GetGroup())
 		group->RemoveMember(player->GetGUID());
     RemoveAurasFromPlayer(player);
+	
+	uint32 team = player->GetTeam();
+	BattleAOPlayerMap::iterator itr = m_Players.find(player->GetGUID());
+    if (itr != m_Players.end())
+    {
+        UpdatePlayersCount(team, true);
+        m_Players.erase(itr);
+    }
 	RemovePlayerFromResurrectQueue(player->GetGUID());
+    player->RemoveBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);
+	sBattleAOMgr->ScheduleQueueUpdate();
+    
+	BattleAOScoreMap::iterator itr2 = PlayerScores.find(player->GetGUID());
+    if (itr2 != PlayerScores.end())
+    {
+        delete itr2->second;
+        PlayerScores.erase(itr2);
+    }
+}
+
+void BattleAO::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPacket)
+{
+	sLog->outDebug(LOG_FILTER_BAO, "BAO RemovePlayerAtLeave %u", guid);	
+    uint32 team = 0;
+    bool participant = false;
+    BattleAOPlayerMap::iterator itr = m_Players.find(guid);
+    if (itr != m_Players.end())
+    {
+		BattleAOPlayer bap = itr->second;
+		team=bap.Team;
+		UpdatePlayersCount(team, true);
+        m_Players.erase(itr);
+        participant = true;
+    }
+
+    BattleAOScoreMap::iterator itr2 = PlayerScores.find(guid);
+    if (itr2 != PlayerScores.end())
+    {
+        delete itr2->second;                                // delete player's score
+        PlayerScores.erase(itr2);
+    }
+    RemovePlayerFromResurrectQueue(guid);
+	
+    Player* player = ObjectAccessor::FindPlayer(guid);
+    if (player) // should remove spirit of redemption
+    {
+        if (player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
+            player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+        if (!player->isAlive())                              // resurrect on exit
+        {
+            player->ResurrectPlayer(1.0f);
+            player->SpawnCorpseBones();
+        }
+    }
+
+    if (participant) // if the player was a match participant, remove auras, calc rating, update queue
+    {
+        if (player)
+        {
+            player->ClearAfkReports();
+            if (!team) team = player->GetTeam();
+			
+            if (SendPacket)
+            {
+                WorldPacket data;
+                sBattleAOMgr->BuildBattleAOStatusPacket(&data, player->GetBattlegroundQueueIndex(BATTLEGROUND_QUEUE_AO), STATUS_NONE, 0, 0);
+                player->GetSession()->SendPacket(&data);
+            }
+            player->RemoveBattlegroundQueueId(BATTLEGROUND_QUEUE_AO); //important call
+        }
+
+        /*// remove from raid group if player is member
+        if (Group* group = GetBgRaid(team))
+        {
+            if (!group->RemoveMember(guid))                // group was disbanded
+            {
+                SetBgRaid(team, NULL);
+            }
+        }*/
+        sBattleAOMgr->ScheduleQueueUpdate();
+        /*WorldPacket data;
+        sBattlegroundMgr->BuildPlayerLeftBattlegroundPacket(&data, guid);
+        SendPacketToTeam(team, &data, player, false);*/
+    }
+
+    if (player)
+    {
+        player->SetBattlegroundId(0, BATTLEGROUND_TYPE_NONE);
+        player->SetBGTeam(0);
+		player->TeleportToBAOEntryPoint();
+    }
+}
+
+void BattleAO::EventPlayerLoggedIn(Player* player)
+{
+    uint64 guid = player->GetGUID();
+    for (std::deque<uint64>::iterator itr = m_OfflineQueue.begin(); itr != m_OfflineQueue.end(); ++itr)
+    {
+        if (*itr == guid)
+        {
+            m_OfflineQueue.erase(itr);
+            break;
+        }
+    }
+    m_Players[guid].OfflineRemoveTime = 0;
+	AddOrSetPlayerToCorrectBAOGroup(player);
+	WorldPacket data;
+    sBattleAOMgr->BuildBattleAOStatusPacket(&data, player->GetBattlegroundQueueIndex(BATTLEGROUND_QUEUE_AO), STATUS_IN_PROGRESS, 0, 0); // end time, start time
+    player->GetSession()->SendPacket(&data);
+    sBattleAOMgr->BuildPvpLogDataPacket(&data);
+    player->GetSession()->SendPacket(&data);
+}
+
+void BattleAO::EventPlayerLoggedOut(Player* player)
+{
+    m_OfflineQueue.push_back(player->GetGUID());
+	m_Players[player->GetGUID()].OfflineRemoveTime = sWorld->GetGameTime() + MAX_OFFLINE_TIME;
 }
 
 bool BattleAO::Update(uint32 diff)
@@ -73,16 +311,30 @@ bool BattleAO::Update(uint32 diff)
 				_SendNodeUpdate(node);
 				_NodeOccupied(node, (teamIndex == 0) ? ALLIANCE:HORDE);
 
-				if (teamIndex == 0)
+				if (teamIndex == TEAM_ALLIANCE)
 				{
-					//SendMessage2ToAll(LANG_BG_AO_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_ALLIANCE, NULL, LANG_BG_AO_ALLY, _GetNodeNameId(node));
+					SendMessage2ToAll(LANG_BG_AO_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_ALLIANCE, NULL, LANG_BG_AO_ALLY, _GetNodeNameId(node));
 					PlaySoundToAll(AO_SOUND_NODE_CAPTURED_ALLIANCE);
 				}
 				else
 				{
-					//SendMessage2ToAll(LANG_BG_AO_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_HORDE, NULL, LANG_BG_AO_HORDE, _GetNodeNameId(node));
+					SendMessage2ToAll(LANG_BG_AO_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_HORDE, NULL, LANG_BG_AO_ALLY, _GetNodeNameId(node));
 					PlaySoundToAll(AO_SOUND_NODE_CAPTURED_HORDE);
 				}
+            }
+        }
+    }
+		
+    if (!m_OfflineQueue.empty()) // remove offline players from bg after 5 minutes
+    {
+        BattleAOPlayerMap::iterator itr = m_Players.find(*(m_OfflineQueue.begin()));
+        if (itr != m_Players.end())
+        {
+            if (itr->second.OfflineRemoveTime <= sWorld->GetGameTime())
+            {
+				sLog->outDebug(LOG_FILTER_BAO, "BAO kick offline player %u", itr->first);
+                RemovePlayerAtLeave(itr->first, true, true); // remove player from BG
+                m_OfflineQueue.pop_front(); // remove from offline queue
             }
         }
     }
@@ -134,24 +386,11 @@ bool BattleAO::Update(uint32 diff)
 	return true;
 }
 
-void BattleAO::KickPlayerFromBattleAO(uint64 guid)
-{
-    if (Player* player = sObjectAccessor->FindPlayer(guid))
-        if (player->GetZoneId() == BATTLEAO_AREA)
-            player->TeleportTo(KickPosition);
-}
-
-
 bool BattleAO::SetupBattleAO()
 {	
     AoObjects.resize(AO_OBJECT_MAX);
     AoCreatures.resize(AO_ALL_NODES_COUNT + 5);//+7 for aura triggers
-
-    KickPosition.Relocate(0.0f, 0.0f, 697.733f, 0); //zda kara
-    KickPosition.m_mapId = 1;
-
-    RegisterZone(BATTLEAO_AREA);
-	
+			
     for (int i = 0; i < AO_DYNAMIC_NODES_COUNT; ++i)
     {
         if (!AddObject(AO_OBJECT_BANNER_NEUTRAL + 8*i, BAO_OBJECTID_NODE_BANNER_A2 + i, BAO_NodePositions[i][0], BAO_NodePositions[i][1], BAO_NodePositions[i][2], BAO_NodePositions[i][3], 0, 0, std::sin(BAO_NodePositions[i][3]/2), std::cos(BAO_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
@@ -195,33 +434,6 @@ bool BattleAO::SetupBattleAO()
 
 void BattleAO::StartBattle() {}
 
-
-void BattleAO::AddPlayer(Player* player)
-{
-    if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK))
-        player->ToggleAFK();
-
-    uint64 guid = player->GetGUID();
-    uint32 team = player->GetBGTeam();
-
-    BattleAOPlayer bp;
-    bp.OfflineRemoveTime = 0;
-    bp.Team = team;
-	bp.Ready = 0;
-
-    m_Players[guid] = bp;
-
-    UpdatePlayersCountByTeam(team, false);
-
-    WorldPacket data;
-    sBattlegroundMgr->BuildPlayerJoinedBattlegroundPacket(&data, player);
-    SendPacketToTeam(team, &data, player, false);
-
-    player->RemoveAurasByType(SPELL_AURA_MOUNTED);
-
-    PlayerAddedToBAOCheck(player);
-	AddOrSetPlayerToCorrectBAOGroup(player);
-}
 
 inline Player* BattleAO::_GetPlayer(uint64 guid, bool offlineRemove, char const* context) const
 {
@@ -269,7 +481,7 @@ void BattleAO::SendPacketToTeam(uint32 TeamID, WorldPacket* packet, Player* send
             if (self || sender != player)
             {
                 WorldSession* session = player->GetSession();
-                sLog->outDebug(LOG_FILTER_BATTLEGROUND, "%s %s - SendPacketToTeam %u, Player: %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str(),
+                sLog->outDebug(LOG_FILTER_BAO, "%s %s - SendPacketToTeam %u, Player: %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str(),
                     session->GetPlayerInfo().c_str(), TeamID, sender ? sender->GetName().c_str() : "null");
                 session->SendPacket(packet);
             }
@@ -282,29 +494,29 @@ void BattleAO::PlaySoundToAll(uint32 SoundID)
     SendPacketToAll(&data);
 }
 
-void BattleAO::PlayerAddedToBAOCheck(Player* player)
+void BattleAO::SendMessage2ToAll(int32 entry, ChatMsg type, Player const* source, int32 arg1, int32 arg2)
 {
-    WorldPacket data;
-	//score
-    sBattleAOMgr->BuildBattleAOStatusPacket(&data, player->GetBattlegroundQueueIndex(BATTLEGROUND_QUEUE_AO), STATUS_IN_PROGRESS, 0, 0);
-    player->GetSession()->SendPacket(&data);
+    Trinity::BattleAO2ChatBuilder bg_builder(type, entry, source, arg1, arg2);
+    Trinity::LocalizedPacketDo<Trinity::BattleAO2ChatBuilder> bg_do(bg_builder);
+    BroadcastWorker(bg_do);
 }
 
 void BattleAO::TeamCastSpell(TeamId team, int32 spellId)
 {
-    /* tofix
 	if (spellId > 0)
     {
-        for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
-            if (Player* player = sObjectAccessor->FindPlayer(*itr))
-                player->CastSpell(player, uint32(spellId), true);
+        for (BattleAOPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+			if (Player* player = sObjectAccessor->FindPlayer(itr->first))
+				if (player->GetTeamId() == team)
+					player->CastSpell(player, uint32(spellId), true);
     }
     else
     {
-        for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
-            if (Player* player = sObjectAccessor->FindPlayer(*itr))
-                player->RemoveAuraFromStack(uint32(-spellId));
-    }*/
+        for (BattleAOPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+			if (Player* player = sObjectAccessor->FindPlayer(itr->first))
+				if (player->GetTeamId() == team)
+					player->RemoveAuraFromStack(uint32(-spellId));
+    }
 }
 
 void BattleAO::SendUpdateWorldState(uint32 Field, uint32 Value)
@@ -312,11 +524,6 @@ void BattleAO::SendUpdateWorldState(uint32 Field, uint32 Value)
     WorldPacket data;
     sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, Field, Value);
     SendPacketToAll(&data);
-}
-
-void BattleAO::RegisterZone(uint32 zoneId)
-{
-    sBattleAOMgr->AddZone(zoneId, this);
 }
 
 // ****************************************************
@@ -374,17 +581,13 @@ WorldSafeLocsEntry const* BattleAO::GetClosestGraveYard(Player* player)
 {
     TeamId teamIndex = GetTeamIndexByTeamId(player->GetTeam());
 
-    // Is there any occupied node for this team?
-    std::vector<uint8> nodes;
+    std::vector<uint8> nodes; // Is there any occupied node for this team?
     for (uint8 i = 0; i < AO_DYNAMIC_NODES_COUNT; ++i)
 		if (m_Nodes[i] == teamIndex + 3)
-		{
 			nodes.push_back(i);
-		}
 
     WorldSafeLocsEntry const* good_entry = NULL;
-    // If so, select the closest node to place ghost on
-    if (!nodes.empty())
+    if (!nodes.empty()) // If so, select the closest node to place ghost on
     {
         float plr_x = player->GetPositionX();
         float plr_y = player->GetPositionY();
@@ -435,6 +638,29 @@ void BattleAO::RemovePlayerFromResurrectQueue(uint64 player_guid)
                     player->RemoveAurasDueToSpell(SPELL_WAITING_FOR_RESURRECT);
                 return;
             }
+        }
+    }
+}
+
+void BattleAO::HandleKill(Player* killer, Player* victim)
+{
+    UpdatePlayerScore(victim, SCORE_DEATHS, 1);
+    if (killer)
+    {
+        if (killer == victim)
+            return;
+
+        UpdatePlayerScore(killer, SCORE_HONORABLE_KILLS, 1);
+        UpdatePlayerScore(killer, SCORE_KILLING_BLOWS, 1);
+
+        for (BattleAOPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+        {
+            Player* creditedPlayer = ObjectAccessor::FindPlayer(itr->first);
+            if (!creditedPlayer || creditedPlayer == killer)
+                continue;
+
+            if (creditedPlayer->GetTeam() == killer->GetTeam() && creditedPlayer->IsAtGroupRewardDistance(victim))
+                UpdatePlayerScore(creditedPlayer, SCORE_HONORABLE_KILLS, 1);
         }
     }
 }
@@ -742,6 +968,21 @@ void BattleAO::_NodeDeOccupied(uint8 node)
         DelCreature(node);
 }
 
+int32 BattleAO::_GetNodeNameId(uint8 node)
+{
+    switch (node)
+    {
+        case AO_NODE_A2:	return LANG_BG_AB_NODE_STABLES;
+        case AO_NODE_A22:	return LANG_BG_AB_NODE_LUMBER_MILL;
+        case AO_NODE_MID:	return LANG_BG_AB_NODE_BLACKSMITH;
+        case AO_NODE_H22:	return LANG_BG_AB_NODE_GOLD_MINE;
+        case AO_NODE_H2:	return LANG_BG_AB_NODE_FARM;
+        default:
+            ASSERT(false);
+    }
+    return 0;
+}
+
 void BattleAO::EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj*/)
 {
     uint8 node = 0;
@@ -766,7 +1007,7 @@ void BattleAO::EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj
     // If node is neutral, change to contested
     if (m_Nodes[node] == AO_NODE_TYPE_NEUTRAL)
     {
-        //UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
+        UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
         m_prevNodes[node] = m_Nodes[node];
         m_Nodes[node] = teamIndex + 1;
         _DelBanner(node, AO_NODE_TYPE_NEUTRAL, 0);
@@ -774,19 +1015,17 @@ void BattleAO::EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj
         _SendNodeUpdate(node);
         m_NodeTimers[node] = BAO_FLAG_CAPTURING_TIME;
 		
-        /*if (teamIndex == 0)
-            SendMessage2ToAll(LANG_BG_AO_NODE_CLAIMED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node), LANG_BG_AO_ALLY);
-        else
-            SendMessage2ToAll(LANG_BG_AO_NODE_CLAIMED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node), LANG_BG_AO_HORDE);*/
+        if (teamIndex == TEAM_ALLIANCE)
+			SendMessage2ToAll(LANG_BG_AO_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node), 0);
+		else
+			SendMessage2ToAll(LANG_BG_AO_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node), 0);
         sound = AO_SOUND_NODE_CLAIMED;
     }
-    // If node is contested
-    else if ((m_Nodes[node] == AO_NODE_STATUS_ALLY_CONTESTED) || (m_Nodes[node] == AO_NODE_STATUS_HORDE_CONTESTED))
+    else if ((m_Nodes[node] == AO_NODE_STATUS_ALLY_CONTESTED) || (m_Nodes[node] == AO_NODE_STATUS_HORDE_CONTESTED)) // If node is contested
     {
-        // If last state is NOT occupied, change node to enemy-contested
-        if (m_prevNodes[node] < AO_NODE_TYPE_OCCUPIED)
+        if (m_prevNodes[node] < AO_NODE_TYPE_OCCUPIED) // If last state is NOT occupied, change node to enemy-contested
         {
-            //UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
+            UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
             m_prevNodes[node] = m_Nodes[node];
             m_Nodes[node] = teamIndex + AO_NODE_TYPE_CONTESTED;
             _DelBanner(node, AO_NODE_TYPE_CONTESTED, !teamIndex);
@@ -794,15 +1033,14 @@ void BattleAO::EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj
             _SendNodeUpdate(node);
             m_NodeTimers[node] = BAO_FLAG_CAPTURING_TIME;
 			
-            /*if (teamIndex == TEAM_ALLIANCE)
-                SendMessage2ToAll(LANG_BG_AO_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node));
+            if (teamIndex == TEAM_ALLIANCE)
+			SendMessage2ToAll(LANG_BG_AO_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node), 0);
             else
-                SendMessage2ToAll(LANG_BG_AO_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node));*/
+			SendMessage2ToAll(LANG_BG_AO_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node), 0);
         }
-        // If contested, change back to occupied
-        else
+        else // If contested, change back to occupied
         {
-            //UpdatePlayerScore(source, SCORE_BASES_DEFENDED, 1);
+            UpdatePlayerScore(source, SCORE_BASES_DEFENDED, 1);
             m_prevNodes[node] = m_Nodes[node];
             m_Nodes[node] = teamIndex + AO_NODE_TYPE_OCCUPIED;
             _DelBanner(node, AO_NODE_TYPE_CONTESTED, !teamIndex);
@@ -811,17 +1049,17 @@ void BattleAO::EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj
             m_NodeTimers[node] = 0;
             _NodeOccupied(node, (teamIndex == TEAM_ALLIANCE) ? ALLIANCE:HORDE);
 			
-			/*if (teamIndex == TEAM_ALLIANCE)
-                SendMessage2ToAll(LANG_BG_AO_NODE_DEFENDED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node));
+			if (teamIndex == TEAM_ALLIANCE)
+			SendMessage2ToAll(LANG_BG_AO_NODE_DEFENDED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node), 0);
             else
-                SendMessage2ToAll(LANG_BG_AO_NODE_DEFENDED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node));*/
+			SendMessage2ToAll(LANG_BG_AO_NODE_DEFENDED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node), 0);
         }
         sound = (teamIndex == TEAM_ALLIANCE) ? AO_SOUND_NODE_ASSAULTED_ALLIANCE : AO_SOUND_NODE_ASSAULTED_HORDE;
     }
     // If node is occupied, change to enemy-contested
     else
     {
-        //UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
+        UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
         m_prevNodes[node] = m_Nodes[node];
         m_Nodes[node] = teamIndex + AO_NODE_TYPE_CONTESTED;
         _DelBanner(node, AO_NODE_TYPE_OCCUPIED, !teamIndex);
@@ -830,10 +1068,10 @@ void BattleAO::EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj
         _NodeDeOccupied(node);
         m_NodeTimers[node] = BAO_FLAG_CAPTURING_TIME;
 		
-        /*if (teamIndex == TEAM_ALLIANCE)
-            SendMessage2ToAll(LANG_BG_AO_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node));
+        if (teamIndex == TEAM_ALLIANCE)
+			SendMessage2ToAll(LANG_BG_AO_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node), 0);
         else
-            SendMessage2ToAll(LANG_BG_AO_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node));*/
+			SendMessage2ToAll(LANG_BG_AO_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node), 0);
 
         sound = (teamIndex == TEAM_ALLIANCE) ? AO_SOUND_NODE_ASSAULTED_ALLIANCE : AO_SOUND_NODE_ASSAULTED_HORDE;
     }
@@ -841,110 +1079,66 @@ void BattleAO::EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj
     // If node is occupied again, send "X has taken the Y" msg.
     if (m_Nodes[node] >= AO_NODE_TYPE_OCCUPIED)
     {
-
-        /*if (teamIndex == TEAM_ALLIANCE)
-            SendMessage2ToAll(LANG_BG_AO_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_ALLIANCE, NULL, LANG_BG_AO_ALLY, _GetNodeNameId(node));
+        if (teamIndex == TEAM_ALLIANCE)
+			SendMessage2ToAll(LANG_BG_AO_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_ALLIANCE, NULL, LANG_BG_AO_ALLY, _GetNodeNameId(node));
         else
-            SendMessage2ToAll(LANG_BG_AO_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_HORDE, NULL, LANG_BG_AO_HORDE, _GetNodeNameId(node));*/
+			SendMessage2ToAll(LANG_BG_AO_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_HORDE, NULL, LANG_BG_AO_ALLY, _GetNodeNameId(node));
     }
     PlaySoundToAll(sound);
 }
 
-void BattleAO::UpdateTenacity()
+void BattleAO::UpdatePlayerScore(Player* Source, uint32 type, uint32 value)
 {
-	return;//for tofix
-    TeamId team = TEAM_NEUTRAL;
-    uint32 alliancePlayers; //tofix = m_PlayersInWar[TEAM_ALLIANCE].size();
-    uint32 hordePlayers; //tofix = m_PlayersInWar[TEAM_HORDE].size();
-    int32 newStack = 0;
-
-    if (alliancePlayers && hordePlayers)
-    {
-        if (alliancePlayers < hordePlayers)
-            newStack = int32((float(hordePlayers / alliancePlayers) - 1) * 4);  // positive, should cast on alliance
-        else if (alliancePlayers > hordePlayers)
-            newStack = int32((1 - float(alliancePlayers / hordePlayers)) * 4);  // negative, should cast on horde
-    }
-
-    if (newStack == int32(m_tenacityStack))
+    BattleAOScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
+    if (itr == PlayerScores.end()) // player not found...
         return;
-
-    if (m_tenacityStack > 0 && newStack <= 0)               // old buff was on alliance
-        team = TEAM_ALLIANCE;
-    else if (newStack >= 0)                                 // old buff was on horde
-        team = TEAM_HORDE;
-
-    m_tenacityStack = newStack;
-    // Remove old buff
-    if (team != TEAM_NEUTRAL)
+	
+    switch (type)
     {
-        /*tofix
-		for (GuidSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
-            if (Player* player = sObjectAccessor->FindPlayer(*itr))
-				player->RemoveAurasDueToSpell(AO_SPELL_TENACITY);*/
-	}
-
-    // Apply new buff
-    if (newStack)
-    {
-        team = newStack > 0 ? TEAM_ALLIANCE : TEAM_HORDE;
-
-        if (newStack < 0)
-            newStack = -newStack;
-        if (newStack > 20)
-            newStack = 20;
-		
-		//faire boucle pour tout le monde
-		//player->SetAuraStack(AO_SPELL_TENACITY, player, newStack);
-	}
+        case SCORE_KILLING_BLOWS:                           // Killing blows
+            itr->second->KillingBlows += value;
+            break;
+        case SCORE_DEATHS:                                  // Deaths
+            itr->second->Deaths += value;
+            break;
+        case SCORE_HONORABLE_KILLS:                         // Honorable kills
+            itr->second->HonorableKills += value;
+            break;
+        case SCORE_DAMAGE_DONE:                             // Damage Done
+            itr->second->DamageDone += value;
+            break;
+        case SCORE_HEALING_DONE:                            // Healing Done
+            itr->second->HealingDone += value;
+            break;
+        case SCORE_BASES_ASSAULTED:
+            itr->second->BasesAssaulted += value;
+            break;
+        case SCORE_BASES_DEFENDED:
+            itr->second->BasesDefended += value;
+            break;
+		default:
+			break;
+    }
 }
 
 void BattleAO::RemoveAurasFromPlayer(Player* player)
 {
-    player->RemoveAurasDueToSpell(AO_SPELL_TENACITY);
+    //player->RemoveAurasDueToSpell();
 }
 
-//////////////////
-// QUEUE SYSTEM //
-//////////////////
-
-bool BattleAO::HasFreeSlots() const
-{
-    return GetPlayersSize() < GetMaxPlayers();
-}
-
-// get the number of free slots for team
-// returns the number how many players can join battleground to MaxPlayersPerTeam
-uint32 BattleAO::GetFreeSlotsForTeam(uint32 Team) const
+uint32 BattleAO::GetFreeSlotsForTeam(Team Team) const
 {
     uint32 otherTeam;
-    uint32 otherIn;
     if (Team == ALLIANCE)
-    {
-        otherTeam = GetInvitedCount(HORDE);
-        otherIn = GetPlayersCountByTeam(HORDE);
-    }
+        otherTeam = GetPlayersCount(HORDE);
     else
-    {
-        otherTeam = GetInvitedCount(ALLIANCE);
-        otherIn = GetPlayersCountByTeam(ALLIANCE);
-    }
+        otherTeam = GetPlayersCount(ALLIANCE);
 
-	uint32 diff = 0; // default: allow 0
-    if (otherTeam == GetInvitedCount(Team)) // allow join one person if the sides are equal (to fill up bg to minplayersperteam)
-	    diff = 1;
-	else if (otherTeam > GetInvitedCount(Team)) // allow join more ppl if the other side has more players
-		diff = otherTeam - GetInvitedCount(Team);
+	uint32 diff = 0;
+    if (otherTeam == GetPlayersCount(Team))
+		diff = 1;
+	else if (otherTeam > GetPlayersCount(Team)) 
+		diff = otherTeam - GetPlayersCount(Team);
 
 	return diff;
-}
-
-// This method removes this battleground from free queue - it must be called when deleting battleground
-void BattleAO::RemoveFromBAOFreeSlotQueue()
-{
-    if (m_InBAOFreeSlotQueue)
-    {
-        sBattleAOMgr->RemoveFromBAOFreeSlotQueue();
-        m_InBAOFreeSlotQueue = false;
-    }
 }

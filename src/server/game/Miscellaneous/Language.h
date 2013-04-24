@@ -1225,7 +1225,6 @@ enum TrinityStrings
 	LANG_BG_AO_NODE_TAKEN               = 17819,
     LANG_BG_AO_NODE_DEFENDED            = 17820,
     LANG_BG_AO_NODE_ASSAULTED           = 17821,
-    LANG_BG_AO_NODE_CLAIMED             = 17822,
 	
     LANG_DIST_RANKS_START				= 18000,
     LANG_DIST_RANKS_END					= 18001,

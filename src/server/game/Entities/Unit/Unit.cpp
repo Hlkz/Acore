@@ -715,6 +715,8 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         if (victim->GetTypeId() == TYPEID_PLAYER)
             if (Battleground* bg = killer->GetBattleground())
                 bg->UpdatePlayerScore(killer, SCORE_DAMAGE_DONE, damage);
+			else if (sBattleAOMgr->GetBattleAO()->HasPlayer(killer))
+				sBattleAOMgr->GetBattleAO()->UpdatePlayerScore(killer, SCORE_DAMAGE_DONE, damage);
 
         killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE, damage, 0, victim);
         killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_DEALT, damage);
@@ -9615,6 +9617,8 @@ int32 Unit::DealHeal(Unit* victim, uint32 addhealth)
     {
         if (Battleground* bg = player->GetBattleground())
             bg->UpdatePlayerScore(player, SCORE_HEALING_DONE, gain);
+		else if (sBattleAOMgr->GetBattleAO()->HasPlayer(player))
+			sBattleAOMgr->GetBattleAO()->UpdatePlayerScore(player, SCORE_HEALING_DONE, gain);
 
         // use the actual gain, as the overheal shall not be counted, skip gain 0 (it ignored anyway in to criteria)
         if (gain)
@@ -15397,9 +15401,6 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
 
         if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(player->GetZoneId()))
             bf->HandleKill(player, victim);
-		if (player->GetMapId() == BATTLEAO_MAP)
-			if (BattleAO* bao = sBattleAOMgr->GetBattleAO())
-				bao->HandleKill(player, victim);
     }
 
     //if (victim->GetTypeId() == TYPEID_PLAYER)
@@ -15417,6 +15418,10 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
                 bg->HandleKillUnit(victim->ToCreature(), player);
         }
     }
+	
+	if (player && sBattleAOMgr->GetBattleAO()->HasPlayer(player))
+		if (victim->GetTypeId() == TYPEID_PLAYER)
+                sBattleAOMgr->GetBattleAO()->HandleKill(player, (Player*)victim);
 
     // achievement stuff
     if (victim->GetTypeId() == TYPEID_PLAYER)
