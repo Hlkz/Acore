@@ -2965,7 +2965,7 @@ public:
     {
         npc_invisiblemakerAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             Map* map = me->GetMap();
             Map::PlayerList const &PlayerList = map->GetPlayers();
