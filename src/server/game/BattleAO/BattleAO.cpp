@@ -109,13 +109,61 @@ void BattleAO::BroadcastWorker(Do& _do)
 
 BattleAO::BattleAO() //ctor
 {
-    m_Map = sMapMgr->FindMap(BATTLEAO_MAP, 0);
+	m_Map = sMapMgr->CreateBaseMap(BATTLEAO_MAP);
+	if (m_Map == NULL)
+		
     m_PlayersCount[TEAM_ALLIANCE] = 0;
     m_PlayersCount[TEAM_HORDE]    = 0;
     m_InBAOFreeSlotQueue = false;
     m_LastResurrectTime = 0;
 }
 BattleAO::~BattleAO() {} //dtor
+
+bool BattleAO::SetupBattleAO()
+{	
+    AoObjects.resize(BAO_OBJECT_MAX);
+    AoCreatures.resize(BAO_ALL_NODES_COUNT + BAO_DYNAMIC_NODES_COUNT);
+			
+    for (int i = 0; i < BAO_DYNAMIC_NODES_COUNT; ++i)
+    {
+        if (!AddObject(BAO_OBJECT_BANNER_NEUTRAL + 8*i, BAO_OBJECTID_NODE_BANNER_A2 + i, BAO_NodePositions[i][0], BAO_NodePositions[i][1], BAO_NodePositions[i][2], BAO_NodePositions[i][3], 0, 0, std::sin(BAO_NodePositions[i][3]/2), std::cos(BAO_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
+            || !AddObject(BAO_OBJECT_BANNER_CONT_A + 8*i, BAO_OBJECTID_BANNER_CONT_A, BAO_NodePositions[i][0], BAO_NodePositions[i][1], BAO_NodePositions[i][2], BAO_NodePositions[i][3], 0, 0, std::sin(BAO_NodePositions[i][3]/2), std::cos(BAO_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
+            || !AddObject(BAO_OBJECT_BANNER_CONT_H + 8*i, BAO_OBJECTID_BANNER_CONT_H, BAO_NodePositions[i][0], BAO_NodePositions[i][1], BAO_NodePositions[i][2], BAO_NodePositions[i][3], 0, 0, std::sin(BAO_NodePositions[i][3]/2), std::cos(BAO_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
+            || !AddObject(BAO_OBJECT_BANNER_ALLY + 8*i, BAO_OBJECTID_BANNER_A, BAO_NodePositions[i][0], BAO_NodePositions[i][1], BAO_NodePositions[i][2], BAO_NodePositions[i][3], 0, 0, std::sin(BAO_NodePositions[i][3]/2), std::cos(BAO_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
+            || !AddObject(BAO_OBJECT_BANNER_HORDE + 8*i, BAO_OBJECTID_BANNER_H, BAO_NodePositions[i][0], BAO_NodePositions[i][1], BAO_NodePositions[i][2], BAO_NodePositions[i][3], 0, 0, std::sin(BAO_NodePositions[i][3]/2), std::cos(BAO_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
+            || !AddObject(BAO_OBJECT_AURA_ALLY + 8*i, BAO_OBJECTID_AURA_A, BAO_NodePositions[i][0], BAO_NodePositions[i][1], BAO_NodePositions[i][2], BAO_NodePositions[i][3], 0, 0, std::sin(BAO_NodePositions[i][3]/2), std::cos(BAO_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
+            || !AddObject(BAO_OBJECT_AURA_HORDE + 8*i, BAO_OBJECTID_AURA_H, BAO_NodePositions[i][0], BAO_NodePositions[i][1], BAO_NodePositions[i][2], BAO_NodePositions[i][3], 0, 0, std::sin(BAO_NodePositions[i][3]/2), std::cos(BAO_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
+            || !AddObject(BAO_OBJECT_AURA_CONTESTED + 8*i, BAO_OBJECTID_AURA_C, BAO_NodePositions[i][0], BAO_NodePositions[i][1], BAO_NodePositions[i][2], BAO_NodePositions[i][3], 0, 0, std::sin(BAO_NodePositions[i][3]/2), std::cos(BAO_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
+)
+		{
+            sLog->outError(LOG_FILTER_SQL, "BatteAO: Failed to spawn some object Battleground not created! %i",i);
+            return false;
+		}
+	}
+	
+    for (uint8 i = 0; i < BAO_DYNAMIC_NODES_COUNT; ++i)
+    {
+        m_Nodes[i] = 0;
+        m_prevNodes[i] = 0;
+        m_NodeTimers[i] = 0;
+        m_BannerTimers[i].timer = 0;
+    }
+
+	for (uint8 k = 0; k < 2; ++k)
+	{
+		for (uint8 i = 0; i < BAO_DYNAMIC_NODES_COUNT; ++i)
+		{
+			for (uint8 j = 1; j < 7; ++j)
+				_DelBanner(i,j,k);
+		}
+	}
+
+    for (uint8 i = 0; i < BAO_ALL_NODES_COUNT + BAO_DYNAMIC_NODES_COUNT; ++i)
+        if (AoCreatures[i])
+            DelCreature(i);
+		
+	return true;
+}
 
 bool BattleAO::HasPlayer(Player* player) const { return m_Players.find(player->GetGUID()) != m_Players.end(); }
 bool BattleAO::HasPlayerByGuid(uint64 guid) const { return m_Players.find(guid) != m_Players.end(); }
@@ -140,8 +188,9 @@ void BattleAO::AddPlayer(Player* player)
     SendPacketToTeam(team, &data, player, false);
     sBattleAOMgr->BuildBattleAOStatusPacket(&data, player->GetBattlegroundQueueIndex(BATTLEGROUND_QUEUE_AO), STATUS_IN_PROGRESS, 0, 0);
     player->GetSession()->SendPacket(&data);
-    //sBattleAOMgr->BuildPvpLogDataPacket(&data);
-    //player->GetSession()->SendPacket(&data);
+    sBattleAOMgr->BuildPvpLogDataPacket(&data);
+    player->GetSession()->SendPacket(&data);
+	SendAllNodeUpdate(player);
 
     player->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
@@ -233,7 +282,7 @@ void BattleAO::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPacket)
             player->RemoveBattlegroundQueueId(BATTLEGROUND_QUEUE_AO); //important call
         }
 
-        /*// remove from raid group if player is member
+        /*// remove from raid group if player is member tofix
         if (Group* group = GetBgRaid(team))
         {
             if (!group->RemoveMember(guid))                // group was disbanded
@@ -242,9 +291,6 @@ void BattleAO::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPacket)
             }
         }*/
         sBattleAOMgr->ScheduleQueueUpdate();
-        /*WorldPacket data;
-        sBattlegroundMgr->BuildPlayerLeftBattlegroundPacket(&data, guid);
-        SendPacketToTeam(team, &data, player, false);*/
     }
 
     if (player)
@@ -273,6 +319,7 @@ void BattleAO::EventPlayerLoggedIn(Player* player)
     player->GetSession()->SendPacket(&data);
     sBattleAOMgr->BuildPvpLogDataPacket(&data);
     player->GetSession()->SendPacket(&data);
+	SendAllNodeUpdate(player);
 }
 
 void BattleAO::EventPlayerLoggedOut(Player* player)
@@ -283,7 +330,7 @@ void BattleAO::EventPlayerLoggedOut(Player* player)
 
 bool BattleAO::Update(uint32 diff)
 {
-	for (int node = 0; node < AO_DYNAMIC_NODES_COUNT; ++node)
+	for (int node = 0; node < BAO_DYNAMIC_NODES_COUNT; ++node)
 	{
 		if (m_BannerTimers[node].timer)
 		{
@@ -306,20 +353,20 @@ bool BattleAO::Update(uint32 diff)
 				uint8 teamIndex = m_Nodes[node]-1; // Change from contested to occupied !
 				m_prevNodes[node] = m_Nodes[node];
 				m_Nodes[node] += 2;
-				_DelBanner(node, AO_NODE_TYPE_CONTESTED, teamIndex); // burn current contested banner
-				_CreateBanner(node, AO_NODE_TYPE_OCCUPIED, teamIndex, true); // create new occupied banner
+				_DelBanner(node, BAO_NODE_TYPE_CONTESTED, teamIndex); // burn current contested banner
+				_CreateBanner(node, BAO_NODE_TYPE_OCCUPIED, teamIndex, true); // create new occupied banner
 				_SendNodeUpdate(node);
 				_NodeOccupied(node, (teamIndex == 0) ? ALLIANCE:HORDE);
 
 				if (teamIndex == TEAM_ALLIANCE)
 				{
-					SendMessage2ToAll(LANG_BG_AO_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_ALLIANCE, NULL, LANG_BG_AO_ALLY, _GetNodeNameId(node));
-					PlaySoundToAll(AO_SOUND_NODE_CAPTURED_ALLIANCE);
+					SendMessage2ToAll(LANG_BAO_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_ALLIANCE, NULL, LANG_BAO_ALLY, _GetNodeNameId(node));
+					PlaySoundToAll(BAO_SOUND_NODE_CAPTURED_ALLIANCE);
 				}
 				else
 				{
-					SendMessage2ToAll(LANG_BG_AO_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_HORDE, NULL, LANG_BG_AO_ALLY, _GetNodeNameId(node));
-					PlaySoundToAll(AO_SOUND_NODE_CAPTURED_HORDE);
+					SendMessage2ToAll(LANG_BAO_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_HORDE, NULL, LANG_BAO_ALLY, _GetNodeNameId(node));
+					PlaySoundToAll(BAO_SOUND_NODE_CAPTURED_HORDE);
 				}
             }
         }
@@ -369,7 +416,7 @@ bool BattleAO::Update(uint32 diff)
         }
 		m_LastResurrectTime = 0;
     }
-    else if (m_LastResurrectTime > 500)    // Resurrect players only half a second later, to see spirit heal effect on NPC
+    else if (m_LastResurrectTime > 500)
     {
         for (std::vector<uint64>::const_iterator itr = m_ResurrectQueue.begin(); itr != m_ResurrectQueue.end(); ++itr)
         {
@@ -385,55 +432,6 @@ bool BattleAO::Update(uint32 diff)
 	}
 	return true;
 }
-
-bool BattleAO::SetupBattleAO()
-{	
-    AoObjects.resize(AO_OBJECT_MAX);
-    AoCreatures.resize(AO_ALL_NODES_COUNT + 5);//+7 for aura triggers
-			
-    for (int i = 0; i < AO_DYNAMIC_NODES_COUNT; ++i)
-    {
-        if (!AddObject(AO_OBJECT_BANNER_NEUTRAL + 8*i, BAO_OBJECTID_NODE_BANNER_A2 + i, BAO_NodePositions[i][0], BAO_NodePositions[i][1], BAO_NodePositions[i][2], BAO_NodePositions[i][3], 0, 0, std::sin(BAO_NodePositions[i][3]/2), std::cos(BAO_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(AO_OBJECT_BANNER_CONT_A + 8*i, BAO_OBJECTID_BANNER_CONT_A, BAO_NodePositions[i][0], BAO_NodePositions[i][1], BAO_NodePositions[i][2], BAO_NodePositions[i][3], 0, 0, std::sin(BAO_NodePositions[i][3]/2), std::cos(BAO_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(AO_OBJECT_BANNER_CONT_H + 8*i, BAO_OBJECTID_BANNER_CONT_H, BAO_NodePositions[i][0], BAO_NodePositions[i][1], BAO_NodePositions[i][2], BAO_NodePositions[i][3], 0, 0, std::sin(BAO_NodePositions[i][3]/2), std::cos(BAO_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(AO_OBJECT_BANNER_ALLY + 8*i, BAO_OBJECTID_BANNER_A, BAO_NodePositions[i][0], BAO_NodePositions[i][1], BAO_NodePositions[i][2], BAO_NodePositions[i][3], 0, 0, std::sin(BAO_NodePositions[i][3]/2), std::cos(BAO_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(AO_OBJECT_BANNER_HORDE + 8*i, BAO_OBJECTID_BANNER_H, BAO_NodePositions[i][0], BAO_NodePositions[i][1], BAO_NodePositions[i][2], BAO_NodePositions[i][3], 0, 0, std::sin(BAO_NodePositions[i][3]/2), std::cos(BAO_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(AO_OBJECT_AURA_ALLY + 8*i, BAO_OBJECTID_AURA_A, BAO_NodePositions[i][0], BAO_NodePositions[i][1], BAO_NodePositions[i][2], BAO_NodePositions[i][3], 0, 0, std::sin(BAO_NodePositions[i][3]/2), std::cos(BAO_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(AO_OBJECT_AURA_HORDE + 8*i, BAO_OBJECTID_AURA_H, BAO_NodePositions[i][0], BAO_NodePositions[i][1], BAO_NodePositions[i][2], BAO_NodePositions[i][3], 0, 0, std::sin(BAO_NodePositions[i][3]/2), std::cos(BAO_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
-            || !AddObject(AO_OBJECT_AURA_CONTESTED + 8*i, BAO_OBJECTID_AURA_C, BAO_NodePositions[i][0], BAO_NodePositions[i][1], BAO_NodePositions[i][2], BAO_NodePositions[i][3], 0, 0, std::sin(BAO_NodePositions[i][3]/2), std::cos(BAO_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
-)
-		{
-            sLog->outError(LOG_FILTER_SQL, "BatteAO: Failed to spawn some object Battleground not created!");
-            return false;
-		}
-	}
-	
-    for (uint8 i = 0; i < AO_DYNAMIC_NODES_COUNT; ++i)
-    {
-        m_Nodes[i] = 0;
-        m_prevNodes[i] = 0;
-        m_NodeTimers[i] = 0;
-        m_BannerTimers[i].timer = 0;
-    }
-
-	for (uint8 k = 0; k < 2; ++k)
-	{
-		for (uint8 i = 0; i < AO_DYNAMIC_NODES_COUNT; ++i)
-		{
-			for (uint8 j = 1; j < 7; ++j)
-				_DelBanner(i,j,k);
-		}
-	}
-
-    for (uint8 i = 0; i < AO_ALL_NODES_COUNT + 5; ++i)//+7 for aura triggers
-        if (AoCreatures[i])
-            DelCreature(i);
-		
-	return true;
-}
-
-void BattleAO::StartBattle() {}
-
 
 inline Player* BattleAO::_GetPlayer(uint64 guid, bool offlineRemove, char const* context) const
 {
@@ -526,6 +524,42 @@ void BattleAO::SendUpdateWorldState(uint32 Field, uint32 Value)
     SendPacketToAll(&data);
 }
 
+void BattleAO::SendAllNodeUpdate(Player* player)
+{
+    uint8 ally = 0, horde = 0; // How many bases each team owns
+    for (uint8 i = 0; i < BAO_DYNAMIC_NODES_COUNT; ++i)
+        if (m_Nodes[i] == BAO_NODE_STATUS_ALLY_OCCUPIED)
+            ++ally;
+        else if (m_Nodes[i] == BAO_NODE_STATUS_HORDE_OCCUPIED)
+            ++horde;
+	
+    const uint8 plusArray[] = {0, 2, 3, 0, 1}; // Send node owner state update to refresh map icons on client
+	
+    WorldPacket data;
+
+    for (uint8 node = 0; node < BAO_DYNAMIC_NODES_COUNT; ++node)
+	{
+		if (m_prevNodes[node])
+		{
+			sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, BAO_OP_NODESTATES[node] + plusArray[m_prevNodes[node]], 0);
+			player->GetSession()->SendPacket(&data);
+		}
+		else
+		{
+			sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, BAO_OP_NODEICONS[node], 0);
+			player->GetSession()->SendPacket(&data);
+		}
+		
+		sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, BAO_OP_NODESTATES[node] + plusArray[m_Nodes[node]], 1);
+		player->GetSession()->SendPacket(&data);
+	}
+
+    sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, BAO_OP_OCCUPIED_BASES_ALLY, ally);
+    player->GetSession()->SendPacket(&data);
+    sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, BAO_OP_OCCUPIED_BASES_HORDE, horde);
+    player->GetSession()->SendPacket(&data);
+}
+
 // ****************************************************
 // ******************* Group System *******************
 // ****************************************************
@@ -582,7 +616,7 @@ WorldSafeLocsEntry const* BattleAO::GetClosestGraveYard(Player* player)
     TeamId teamIndex = GetTeamIndexByTeamId(player->GetTeam());
 
     std::vector<uint8> nodes; // Is there any occupied node for this team?
-    for (uint8 i = 0; i < AO_DYNAMIC_NODES_COUNT; ++i)
+    for (uint8 i = 0; i < BAO_DYNAMIC_NODES_COUNT; ++i)
 		if (m_Nodes[i] == teamIndex + 3)
 			nodes.push_back(i);
 
@@ -693,8 +727,8 @@ Creature* BattleAO::GetAOCreature(uint32 type)
 
 void BattleAO::SpawnAOObject(uint32 type, uint32 respawntime)
 {
-    if (Map* map = sMapMgr->CreateBaseMap(BATTLEAO_MAP))
-        if (GameObject* obj = map->GetGameObject(AoObjects[type]))
+    if (m_Map)
+        if (GameObject* obj = m_Map->GetGameObject(AoObjects[type]))
         {
             if (respawntime)
                 obj->SetLootState(GO_JUST_DEACTIVATED);
@@ -702,12 +736,14 @@ void BattleAO::SpawnAOObject(uint32 type, uint32 respawntime)
                 if (obj->getLootState() == GO_JUST_DEACTIVATED)
                     obj->SetLootState(GO_READY);
             obj->SetRespawnTime(respawntime);
-            map->AddToMap(obj);
+            m_Map->AddToMap(obj);
         }
 }
 
 bool BattleAO::AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 /*respawnTime*/)
 {
+        sLog->outError(LOG_FILTER_GENERAL, "BAO::cc ");
+		sLog->outError(LOG_FILTER_GENERAL, "BAO::cc %i", m_Map->GetEntry()->MapID);
     ASSERT(type < AoObjects.size());
     Map* map = m_Map;
     if (!map)
@@ -845,7 +881,7 @@ void BattleAO::_CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay
     // handle aura with banner
     if (!type)
         return;
-    obj = node * 8 + ((type == AO_NODE_TYPE_OCCUPIED) ? (5 + teamIndex) : 7);
+    obj = node * 8 + ((type == BAO_NODE_TYPE_OCCUPIED) ? (5 + teamIndex) : 7);
     SpawnAOObject(obj, RESPAWN_IMMEDIATELY);
 }
 
@@ -857,7 +893,7 @@ void BattleAO::_DelBanner(uint8 node, uint8 type, uint8 teamIndex)
     // handle aura with banner
     if (!type)
         return;
-    obj = node * 8 + ((type == AO_NODE_TYPE_OCCUPIED) ? (5 + teamIndex) : 7);
+    obj = node * 8 + ((type == BAO_NODE_TYPE_OCCUPIED) ? (5 + teamIndex) : 7);
     SpawnAOObject(obj, RESPAWN_ONE_DAY);
 }
 
@@ -866,20 +902,20 @@ void BattleAO::FillInitialWorldStates(WorldPacket& data)
     const uint8 plusArray[] = {0, 2, 3, 0, 1};
 
     // Node icons
-    for (uint8 node = 0; node < AO_DYNAMIC_NODES_COUNT; ++node)
-        data << uint32(AO_OP_NODEICONS[node]) << uint32((m_Nodes[node] == 0)?1:0);
+    for (uint8 node = 0; node < BAO_DYNAMIC_NODES_COUNT; ++node)
+        data << uint32(BAO_OP_NODEICONS[node]) << uint32((m_Nodes[node] == 0)?1:0);
 
     // Node occupied states
-    for (uint8 node = 0; node < AO_DYNAMIC_NODES_COUNT; ++node)
-        for (uint8 i = 1; i < AO_DYNAMIC_NODES_COUNT; ++i)
-            data << uint32(AO_OP_NODESTATES[node] + plusArray[i]) << uint32((m_Nodes[node] == i)?1:0);
+    for (uint8 node = 0; node < BAO_DYNAMIC_NODES_COUNT; ++node)
+        for (uint8 i = 1; i < BAO_DYNAMIC_NODES_COUNT; ++i)
+            data << uint32(BAO_OP_NODESTATES[node] + plusArray[i]) << uint32((m_Nodes[node] == i)?1:0);
 
     // How many bases each team owns
     uint8 ally = 0, horde = 0;
-    for (uint8 node = 0; node < AO_DYNAMIC_NODES_COUNT; ++node)
-        if (m_Nodes[node] == AO_NODE_STATUS_ALLY_OCCUPIED)
+    for (uint8 node = 0; node < BAO_DYNAMIC_NODES_COUNT; ++node)
+        if (m_Nodes[node] == BAO_NODE_STATUS_ALLY_OCCUPIED)
             ++ally;
-        else if (m_Nodes[node] == AO_NODE_STATUS_HORDE_OCCUPIED)
+        else if (m_Nodes[node] == BAO_NODE_STATUS_HORDE_OCCUPIED)
             ++horde;
 
     data << uint32(BAO_OP_OCCUPIED_BASES_ALLY)  << uint32(ally);
@@ -895,18 +931,18 @@ void BattleAO::_SendNodeUpdate(uint8 node)
     const uint8 plusArray[] = {0, 2, 3, 0, 1};
 
     if (m_prevNodes[node])
-        SendUpdateWorldState(AO_OP_NODESTATES[node] + plusArray[m_prevNodes[node]], 0);
+        SendUpdateWorldState(BAO_OP_NODESTATES[node] + plusArray[m_prevNodes[node]], 0);
     else
-        SendUpdateWorldState(AO_OP_NODEICONS[node], 0);
+        SendUpdateWorldState(BAO_OP_NODEICONS[node], 0);
 
-    SendUpdateWorldState(AO_OP_NODESTATES[node] + plusArray[m_Nodes[node]], 1);
+    SendUpdateWorldState(BAO_OP_NODESTATES[node] + plusArray[m_Nodes[node]], 1);
 
     // How many bases each team owns
     uint8 ally = 0, horde = 0;
-    for (uint8 i = 0; i < AO_DYNAMIC_NODES_COUNT; ++i)
-        if (m_Nodes[i] == AO_NODE_STATUS_ALLY_OCCUPIED)
+    for (uint8 i = 0; i < BAO_DYNAMIC_NODES_COUNT; ++i)
+        if (m_Nodes[i] == BAO_NODE_STATUS_ALLY_OCCUPIED)
             ++ally;
-        else if (m_Nodes[i] == AO_NODE_STATUS_HORDE_OCCUPIED)
+        else if (m_Nodes[i] == BAO_NODE_STATUS_HORDE_OCCUPIED)
             ++horde;
 
     SendUpdateWorldState(BAO_OP_OCCUPIED_BASES_ALLY, ally);
@@ -922,27 +958,27 @@ void BattleAO::_NodeOccupied(uint8 node, Team team)
 		sLog->outError(LOG_FILTER_BAO, "Failed to spawn spirit guide! point: %u, team: %u, ", node, team);
 
     uint8 capturedNodes = 0;
-    for (uint8 i = 0; i < AO_DYNAMIC_NODES_COUNT; ++i)
+    for (uint8 i = 0; i < BAO_DYNAMIC_NODES_COUNT; ++i)
     {
-        if (m_Nodes[node] == GetTeamIndexByTeamId(team) + AO_NODE_TYPE_OCCUPIED && !m_NodeTimers[i])
+        if (m_Nodes[node] == GetTeamIndexByTeamId(team) + BAO_NODE_TYPE_OCCUPIED && !m_NodeTimers[i])
             ++capturedNodes;
     }
 	
-    if (node >= AO_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
+    if (node >= BAO_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
         return;
 
 	
-	Creature* trigger = AoCreatures[node+AO_ALL_NODES_COUNT] ? GetAOCreature(node+AO_ALL_NODES_COUNT) : NULL;
+	Creature* trigger = AoCreatures[node+BAO_ALL_NODES_COUNT] ? GetAOCreature(node+BAO_ALL_NODES_COUNT) : NULL;
 	if (!trigger)
-		trigger = AddCreature(WORLD_TRIGGER, node+AO_ALL_NODES_COUNT, team, BAO_NodePositions[node][0], BAO_NodePositions[node][1], BAO_NodePositions[node][2], BAO_NodePositions[node][3]);
+		trigger = AddCreature(WORLD_TRIGGER, node+BAO_ALL_NODES_COUNT, team, BAO_NodePositions[node][0], BAO_NodePositions[node][1], BAO_NodePositions[node][2], BAO_NodePositions[node][3]);
 }
 
 void BattleAO::_NodeDeOccupied(uint8 node)
 {
-    if (node >= AO_DYNAMIC_NODES_COUNT)
+    if (node >= BAO_DYNAMIC_NODES_COUNT)
         return;
 
-	if (node < AO_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
+	if (node < BAO_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
 		DelCreature(node+7);//NULL checks are in DelCreature! 0-6 spirit guides
 
 	// Those who are waiting to resurrect at this node are taken to the closest own node's graveyard
@@ -972,11 +1008,12 @@ int32 BattleAO::_GetNodeNameId(uint8 node)
 {
     switch (node)
     {
-        case AO_NODE_A2:	return LANG_BG_AB_NODE_STABLES;
-        case AO_NODE_A22:	return LANG_BG_AB_NODE_LUMBER_MILL;
-        case AO_NODE_MID:	return LANG_BG_AB_NODE_BLACKSMITH;
-        case AO_NODE_H22:	return LANG_BG_AB_NODE_GOLD_MINE;
-        case AO_NODE_H2:	return LANG_BG_AB_NODE_FARM;
+        case BAO_NODE_A2:	return LANG_BAO_NODE_A2;
+        case BAO_NODE_A22:	return LANG_BAO_NODE_A22;
+        case BAO_NODE_RUINS:	return LANG_BAO_NODE_RUINS;
+        case BAO_NODE_H22:	return LANG_BAO_NODE_H22;
+        case BAO_NODE_H2:	return LANG_BAO_NODE_H2;
+        case BAO_NODE_PUIT:	return LANG_BAO_NODE_PUIT;
         default:
             ASSERT(false);
     }
@@ -986,14 +1023,14 @@ int32 BattleAO::_GetNodeNameId(uint8 node)
 void BattleAO::EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj*/)
 {
     uint8 node = 0;
-    GameObject* obj = m_Map->GetGameObject(AoObjects[node*AO_BANNER_MAX+7]);
-    while ((node < AO_DYNAMIC_NODES_COUNT) && ((!obj) || (!source->IsWithinDistInMap(obj, 10))))
+    GameObject* obj = m_Map->GetGameObject(AoObjects[node*BAO_BANNER_MAX+7]);
+    while ((node < BAO_DYNAMIC_NODES_COUNT) && ((!obj) || (!source->IsWithinDistInMap(obj, 10))))
     {
         ++node;
-        obj = m_Map->GetGameObject(AoObjects[node*AO_BANNER_MAX+7]);
+        obj = m_Map->GetGameObject(AoObjects[node*BAO_BANNER_MAX+7]);
     }
 
-    if (node == AO_DYNAMIC_NODES_COUNT)
+    if (node == BAO_DYNAMIC_NODES_COUNT)
         return;
 
     TeamId teamIndex = GetTeamIndexByTeamId(source->GetTeam());
@@ -1005,84 +1042,84 @@ void BattleAO::EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj
     source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
     uint32 sound = 0;
     // If node is neutral, change to contested
-    if (m_Nodes[node] == AO_NODE_TYPE_NEUTRAL)
+    if (m_Nodes[node] == BAO_NODE_TYPE_NEUTRAL)
     {
         UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
         m_prevNodes[node] = m_Nodes[node];
         m_Nodes[node] = teamIndex + 1;
-        _DelBanner(node, AO_NODE_TYPE_NEUTRAL, 0);
-        _CreateBanner(node, AO_NODE_TYPE_CONTESTED, teamIndex, true);
+        _DelBanner(node, BAO_NODE_TYPE_NEUTRAL, 0);
+        _CreateBanner(node, BAO_NODE_TYPE_CONTESTED, teamIndex, true);
         _SendNodeUpdate(node);
         m_NodeTimers[node] = BAO_FLAG_CAPTURING_TIME;
 		
         if (teamIndex == TEAM_ALLIANCE)
-			SendMessage2ToAll(LANG_BG_AO_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node), 0);
+			SendMessage2ToAll(LANG_BAO_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node), 0);
 		else
-			SendMessage2ToAll(LANG_BG_AO_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node), 0);
-        sound = AO_SOUND_NODE_CLAIMED;
+			SendMessage2ToAll(LANG_BAO_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node), 0);
+        sound = BAO_SOUND_NODE_CLAIMED;
     }
-    else if ((m_Nodes[node] == AO_NODE_STATUS_ALLY_CONTESTED) || (m_Nodes[node] == AO_NODE_STATUS_HORDE_CONTESTED)) // If node is contested
+    else if ((m_Nodes[node] == BAO_NODE_STATUS_ALLY_CONTESTED) || (m_Nodes[node] == BAO_NODE_STATUS_HORDE_CONTESTED)) // If node is contested
     {
-        if (m_prevNodes[node] < AO_NODE_TYPE_OCCUPIED) // If last state is NOT occupied, change node to enemy-contested
+        if (m_prevNodes[node] < BAO_NODE_TYPE_OCCUPIED) // If last state is NOT occupied, change node to enemy-contested
         {
             UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
             m_prevNodes[node] = m_Nodes[node];
-            m_Nodes[node] = teamIndex + AO_NODE_TYPE_CONTESTED;
-            _DelBanner(node, AO_NODE_TYPE_CONTESTED, !teamIndex);
-            _CreateBanner(node, AO_NODE_TYPE_CONTESTED, teamIndex, true);
+            m_Nodes[node] = teamIndex + BAO_NODE_TYPE_CONTESTED;
+            _DelBanner(node, BAO_NODE_TYPE_CONTESTED, !teamIndex);
+            _CreateBanner(node, BAO_NODE_TYPE_CONTESTED, teamIndex, true);
             _SendNodeUpdate(node);
             m_NodeTimers[node] = BAO_FLAG_CAPTURING_TIME;
 			
             if (teamIndex == TEAM_ALLIANCE)
-			SendMessage2ToAll(LANG_BG_AO_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node), 0);
+			SendMessage2ToAll(LANG_BAO_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node), 0);
             else
-			SendMessage2ToAll(LANG_BG_AO_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node), 0);
+			SendMessage2ToAll(LANG_BAO_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node), 0);
         }
         else // If contested, change back to occupied
         {
             UpdatePlayerScore(source, SCORE_BASES_DEFENDED, 1);
             m_prevNodes[node] = m_Nodes[node];
-            m_Nodes[node] = teamIndex + AO_NODE_TYPE_OCCUPIED;
-            _DelBanner(node, AO_NODE_TYPE_CONTESTED, !teamIndex);
-            _CreateBanner(node, AO_NODE_TYPE_OCCUPIED, teamIndex, true);
+            m_Nodes[node] = teamIndex + BAO_NODE_TYPE_OCCUPIED;
+            _DelBanner(node, BAO_NODE_TYPE_CONTESTED, !teamIndex);
+            _CreateBanner(node, BAO_NODE_TYPE_OCCUPIED, teamIndex, true);
             _SendNodeUpdate(node);
             m_NodeTimers[node] = 0;
             _NodeOccupied(node, (teamIndex == TEAM_ALLIANCE) ? ALLIANCE:HORDE);
 			
 			if (teamIndex == TEAM_ALLIANCE)
-			SendMessage2ToAll(LANG_BG_AO_NODE_DEFENDED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node), 0);
+			SendMessage2ToAll(LANG_BAO_NODE_DEFENDED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node), 0);
             else
-			SendMessage2ToAll(LANG_BG_AO_NODE_DEFENDED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node), 0);
+			SendMessage2ToAll(LANG_BAO_NODE_DEFENDED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node), 0);
         }
-        sound = (teamIndex == TEAM_ALLIANCE) ? AO_SOUND_NODE_ASSAULTED_ALLIANCE : AO_SOUND_NODE_ASSAULTED_HORDE;
+        sound = (teamIndex == TEAM_ALLIANCE) ? BAO_SOUND_NODE_ASSAULTED_ALLIANCE : BAO_SOUND_NODE_ASSAULTED_HORDE;
     }
     // If node is occupied, change to enemy-contested
     else
     {
         UpdatePlayerScore(source, SCORE_BASES_ASSAULTED, 1);
         m_prevNodes[node] = m_Nodes[node];
-        m_Nodes[node] = teamIndex + AO_NODE_TYPE_CONTESTED;
-        _DelBanner(node, AO_NODE_TYPE_OCCUPIED, !teamIndex);
-        _CreateBanner(node, AO_NODE_TYPE_CONTESTED, teamIndex, true);
+        m_Nodes[node] = teamIndex + BAO_NODE_TYPE_CONTESTED;
+        _DelBanner(node, BAO_NODE_TYPE_OCCUPIED, !teamIndex);
+        _CreateBanner(node, BAO_NODE_TYPE_CONTESTED, teamIndex, true);
         _SendNodeUpdate(node);
         _NodeDeOccupied(node);
         m_NodeTimers[node] = BAO_FLAG_CAPTURING_TIME;
 		
         if (teamIndex == TEAM_ALLIANCE)
-			SendMessage2ToAll(LANG_BG_AO_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node), 0);
+			SendMessage2ToAll(LANG_BAO_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node), 0);
         else
-			SendMessage2ToAll(LANG_BG_AO_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node), 0);
+			SendMessage2ToAll(LANG_BAO_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node), 0);
 
-        sound = (teamIndex == TEAM_ALLIANCE) ? AO_SOUND_NODE_ASSAULTED_ALLIANCE : AO_SOUND_NODE_ASSAULTED_HORDE;
+        sound = (teamIndex == TEAM_ALLIANCE) ? BAO_SOUND_NODE_ASSAULTED_ALLIANCE : BAO_SOUND_NODE_ASSAULTED_HORDE;
     }
 
     // If node is occupied again, send "X has taken the Y" msg.
-    if (m_Nodes[node] >= AO_NODE_TYPE_OCCUPIED)
+    if (m_Nodes[node] >= BAO_NODE_TYPE_OCCUPIED)
     {
         if (teamIndex == TEAM_ALLIANCE)
-			SendMessage2ToAll(LANG_BG_AO_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_ALLIANCE, NULL, LANG_BG_AO_ALLY, _GetNodeNameId(node));
+			SendMessage2ToAll(LANG_BAO_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_ALLIANCE, NULL, LANG_BAO_ALLY, _GetNodeNameId(node));
         else
-			SendMessage2ToAll(LANG_BG_AO_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_HORDE, NULL, LANG_BG_AO_ALLY, _GetNodeNameId(node));
+			SendMessage2ToAll(LANG_BAO_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_HORDE, NULL, LANG_BAO_ALLY, _GetNodeNameId(node));
     }
     PlaySoundToAll(sound);
 }

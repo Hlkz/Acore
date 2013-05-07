@@ -155,6 +155,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
 		}
 		sBattleAOMgr->ScheduleQueueUpdate();
 		sLog->outDebug(LOG_FILTER_BAO, "BAO : group tag");
+		return;
 	}
 
     if (!sBattlemasterListStore.LookupEntry(bgTypeId_))

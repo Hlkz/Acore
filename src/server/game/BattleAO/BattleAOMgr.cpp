@@ -31,15 +31,17 @@ void BattleAOMgr::InitBattleAO()
 
 void BattleAOMgr::SendToBattleAO(Player* player)
 {
-        float x, y, z, O;
-		uint32 mapid = BATTLEAO_MAP;
-		x=2358.145752f;
-		y=-5657.163574f;
-		z=426.026245f;
-		O=0.0f;
-        uint32 team;
-        team = player->GetTeamFromDB(); //tofix spawn a2 / h2 / neutre
-        player->TeleportTo(mapid, x, y, z, O);
+        uint32 team = player->GetTeamFromDB();
+		
+		if((team==ALLIANCE && (int)player->GetReputation(ALLIANCE)<0)
+			|| (team==HORDE && (int)player->GetReputation(HORDE)<0))
+			player->TeleportTo(BATTLEAO_MAP, -5610.104980f, -592.819092f, -20.958515f, 1.135133f);
+		else if (team == ALLIANCE)
+			player->TeleportTo(BATTLEAO_MAP, -5170.789063f, -212.815353f, 13.777747f, 6.229229f);
+		else if (team == HORDE)
+			player->TeleportTo(BATTLEAO_MAP, -6147.039551f, -196.076172f, 7.960524f, 5.606400f);
+		else
+			player->TeleportTo(BATTLEAO_MAP, -5610.104980f, -592.819092f, -20.958515f, 1.135133f);
 }
 
 BattleAO *BattleAOMgr::GetBattleAO()
@@ -122,9 +124,8 @@ void BattleAOMgr::BuildBattleAOStatusPacket(WorldPacket* data, uint8 QueueSlot, 
 void BattleAOMgr::BuildPvpLogDataPacket(WorldPacket* data)
 {
 	BattleAO* bao = sBattleAOMgr->GetBattleAO();
-    uint8 type = 0;
     data->Initialize(MSG_PVP_LOG_DATA, (1+1+4+40*bao->GetPlayerScoresSize()));
-    *data << uint8(type);                                   // type (battleground=0/arena=1)
+    *data << uint8(0);                                   // type (battleground=0/arena=1)
     *data << uint8(0);                                  // bg not ended
     size_t wpos = data->wpos();
     uint32 scoreCount = 0;
@@ -145,9 +146,10 @@ void BattleAOMgr::BuildPvpLogDataPacket(WorldPacket* data)
         *data << uint32(itr2->second->BonusHonor);
         *data << uint32(itr2->second->DamageDone);              // damage done
         *data << uint32(itr2->second->HealingDone);             // healing done
+		*data << uint32(0);
         //*data << uint32(0x00000002);                    // count of next fields
-        *data << uint32(itr2->second->BasesAssaulted);      // bases assaulted
-        *data << uint32(itr2->second->BasesDefended);       // bases defended
+        //*data << uint32(itr2->second->BasesAssaulted);      // bases assaulted
+        //*data << uint32(itr2->second->BasesDefended);       // bases defended
 		scoreCount++;
     }
     data->put(wpos, scoreCount);

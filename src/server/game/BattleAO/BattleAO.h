@@ -11,51 +11,53 @@
 
 enum BattleAOIds
 {
-    BATTLEAO_MAP = 609,
-	BATTLEAO_AREA = 4298,
+    BATTLEAO_MAP = 782,
+	BATTLEAO_AREA = 5810,
     AO_SPELL_CHARGE	= 39089,
 };
 
-enum AO_NodeStatus
+enum BAO_BattlegroundNodes
 {
-    AO_NODE_TYPE_NEUTRAL             = 0,
-    AO_NODE_TYPE_CONTESTED           = 1,
-    AO_NODE_STATUS_ALLY_CONTESTED    = 1,
-    AO_NODE_STATUS_HORDE_CONTESTED   = 2,
-    AO_NODE_TYPE_OCCUPIED            = 3,
-    AO_NODE_STATUS_ALLY_OCCUPIED     = 3,
-    AO_NODE_STATUS_HORDE_OCCUPIED    = 4
+    BAO_NODE_A2			= 0,
+    BAO_NODE_A22		    = 1,
+    BAO_NODE_RUINS		        = 2,
+    BAO_NODE_H22		    = 3,
+    BAO_NODE_H2		    = 4,
+    BAO_NODE_PUIT			    = 5,
+    BAO_DYNAMIC_NODES_COUNT		= 6,                        // dynamic nodes that can be captured
+    BAO_SPIRIT_A2		    = 6,
+    BAO_SPIRIT_H2			= 7,
+    BAO_ALL_NODES_COUNT     = 8								// all nodes (dynamic and static) */
 };
 
-enum AOWorldStates
+enum BAO_NodeStatus
+{
+    BAO_NODE_TYPE_NEUTRAL             = 0,
+    BAO_NODE_TYPE_CONTESTED           = 1,
+    BAO_NODE_STATUS_ALLY_CONTESTED    = 1,
+    BAO_NODE_STATUS_HORDE_CONTESTED   = 2,
+    BAO_NODE_TYPE_OCCUPIED            = 3,
+    BAO_NODE_STATUS_ALLY_OCCUPIED     = 3,
+    BAO_NODE_STATUS_HORDE_OCCUPIED    = 4
+};
+
+enum BAOWorldStates
 {
     BAO_OP_OCCUPIED_BASES_HORDE       = 1778,
-    BAO_OP_OCCUPIED_BASES_ALLY        = 1779,
-    BAO_OP_RESOURCES_ALLY             = 1776,
-    BAO_OP_RESOURCES_HORDE            = 1777,
-    BAO_OP_RESOURCES_MAX              = 1780,
-    BAO_OP_RESOURCES_WARNING          = 1955
+    BAO_OP_OCCUPIED_BASES_ALLY        = 1779
 };
 
-//const uint32 AO_OP_NODESTATES[7] =    {3001, 3011, 3021, 3031, 3041, 3051, 3061};
-//const uint32 AO_OP_NODEICONS[7]  =    {3000, 3010, 3020, 3030, 3040, 3050, 3060};
-const uint32 AO_OP_NODESTATES[5] =    {3001, 3011, 3021, 3031, 3041};
-const uint32 AO_OP_NODEICONS[5]  =    {3000, 3010, 3020, 3030, 3040};
+const uint32 BAO_OP_NODESTATES[BAO_DYNAMIC_NODES_COUNT] =    {3001, 3011, 3021, 3031, 3041, 3051};
+const uint32 BAO_OP_NODEICONS[BAO_DYNAMIC_NODES_COUNT]  =    {3000, 3010, 3020, 3030, 3040, 3050};
 
-enum AO_NodeObjectId
+enum BAO_NodeObjectId
 {
-	BAO_OBJECTID_NODE_BANNER_A2    = 180107,
+	BAO_OBJECTID_NODE_BANNER_A2		= 180107,
     BAO_OBJECTID_NODE_BANNER_A22    = 180108,
     BAO_OBJECTID_NODE_BANNER_MID    = 180109,
     BAO_OBJECTID_NODE_BANNER_H22    = 180110,
-    BAO_OBJECTID_NODE_BANNER_H2    = 180111,
-    /*BG_AO_OBJECTID_NODE_BANNER_0    = 180107,       // Sanctum banner
-    BG_AO_OBJECTID_NODE_BANNER_1    = 180108,       // Palais banner
-    BG_AO_OBJECTID_NODE_BANNER_2    = 180109,       // Puit banner
-    BG_AO_OBJECTID_NODE_BANNER_3    = 180110,       // Ruines banner
-    BG_AO_OBJECTID_NODE_BANNER_4    = 180111,       // Lac banner
-    BG_AO_OBJECTID_NODE_BANNER_5    = 180112,       // Catacombes banner
-    BG_AO_OBJECTID_NODE_BANNER_6    = 180113        // Temple banner */
+    BAO_OBJECTID_NODE_BANNER_H2		= 180111,
+    BAO_OBJECTID_NODE_BANNER_PUIT   = 180112
 };
 
 enum BAO_ObjectTypes
@@ -69,57 +71,28 @@ enum BAO_ObjectTypes
     BAO_OBJECTID_AURA_C               = 180102,
 };
 
-enum BG_AO_BattlegroundNodes
-{
-	AO_NODE_A2 = 0,
-	AO_NODE_A22 = 1,
-	AO_NODE_MID = 2,
-	AO_NODE_H22 = 3,
-	AO_NODE_H2 = 4,
-    /*AO_NODE_SANCTUM			= 0,
-    AO_NODE_PALAIS		    = 1,
-    AO_NODE_PUITS	        = 2,
-    AO_NODE_RUINES		    = 3,
-    AO_NODE_LAC		        = 4,
-    AO_NODE_CATACOMBES      = 5,
-    AO_NODE_TEMPLE	        = 6,
-    AO_DYNAMIC_NODES_COUNT   = 7,                        // dynamic nodes that can be captured
-    AO_SPIRIT_ALIANCE        = 7,
-    AO_SPIRIT_HORDE          = 8,
-    AO_ALL_NODES_COUNT       = 9                         // all nodes (dynamic and static) */
-    AO_DYNAMIC_NODES_COUNT   = 5,                        // dynamic nodes that can be captured
-	AO_ALL_NODES_COUNT       = 5,
-};
 
 enum BG_AO_ObjectType
 {
-    // for all 7 node points 8*7=56 objects
-    AO_OBJECT_BANNER_NEUTRAL          = 0,
-    AO_OBJECT_BANNER_CONT_A           = 1,
-    AO_OBJECT_BANNER_CONT_H           = 2,
-    AO_OBJECT_BANNER_ALLY             = 3,
-    AO_OBJECT_BANNER_HORDE            = 4,
-    AO_OBJECT_AURA_ALLY               = 5,
-    AO_OBJECT_AURA_HORDE              = 6,
-    AO_OBJECT_AURA_CONTESTED          = 7,
-	AO_BANNER_MAX = 8,
-    //buffs
-    AO_OBJECT_SPEEDBUFF_STABLES       = 56,
-    AO_OBJECT_REGENBUFF_STABLES       = 57,
-    AO_OBJECT_BERSERKBUFF_STABLES     = 58,
-    AO_OBJECT_MAX                     = 59
+    BAO_OBJECT_BANNER_NEUTRAL          = 0,
+    BAO_OBJECT_BANNER_CONT_A           = 1,
+    BAO_OBJECT_BANNER_CONT_H           = 2,
+    BAO_OBJECT_BANNER_ALLY             = 3,
+    BAO_OBJECT_BANNER_HORDE            = 4,
+    BAO_OBJECT_AURA_ALLY               = 5,
+    BAO_OBJECT_AURA_HORDE              = 6,
+    BAO_OBJECT_AURA_CONTESTED          = 7,
+	BAO_BANNER_MAX = 8,
+	BAO_OBJECT_MAX = 48 // for all 7 node points 8*7=56 objects
 };
 
 enum BattleAOSounds
 {
-    AO_HORDE_WINS						= 8454,
-    AO_ALLIANCE_WINS					= 8455,
-    AO_SOUND_NODE_CLAIMED				= 8192,
-    AO_SOUND_NODE_CAPTURED_ALLIANCE		= 8173,
-    AO_SOUND_NODE_CAPTURED_HORDE		= 8213,
-    AO_SOUND_NODE_ASSAULTED_ALLIANCE	= 8212,
-    AO_SOUND_NODE_ASSAULTED_HORDE		= 8174,
-    AO_SOUND_NEAR_VICTORY				= 8456
+    BAO_SOUND_NODE_CLAIMED				= 8192,
+    BAO_SOUND_NODE_CAPTURED_ALLIANCE	= 8173,
+    BAO_SOUND_NODE_CAPTURED_HORDE		= 8213,
+    BAO_SOUND_NODE_ASSAULTED_ALLIANCE	= 8212,
+    BAO_SOUND_NODE_ASSAULTED_HORDE		= 8174,
 };
 
 enum BattleAOTimers
@@ -143,24 +116,26 @@ struct BattleAOScore
 	uint32 BasesDefended;
 };
 
-const uint32 BAO_GraveyardIds[AO_ALL_NODES_COUNT] = {1900, 1901, 1902, 1903, 1904};
+const uint32 BAO_GraveyardIds[BAO_ALL_NODES_COUNT] = {1900, 1901, 1902, 1903, 1904};
 
-const float BAO_NodePositions[AO_DYNAMIC_NODES_COUNT][4] =
+const float BAO_NodePositions[BAO_DYNAMIC_NODES_COUNT][4] =
 {
-    {2326.420166f, -5665.936523f, 426.028809f, 0.337806f},//a2
-    {2353.310791f, -5650.761230f, 426.052795f, 1.618222f},//a22
-    {2371.950439f, -5652.683594f, 426.127716f, 0.587738f},//mid
-    {2371.343994f, -5673.425293f, 426.068817f, 0.062393f},//h22
-    {2349.964355f, -5693.840820f, 426.028076f, 4.112648f},//h2
+    {-5496.568848f, -114.320129f, 0.385914f, 3.724546f},		  //a2
+    {-5499.984863f, -295.495911f, 4.916856f, 3.391035f},		   //a22
+    {-5639.682617f, -298.404968f, 35.865448f, 3.152785f},			//mid
+    {-5832.591797f, -384.655273f, 4.530051f, 0.701828f},		   //h22
+    {-5777.549805f, -125.501106f, -9.991575f, 3.402549f},		  //h2
+	{-5622.287598f, 33.083908f, 7.576471f, 3.165621f},					//puit
 
 };
-const float BAO_SpiritGuidePos[AO_ALL_NODES_COUNT][4] =
+const float BAO_SpiritGuidePos[BAO_ALL_NODES_COUNT][4] = //tofix
 {
     {2326.420166f, -5665.936523f, 426.028809f, 0.337806f},//a2
     {2353.310791f, -5650.761230f, 426.052795f, 1.618222f},//a22
     {2371.950439f, -5652.683594f, 426.127716f, 0.587738f},//mid
     {2371.343994f, -5673.425293f, 426.068817f, 0.062393f},//h22
     {2349.964355f, -5693.840820f, 426.028076f, 4.112648f},//h2
+    {2349.964355f, -5693.840820f, 426.028076f, 4.112648f},//puit
 };
 
 struct BattleAOPlayer
@@ -206,8 +181,9 @@ class BattleAO : public ZoneScript
         BattleAOScoreMap::const_iterator GetPlayerScoresBegin() const { return PlayerScores.begin(); }
         BattleAOScoreMap::const_iterator GetPlayerScoresEnd() const { return PlayerScores.end(); }
         uint32 GetPlayerScoresSize() const { return PlayerScores.size(); }
-
+		
         void SendUpdateWorldState(uint32 Field, uint32 value);
+        void SendAllNodeUpdate(Player* player);
 		
 		void UpdatePlayerScore(Player* Source, uint32 type, uint32 value);
 
@@ -263,7 +239,6 @@ class BattleAO : public ZoneScript
         void SendAreaSpiritHealerQueryOpcode(Player* player, uint64 guid);
 		
 		bool SetupBattleAO();
-        void StartBattle();
 
         uint32 GetReviveQueueSize() const { return m_ReviveQueue.size(); }
 		
@@ -308,10 +283,10 @@ class BattleAO : public ZoneScript
             2: horde contested
             3: ally occupied
             4: horde occupied     */
-        uint8               m_Nodes[AO_DYNAMIC_NODES_COUNT];
-        uint8               m_prevNodes[AO_DYNAMIC_NODES_COUNT];
-        AO_BannerTimer   m_BannerTimers[AO_DYNAMIC_NODES_COUNT];
-        uint32              m_NodeTimers[AO_DYNAMIC_NODES_COUNT];
+        uint8               m_Nodes[BAO_DYNAMIC_NODES_COUNT];
+        uint8               m_prevNodes[BAO_DYNAMIC_NODES_COUNT];
+        AO_BannerTimer   m_BannerTimers[BAO_DYNAMIC_NODES_COUNT];
+        uint32              m_NodeTimers[BAO_DYNAMIC_NODES_COUNT];
         uint32              m_lastTick[BG_TEAMS_COUNT];
 
     protected:
