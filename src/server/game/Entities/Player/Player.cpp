@@ -17614,8 +17614,17 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 		if(rank != 0)
 			SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[rank-1][this->GetTeamId()]));
 	}
-	else
-		AddPvpRankRec();
+
+	if (!sBattleAOMgr->GetBattleAO()->HasPlayer(this) && !InBattleground())
+	{
+			BattleAOQueue& baoQueue = sBattleAOMgr->GetBattleAOQueue();
+			BAOGroupQueueInfo* ginfo = baoQueue.AddGroup(this, NULL, 0);
+			uint32 queueSlot = AddBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);
+			WorldPacket data;
+			sBattleAOMgr->BuildBattleAOStatusPacket(&data, queueSlot, STATUS_WAIT_QUEUE, 10, 0);
+			GetSession()->SendPacket(&data);
+			sBattleAOMgr->ScheduleQueueUpdate();
+	}
 
     return true;
 }
@@ -26603,13 +26612,4 @@ bool Player::HasPvpRankRec()
 		return false;
 	// if (guid != result->Fetch()[0].GetUInt32();)
 	return true;
-}
-
-void Player::AddPvpRankRec()
-{
-	SQLTransaction trans = CharacterDatabase.BeginTransaction();
-	PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PVP_REC);
-	stmt->setUInt32(0, GUID_LOPART(GetGUID()));
-	trans->Append(stmt);
-	CharacterDatabase.CommitTransaction(trans);
 }

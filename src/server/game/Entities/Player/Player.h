@@ -2345,7 +2345,6 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetArenaWin();
 		void SetArenaWin(uint32 arenawin);
 		bool HasPvpRankRec();
-		void AddPvpRankRec();
 		
     protected:
         // Gamemaster whisper whitelist
