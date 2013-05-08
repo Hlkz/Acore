@@ -47,6 +47,7 @@ set(scripts_STAT_SRCS
   Commands/cs_mmaps.cpp
   
   Commands/cs_arena.cpp
+  Commands/cs_bg.cpp
   Commands/cs_rand.cpp
   Commands/cs_iteminfo.cpp
   Commands/cs_suffix.cpp

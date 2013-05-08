@@ -1303,6 +1303,7 @@ void AddSc_rand_item();
 void AddSc_class_master();
 void AddSc_enchant_npc();
 void AddSc_Com_Arena();
+void AddSc_Com_Bg();
 void AddSc_Com_Talent();
 void AddSc_Com_Rand();
 void AddSc_Com_Suffix();
@@ -1331,6 +1332,7 @@ void AddCustomScripts()
 	AddSc_class_master();
 	AddSc_enchant_npc();
 	AddSc_Com_Arena();
+	AddSc_Com_Bg();
 	AddSc_Com_Talent();
 	AddSc_Com_Rand();
 	AddSc_Com_Suffix();
