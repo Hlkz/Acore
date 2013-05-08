@@ -742,8 +742,6 @@ void BattleAO::SpawnAOObject(uint32 type, uint32 respawntime)
 
 bool BattleAO::AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 /*respawnTime*/)
 {
-        sLog->outError(LOG_FILTER_GENERAL, "BAO::cc ");
-		sLog->outError(LOG_FILTER_GENERAL, "BAO::cc %i", m_Map->GetEntry()->MapID);
     ASSERT(type < AoObjects.size());
     Map* map = m_Map;
     if (!map)
