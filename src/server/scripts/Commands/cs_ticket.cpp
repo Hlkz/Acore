@@ -236,6 +236,10 @@ public:
             if (player->IsInWorld())
                 ticket->SendResponse(player->GetSession());
 
+        SQLTransaction trans = SQLTransaction(NULL);
+        ticket->SetCompleted();
+        ticket->SaveToDB(trans);
+
         sTicketMgr->UpdateLastChange();
         return true;
     }
