@@ -358,6 +358,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                         *data << uint32(0);
                         break;
                 }
+                break;
             case BATTLEGROUND_AV:
                 *data << uint32(0x00000005);                    // count of next fields
                 *data << uint32(((BattlegroundAVScore*)itr2->second)->GraveyardsAssaulted); // GraveyardsAssaulted
@@ -549,6 +550,7 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId original
     {
         case BATTLEGROUND_RB:
             isRandom = true;
+            /// Intentional fallback, "All Arenas" is random too
         case BATTLEGROUND_AA:
             bgTypeId = GetRandomBG(originalBgTypeId);
             break;

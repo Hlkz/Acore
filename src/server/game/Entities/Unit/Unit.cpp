@@ -10470,6 +10470,7 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                 default:
                     return false;
             }
+            break;
         case SPELL_DAMAGE_CLASS_MAGIC:
         {
             if (schoolMask & SPELL_SCHOOL_MASK_NORMAL)
@@ -10616,6 +10617,7 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                     break;
                 }
             }
+        /// Intentional fallback. Calculate critical strike chance for both Ranged and Melee spells
         case SPELL_DAMAGE_CLASS_RANGED:
         {
             if (victim)
