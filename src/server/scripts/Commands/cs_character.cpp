@@ -320,7 +320,7 @@ public:
                 // check online security
                 if (handler->HasLowerSecurity(target, 0))
                     return false;
-                
+
                 playerOldName = target->GetName();
             }
             else
@@ -345,7 +345,7 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-            
+
             if (WorldSession* session = handler->GetSession())
             {
                 if (!AccountMgr::IsAdminAccount(session->GetSecurity()) && sObjectMgr->IsReservedName(newName))
