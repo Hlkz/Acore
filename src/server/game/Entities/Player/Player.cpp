@@ -22264,7 +22264,7 @@ void Player::UpdateTriggerVisibility()
             if (!obj || !(obj->isTrigger() || obj->HasAuraType(SPELL_AURA_TRANSFORM)))  // can transform into triggers
                 continue;
 
-            obj->BuildCreateUpdateBlockForPlayer(&udata, this);
+            obj->BuildValuesUpdateBlockForPlayer(&udata, this);
         }
     }
 
@@ -23251,7 +23251,7 @@ void Player::UpdateForQuestWorldObjects()
 
                 if (buildUpdateBlock)
                 {
-                    obj->BuildCreateUpdateBlockForPlayer(&udata, this);
+                    obj->BuildValuesUpdateBlockForPlayer(&udata, this);
                     break;
                 }
             }
