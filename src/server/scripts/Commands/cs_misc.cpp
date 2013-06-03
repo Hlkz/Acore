@@ -1653,7 +1653,7 @@ public:
 
             // Only fetch these fields if commander has sufficient rights AND is online (prevent cheating)
             /// @TODO: Add RBAC for "Can query ip and login data"
-            if (!handler->GetSession() || handler->GetSession()->GetSecurity() >= AccountTypes(security))
+            if (!handler->GetSession() || handler->GetSession()->GetSecurity() >= security)
             {
                 lastIp = fields[3].GetString();
                 lastLogin = fields[4].GetString();
