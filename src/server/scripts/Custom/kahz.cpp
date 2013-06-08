@@ -35,7 +35,7 @@ void EnterCombat(Unit* victim) {
 	Auto_Timer = 4000; Auto2_Timer = 6000;
 	Breath_Timer = 2000; Aoe_Timer = 8000; Fear_Timer = 16000; }
 
-void UpdateAI(const uint32 diff)
+void UpdateAI(uint32 diff)
 {
 	if (!UpdateVictim())
 		return;

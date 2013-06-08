@@ -1311,6 +1311,7 @@ void AddSc_Com_Test();
 void AddSc_Com_Item_Info();
 void AddSC_NPC_Transmogrify();
 void AddSc_transmochange();
+void AddSc_Com_ucast();
 //boss
 void AddSC_kahz();
 void AddSC_zone_AO();
@@ -1339,6 +1340,7 @@ void AddCustomScripts()
 	AddSc_Com_Test();
 	AddSc_Com_Item_Info();
 	AddSC_NPC_Transmogrify();
+	AddSc_Com_ucast();
 	//boss
 	AddSC_kahz();
     AddSC_zone_AO();
