@@ -536,7 +536,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
 
                     player->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
                     player->ResetAllPowers();
-                    if (!player->isGameMaster())
+                    if (!player->IsGameMaster())
                     {
                         // remove auras with duration lower than 30s
                         Unit::AuraApplicationMap & auraMap = player->GetAppliedAuras();

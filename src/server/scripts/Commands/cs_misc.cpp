@@ -318,7 +318,7 @@ public:
             if (map->IsBattlegroundOrArena())
             {
                 // only allow if gm mode is on
-                if (!_player->isGameMaster())
+                if (!_player->IsGameMaster())
                 {
                     handler->PSendSysMessage(LANG_CANNOT_GO_TO_BG_GM, chrNameLink.c_str());
                     handler->SetSentErrorMessage(true);
@@ -353,7 +353,7 @@ public:
                 else
                 {
                     // we are not in group, let's verify our GM mode
-                    if (!_player->isGameMaster())
+                    if (!_player->IsGameMaster())
                     {
                         handler->PSendSysMessage(LANG_CANNOT_GO_TO_INST_GM, chrNameLink.c_str());
                         handler->SetSentErrorMessage(true);
@@ -467,7 +467,7 @@ public:
             if (map->IsBattlegroundOrArena())
             {
                 // only allow if gm mode is on
-                if (!_player->isGameMaster())
+                if (!_player->IsGameMaster())
                 {
                     handler->PSendSysMessage(LANG_CANNOT_GO_TO_BG_GM, nameLink.c_str());
                     handler->SetSentErrorMessage(true);
@@ -583,7 +583,7 @@ public:
 
         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
-            Player* player = itr->getSource();
+            Player* player = itr->GetSource();
 
             if (!player || player == handler->GetSession()->GetPlayer() || !player->GetSession())
                 continue;
@@ -1730,7 +1730,7 @@ public:
         handler->PSendSysMessage(LANG_PINFO_PLAYER, target ? "" : handler->GetTrinityString(LANG_OFFLINE), nameLink.c_str(), lowguid);
 
         // Output II. LANG_PINFO_GM_ACTIVE
-        if (target && target->isGameMaster())
+        if (target && target->IsGameMaster())
             handler->PSendSysMessage(LANG_PINFO_GM_ACTIVE);
 
         // Output III. LANG_PINFO_BANNED if ban exists and is applied
@@ -1765,7 +1765,7 @@ public:
         handler->PSendSysMessage(LANG_PINFO_CHR_ALIVE, alive.c_str());
 
         // Output XIII. LANG_PINFO_CHR_PHASE if player is not in GM mode (GM is in every phase)
-        if (target && !target->isGameMaster())                            // IsInWorld() returns false on loadingscreen, so it's more
+        if (target && !target->IsGameMaster())                            // IsInWorld() returns false on loadingscreen, so it's more
             handler->PSendSysMessage(LANG_PINFO_CHR_PHASE, phase);        // precise than just target (safer ?).
                                                                           // However, as we usually just require a target here, we use target instead.
         // Output XIV. LANG_PINFO_CHR_MONEY

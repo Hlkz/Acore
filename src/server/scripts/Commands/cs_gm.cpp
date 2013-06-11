@@ -128,7 +128,7 @@ public:
         for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
         {
             AccountTypes itrSec = itr->second->GetSession()->GetSecurity();
-            if (itr->second->isGameMaster() &&
+            if (itr->second->IsGameMaster() &&
                 (!handler->GetSession() || itr->second->IsVisibleGloballyFor(handler->GetSession()->GetPlayer())))
             {
                 if (first)
@@ -236,7 +236,7 @@ public:
     {
         if (!*args)
         {
-            if (handler->GetSession()->GetPlayer()->isGameMaster())
+            if (handler->GetSession()->GetPlayer()->IsGameMaster())
                 handler->GetSession()->SendNotification(LANG_GM_ON);
             else
                 handler->GetSession()->SendNotification(LANG_GM_OFF);

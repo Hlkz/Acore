@@ -454,7 +454,7 @@ inline void KillRewarder::_InitGroupData()
     {
         // 2. In case when player is in group, initialize variables necessary for group calculations:
         for (GroupReference* itr = _group->GetFirstMember(); itr != NULL; itr = itr->next())
-            if (Player* member = itr->getSource())
+            if (Player* member = itr->GetSource())
                 if (member->IsAlive() && member->IsAtGroupRewardDistance(_victim))
                 {
                     const uint8 lvl = member->getLevel();
@@ -597,7 +597,7 @@ void KillRewarder::_RewardGroup()
             // 3.1.3. Reward each group member (even dead or corpse) within reward distance.
             for (GroupReference* itr = _group->GetFirstMember(); itr != NULL; itr = itr->next())
             {
-                if (Player* member = itr->getSource())
+                if (Player* member = itr->GetSource())
                 {
                     if (member->IsAtGroupRewardDistance(_victim))
                     {
@@ -2187,7 +2187,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     }
     else
     {
-        if (getClass() == CLASS_DEATH_KNIGHT && GetMapId() == 609 && !isGameMaster() && !HasSpell(50977))
+        if (getClass() == CLASS_DEATH_KNIGHT && GetMapId() == 609 && !IsGameMaster() && !HasSpell(50977))
             return false;
 
         // far teleport to another map
@@ -4500,7 +4500,7 @@ bool Player::resetTalents(bool no_cost)
     /* when prev line will dropped use next line
     if (Pet* pet = GetPet())
     {
-        if (pet->getPetType() == HUNTER_PET && !pet->GetCreatureTemplate()->isTameable(CanTameExoticPets()))
+        if (pet->getPetType() == HUNTER_PET && !pet->GetCreatureTemplate()->IsTameable(CanTameExoticPets()))
             RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
     }
     */
@@ -16014,7 +16014,7 @@ void Player::GroupEventHappens(uint32 questId, WorldObject const* pEventObject)
     {
         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
-            Player* player = itr->getSource();
+            Player* player = itr->GetSource();
 
             // for any leave or dead (with not released body) group member at appropriate distance
             if (player && player->IsAtGroupRewardDistance(pEventObject) && !player->GetCorpse())
@@ -18678,7 +18678,7 @@ void Player::ConvertInstancesToGroup(Player* player, Group* group, bool switchLe
 
 bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report)
 {
-    if (!isGameMaster() && ar)
+    if (!IsGameMaster() && ar)
     {
         uint8 LevelMin = 0;
         uint8 LevelMax = 0;
@@ -18753,7 +18753,7 @@ bool Player::CheckInstanceLoginValid()
     if (!GetMap())
         return false;
 
-    if (!GetMap()->IsDungeon() || isGameMaster())
+    if (!GetMap()->IsDungeon() || IsGameMaster())
         return true;
 
     if (GetMap()->IsRaid())
@@ -20269,7 +20269,7 @@ void Player::Whisper(const std::string& text, uint32 language, uint64 receiver)
     rPlayer->BuildPlayerChat(&data, CHAT_MSG_WHISPER_INFORM, _text, language);
     GetSession()->SendPacket(&data);
 
-    if (!isAcceptWhispers() && !isGameMaster() && !rPlayer->isGameMaster())
+    if (!isAcceptWhispers() && !IsGameMaster() && !rPlayer->IsGameMaster())
     {
         SetAcceptWhispers(true);
         ChatHandler(GetSession()).SendSysMessage(LANG_COMMAND_WHISPERON);
@@ -21549,7 +21549,7 @@ uint32 Player::GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const
 void Player::UpdateHomebindTime(uint32 time)
 {
     // GMs never get homebind timer online
-    if (m_InstanceValid || isGameMaster())
+    if (m_InstanceValid || IsGameMaster())
     {
         if (m_HomebindTimer)                                 // instance valid, but timer not reset
         {
@@ -21589,7 +21589,7 @@ void Player::UpdatePvPState(bool onlyFFA)
 {
     /// @todo should we always synchronize UNIT_FIELD_BYTES_2, 1 of controller and controlled?
     // no, we shouldn't, those are checked for affecting player by client
-    if (!pvpInfo.IsInNoPvPArea && !isGameMaster()
+    if (!pvpInfo.IsInNoPvPArea && !IsGameMaster()
         && (pvpInfo.IsInFFAPvPArea || sWorld->IsFFAPvPRealm()))
     {
         if (!HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
@@ -22026,7 +22026,7 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
         bg->RemovePlayerAtLeave(GetGUID(), teleportToEntryPoint, true);
 
         // call after remove to be sure that player resurrected for correct cast
-        if (bg->isBattleground() && !isGameMaster() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_CAST_DESERTER))
+        if (bg->isBattleground() && !IsGameMaster() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_CAST_DESERTER))
         {
             if (bg->GetStatus() == STATUS_IN_PROGRESS || bg->GetStatus() == STATUS_WAIT_JOIN)
             {
@@ -22202,7 +22202,7 @@ void Player::UpdateVisibilityOf(WorldObject* target)
 {
     if (HaveAtClient(target))
     {
-        if (!canSeeOrDetect(target, false, true))
+        if (!CanSeeOrDetect(target, false, true))
         {
             if (target->GetTypeId() == TYPEID_UNIT)
                 BeforeVisibilityDestroy<Creature>(target->ToCreature(), this);
@@ -22217,7 +22217,7 @@ void Player::UpdateVisibilityOf(WorldObject* target)
     }
     else
     {
-        if (canSeeOrDetect(target, false, true))
+        if (CanSeeOrDetect(target, false, true))
         {
             //if (target->isType(TYPEMASK_UNIT) && ((Unit*)target)->m_Vehicle)
             //    UpdateVisibilityOf(((Unit*)target)->m_Vehicle);
@@ -22278,7 +22278,7 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& vi
 {
     if (HaveAtClient(target))
     {
-        if (!canSeeOrDetect(target, false, true))
+        if (!CanSeeOrDetect(target, false, true))
         {
             BeforeVisibilityDestroy<T>(target, this);
 
@@ -22292,7 +22292,7 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& vi
     }
     else //if (visibleNow.size() < 30 || target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->IsVehicle())
     {
-        if (canSeeOrDetect(target, false, true))
+        if (CanSeeOrDetect(target, false, true))
         {
             //if (target->isType(TYPEMASK_UNIT) && ((Unit*)target)->m_Vehicle)
             //    UpdateVisibilityOf(((Unit*)target)->m_Vehicle, data, visibleNow);
@@ -23526,7 +23526,7 @@ void Player::RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewar
     {
         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
-            Player* player = itr->getSource();
+            Player* player = itr->GetSource();
             if (!player)
                 continue;
 
@@ -23757,7 +23757,7 @@ Player* Player::GetNextRandomRaidMember(float radius)
 
     for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
     {
-        Player* Target = itr->getSource();
+        Player* Target = itr->GetSource();
 
         // IsHostileTo check duel and controlled by enemy
         if (Target && Target != this && IsWithinDistInMap(Target, radius) &&
@@ -23799,7 +23799,7 @@ PartyResult Player::CanUninviteFromGroup() const
 
         /// @todo Should also be sent when anyone has recently left combat, with an aprox ~5 seconds timer.
         for (GroupReference const* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
-            if (itr->getSource() && itr->getSource()->IsInCombat())
+            if (itr->GetSource() && itr->GetSource()->IsInCombat())
                 return ERR_PARTY_LFG_BOOT_IN_COMBAT;
 
         /* Missing support for these types
@@ -24604,7 +24604,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
 uint32 Player::GetPhaseMaskForSpawn() const
 {
     uint32 phase = PHASEMASK_NORMAL;
-    if (!isGameMaster())
+    if (!IsGameMaster())
         phase = GetPhaseMask();
     else
     {
@@ -24697,7 +24697,7 @@ void Player::HandleFall(MovementInfo const& movementInfo)
 
     //Players with low fall distance, Feather Fall or physical immunity (charges used) are ignored
     // 14.57 can be calculated by resolving damageperc formula below to 0
-    if (z_diff >= 14.57f && !isDead() && !isGameMaster() &&
+    if (z_diff >= 14.57f && !isDead() && !IsGameMaster() &&
         !HasAuraType(SPELL_AURA_HOVER) && !HasAuraType(SPELL_AURA_FEATHER_FALL) &&
         !HasAuraType(SPELL_AURA_FLY) && !IsImmunedToDamage(SPELL_SCHOOL_MASK_NORMAL))
     {
@@ -25080,7 +25080,7 @@ bool Player::IsPetNeedBeTemporaryUnsummoned() const
     return !IsInWorld() || !IsAlive() || IsMounted() /*+in flight*/;
 }
 
-bool Player::canSeeSpellClickOn(Creature const* c) const
+bool Player::CanSeeSpellClickOn(Creature const* c) const
 {
     if (!c->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK))
         return false;
