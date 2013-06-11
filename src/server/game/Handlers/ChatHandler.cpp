@@ -389,7 +389,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         } break;
         case CHAT_MSG_AFK:
         {
-            if (!_player->isInCombat())
+            if (!_player->IsInCombat())
             {
                 if (_player->isAFK())                       // Already AFK
                 {
@@ -442,7 +442,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleEmoteOpcode(WorldPacket& recvData)
 {
-    if (!GetPlayer()->isAlive() || GetPlayer()->HasUnitState(UNIT_STATE_DIED))
+    if (!GetPlayer()->IsAlive() || GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         return;
 
     uint32 emote;
@@ -485,7 +485,7 @@ namespace Trinity
 
 void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
 {
-    if (!GetPlayer()->isAlive())
+    if (!GetPlayer()->IsAlive())
         return;
 
     if (!GetPlayer()->CanSpeak())

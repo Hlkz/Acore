@@ -61,7 +61,7 @@ void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 
     recvData.read_skip<uint8>();
 
-    if (GetPlayer()->isAlive() || GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+    if (GetPlayer()->IsAlive() || GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         return;
 
     if (GetPlayer()->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
@@ -362,13 +362,13 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
     if (uint64 lguid = GetPlayer()->GetLootGUID())
         DoLootRelease(lguid);
 
-    bool instantLogout = (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) && !GetPlayer()->isInCombat()) ||
-		GetPlayer()->isInFlight() || sWorld->getBoolConfig(CONFIG_INSTANT_LOGOUT);
+    bool instantLogout = (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) && !GetPlayer()->IsInCombat()) ||
+		GetPlayer()->IsInFlight() || sWorld->getBoolConfig(CONFIG_INSTANT_LOGOUT);
 
     bool canLogoutInCombat = GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
 
     uint32 reason = 0;
-    if (GetPlayer()->isInCombat() && !canLogoutInCombat)
+    if (GetPlayer()->IsInCombat() && !canLogoutInCombat)
         reason = 1;
     else if (GetPlayer()->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR))
         reason = 3;                                         // is jumping or falling
@@ -718,7 +718,7 @@ void WorldSession::HandleReclaimCorpseOpcode(WorldPacket& recvData)
     uint64 guid;
     recvData >> guid;
 
-    if (GetPlayer()->isAlive())
+    if (GetPlayer()->IsAlive())
         return;
 
     // do not allow corpse reclaim in arena
@@ -757,7 +757,7 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recvData)
     recvData >> guid;
     recvData >> status;
 
-    if (GetPlayer()->isAlive())
+    if (GetPlayer()->IsAlive())
         return;
 
     if (status == 0)
@@ -797,7 +797,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
     TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "CMSG_AREATRIGGER. Trigger ID: %u", triggerId);
 
     Player* player = GetPlayer();
-    if (player->isInFlight())
+    if (player->IsInFlight())
     {
         TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "HandleAreaTriggerOpcode: Player '%s' (GUID: %u) in flight, ignore Area Trigger ID:%u",
             player->GetName().c_str(), player->GetGUIDLow(), triggerId);
@@ -871,7 +871,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
     if (sScriptMgr->OnAreaTrigger(player, atEntry))
         return;
 
-    if (player->isAlive())
+    if (player->IsAlive())
         if (uint32 questId = sObjectMgr->GetQuestForAreaTrigger(triggerId))
             if (player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
                 player->AreaExploredOrEventHappens(questId);
@@ -1219,7 +1219,7 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)
 
     TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_WORLD_TELEPORT");
 
-    if (GetPlayer()->isInFlight())
+    if (GetPlayer()->IsInFlight())
     {
         TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "Player '%s' (GUID: %u) in flight, ignore worldport command.",
             GetPlayer()->GetName().c_str(), GetPlayer()->GetGUIDLow());
@@ -1559,7 +1559,7 @@ void WorldSession::HandleCancelMountAuraOpcode(WorldPacket& /*recvData*/)
         return;
     }
 
-    if (_player->isInFlight())                               // not blizz like; no any messages on blizz
+    if (_player->IsInFlight())                               // not blizz like; no any messages on blizz
     {
         ChatHandler(this).SendSysMessage(LANG_YOU_IN_FLIGHT);
         return;
@@ -1654,7 +1654,7 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket& recvData)
     if (!unit)
         return;
 
-    if (!unit->isSpiritService())                            // it's not spirit service
+    if (!unit->IsSpiritService())                            // it's not spirit service
         return;
 
     if (bg)
@@ -1676,7 +1676,7 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket& recvData)
     if (!unit)
         return;
 
-    if (!unit->isSpiritService())                            // it's not spirit service
+    if (!unit->IsSpiritService())                            // it's not spirit service
         return;
 
     if (bg)
@@ -1687,7 +1687,7 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleHearthAndResurrect(WorldPacket& /*recvData*/)
 {
-    if (_player->isInFlight())
+    if (_player->IsInFlight())
         return;
 
     AreaTableEntry const* atEntry = GetAreaEntryByAreaID(_player->GetAreaId());
