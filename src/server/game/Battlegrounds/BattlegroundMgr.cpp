@@ -35,6 +35,7 @@
 #include "BattlegroundDS.h"
 #include "BattlegroundRV.h"
 #include "BattlegroundIC.h"
+#include "BattlegroundBA.h"
 #include "Chat.h"
 #include "Map.h"
 #include "MapInstanced.h"
@@ -391,6 +392,10 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                 *data << uint32(((BattlegroundICScore*)itr2->second)->BasesAssaulted);       // bases assaulted
                 *data << uint32(((BattlegroundICScore*)itr2->second)->BasesDefended);        // bases defended
                 break;
+            case BATTLEGROUND_BA:
+                *data << uint32(0x00000001);                // count of next fields
+				*data << uint32(((BattlegroundBAScore*)itr2->second)->CreepsKilled);       // bases assaulted
+                break;
             case BATTLEGROUND_AO:
             case BATTLEGROUND_NA:
             case BATTLEGROUND_BE:
@@ -604,6 +609,9 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId original
         case BATTLEGROUND_IC:
             bg = new BattlegroundIC(*(BattlegroundIC*)bg_template);
             break;
+        case BATTLEGROUND_BA:
+            bg = new BattlegroundBA(*(BattlegroundBA*)bg_template);
+            break;
         case BATTLEGROUND_AO:
             bg = new Battleground(*bg_template);
             break;
@@ -689,6 +697,9 @@ bool BattlegroundMgr::CreateBattleground(CreateBattlegroundData& data)
             break;
         case BATTLEGROUND_IC:
             bg = new BattlegroundIC;
+            break;
+        case BATTLEGROUND_BA:
+            bg = new BattlegroundBA;
             break;
         case BATTLEGROUND_AO:
         case BATTLEGROUND_AA:
@@ -1004,6 +1015,8 @@ BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgType
             return BATTLEGROUND_QUEUE_IC;
         case BATTLEGROUND_AO:
             return BATTLEGROUND_QUEUE_AO;
+        case BATTLEGROUND_BA:
+            return BATTLEGROUND_QUEUE_BA;
         case BATTLEGROUND_RB:
             return BATTLEGROUND_QUEUE_RB;
         case BATTLEGROUND_SA:
@@ -1050,6 +1063,8 @@ BattlegroundTypeId BattlegroundMgr::BGTemplateId(BattlegroundQueueTypeId bgQueue
             return BATTLEGROUND_IC;
         case BATTLEGROUND_QUEUE_AO:
             return BATTLEGROUND_AO;
+        case BATTLEGROUND_QUEUE_BA:
+            return BATTLEGROUND_BA;
         case BATTLEGROUND_QUEUE_RB:
             return BATTLEGROUND_RB;
         case BATTLEGROUND_QUEUE_2v2:
@@ -1191,6 +1206,7 @@ HolidayIds BattlegroundMgr::BGTypeToWeekendHolidayId(BattlegroundTypeId bgTypeId
         case BATTLEGROUND_SA: return HOLIDAY_CALL_TO_ARMS_SA;
         case BATTLEGROUND_AB: return HOLIDAY_CALL_TO_ARMS_AB;
         case BATTLEGROUND_IC: return HOLIDAY_CALL_TO_ARMS_IC;
+        case BATTLEGROUND_BA: return HOLIDAY_NONE;
         default: return HOLIDAY_NONE;
     }
 }

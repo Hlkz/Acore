@@ -3315,10 +3315,11 @@ enum BattlegroundTypeId
     BATTLEGROUND_RV             = 11, // Ring of Valor
     BATTLEGROUND_IC             = 30, // Isle of Conquest
     BATTLEGROUND_RB             = 32, // Random Battleground
-    BATTLEGROUND_AO             = 33 // AObg
+    BATTLEGROUND_AO             = 33, // AObg
+    BATTLEGROUND_BA             = 34 // MOBA
 };
 
-#define MAX_BATTLEGROUND_TYPE_ID 34
+#define MAX_BATTLEGROUND_TYPE_ID 35
 
 enum MailResponseType
 {
@@ -3453,6 +3454,7 @@ enum BattlegroundQueueTypeId
     BATTLEGROUND_QUEUE_3v3      = 9,
     BATTLEGROUND_QUEUE_5v5      = 10,
     BATTLEGROUND_QUEUE_AO       = 11,
+    BATTLEGROUND_QUEUE_BA       = 12,
     MAX_BATTLEGROUND_QUEUE_TYPES
 };
 
