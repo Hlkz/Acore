@@ -17443,7 +17443,7 @@ bool Unit::SetCanFly(bool enable)
     return true;
 }
 
-bool Unit::SetWaterWalking(bool enable, bool packetOnly /* = false */)
+bool Unit::SetWaterWalking(bool enable, bool /*packetOnly = false */)
 {
     if (enable == HasUnitMovementFlag(MOVEMENTFLAG_WATERWALKING))
         return false;
@@ -17456,7 +17456,7 @@ bool Unit::SetWaterWalking(bool enable, bool packetOnly /* = false */)
     return true;
 }
 
-bool Unit::SetFeatherFall(bool enable, bool packetOnly /* = false */)
+bool Unit::SetFeatherFall(bool enable, bool /*packetOnly = false */)
 {
     if (enable == HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW))
         return false;
