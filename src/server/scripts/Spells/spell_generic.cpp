@@ -3639,14 +3639,13 @@ class spell_gen_whisper_gulch_yogg_saron_whisper : public SpellScriptLoader
 };
 
 enum SpectatorCheerTrigger
-
 {
     EMOTE_ONE_SHOT_CHEER        = 4,
     EMOTE_ONE_SHOT_EXCLAMATION  = 5,
     EMOTE_ONE_SHOT_APPLAUD      = 21
 };
 
-uint8 const EmoteArray [3] = { EMOTE_ONE_SHOT_CHEER, EMOTE_ONE_SHOT_EXCLAMATION, EMOTE_ONE_SHOT_APPLAUD };
+uint8 const EmoteArray[3] = { EMOTE_ONE_SHOT_CHEER, EMOTE_ONE_SHOT_EXCLAMATION, EMOTE_ONE_SHOT_APPLAUD };
 
 class spell_gen_spectator_cheer_trigger : public SpellScriptLoader
 {
@@ -3657,10 +3656,9 @@ class spell_gen_spectator_cheer_trigger : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_spectator_cheer_trigger_SpellScript)
 
-            void HandleDummy(SpellEffIndex /* effIndex */)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* caster = GetCaster())
-                    caster->HandleEmoteCommand(EmoteArray [urand(0,2)]);
+                GetCaster()->HandleEmoteCommand(EmoteArray[urand(0, 2)]);
             }
 
             void Register()
@@ -3675,6 +3673,7 @@ class spell_gen_spectator_cheer_trigger : public SpellScriptLoader
         }
 
 };
+
 enum VendorBarkTrigger
 
 {
@@ -3793,6 +3792,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_aura_service_uniform();
     new spell_gen_orc_disguise();
     new spell_gen_whisper_gulch_yogg_saron_whisper();
-    new spell_gen_spectator_cheer_trigger;
-    new spell_gen_vendor_bark_trigger;
+    new spell_gen_spectator_cheer_trigger();
+    new spell_gen_vendor_bark_trigger();
 }
