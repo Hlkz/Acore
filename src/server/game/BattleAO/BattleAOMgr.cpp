@@ -19,29 +19,31 @@ void BattleAOMgr::InitBattleAO()
     BattleAO* pBAO = new BattleAOAO;
     if (!pBAO->SetupBattleAO())
     {
-        sLog->outInfo(LOG_FILTER_BAO, "BAO : init failed.");
+        sLog->outError(LOG_FILTER_BAO, "BAO : init failed.");
         delete pBAO;
     }
     else
     {
         m_BattleAOSet.push_back(pBAO);
-        sLog->outInfo(LOG_FILTER_BAO, "BAO : successfully initiated.");
+        sLog->outError(LOG_FILTER_BAO, "BAO : successfully initiated.");
     }
 }
 
 void BattleAOMgr::SendToBattleAO(Player* player)
 {
-        uint32 team = player->GetTeamFromDB();
-		
-		if((team==ALLIANCE && (int)player->GetReputation(ALLIANCE)<0)
-			|| (team==HORDE && (int)player->GetReputation(HORDE)<0))
+	uint32 team = player->GetTeamFromDB();
+
+	if (sWorld->getWorldState(22003) == 0)
+		player->TeleportTo(BATTLEAO_MAP, -5369.008789f, 219.136292f, 50.291454f, 3.776330f);
+	else
+	{
+		if(player->IsDeserter())
 			player->TeleportTo(BATTLEAO_MAP, -5610.104980f, -592.819092f, -20.958515f, 1.135133f);
 		else if (team == ALLIANCE)
-			player->TeleportTo(BATTLEAO_MAP, -5170.789063f, -212.815353f, 13.777747f, 6.229229f);
+			player->TeleportTo(BATTLEAO_MAP, -5522.344238f, -123.176567f, -17.148638f, 3.033346f);
 		else if (team == HORDE)
-			player->TeleportTo(BATTLEAO_MAP, -6147.039551f, -196.076172f, 7.960524f, 5.606400f);
-		else
-			player->TeleportTo(BATTLEAO_MAP, -5610.104980f, -592.819092f, -20.958515f, 1.135133f);
+			player->TeleportTo(BATTLEAO_MAP, -5787.119629f, -127.544693f, -9.115396f, 0.080639f);
+	}
 }
 
 BattleAO *BattleAOMgr::GetBattleAO()
@@ -62,7 +64,7 @@ void BattleAOMgr::Update(uint32 diff)
         GetBattleAO()->Update(m_UpdateTimer);
         m_UpdateTimer = 0;
     }
-	
+
     m_BattleAOQueues.UpdateEvents(diff);
     if (!m_QueueUpdateScheduler.empty())
     {
@@ -125,11 +127,11 @@ void BattleAOMgr::BuildPvpLogDataPacket(WorldPacket* data)
 {
 	BattleAO* bao = sBattleAOMgr->GetBattleAO();
     data->Initialize(MSG_PVP_LOG_DATA, (1+1+4+40*bao->GetPlayerScoresSize()));
-    *data << uint8(0);                                   // type (battleground=0/arena=1)
-    *data << uint8(0);                                  // bg not ended
+    *data << uint8(0); // type (battleground=0/arena=1)
+    *data << uint8(0); // bg not ended
     size_t wpos = data->wpos();
     uint32 scoreCount = 0;
-    *data << uint32(scoreCount);                            // placeholder
+    *data << uint32(scoreCount); // placeholder
     BattleAO::BattleAOScoreMap::const_iterator itr2 = bao->GetPlayerScoresBegin();
     for (BattleAO::BattleAOScoreMap::const_iterator itr = itr2; itr != bao->GetPlayerScoresEnd();)
     {
@@ -141,16 +143,15 @@ void BattleAOMgr::BuildPvpLogDataPacket(WorldPacket* data)
         }
         *data << uint64(itr2->first);
         *data << uint32(itr2->second->KillingBlows);
-        *data << uint32(itr2->second->HonorableKills);
+	    *data << uint32(itr2->second->HonorableKills);
         *data << uint32(itr2->second->Deaths);
         *data << uint32(itr2->second->BonusHonor);
-        *data << uint32(itr2->second->DamageDone);              // damage done
-        *data << uint32(itr2->second->HealingDone);             // healing done
-		*data << uint32(0);
-        //*data << uint32(0x00000002);                    // count of next fields
+        *data << uint32(itr2->second->DamageDone);
+        *data << uint32(itr2->second->HealingDone);
+	    *data << uint32(0);
         //*data << uint32(itr2->second->BasesAssaulted);      // bases assaulted
         //*data << uint32(itr2->second->BasesDefended);       // bases defended
-		scoreCount++;
+	    scoreCount++;
     }
     data->put(wpos, scoreCount);
 }
@@ -170,4 +171,24 @@ void BattleAOMgr::ScheduleQueueUpdate()
     uint64 const scheduleId = ((uint64)0 << 32) | (0 << 24) | (BATTLEGROUND_QUEUE_AO << 16) | (BATTLEGROUND_AO << 8) | 0;
     if (std::find(m_QueueUpdateScheduler.begin(), m_QueueUpdateScheduler.end(), scheduleId) == m_QueueUpdateScheduler.end())
         m_QueueUpdateScheduler.push_back(scheduleId);
+}
+
+void BattleAOMgr::HandlePlayerEnterZone(Player* player, uint32 zoneid)
+{
+    if (zoneid != BATTLEAO_AREA)
+        return;
+	if (GetBattleAO()->HasPlayer(player))
+        return;
+    GetBattleAO()->HandlePlayerEnterZone(player, zoneid);
+    sLog->outDebug(LOG_FILTER_BAO, "BAO : Player %u entered", player->GetGUIDLow());
+}
+
+void BattleAOMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
+{
+    if (zoneid != BATTLEAO_AREA)
+        return;
+	if (!GetBattleAO()->HasPlayer(player))
+        return;
+    GetBattleAO()->HandlePlayerLeaveZone(player, zoneid);
+    sLog->outDebug(LOG_FILTER_BAO, "BAO : Player %u left", player->GetGUIDLow());
 }

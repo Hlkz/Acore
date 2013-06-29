@@ -18,16 +18,19 @@ enum BattleAOIds
 
 enum BAO_BattlegroundNodes
 {
-    BAO_NODE_A2			= 0,
-    BAO_NODE_A22		    = 1,
-    BAO_NODE_RUINS		        = 2,
-    BAO_NODE_H22		    = 3,
-    BAO_NODE_H2		    = 4,
-    BAO_NODE_PUIT			    = 5,
-    BAO_DYNAMIC_NODES_COUNT		= 6,                        // dynamic nodes that can be captured
-    BAO_SPIRIT_A2		    = 6,
-    BAO_SPIRIT_H2			= 7,
-    BAO_ALL_NODES_COUNT     = 8								// all nodes (dynamic and static) */
+    BAO_NODE_PUITS			= 0,
+    BAO_NODE_SANTUM		    = 1,
+    BAO_NODE_BLEU		    = 2,
+    BAO_NODE_ROUGE		    = 3,
+    BAO_NODE_RUINS			= 4,
+    BAO_NODE_ETANG			= 5,
+    BAO_NODE_CACHE			= 6,
+    BAO_DYNAMIC_NODES_COUNT	= 7,                        // dynamic nodes that can be captured
+    BAO_SPIRIT_A2		    = 7,
+    BAO_SPIRIT_H2			= 8,
+    BAO_SPIRIT_A2_TOUR	    = 9,
+    BAO_SPIRIT_H2_TOUR		= 10,
+    BAO_ALL_NODES_COUNT     = 11							// all nodes (dynamic and static) */
 };
 
 enum BAO_NodeStatus
@@ -43,22 +46,16 @@ enum BAO_NodeStatus
 
 enum BAOWorldStates
 {
-    BAO_OP_OCCUPIED_BASES_HORDE       = 1778,
-    BAO_OP_OCCUPIED_BASES_ALLY        = 1779
+    BAO_OP_RESOURCES_ALLY          = 22001,
+    BAO_OP_RESOURCES_HORDE         = 22002,
+    BAO_OP_OCCUPIED_BASES_ALLY     = 22003,
+    BAO_OP_OCCUPIED_BASES_HORDE    = 22004,
 };
 
-const uint32 BAO_OP_NODESTATES[BAO_DYNAMIC_NODES_COUNT] =    {3001, 3011, 3021, 3031, 3041, 3051};
-const uint32 BAO_OP_NODEICONS[BAO_DYNAMIC_NODES_COUNT]  =    {3000, 3010, 3020, 3030, 3040, 3050};
-
-enum BAO_NodeObjectId
-{
-	BAO_OBJECTID_NODE_BANNER_A2		= 180107,
-    BAO_OBJECTID_NODE_BANNER_A22    = 180108,
-    BAO_OBJECTID_NODE_BANNER_MID    = 180109,
-    BAO_OBJECTID_NODE_BANNER_H22    = 180110,
-    BAO_OBJECTID_NODE_BANNER_H2		= 180111,
-    BAO_OBJECTID_NODE_BANNER_PUIT   = 180112
-};
+const uint32 BAO_OP_NODESTATES[BAO_DYNAMIC_NODES_COUNT] =	{3001, 3011, 3021, 3031, 3041, 3051, 3061};
+const uint32 BAO_OP_NODEICONS[BAO_DYNAMIC_NODES_COUNT]  =	{3000, 3010, 3020, 3030, 3040, 3050, 3060};
+const uint32 BAO_NODEOBJECTID[BAO_DYNAMIC_NODES_COUNT]	=	{180107, 180108, 180109, 180110, 180111, 180112, 180113};
+const uint32 BAO_SAVENODEWORLDSTATE[BAO_DYNAMIC_NODES_COUNT]	=	{22200, 22201, 22202, 22203, 22204, 22205, 22206};
 
 enum BAO_ObjectTypes
 {
@@ -83,7 +80,7 @@ enum BG_AO_ObjectType
     BAO_OBJECT_AURA_HORDE              = 6,
     BAO_OBJECT_AURA_CONTESTED          = 7,
 	BAO_BANNER_MAX = 8,
-	BAO_OBJECT_MAX = 48 // for all 7 node points 8*7=56 objects
+	BAO_OBJECT_MAX = 8 * BAO_ALL_NODES_COUNT // for all 7 node points 8*7=56 objects
 };
 
 enum BattleAOSounds
@@ -116,26 +113,32 @@ struct BattleAOScore
 	uint32 BasesDefended;
 };
 
-const uint32 BAO_GraveyardIds[BAO_ALL_NODES_COUNT] = {1900, 1901, 1902, 1903, 1904};
+const uint32 BAO_GraveyardIds[BAO_ALL_NODES_COUNT] = {1760, 1761, 1762, 1763, 1764, 1765, 1766, 1767, 1768, 1769, 1770};
 
 const float BAO_NodePositions[BAO_DYNAMIC_NODES_COUNT][4] =
 {
-    {-5496.568848f, -114.320129f, 0.385914f, 3.724546f},		  //a2
-    {-5499.984863f, -295.495911f, 4.916856f, 3.391035f},		   //a22
-    {-5639.682617f, -298.404968f, 35.865448f, 3.152785f},			//mid
-    {-5832.591797f, -384.655273f, 4.530051f, 0.701828f},		   //h22
-    {-5777.549805f, -125.501106f, -9.991575f, 3.402549f},		  //h2
-	{-5622.287598f, 33.083908f, 7.576471f, 3.165621f},					//puit
+    {-5623.449219f, 33.006149f, 7.052403f, 3.120155f}, //puits
+    {-5222.179688f, 47.053226f, 3.538148f, 2.837019f}, //sanctum
+    {-5510.409180f, -299.316681f, 4.405378f, 3.009199f}, //bleu
+    {-5831.860840f, -383.221375f, 4.101608f, 3.615526f}, //rouge
+    {-5638.83f, -288.73f, 35.434f, 3.14f}, //ruins
+	{-5262.734375f, -228.397034f, 2.171713f, 0.054353f}, //etang
+	{-5955.698730f, -356.054108f, 1.495916f, 2.785967f}, //cache
 
 };
 const float BAO_SpiritGuidePos[BAO_ALL_NODES_COUNT][4] = //tofix
 {
-    {2326.420166f, -5665.936523f, 426.028809f, 0.337806f},//a2
-    {2353.310791f, -5650.761230f, 426.052795f, 1.618222f},//a22
-    {2371.950439f, -5652.683594f, 426.127716f, 0.587738f},//mid
-    {2371.343994f, -5673.425293f, 426.068817f, 0.062393f},//h22
-    {2349.964355f, -5693.840820f, 426.028076f, 4.112648f},//h2
-    {2349.964355f, -5693.840820f, 426.028076f, 4.112648f},//puit
+    {-5628.989258f, -48.644108f, 15.398722f, 2.225193f}, //puits
+    {-5106.446289f, 86.217834f, 4.730451f, 0.734897f}, //sanctum
+    {0.0f, 0.0f, 0.0f, 0.0f}, //bleu
+    {0.0f, 0.0f, 0.0f, 0.0f},//rouge
+    {-5757.212891f, -240.177658f, 5.380976f, 3.148425f}, //ruins
+    {-5224.329590f, -343.908142f, 0.050214f, 0.255811f}, //etang
+	{-5955.348633f, -437.039062f, 1.207013f, 0.432519f}, //cache
+	{-5504.412598f, 231.661484f, 64.052414f, 4.132537f}, //a2 départ
+	{-5326.936523f, 163.164841f, 74.170593f, 2.756121f}, //h2 départ
+	{-5460.480957f, -98.561989f, -13.787698f, 1.368716f}, //tour a2
+	{-5866.610840f, -135.867676f, 5.397364f, 0.628477f}, //tour h2
 };
 
 struct BattleAOPlayer
@@ -171,36 +174,38 @@ class BattleAO : public ZoneScript
     public:
         BattleAO(); /// Constructor
         virtual ~BattleAO(); /// Destructor
-		
+
         typedef std::map<uint64, BattleAOPlayer> BattleAOPlayerMap;
         BattleAOPlayerMap const& GetPlayers() const { return m_Players; }
 		bool HasPlayer(Player* player) const;
 		bool HasPlayerByGuid(uint64 guid) const;
-		
+
         typedef std::map<uint64, BattleAOScore*> BattleAOScoreMap;
         BattleAOScoreMap::const_iterator GetPlayerScoresBegin() const { return PlayerScores.begin(); }
         BattleAOScoreMap::const_iterator GetPlayerScoresEnd() const { return PlayerScores.end(); }
         uint32 GetPlayerScoresSize() const { return PlayerScores.size(); }
-		
+
         void SendUpdateWorldState(uint32 Field, uint32 value);
         void SendAllNodeUpdate(Player* player);
-		
+
 		void UpdatePlayerScore(Player* Source, uint32 type, uint32 value);
 
         bool Update(uint32 diff);
-		
+
         void HandleKill(Player* killer, Player* victim);
-				
+        void HandleQuestComplete(uint32 questid, Player* player);
+
         void KickPlayerFromBattleAO(uint64 guid);
 
         void AddPlayer(Player* player);
-        void RemovePlayer(Player* player);
-		void RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPacket);
-        
+		void RemovePlayer(uint64 guid);
+        void HandlePlayerEnterZone(Player* player, uint32 zone);
+        void HandlePlayerLeaveZone(Player* player, uint32 zone);
+
         Group* GetFreeBAORaid(TeamId TeamId);
         Group* GetGroupPlayer(uint64 guid, TeamId TeamId);
         bool AddOrSetPlayerToCorrectBAOGroup(Player* player);
-		
+
         void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj);
         void EventPlayerLoggedIn(Player* player);
         void EventPlayerLoggedOut(Player* player);
@@ -227,31 +232,32 @@ class BattleAO : public ZoneScript
 
         Creature* GetCreature(uint64 GUID);
         GameObject* GetGameObject(uint64 GUID);
-		
+
         WorldPacket BuildWarningAnnPacket(std::string const& msg);
         void SendWarningToAllInZone(uint32 entry);
         void SendWarningToPlayer(Player* player, uint32 entry);
 
 		void FillInitialWorldStates(WorldPacket& data);
+		void FillInitialWorldStatesForKZ(WorldPacket& data);
         void SendPacketToAll(WorldPacket* packet);
         void SendPacketToTeam(uint32 TeamID, WorldPacket* packet, Player* sender = NULL, bool self = true);
-		
+
         void SendAreaSpiritHealerQueryOpcode(Player* player, uint64 guid);
-		
+
 		bool SetupBattleAO();
 
         uint32 GetReviveQueueSize() const { return m_ReviveQueue.size(); }
-		
+
         template<class Do>
         void BroadcastWorker(Do& _do);
         void PlaySoundToAll(uint32 SoundID);
 		void SendMessage2ToAll(int32 entry, ChatMsg type, Player const* source, int32 arg1, int32 arg2);
-		
+
         static TeamId GetTeamIndexByTeamId(uint32 Team) { return Team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
         uint32 GetOtherTeam(Team team) { return (team == HORDE ? ALLIANCE : HORDE); }
         void UpdatePlayersCount(uint32 Team, bool remove) { m_PlayersCount[GetTeamIndexByTeamId(Team)] = m_PlayersCount[GetTeamIndexByTeamId(Team)]+1-2*remove; }
 		uint32 GetPlayersCount(uint32 team) const   { return m_PlayersCount[GetTeamIndexByTeamId(team)]; }
-				
+
 		void test()
         {
 			sLog->outError(LOG_FILTER_GENERAL, "coucou player count for a2 : %i", m_PlayersCount[GetTeamIndexByTeamId(ALLIANCE)]);
@@ -263,7 +269,7 @@ class BattleAO : public ZoneScript
 		void RemoveFromBAOFreeSlotQueue();
 
 		void RemoveAurasFromPlayer(Player* player);
-		
+
 	private:
         void PostUpdateImpl(uint32 diff);		
         /* Gameobject spawning/despawning */
@@ -276,21 +282,21 @@ class BattleAO : public ZoneScript
         // TODO: working, scripted peons spawning
         void _NodeOccupied(uint8 node, Team team);
         void _NodeDeOccupied(uint8 node);
-		
+
         /* Nodes info:
             0: neutral
             1: ally contested
             2: horde contested
             3: ally occupied
             4: horde occupied     */
-        uint8               m_Nodes[BAO_DYNAMIC_NODES_COUNT];
+        uint8               m_Nodes[BAO_ALL_NODES_COUNT];
         uint8               m_prevNodes[BAO_DYNAMIC_NODES_COUNT];
         AO_BannerTimer   m_BannerTimers[BAO_DYNAMIC_NODES_COUNT];
         uint32              m_NodeTimers[BAO_DYNAMIC_NODES_COUNT];
         uint32              m_lastTick[BG_TEAMS_COUNT];
 
     protected:
-		
+
         void PlayerAddedToBAOCheck(Player* player);
 
         Player* _GetPlayer(uint64 guid, bool offlineRemove, const char* context) const;
@@ -308,12 +314,13 @@ class BattleAO : public ZoneScript
         BattleAOScoreMap PlayerScores;
 
         GuidSet m_Groups[BG_TEAMS_COUNT]; // Contain different raid group
-		
+
         uint32 m_PlayersCount[BG_TEAMS_COUNT];
+
 		bool   m_InBAOFreeSlotQueue;
-				
+
         void TeamCastSpell(TeamId team, int32 spellId);
-		
+
 };
 
 #endif
