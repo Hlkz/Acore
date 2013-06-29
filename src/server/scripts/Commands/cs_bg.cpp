@@ -12,22 +12,30 @@ class com_bg : public CommandScript
        static bool HandleComBg(ChatHandler* handler, const char* /*args*/)
        {
 			Player* player = handler->GetSession()->GetPlayer();
-			Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_AO);
-			if (player->GetBattlegroundQueueIndex(BATTLEGROUND_QUEUE_AO) < PLAYER_MAX_BATTLEGROUND_QUEUES)
+			if (sBattleAOMgr->GetBattleAO()->HasPlayer(player))
 				return true;
+			BattleAOQueue& baoQueue = sBattleAOMgr->GetBattleAOQueue();
+			WorldPacket data;
+			if (player->GetBattlegroundQueueIndex(BATTLEGROUND_QUEUE_AO) < PLAYER_MAX_BATTLEGROUND_QUEUES) // déjà tag : détag
+			{
+				player->RemoveBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);
+				uint32 queueSlot = player->GetBattlegroundQueueIndex(BATTLEGROUND_QUEUE_AO);
+				sBattleAOMgr->BuildBattleAOStatusPacket(&data,queueSlot, STATUS_NONE, 0, 0);
+				baoQueue.RemovePlayer(player->GetGUID(), true);
+				player->GetSession()->SendPacket(&data);
+				sLog->outDebug(LOG_FILTER_BAO, "BAO : detag par .bg");
+				return true;
+			}
 			if (!player->HasFreeBattlegroundQueueId())
 			{
-				WorldPacket data;
 				sBattlegroundMgr->BuildGroupJoinedBattlegroundPacket(&data, ERR_BATTLEGROUND_TOO_MANY_QUEUES);
 				player->GetSession()->SendPacket(&data);
 				return true;
 			}
-			BattleAOQueue& baoQueue = sBattleAOMgr->GetBattleAOQueue();
-			BAOGroupQueueInfo* ginfo = baoQueue.AddGroup(player, NULL, 0);
+			BAOGroupQueueInfo* ginfo = baoQueue.AddGroup(player, NULL, false);
 			uint32 queueSlot = player->AddBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);
-			WorldPacket data;
 			sBattleAOMgr->BuildBattleAOStatusPacket(&data, queueSlot, STATUS_WAIT_QUEUE, 10, 0);
-			handler->GetSession()->SendPacket(&data);
+			player->GetSession()->SendPacket(&data);
 			sBattleAOMgr->ScheduleQueueUpdate();
 			sLog->outDebug(LOG_FILTER_BAO, "BAO : tag par .bg");
 			return true;

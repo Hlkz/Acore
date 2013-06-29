@@ -4737,8 +4737,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                                 if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(target->GetZoneId()))
                                     bf->RemovePlayerFromResurrectQueue(target->GetGUID());
 								if (target->GetMapId() == BATTLEAO_MAP)
-									if (BattleAO* bao = sBattleAOMgr->GetBattleAO())
-										bao->RemovePlayerFromResurrectQueue(target->GetGUID());
+									sBattleAOMgr->GetBattleAO()->RemovePlayerFromResurrectQueue(target->GetGUID());
                             }
                             break;
                         case 36730:                                     // Flame Strike
