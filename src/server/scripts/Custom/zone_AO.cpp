@@ -105,7 +105,7 @@ public:
             events.ScheduleEvent(EVENT_SUNDER_ARMOR, 3000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             events.Update(diff);
 
@@ -179,7 +179,7 @@ public:
             events.ScheduleEvent(EVENT_SUMMON_WOLFS, 60000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             events.Update(diff);
 
@@ -270,7 +270,7 @@ public:
             events.ScheduleEvent(EVENT_CONGEL, 20001);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             events.Update(diff);
 

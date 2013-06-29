@@ -105,7 +105,8 @@ class com_ranks : public CommandScript {
 
 static bool HandleComRanks(ChatHandler* handler, const char* args) {
 
-	return sWorld->DistributeRanks();  }
+	//return sWorld->DistributeRanks();
+	return false; }
 
 ChatCommand* GetCommands() const {
 	static ChatCommand ComSuffix[] = {

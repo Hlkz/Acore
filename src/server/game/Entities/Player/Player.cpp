@@ -5549,15 +5549,12 @@ void Player::RepopAtGraveyard()
     // Special handle for battleground maps
     if (Battleground* bg = GetBattleground())
         ClosestGrave = bg->GetClosestGraveYard(this);
-    else
-    {
-        if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
-            ClosestGrave = bf->GetClosestGraveYard(this);
-		else if (sBattleAOMgr->GetBattleAO()->HasPlayer(this))
-			ClosestGrave = sBattleAOMgr->GetBattleAO()->GetClosestGraveYard(this);
-        else
-            ClosestGrave = sObjectMgr->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam());
-    }
+    else if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
+        ClosestGrave = bf->GetClosestGraveYard(this);
+	else if (sBattleAOMgr->GetBattleAO()->HasPlayer(this))
+		ClosestGrave = sBattleAOMgr->GetBattleAO()->GetClosestGraveYard(this);
+	else
+		ClosestGrave = sObjectMgr->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam());
 
     // stop countdown until repop
     m_deathTimer = 0;
@@ -5577,7 +5574,7 @@ void Player::RepopAtGraveyard()
             GetSession()->SendPacket(&data);
 			
 			// rez/effets à la mort selon la map
-			if (GetZoneId() != 4080 && GetZoneId() != 2266 && !InBattleground() && GetMapId() != 609) {
+			if (GetZoneId() != 4080 && GetZoneId() != 2266 && !InBattleground() && GetMapId() != 609 && GetMapId() != BATTLEAO_MAP) {
 				ResurrectPlayer(1);
 				SpawnCorpseBones(); }
 				
@@ -7505,6 +7502,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         sOutdoorPvPMgr->HandlePlayerEnterZone(this, newZone);
         sBattlefieldMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
         sBattlefieldMgr->HandlePlayerEnterZone(this, newZone);
+        sBattleAOMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
+        sBattleAOMgr->HandlePlayerEnterZone(this, newZone);
         SendInitWorldStates(newZone, newArea);              // only if really enters to new zone, not just area change, works strange...
         if (Guild* guild = GetGuild())
             guild->UpdateMemberData(this, GUILD_MEMBER_DATA_ZONEID, newZone);
@@ -8729,7 +8728,7 @@ bool Player::CheckAmmoCompatibility(const ItemTemplate* ammo_proto) const
     Called by remove insignia spell effect    */
 void Player::RemovedInsignia(Player* looterPlr)
 {
-    if (!GetBattlegroundId())
+    if (!GetBattlegroundId() && !sBattleAOMgr->GetBattleAO()->HasPlayer(this))
         return;
 
     // If not released spirit, do it !
@@ -8747,11 +8746,7 @@ void Player::RemovedInsignia(Player* looterPlr)
         return;
 
     // Now we must make bones lootable, and send player loot
-    bones->SetFlag(CORPSE_FIELD_DYNAMIC_FLAGS, CORPSE_DYNFLAG_LOOTABLE);
-
-    // We store the level of our player in the gold field
-    // We retrieve this information at Player::SendLoot()
-    bones->loot.gold = getLevel();
+    // bones->SetFlag(CORPSE_FIELD_DYNAMIC_FLAGS, CORPSE_DYNFLAG_LOOTABLE);
     bones->lootRecipient = looterPlr;
     looterPlr->SendLoot(bones->GetGUID(), LOOT_INSIGNIA);
 }
@@ -8936,9 +8931,9 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
             if (Battleground* bg = GetBattleground())
                 if (bg->GetTypeID(true) == BATTLEGROUND_AV)
                     loot->FillLoot(1, LootTemplates_Creature, this, true);
-            // It may need a better formula
-            // Now it works like this: lvl10: ~6copper, lvl70: ~9silver
-            bones->loot.gold = uint32(urand(50, 150) * 0.016f * pow(float(pLevel)/5.76f, 2.5f) * sWorld->getRate(RATE_DROP_MONEY));
+			if (sBattleAOMgr->GetBattleAO()->HasPlayer(this))
+				loot->FillLoot(2, LootTemplates_Creature, this, true);
+			bones->loot.gold = uint32(urand(50, 200));
         }
 
         if (bones->lootRecipient != this)
@@ -9676,6 +9671,14 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(4132) << uint32(0);              // 9  WORLDSTATE_ALGALON_TIMER_ENABLED
                 data << uint32(4131) << uint32(0);              // 10 WORLDSTATE_ALGALON_DESPAWN_TIMER
             }
+            break;
+        // KZ
+        case 3457:
+            sBattleAOMgr->GetBattleAO()->FillInitialWorldStatesForKZ(data);
+            break;
+        // BAO
+        case 5810:
+            sBattleAOMgr->GetBattleAO()->FillInitialWorldStates(data);
             break;
         // Wintergrasp
         case 4197:
@@ -17182,7 +17185,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 		}
 		else
 		{
-			sBattleAOMgr->GetBattleAO()->RemovePlayerAtLeave(GetGUID(), false, true);
+			sBattleAOMgr->GetBattleAO()->RemovePlayer(GetGUID());
             mapId = 532; instanceId = 0;
 			Relocate(-10945.799805f, -2103.850098f, 92.711197f, 0.900000f);
 			if (isDead())
@@ -17610,24 +17613,10 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[3][1]), true);
 	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[4][1]), true);
 	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[5][1]), true);
-	if (HasPvpRankRec())
-	{
-		uint32 rank = GetPvpRank();
-		if(rank != 0)
-			SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[rank-1][this->GetTeamId()]));
-	}
-
-	if (!sBattleAOMgr->GetBattleAO()->HasPlayer(this) && !InBattleground())
-	{
-			BattleAOQueue& baoQueue = sBattleAOMgr->GetBattleAOQueue();
-			BAOGroupQueueInfo* ginfo = baoQueue.AddGroup(this, NULL, 0);
-			uint32 queueSlot = AddBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);
-			WorldPacket data;
-			sBattleAOMgr->BuildBattleAOStatusPacket(&data, queueSlot, STATUS_WAIT_QUEUE, 10, 0);
-			GetSession()->SendPacket(&data);
-			sBattleAOMgr->ScheduleQueueUpdate();
-	}
-
+	uint32 rank = GetPvpRank();
+	if(rank != 0)
+		SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[rank-1][this->GetTeamId()]));
+	
     return true;
 }
 
@@ -26614,4 +26603,19 @@ bool Player::HasPvpRankRec()
 		return false;
 	// if (guid != result->Fetch()[0].GetUInt32();)
 	return true;
+}
+
+bool Player::IsDeserter()
+{
+    uint32 team = GetTeamFromDB();
+    if((team==ALLIANCE && (int)GetReputation(ALLIANCE)<0)
+       || (team==HORDE && (int)GetReputation(HORDE)<0))
+        return true;
+    else if (team == ALLIANCE || team == HORDE)
+        return false;
+    else
+    {
+        sLog->outError(LOG_FILTER_PLAYER, "Player %u has wrong team id %u", GetGUID(), team);
+        return true;
+    }
 }
