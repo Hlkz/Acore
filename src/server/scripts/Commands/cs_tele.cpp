@@ -41,14 +41,14 @@ public:
         {
             { "add",            SEC_ADMINISTRATOR,  false, &HandleTeleAddCommand,             "", NULL },
             { "del",            SEC_ADMINISTRATOR,  true,  &HandleTeleDelCommand,             "", NULL },
-            { "name",           SEC_MODERATOR,      true,  &HandleTeleNameCommand,            "", NULL },
-            { "group",          SEC_MODERATOR,      false, &HandleTeleGroupCommand,           "", NULL },
-            { "",               SEC_MODERATOR,      false, &HandleTeleCommand,                "", NULL },
+            { "name",           SEC_ANIMATOR,      true,  &HandleTeleNameCommand,            "", NULL },
+            { "group",          SEC_ANIMATOR,      false, &HandleTeleGroupCommand,           "", NULL },
+            { "",               SEC_ANIMATOR,      false, &HandleTeleCommand,                "", NULL },
             { NULL,             0,                  false, NULL,                              "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "tele",           SEC_MODERATOR,      false, NULL,                   "", teleCommandTable },
+            { "tele",           SEC_ANIMATOR,      false, NULL,                   "", teleCommandTable },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         return commandTable;

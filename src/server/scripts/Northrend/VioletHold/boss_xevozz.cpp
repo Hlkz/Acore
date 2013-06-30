@@ -106,7 +106,7 @@ public:
             for (std::list<Creature*>::const_iterator iter = assistList.begin(); iter != assistList.end(); ++iter)
             {
                 if (Creature* pSphere = *iter)
-                    pSphere->Kill(pSphere, false);
+                    pSphere->Kill(pSphere);
             }
         }
 

@@ -1814,7 +1814,7 @@ class Player : public Unit, public GridObject<Player>
 
         void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const;
         void DestroyForPlayer(Player* target, bool onDeath = false) const;
-        void SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool recruitAFriend = false, float group_rate=1.0f);
+        void SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, float group_rate=1.0f);
 
         // notifiers
         void SendAttackSwingCantAttack();
@@ -1911,12 +1911,10 @@ class Player : public Unit, public GridObject<Player>
         void InitDisplayIds();
 
         bool IsAtGroupRewardDistance(WorldObject const* pRewardSource) const;
-        bool IsAtRecruitAFriendDistance(WorldObject const* pOther) const;
         void RewardPlayerAndGroupAtKill(Unit* victim, bool isBattleGround);
         void RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewardSource);
         bool isHonorOrXPTarget(Unit* victim);
 
-        bool GetsRecruitAFriendBonus(bool forXP);
         uint8 GetGrantableLevels() { return m_grantableLevels; }
         void SetGrantableLevels(uint8 val) { m_grantableLevels = val; }
 
@@ -2009,7 +2007,6 @@ class Player : public Unit, public GridObject<Player>
         void SendUpdateWorldState(uint32 Field, uint32 Value);
         void SendDirectMessage(WorldPacket* data);
         void SendBGWeekendWorldStates();
-        void SendBattlefieldWorldStates();
 
         void SendAurasForTarget(Unit* target);
 
@@ -2078,7 +2075,6 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
 
         bool isRested() const { return GetRestTime() >= 10*IN_MILLISECONDS; }
-        uint32 GetXPRestBonus(uint32 xp);
         uint32 GetRestTime() const { return m_restTime;}
         void SetRestTime(uint32 v) { m_restTime = v;}
 

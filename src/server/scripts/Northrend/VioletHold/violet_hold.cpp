@@ -616,7 +616,7 @@ public:
                         // if all spawned elites have died kill portal
                         if (listOfMobs.empty())
                         {
-                            me->Kill(me, false);
+                            me->Kill(me);
                             me->RemoveCorpse();
                         }
                     }
@@ -646,7 +646,7 @@ public:
 
                     if (bPortalGuardianOrKeeperOrEliteSpawn && !me->IsNonMeleeSpellCasted(false))
                     {
-                        me->Kill(me, false);
+                        me->Kill(me);
                         me->RemoveCorpse();
                     }
                     break;

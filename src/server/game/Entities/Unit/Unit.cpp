@@ -18,8 +18,6 @@
 
 #include "Unit.h"
 #include "Common.h"
-#include "Battlefield.h"
-#include "BattlefieldMgr.h"
 #include "BattleAO.h"
 #include "BattleAOMgr.h"
 #include "Battleground.h"
@@ -740,7 +738,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         if (victim->GetTypeId() == TYPEID_PLAYER && victim != this)
             victim->ToPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED, health);
 
-        Kill(victim, durabilityLoss);
+        Kill(victim);
     }
     else
     {
@@ -15168,7 +15166,7 @@ bool Unit::HandleAuraRaidProcFromCharge(AuraEffect* triggeredByAura)
     return true;
 }
 
-void Unit::Kill(Unit* victim, bool durabilityLoss)
+void Unit::Kill(Unit* victim)
 {
     // Prevent killing unit twice (and giving reward from kill twice)
     if (!victim->GetHealth())
@@ -15312,7 +15310,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
             pet->AI()->KilledUnit(victim);
     }
 
-    // 10% durability loss on death
+    // 1 durability loss on death
     // clean InHateListOf
     if (Player* plrVictim = victim->ToPlayer())
     {
@@ -15320,15 +15318,12 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
         // at original death (not at SpiritOfRedemtionTalent timeout)
         plrVictim->SetPvPDeath(player != NULL);
 
-        // only if not player and not controlled by player pet. And not at BG
-        if ((durabilityLoss && !player && !victim->ToPlayer()->InBattleground()) || (player && sWorld->getBoolConfig(CONFIG_DURABILITY_LOSS_IN_PVP)))
-        {
-            sLog->outDebug(LOG_FILTER_UNITS, "We are dead, losing %f percent durability", sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH));
-            plrVictim->DurabilityLossAll(sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH), false);
-            // durability lost message
-            WorldPacket data(SMSG_DURABILITY_DAMAGE_DEATH, 0);
-            plrVictim->GetSession()->SendPacket(&data);
-        }
+        sLog->outDebug(LOG_FILTER_UNITS, "We are dead, losing 1 durability");
+        plrVictim->DurabilityPointsLossAll(1, false);
+        // durability lost message
+        WorldPacket data(SMSG_DURABILITY_DAMAGE_DEATH, 0);
+        plrVictim->GetSession()->SendPacket(&data);
+        
         // Call KilledUnit for creatures
         if (GetTypeId() == TYPEID_UNIT && IsAIEnabled)
             ToCreature()->AI()->KilledUnit(victim);
@@ -15394,13 +15389,10 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
 
     // outdoor pvp things, do these after setting the death state, else the player activity notify won't work... doh...
     // handle player kill only if not suicide (spirit of redemption for example)
-    if (player && this != victim)
+    if (player && this != victim && victim->GetTypeId() == TYPEID_PLAYER)
     {
         if (OutdoorPvP* pvp = player->GetOutdoorPvP())
             pvp->HandleKill(player, victim);
-
-        if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(player->GetZoneId()))
-            bf->HandleKill(player, victim);
     }
 
     //if (victim->GetTypeId() == TYPEID_PLAYER)

@@ -70,12 +70,6 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     Player* player = _player;
 
-    if (player->getLevel() < sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ))
-    {
-        SendNotification(GetTrinityString(LANG_MAIL_SENDER_REQ), sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ));
-        return;
-    }
-
     uint64 receiverGuid = 0;
     if (normalizePlayerName(receiverName))
         receiverGuid = sObjectMgr->GetPlayerGUIDByName(receiverName);
@@ -174,15 +168,9 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         }
     }
 
-    if (!accountBound && player->GetTeam() != receiverTeam && !HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_MAIL))
+	if (!accountBound && player->GetTeam() != receiverTeam && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_MAIL))
     {
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_NOT_YOUR_TEAM);
-        return;
-    }
-
-    if (receiverLevel < sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ))
-    {
-        SendNotification(GetTrinityString(LANG_MAIL_RECEIVER_REQ), sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ));
         return;
     }
 
@@ -251,19 +239,11 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     if (items_count > 0 || money > 0)
     {
-        bool log = HasPermission(RBAC_PERM_LOG_GM_TRADE);
         if (items_count > 0)
         {
             for (uint8 i = 0; i < items_count; ++i)
             {
                 Item* item = items[i];
-                if (log)
-                {
-                    sLog->outCommand(GetAccountId(), "GM %s (Account: %u) mail item: %s (Entry: %u Count: %u) "
-                        "to player: %s (Account: %u)", GetPlayerName().c_str(), GetAccountId(),
-                        item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetCount(),
-                        receiverName.c_str(), receiverAccountId);
-                }
 
                 item->SetNotRefundable(GetPlayer()); // makes the item no longer refundable
                 player->MoveItemFromInventory(items[i]->GetBagSlot(), item->GetSlot(), true);
@@ -277,12 +257,6 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
             // if item send to character at another account, then apply item delivery delay
             needItemDelay = player->GetSession()->GetAccountId() != receiverAccountId;
-        }
-
-        if (log && money > 0)
-        {
-            sLog->outCommand(GetAccountId(), "GM %s (Account: %u) mail money: %u to player: %s (Account: %u)",
-                GetPlayerName().c_str(), GetAccountId(), money, receiverName.c_str(), receiverAccountId);
         }
     }
 
@@ -460,26 +434,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
 
             uint32 sender_accId = 0;
 
-            if (HasPermission(RBAC_PERM_LOG_GM_TRADE))
-            {
-                std::string sender_name;
-                if (receiver)
-                {
-                    sender_accId = receiver->GetSession()->GetAccountId();
-                    sender_name = receiver->GetName();
-                }
-                else
-                {
-                    // can be calculated early
-                    sender_accId = sObjectMgr->GetPlayerAccountIdByGUID(sender_guid);
-
-                    if (!sObjectMgr->GetPlayerNameByGUID(sender_guid, sender_name))
-                        sender_name = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
-                }
-                sLog->outCommand(GetAccountId(), "GM %s (Account: %u) receiver mail item: %s (Entry: %u Count: %u) and send COD money: %u to player: %s (Account: %u)",
-                    GetPlayerName().c_str(), GetAccountId(), it->GetTemplate()->Name1.c_str(), it->GetEntry(), it->GetCount(), m->COD, sender_name.c_str(), sender_accId);
-            }
-            else if (!receiver)
+            if (!receiver)
                 sender_accId = sObjectMgr->GetPlayerAccountIdByGUID(sender_guid);
 
             // check player existence

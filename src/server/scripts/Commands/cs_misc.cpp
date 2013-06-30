@@ -63,7 +63,7 @@ public:
         static ChatCommand sendCommandTable[] =
         {
             { "items",              SEC_ADMINISTRATOR,      true,  &HandleSendItemsCommand,             "", NULL },
-            { "mail",               SEC_MODERATOR,          true,  &HandleSendMailCommand,              "", NULL },
+            { "mail",               SEC_ANIMATOR,          true,  &HandleSendMailCommand,              "", NULL },
             { "message",            SEC_ADMINISTRATOR,      true,  &HandleSendMessageCommand,           "", NULL },
             { "money",              SEC_ADMINISTRATOR,      true,  &HandleSendMoneyCommand,             "", NULL },
             { NULL,                 0,                      false, NULL,                                "", NULL }
@@ -74,9 +74,9 @@ public:
             { "gps",                SEC_ADMINISTRATOR,      false, &HandleGPSCommand,                   "", NULL },
             { "aura",               SEC_ADMINISTRATOR,      false, &HandleAuraCommand,                  "", NULL },
             { "unaura",             SEC_ADMINISTRATOR,      false, &HandleUnAuraCommand,                "", NULL },
-            { "appear",             SEC_MODERATOR,          false, &HandleAppearCommand,                "", NULL },
-            { "summon",             SEC_MODERATOR,          false, &HandleSummonCommand,                "", NULL },
-            { "groupsummon",        SEC_MODERATOR,          false, &HandleGroupSummonCommand,           "", NULL },
+            { "appear",             SEC_ANIMATOR,          false, &HandleAppearCommand,                "", NULL },
+            { "summon",             SEC_ANIMATOR,          false, &HandleSummonCommand,                "", NULL },
+            { "groupsummon",        SEC_ANIMATOR,          false, &HandleGroupSummonCommand,           "", NULL },
             { "commands",           SEC_PLAYER,             true,  &HandleCommandsCommand,              "", NULL },
             { "die",                SEC_ADMINISTRATOR,      false, &HandleDieCommand,                   "", NULL },
             { "revive",             SEC_ADMINISTRATOR,      true,  &HandleReviveCommand,                "", NULL },
@@ -86,9 +86,9 @@ public:
             { "itemmove",           SEC_GAMEMASTER,         false, &HandleItemMoveCommand,              "", NULL },
             { "cooldown",           SEC_ADMINISTRATOR,      false, &HandleCooldownCommand,              "", NULL },
             { "distance",           SEC_ADMINISTRATOR,      false, &HandleGetDistanceCommand,           "", NULL },
-            { "recall",             SEC_MODERATOR,          false, &HandleRecallCommand,                "", NULL },
+            { "recall",             SEC_ANIMATOR,          false, &HandleRecallCommand,                "", NULL },
             { "save",               SEC_PLAYER,             false, &HandleSaveCommand,                  "", NULL },
-            { "saveall",            SEC_MODERATOR,          true,  &HandleSaveAllCommand,               "", NULL },
+            { "saveall",            SEC_ANIMATOR,          true,  &HandleSaveAllCommand,               "", NULL },
             { "kick",               SEC_GAMEMASTER,         true,  &HandleKickPlayerCommand,            "", NULL },
             { "unstuck",            SEC_PLAYER,             true,  &HandleUnstuckCommand,               "", NULL },
             { "linkgrave",          SEC_ADMINISTRATOR,      false, &HandleLinkGraveCommand,             "", NULL },
@@ -103,19 +103,19 @@ public:
             { "setskill",           SEC_ADMINISTRATOR,      false, &HandleSetSkillCommand,              "", NULL },
             { "pinfo",              SEC_GAMEMASTER,         true,  &HandlePInfoCommand,                 "", NULL },
             { "respawn",            SEC_ADMINISTRATOR,      false, &HandleRespawnCommand,               "", NULL },
-            { "send",               SEC_MODERATOR,          true,  NULL,                                "", sendCommandTable },
+            { "send",               SEC_ANIMATOR,          true,  NULL,                                "", sendCommandTable },
             { "pet",                SEC_GAMEMASTER,         false, NULL,                                "", petCommandTable },
-            { "mute",               SEC_MODERATOR,          true,  &HandleMuteCommand,                  "", NULL },
-            { "unmute",             SEC_MODERATOR,          true,  &HandleUnmuteCommand,                "", NULL },
+            { "mute",               SEC_ANIMATOR,          true,  &HandleMuteCommand,                  "", NULL },
+            { "unmute",             SEC_ANIMATOR,          true,  &HandleUnmuteCommand,                "", NULL },
             { "movegens",           SEC_ADMINISTRATOR,      false, &HandleMovegensCommand,              "", NULL },
             { "cometome",           SEC_ADMINISTRATOR,      false, &HandleComeToMeCommand,              "", NULL },
             { "damage",             SEC_ADMINISTRATOR,      false, &HandleDamageCommand,                "", NULL },
             { "combatstop",         SEC_GAMEMASTER,         true,  &HandleCombatStopCommand,            "", NULL },
             { "flusharenapoints",   SEC_ADMINISTRATOR,      false, &HandleFlushArenaPointsCommand,      "", NULL },
             { "repairitems",        SEC_GAMEMASTER,         true,  &HandleRepairitemsCommand,           "", NULL },
-            { "freeze",             SEC_MODERATOR,          false, &HandleFreezeCommand,                "", NULL },
-            { "unfreeze",           SEC_MODERATOR,          false, &HandleUnFreezeCommand,              "", NULL },
-            { "listfreeze",         SEC_MODERATOR,          false, &HandleListFreezeCommand,            "", NULL },
+            { "freeze",             SEC_ANIMATOR,          false, &HandleFreezeCommand,                "", NULL },
+            { "unfreeze",           SEC_ANIMATOR,          false, &HandleUnFreezeCommand,              "", NULL },
+            { "listfreeze",         SEC_ANIMATOR,          false, &HandleListFreezeCommand,            "", NULL },
             { "group",              SEC_ADMINISTRATOR,      false, NULL,                                "", groupCommandTable },
             { "possess",            SEC_ADMINISTRATOR,      false, HandlePossessCommand,                "", NULL },
             { "unpossess",          SEC_ADMINISTRATOR,      false, HandleUnPossessCommand,              "", NULL },
@@ -681,7 +681,7 @@ public:
 
         if (target)
         {
-            target->ResurrectPlayer(target->GetSession()->HasPermission(RBAC_PERM_RESURRECT_WITH_FULL_HPS) ? 1.0f : 0.5f);
+            target->ResurrectPlayer(1.0f);
             target->SpawnCorpseBones();
             target->SaveToDB();
         }
@@ -883,22 +883,17 @@ public:
     {
         Player* player = handler->GetSession()->GetPlayer();
 
-        // save GM account without delay and output message
-        if (handler->GetSession()->HasPermission(RBAC_PERM_COMMANDS_SAVE_WITHOUT_DELAY))
-        {
-            if (Player* target = handler->getSelectedPlayer())
-                target->SaveToDB();
-            else
-                player->SaveToDB();
-            handler->SendSysMessage(LANG_PLAYER_SAVED);
-            return true;
-        }
+		if (AccountMgr::IsAnimAccount(handler->GetSession()->GetSecurity()))
+		{
+			if (Player* target = handler->getSelectedPlayer())
+				target->SaveToDB();
+			else
+				player->SaveToDB();
+			handler->SendSysMessage(LANG_PLAYER_SAVED);
+			return true;
+		}
 
-        // save if the player has last been saved over 20 seconds ago
-        uint32 saveInterval = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
-        if (saveInterval == 0 || (saveInterval > 20 * IN_MILLISECONDS && player->GetSaveTimer() <= saveInterval - 20 * IN_MILLISECONDS))
-            player->SaveToDB();
-
+		player->SaveToDB();
         return true;
     }
 
@@ -942,7 +937,7 @@ public:
     static bool HandleUnstuckCommand(ChatHandler* handler, char const* args)
     {
         // No args required for players
-        if (handler->GetSession() && !handler->GetSession()->HasPermission(RBAC_PERM_COMMANDS_USE_UNSTUCK_WITH_ARGS))
+		if (handler->GetSession() && AccountMgr::IsPlayerAccount(handler->GetSession()->GetSecurity()))
         {
             // 7355: "Stuck"
             if (Player* player = handler->GetSession()->GetPlayer())

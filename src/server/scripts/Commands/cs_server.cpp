@@ -146,7 +146,7 @@ public:
             if (strncmp(paramStr, "player", limit) == 0)
                 sWorld->SetPlayerSecurityLimit(SEC_PLAYER);
             else if (strncmp(paramStr, "moderator", limit) == 0)
-                sWorld->SetPlayerSecurityLimit(SEC_MODERATOR);
+                sWorld->SetPlayerSecurityLimit(SEC_ANIMATOR);
             else if (strncmp(paramStr, "gamemaster", limit) == 0)
                 sWorld->SetPlayerSecurityLimit(SEC_GAMEMASTER);
             else if (strncmp(paramStr, "administrator", limit) == 0)
@@ -174,7 +174,7 @@ public:
             case SEC_PLAYER:
                 secName = "Player";
                 break;
-            case SEC_MODERATOR:
+            case SEC_ANIMATOR:
                 secName = "Moderator";
                 break;
             case SEC_GAMEMASTER:

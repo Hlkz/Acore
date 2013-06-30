@@ -1,12 +1,16 @@
 #include "ScriptPCH.h"
 #include "Chat.h"
 #include "Object.h"
+#include "BattleAOMgr.h"
 
 class com_test : public CommandScript {
    public: com_test() : CommandScript("cs_test") {}
 
 static bool HandleComTest(ChatHandler* handler, char const* /*args*/) {
-	Player* target = handler->getSelectedPlayer();
+
+	BattleAO* bao = sBattleAOMgr->GetBattleAO();
+	sLog->outError(LOG_FILTER_GENERAL, "coucou %f", bao->AoCreatures[0]);
+
 	return true; }
 
 ChatCommand* GetCommands() const {

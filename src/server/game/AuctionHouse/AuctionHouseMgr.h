@@ -181,9 +181,6 @@ class AuctionHouseMgr
         void Update();
 
     private:
-
-        AuctionHouseObject mHordeAuctions;
-        AuctionHouseObject mAllianceAuctions;
         AuctionHouseObject mNeutralAuctions;
 
         ItemMap mAitems;

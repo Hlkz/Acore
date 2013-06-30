@@ -28,16 +28,7 @@ ChannelMgr::~ChannelMgr()
 
 ChannelMgr* ChannelMgr::forTeam(uint32 team)
 {
-    if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
-        return ACE_Singleton<AllianceChannelMgr, ACE_Null_Mutex>::instance();        // cross-faction
-
-    if (team == ALLIANCE)
-        return ACE_Singleton<AllianceChannelMgr, ACE_Null_Mutex>::instance();
-
-    if (team == HORDE)
-        return ACE_Singleton<HordeChannelMgr, ACE_Null_Mutex>::instance();
-
-    return NULL;
+	return ACE_Singleton<NeutralChannelMgr, ACE_Null_Mutex>::instance();        // cross-faction
 }
 
 Channel* ChannelMgr::GetJoinChannel(std::string const& name, uint32 channelId)

@@ -44,7 +44,7 @@ public:
         };
         static ChatCommand accountCommandTable[] =
         {
-            { "addon",          SEC_MODERATOR,      false, &HandleAccountAddonCommand,        "", NULL },
+            { "addon",          SEC_ANIMATOR,      false, &HandleAccountAddonCommand,        "", NULL },
             { "create",         SEC_CONSOLE,        true,  &HandleAccountCreateCommand,       "", NULL },
             { "delete",         SEC_CONSOLE,        true,  &HandleAccountDeleteCommand,       "", NULL },
             { "onlinelist",     SEC_CONSOLE,        true,  &HandleAccountOnlineListCommand,   "", NULL },
@@ -502,9 +502,6 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-
-        RBACData* rbac = isAccountNameGiven ? NULL : handler->getSelectedPlayer()->GetSession()->GetRBACData();
-        sAccountMgr->UpdateAccountAccess(rbac, targetAccountId, uint8(gm), gmRealmID);
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, targetAccountName.c_str(), gm);
         return true;

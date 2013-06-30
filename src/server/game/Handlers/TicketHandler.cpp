@@ -34,12 +34,6 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
     if (sTicketMgr->GetStatus() == GMTICKET_QUEUE_STATUS_DISABLED)
         return;
 
-    if (GetPlayer()->getLevel() < sWorld->getIntConfig(CONFIG_TICKET_LEVEL_REQ))
-    {
-        SendNotification(GetTrinityString(LANG_TICKET_REQ), sWorld->getIntConfig(CONFIG_TICKET_LEVEL_REQ));
-        return;
-    }
-
     GMTicketResponse response = GMTICKET_RESPONSE_CREATE_ERROR;
     // Player must not have ticket
     if (!sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))

@@ -13,7 +13,6 @@ set(scripts_STAT_SRCS
   Commands/cs_account.cpp
   Commands/cs_achievement.cpp
   Commands/cs_ban.cpp
-  Commands/cs_bf.cpp
   Commands/cs_cast.cpp
   Commands/cs_character.cpp
   Commands/cs_cheat.cpp
@@ -36,7 +35,6 @@ set(scripts_STAT_SRCS
   Commands/cs_modify.cpp
   Commands/cs_npc.cpp
   Commands/cs_quest.cpp
-  Commands/cs_rbac.cpp
   Commands/cs_reload.cpp
   Commands/cs_reset.cpp
   Commands/cs_tele.cpp
