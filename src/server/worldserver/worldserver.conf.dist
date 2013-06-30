@@ -62,7 +62,7 @@ RealmID = 1
 #        Example:     "@prefix@/share/trinitycore"
 #        Default:     "."
 
-DataDir = "."
+DataDir = "./data/"
 
 #
 #    LogsDir
@@ -71,7 +71,7 @@ DataDir = "."
 #                     Logs directory must exists, or log file creation will be disabled.
 #        Default:     "" - (Log files will be stored in the current path)
 
-LogsDir = ""
+LogsDir = "./log/"
 
 #
 #    LoginDatabaseInfo
@@ -252,13 +252,6 @@ ChangeWeatherInterval = 600000
 
 PlayerSaveInterval = 900000
 
-#
-#    PlayerSave.Stats.MinLevel
-#        Description: Minimum level for saving character stats in the database for external usage.
-#        Default:     0  - (Disabled, Do not save character stats)
-#                     1+ - (Enabled, Level beyond which character stats are saved)
-
-PlayerSave.Stats.MinLevel = 0
 
 #
 #    PlayerSave.Stats.SaveOnlyOnLogout
@@ -496,7 +489,7 @@ ChatLogs.BattleGround = 0
 #                     16 - (FFA_PVP, Free for all pvp mode like arena PvP in all zones except rest
 #                          activated places and sanctuaries)
 
-GameType = 0
+GameType = 1
 
 #
 #    RealmZone
@@ -531,7 +524,7 @@ GameType = 0
 #                     28 - (QA Server     - any language)
 #                     29 - (CN9           - basic-Latin at create, any at login)
 
-RealmZone = 1
+RealmZone = 10
 
 #
 #    StrictPlayerNames
@@ -702,24 +695,6 @@ CharactersPerAccount = 50
 CharactersPerRealm = 10
 
 #
-#    HeroicCharactersPerRealm
-#        Description: Limit number of heroic class characters per account on this realm.
-#        Range:       1-10
-#        Default:     1
-
-HeroicCharactersPerRealm = 1
-
-#
-#    CharacterCreating.MinLevelForHeroicCharacter
-#        Description: Limit creating heroic characters only for account with another
-#                     character of specific level (ignored for GM accounts)
-#        Default:     55 - (Enabled, Requires at least another level 55 character)
-#                     0  - (Disabled)
-#                     1  - (Enabled, Requires at least another level 1 character)
-
-CharacterCreating.MinLevelForHeroicCharacter = 55
-
-#
 #    SkipCinematics
 #        Description: Disable cinematic intro at first login after character creation.
 #                     Prevents buggy intros in case of custom start location coordinates.
@@ -736,14 +711,14 @@ SkipCinematics = 0
 #        Range:       1-255
 #        Default:     80
 
-MaxPlayerLevel = 80
+MaxPlayerLevel = 39
 
 #
 #    MinDualSpecLevel
 #        Description: Level requirement for Dual Talent Specialization
 #        Default:     40
 
-MinDualSpecLevel = 40
+MinDualSpecLevel = 0
 
 #
 #    StartPlayerLevel
@@ -751,15 +726,7 @@ MinDualSpecLevel = 40
 #        Range:       1-MaxPlayerLevel
 #        Default:     1
 
-StartPlayerLevel = 1
-
-#
-#    StartHeroicPlayerLevel
-#        Description: Staring level for heroic class characters after creation.
-#        Range:       1-MaxPlayerLevel
-#        Default:     55
-
-StartHeroicPlayerLevel = 55
+StartPlayerLevel = 39
 
 #
 #    StartPlayerMoney
@@ -798,22 +765,6 @@ MaxArenaPoints = 10000
 StartArenaPoints = 0
 
 #
-#    RecruitAFriend.MaxLevel
-#        Description: Highest level up to which a character can benefit from the Recruit-A-Friend
-#                     experience multiplier.
-#        Default:     60
-
-RecruitAFriend.MaxLevel = 60
-
-#
-#    RecruitAFriend.MaxDifference
-#        Description: Highest level difference between linked Recruiter and Friend benefit from
-#                     the Recruit-A-Friend experience multiplier.
-#        Default:     4
-
-RecruitAFriend.MaxDifference = 4
-
-#
 #    DisableWaterBreath
 #        Description: Required security level for water breathing.
 #        Default:     4  - (Disabled)
@@ -840,6 +791,13 @@ AllFlightPaths = 0
 #                     1 - (Enabled)
 
 InstantFlightPaths = 0
+
+#
+#    InstantLogout
+#        Default:     0 - (Enabled)
+#                     1 - (Disabled)
+
+InstantLogout = 1
 
 #
 #    AlwaysMaxSkillForLevel
@@ -1067,7 +1025,7 @@ BeepAtStart = 1
 #        Example:     "Welcome to John\'s Server@This server runs on Trinity Core."
 #        Default:     "Welcome to a Trinity Core server."
 
-Motd = "Welcome to a Trinity Core server."
+Motd = "Welcome to Aviana server."
 
 #
 #    Server.LoginInfo
@@ -1118,14 +1076,6 @@ DBC.EnforceItemAttributes = 1
 #        Default:     5
 
 AccountInstancesPerHour = 5
-
-#
-#   RBAC.DefaultGroups
-#        Description: Comma separated list of groups to be added to any account
-#                     Check auth.rbac_groups for correct ids
-#        Default:     "" (No group)
-
-RBAC.DefaultGroups = ""
 
 #
 ###################################################################################################
@@ -1209,12 +1159,12 @@ Warden.BanDuration = 86400
 AllowTwoSide.Interaction.Calendar = 0
 
 #
-#    AllowTwoSide.Interaction.Channel
-#        Description: Allow channel chat between factions.
+#    AllowTwoSide.Interaction.Mail
+#        Description: Allow mail between factions.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Channel = 0
+AllowTwoSide.Interaction.Mail = 0
 
 #
 #    AllowTwoSide.Interaction.Group
@@ -1233,20 +1183,13 @@ AllowTwoSide.Interaction.Group = 0
 AllowTwoSide.Interaction.Guild = 0
 
 #
-#    AllowTwoSide.Interaction.Auction
-#        Description: Allow auctions between factions.
+#    AllowTwoSide.trade
+#        Description: Allow trades between factions.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Auction = 0
+AllowTwoSide.trade = 0
 
-#
-#    AllowTwoSide.Trade
-#        Description: Allow trading between factions.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-AllowTwoSide.Trade = 0
 
 #
 #    TalentsInspecting
@@ -1834,34 +1777,6 @@ Rate.Honor = 1
 Rate.Talent = 1
 
 #
-#    Rate.Reputation.Gain
-#        Description: Reputation gain rate.
-#        Default:     1
-
-Rate.Reputation.Gain = 1
-
-#
-#    Rate.Reputation.LowLevel.Kill
-#        Description: Reputation gain from killing low level (grey) creatures.
-#        Default:     1
-
-Rate.Reputation.LowLevel.Kill = 1
-
-#
-#    Rate.Reputation.LowLevel.Quest
-#        Description: Reputation gain rate.
-#        Default:     1
-
-Rate.Reputation.LowLevel.Quest = 1
-
-#
-#    Rate.Reputation.RecruitAFriendBonus
-#        Description: Reputation bonus rate for recruit-a-friend.
-#        Default:     0.1
-
-Rate.Reputation.RecruitAFriendBonus = 0.1
-
-#
 #    Rate.MoveSpeed
 #        Description: Movement speed rate.
 #        Default:     1
@@ -1921,19 +1836,12 @@ SkillChance.MiningSteps   = 0
 SkillChance.SkinningSteps = 0
 
 #
-#    DurabilityLoss.InPvP
+#    DurabilityLoss
 #        Description: Durability loss on death during PvP.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-DurabilityLoss.InPvP = 0
-
-#
-#    DurabilityLoss.OnDeath
-#        Description: Durability loss percentage on death.
-#        Default:     10
-
-DurabilityLoss.OnDeath = 10
+DurabilityLoss = 1
 
 #
 #    DurabilityLossChance.Damage
@@ -2109,62 +2017,6 @@ Battleground.GiveXPForKills = 0
 #        Default:     6 - (06:00 AM)
 
 Battleground.Random.ResetHour = 6
-
-#
-###################################################################################################
-
-###################################################################################################
-# BATTLEFIELD CONFIG
-#
-#     Wintergrasp.Enable
-#         Description: Enable the Wintergrasp battlefield.
-#         Default:     0 - (Disabled)
-#                      1 - (Enabled, Experimental as of still being in development)
-
-Wintergrasp.Enable = 0
-
-#
-#     Wintergrasp.PlayerMax
-#         Description: Maximum number of players allowed in Wintergrasp.
-#         Default:     100
-
-Wintergrasp.PlayerMax = 100
-
-#
-#     Wintergrasp.PlayerMin
-#         Description: Minimum number of players required for Wintergrasp.
-#         Default:     0
-
-Wintergrasp.PlayerMin = 0
-
-#
-#     Wintergrasp.PlayerMinLvl
-#         Description: Required character level for the Wintergrasp battle.
-#         Default:     77
-
-Wintergrasp.PlayerMinLvl = 77
-
-#
-#     Wintergrasp.BattleTimer
-#         Description: Time (in minutes) for the Wintergrasp battle to last.
-#         Default:     30
-
-Wintergrasp.BattleTimer = 30
-
-#
-#     Wintergrasp.NoBattleTimer
-#         Description: Time (in minutes) between Wintergrasp battles.
-#         Default:     150
-
-Wintergrasp.NoBattleTimer = 150
-
-#
-#     Wintergrasp.CrashRestartTimer
-#         Description: Time (in minutes) to delay the restart of Wintergrasp if the world server
-#                      crashed during a running battle.
-#         Default:     10
-
-Wintergrasp.CrashRestartTimer = 10
 
 #
 ###################################################################################################
@@ -2392,7 +2244,7 @@ CharDelete.MinLevel = 0
 #        Default:     30 - (Enabled)
 #                     0  - (Disabled, Don't delete any characters)
 
-CharDelete.KeepDays = 30
+CharDelete.KeepDays = 0
 
 #
 ###################################################################################################
@@ -2445,46 +2297,12 @@ HonorPointsAfterDuel = 0
 AlwaysMaxWeaponSkill = 0
 
 #
-#    PvPToken.Enable
-#        Description: Character will receive a token after defeating another character that yields
-#                     honor.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-PvPToken.Enable = 0
-
-#
-#    PvPToken.MapAllowType
-#        Description: Define where characters can receive tokens.
-#        Default:     4 - (All maps)
-#                     3 - (Battlegrounds)
-#                     2 - (FFA areas only like Gurubashi arena)
-#                     1 - (Battlegrounds and FFA areas)
-
-PvPToken.MapAllowType = 4
-
-#
-#    PvPToken.ItemID
-#        Description: Item characters will receive after defeating another character if PvP Token
-#                     system is enabled.
-#        Default:     29434 - (Badge of justice)
-
-PvPToken.ItemID = 29434
-
-#
-#    PvPToken.ItemCount
-#        Description: Number of tokens a character will receive.
-#        Default:     1
-
-PvPToken.ItemCount = 1
-
-#
 #    NoResetTalentsCost
 #        Description: Resetting talents doesn't cost anything.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-NoResetTalentsCost = 0
+NoResetTalentsCost = 1
 
 #
 #     Guild.AllowMultipleGuildMaster
@@ -2526,34 +2344,6 @@ MinRecordUpdateTimeDiff = 100
 #         Default:    "" - (Disabled)
 
 PlayerStart.String = ""
-
-#
-#     LevelReq.Trade
-#        Description: Level requirement for characters to be able to trade.
-#        Default:     1
-
-LevelReq.Trade = 1
-
-#
-#     LevelReq.Ticket
-#        Description: Level requirement for characters to be able to write tickets.
-#        Default:     1
-
-LevelReq.Ticket = 1
-
-#
-#     LevelReq.Auction
-#        Description: Level requirement for characters to be able to use the auction house.
-#        Default:     1
-
-LevelReq.Auction = 1
-
-#
-#     LevelReq.Mail
-#        Description: Level requirement for characters to be able to send and receive mails.
-#        Default:     1
-
-LevelReq.Mail = 1
 
 #
 #     PlayerDump.DisallowPaths
@@ -2719,7 +2509,6 @@ Appenders=Console Server GM DBErrors Char RA Warden Chat
 #                        40 - Server Loading
 #                        41 - Opcodes (just id and name sent / received)
 #                        42 - SOAP
-#                        43 - RBAC (Role Based Access Control)
 #                        44 - Cheat (used to log cheat attempts)
 #
 #                     LogLevel

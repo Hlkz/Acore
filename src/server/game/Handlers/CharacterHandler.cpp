@@ -838,7 +838,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent motd (SMSG_MOTD)");
 
         // send server info
-        if (sWorld->getIntConfig(CONFIG_ENABLE_SINFO_LOGIN) == 1)
+        if (sWorld->getIntConfig(CONFIG_ENABLE_SINFO_LOGIN))
             chH.PSendSysMessage(_FULLVERSION);
 
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent server info");

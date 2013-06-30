@@ -407,7 +407,7 @@ void World::LoadConfigSettings(bool reload)
 
     ///- Read the player limit and the Message of the day from the config file
     SetPlayerAmountLimit(ConfigMgr::GetIntDefault("PlayerLimit", 100));
-    SetMotd(ConfigMgr::GetStringDefault("Motd", "Welcome to a Trinity Core Server."));
+    SetMotd(ConfigMgr::GetStringDefault("Motd", "Welcome to Aviana Server."));
 
     ///- Read ticket system setting from the config file
     m_bool_configs[CONFIG_ALLOW_TICKETS] = ConfigMgr::GetBoolDefault("AllowTickets", true);
@@ -508,19 +508,6 @@ void World::LoadConfigSettings(bool reload)
             rate_values[RATE_TARGET_POS_RECALCULATION_RANGE], NOMINAL_MELEE_RANGE, NOMINAL_MELEE_RANGE);
         rate_values[RATE_TARGET_POS_RECALCULATION_RANGE] = NOMINAL_MELEE_RANGE;
     }
-
-    rate_values[RATE_DURABILITY_LOSS_ON_DEATH]  = ConfigMgr::GetFloatDefault("DurabilityLoss.OnDeath", 10.0f);
-    if (rate_values[RATE_DURABILITY_LOSS_ON_DEATH] < 0.0f)
-    {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "DurabilityLoss.OnDeath (%f) must be >=0. Using 0.0 instead.", rate_values[RATE_DURABILITY_LOSS_ON_DEATH]);
-        rate_values[RATE_DURABILITY_LOSS_ON_DEATH] = 0.0f;
-    }
-    if (rate_values[RATE_DURABILITY_LOSS_ON_DEATH] > 100.0f)
-    {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "DurabilityLoss.OnDeath (%f) must be <= 100. Using 100.0 instead.", rate_values[RATE_DURABILITY_LOSS_ON_DEATH]);
-        rate_values[RATE_DURABILITY_LOSS_ON_DEATH] = 0.0f;
-    }
-    rate_values[RATE_DURABILITY_LOSS_ON_DEATH] = rate_values[RATE_DURABILITY_LOSS_ON_DEATH] / 100.0f;
 
     rate_values[RATE_DURABILITY_LOSS_DAMAGE] = ConfigMgr::GetFloatDefault("DurabilityLossChance.Damage", 0.5f);
     if (rate_values[RATE_DURABILITY_LOSS_DAMAGE] < 0.0f)
