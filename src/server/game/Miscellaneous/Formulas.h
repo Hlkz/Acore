@@ -179,8 +179,7 @@ namespace Trinity
                     else
                         gain *= 2;
                 }
-
-                gain = uint32(gain * sWorld->getRate(RATE_XP_KILL));
+				// xp rates here
             }
 
             sScriptMgr->OnGainCalculation(gain, player, u);

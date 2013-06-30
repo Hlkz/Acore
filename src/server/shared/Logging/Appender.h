@@ -64,16 +64,14 @@ enum LogFilterType
     LOG_FILTER_SQL_DRIVER                        = 36,
     LOG_FILTER_SQL_DEV                           = 37,
     LOG_FILTER_PLAYER_DUMP                       = 38,
-    LOG_FILTER_BATTLEFIELD                       = 39,
-    LOG_FILTER_SERVER_LOADING                    = 40,
-    LOG_FILTER_OPCODES                           = 41,
-    LOG_FILTER_SOAP                              = 42,
-    LOG_FILTER_RBAC                              = 43,
-    LOG_FILTER_CHEAT                             = 44,
-    LOG_FILTER_BAO		                         = 45
+    LOG_FILTER_SERVER_LOADING                    = 39,
+    LOG_FILTER_OPCODES                           = 40,
+    LOG_FILTER_SOAP                              = 41,
+    LOG_FILTER_CHEAT                             = 42,
+    LOG_FILTER_BAO		                         = 43
 };
 
-const uint8 MaxLogFilter = 45;
+const uint8 MaxLogFilter = 44;
 
 // Values assigned have their equivalent in enum ACE_Log_Priority
 enum LogLevel

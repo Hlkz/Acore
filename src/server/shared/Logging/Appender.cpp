@@ -208,18 +208,16 @@ char const* Appender::getLogFilterTypeString(LogFilterType type)
             return "SQL DEV";
         case LOG_FILTER_PLAYER_DUMP:
             return "PLAYER DUMP";
-        case LOG_FILTER_BATTLEFIELD:
-            return "BATTLEFIELD";
         case LOG_FILTER_SERVER_LOADING:
             return "SERVER LOADING";
         case LOG_FILTER_OPCODES:
             return "OPCODE";
         case LOG_FILTER_SOAP:
             return "SOAP";
-        case LOG_FILTER_RBAC:
-            return "RBAC";
         case LOG_FILTER_CHEAT:
             return "CHEAT";
+        case LOG_FILTER_BAO:
+            return "BAO";
         default:
             break;
     }
