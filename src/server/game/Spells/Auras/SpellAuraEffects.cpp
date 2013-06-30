@@ -36,8 +36,6 @@
 #include "CellImpl.h"
 #include "ScriptMgr.h"
 #include "Vehicle.h"
-#include "Battlefield.h"
-#include "BattlefieldMgr.h"
 #include "BattleAO.h"
 #include "BattleAOMgr.h"
 #include "Pet.h"
@@ -4734,8 +4732,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                             {
                                 if (Battleground* bg = target->ToPlayer()->GetBattleground())
                                     bg->RemovePlayerFromResurrectQueue(target->GetGUID());
-                                if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(target->GetZoneId()))
-                                    bf->RemovePlayerFromResurrectQueue(target->GetGUID());
 								if (target->GetMapId() == BATTLEAO_MAP)
 									sBattleAOMgr->GetBattleAO()->RemovePlayerFromResurrectQueue(target->GetGUID());
                             }

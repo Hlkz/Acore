@@ -10,7 +10,6 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
-  Northrend/zone_wintergrasp.cpp
   Northrend/isle_of_conquest.cpp
   Northrend/zone_storm_peaks.cpp
   Northrend/Ulduar/HallsOfLightning/instance_halls_of_lightning.cpp

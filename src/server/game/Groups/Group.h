@@ -26,7 +26,6 @@
 #include "SharedDefines.h"
 
 class BattleAO;
-class Battlefield;
 class Battleground;
 class Creature;
 class GroupReference;
@@ -206,7 +205,7 @@ class Group
         bool isLFGGroup()  const;
         bool isRaidGroup() const;
         bool isBGGroup()   const;
-        bool isBFGroup()   const;
+        bool isBAOGroup()   const;
         bool IsCreated()   const;
         uint64 GetLeaderGUID() const;
         uint64 GetGUID() const;
@@ -243,7 +242,6 @@ class Group
         void ConvertToRaid();
 
         void SetBattlegroundGroup(Battleground* bg);
-        void SetBattlefieldGroup(Battlefield* bf);
         void SetBattleAOGroup(BattleAO* bao);
         GroupJoinBattlegroundResult CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot);
 
@@ -329,7 +327,6 @@ class Group
         Difficulty          m_dungeonDifficulty;
         Difficulty          m_raidDifficulty;
         Battleground*       m_bgGroup;
-        Battlefield*        m_bfGroup;
         BattleAO*			m_baoGroup;
         uint64              m_targetIcons[TARGETICONCOUNT];
         LootMethod          m_lootMethod;
