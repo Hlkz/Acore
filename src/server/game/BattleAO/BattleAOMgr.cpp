@@ -143,7 +143,7 @@ void BattleAOMgr::BuildPvpLogDataPacket(WorldPacket* data)
         }
         *data << uint64(itr2->first);
         *data << uint32(itr2->second->KillingBlows);
-	    *data << uint32(itr2->second->HonorableKills);
+        *data << uint32(itr2->second->HonorableKills);
         *data << uint32(itr2->second->Deaths);
         *data << uint32(itr2->second->BonusHonor);
         *data << uint32(itr2->second->DamageDone);

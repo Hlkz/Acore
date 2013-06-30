@@ -642,7 +642,7 @@ void WorldSession::HandleBattlefieldLeaveOpcode(WorldPacket& recvData)
 		_player->LeaveBattleground();
 	}
 	else if (sBattleAOMgr->GetBattleAO()->HasPlayer(_player))
-		sBattleAOMgr->GetBattleAO()->RemovePlayerAtLeave(_player->GetGUID(), true, true);
+		sBattleAOMgr->GetBattleAO()->RemovePlayer(_player->GetGUID());
 }
 
 void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket & /*recvData*/)
