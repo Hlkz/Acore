@@ -49,13 +49,10 @@ public:
         static ChatCommand commandTable[] =
         {
             { "channel",        SEC_ADMINISTRATOR,  true,   NULL,                               "", channelCommandTable  },
-            { "nameannounce",   SEC_ANIMATOR,      true,   &HandleNameAnnounceCommand,         "", NULL },
-            { "gmnameannounce", SEC_ANIMATOR,      true,   &HandleGMNameAnnounceCommand,       "", NULL },
-            { "announce",       SEC_ANIMATOR,      true,   &HandleAnnounceCommand,             "", NULL },
-            { "gmannounce",     SEC_ANIMATOR,      true,   &HandleGMAnnounceCommand,           "", NULL },
-            { "notify",         SEC_ANIMATOR,      true,   &HandleNotifyCommand,               "", NULL },
-            { "gmnotify",       SEC_ANIMATOR,      true,   &HandleGMNotifyCommand,             "", NULL },
-            { "whispers",       SEC_ANIMATOR,      false,  &HandleWhispersCommand,             "", NULL },
+            { "announce",       SEC_ANIMATOR,       true,   &HandleAnnounceCommand,             "", NULL },
+            { "notify",         SEC_ANIMATOR,       true,   &HandleNotifyCommand,               "", NULL },
+            { "gmnotify",       SEC_ANIMATOR,       true,   &HandleGMNotifyCommand,             "", NULL },
+            { "whispers",       SEC_ANIMATOR,       false,  &HandleWhispersCommand,             "", NULL },
             { NULL,             0,                  false,  NULL,                               "", NULL }
         };
         return commandTable;
@@ -116,18 +113,6 @@ public:
         return true;
     }
 
-    static bool HandleGMNameAnnounceCommand(ChatHandler* handler, char const* args)
-    {
-        if (!*args)
-            return false;
-
-        std::string name("Console");
-        if (WorldSession* session = handler->GetSession())
-            name = session->GetPlayer()->GetName();
-
-        sWorld->SendGMText(LANG_GM_ANNOUNCE_COLOR, name.c_str(), args);
-        return true;
-    }
     // global announce
     static bool HandleAnnounceCommand(ChatHandler* handler, char const* args)
     {
@@ -139,15 +124,7 @@ public:
         sWorld->SendServerMessage(SERVER_MSG_STRING, buff);
         return true;
     }
-    // announce to logged in GMs
-    static bool HandleGMAnnounceCommand(ChatHandler* /*handler*/, char const* args)
-    {
-        if (!*args)
-            return false;
 
-        sWorld->SendGMText(LANG_GM_BROADCAST, args);
-        return true;
-    }
     // notification player at the screen
     static bool HandleNotifyCommand(ChatHandler* handler, char const* args)
     {

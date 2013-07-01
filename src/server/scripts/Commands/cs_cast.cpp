@@ -37,18 +37,18 @@ public:
     {
         static ChatCommand castCommandTable[] =
         {
-            { "back",           SEC_ADMINISTRATOR,  false, &HandleCastBackCommand,              "", NULL },
-            { "dist",           SEC_ADMINISTRATOR,  false, &HandleCastDistCommand,              "", NULL },
-            { "self",           SEC_ADMINISTRATOR,  false, &HandleCastSelfCommand,              "", NULL },
-            { "target",         SEC_ADMINISTRATOR,  false, &HandleCastTargetCommad,             "", NULL },
-            { "dest",           SEC_ADMINISTRATOR,  false, &HandleCastDestCommand,              "", NULL },
-            { "",               SEC_ADMINISTRATOR,  false, &HandleCastCommand,                  "", NULL },
+            { "back",           SEC_GAMEMASTER,		false, &HandleCastBackCommand,              "", NULL },
+            { "dist",           SEC_GAMEMASTER,		false, &HandleCastDistCommand,              "", NULL },
+            { "self",           SEC_GAMEMASTER,		false, &HandleCastSelfCommand,              "", NULL },
+            { "target",         SEC_GAMEMASTER,		false, &HandleCastTargetCommad,             "", NULL },
+            { "dest",           SEC_GAMEMASTER,		false, &HandleCastDestCommand,              "", NULL },
+            { "",               SEC_GAMEMASTER,		false, &HandleCastCommand,                  "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "cast",           SEC_ADMINISTRATOR,  false, NULL,                                "", castCommandTable },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "cast",           SEC_GAMEMASTER,      false, NULL,                                "", castCommandTable },
+            { NULL,             0,                   false, NULL,                                "", NULL }
         };
         return commandTable;
     }

@@ -45,20 +45,20 @@ public:
         };
         static ChatCommand characterDeletedCommandTable[] =
         {
-            { "delete",         SEC_CONSOLE,        true,  &HandleCharacterDeletedDeleteCommand,   "", NULL },
+            { "delete",         SEC_ADMINISTRATOR,  true,  &HandleCharacterDeletedDeleteCommand,   "", NULL },
             { "list",           SEC_ADMINISTRATOR,  true,  &HandleCharacterDeletedListCommand,     "", NULL },
             { "restore",        SEC_ADMINISTRATOR,  true,  &HandleCharacterDeletedRestoreCommand,  "", NULL },
-            { "old",            SEC_CONSOLE,        true,  &HandleCharacterDeletedOldCommand,      "", NULL },
+            { "old",            SEC_ADMINISTRATOR,  true,  &HandleCharacterDeletedOldCommand,      "", NULL },
             { NULL,             0,                  false, NULL,                                   "", NULL }
         };
 
         static ChatCommand characterCommandTable[] =
         {
             { "customize",      SEC_GAMEMASTER,     true,  &HandleCharacterCustomizeCommand,       "", NULL },
-            { "changefaction",  SEC_GAMEMASTER,     true,  &HandleCharacterChangeFactionCommand,   "", NULL },
-            { "changerace",     SEC_GAMEMASTER,     true,  &HandleCharacterChangeRaceCommand,      "", NULL },
+            { "changefaction",  SEC_ADMINISTRATOR,  true,  &HandleCharacterChangeFactionCommand,   "", NULL },
+            { "changerace",     SEC_ADMINISTRATOR,  true,  &HandleCharacterChangeRaceCommand,      "", NULL },
             { "deleted",        SEC_GAMEMASTER,     true,  NULL,                                   "", characterDeletedCommandTable },
-            { "erase",          SEC_CONSOLE,        true,  &HandleCharacterEraseCommand,           "", NULL },
+            { "erase",          SEC_ADMINISTRATOR,  true,  &HandleCharacterEraseCommand,           "", NULL },
             { "level",          SEC_ADMINISTRATOR,  true,  &HandleCharacterLevelCommand,           "", NULL },
             { "rename",         SEC_GAMEMASTER,     true,  &HandleCharacterRenameCommand,          "", NULL },
             { "reputation",     SEC_GAMEMASTER,     true,  &HandleCharacterReputationCommand,      "", NULL },

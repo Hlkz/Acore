@@ -10,15 +10,15 @@ static bool HandleComItemInfo(ChatHandler* handler, const char* args) {
     int32 item_id = (int32)atof(item);
 	ItemTemplate const* itemt = sObjectMgr->GetItemTemplate(item_id);
 	int32 random = itemt->RandomProperty;
-	if (!itemt) return false;
-	if (!random) return false;
-	ChatHandler(handler->GetSession()).PSendSysMessage("Objet %u - EnchEntry %u", item_id, random);
+	if (!itemt || !random || !item_id)
+		return false;
+	ChatHandler(handler->GetSession()).PSendSysMessage("Objet %u - EnchEntry(randomprop) %u", item_id, random);
 	return true; }
 
 ChatCommand* GetCommands() const {
 	static ChatCommand ComItemInfo[] = {
-		{ "ii",      SEC_ADMINISTRATOR,	false, &HandleComItemInfo,	"", NULL },
-		{ NULL,             0,					false, NULL,				"", NULL } };
+		{ "ii",      SEC_ANIMATOR,	            false, &HandleComItemInfo,	"", NULL },
+		{ NULL,                  0,			    false, NULL,				"", NULL } };
 	return ComItemInfo; }
 };
 

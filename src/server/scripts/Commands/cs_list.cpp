@@ -40,17 +40,17 @@ public:
     {
         static ChatCommand listCommandTable[] =
         {
-            { "creature",       SEC_ADMINISTRATOR,  true,  &HandleListCreatureCommand,          "", NULL },
-            { "item",           SEC_ADMINISTRATOR,  true,  &HandleListItemCommand,              "", NULL },
-            { "object",         SEC_ADMINISTRATOR,  true,  &HandleListObjectCommand,            "", NULL },
-            { "auras",          SEC_ADMINISTRATOR,  false, &HandleListAurasCommand,             "", NULL },
-            { "mail",           SEC_ADMINISTRATOR,  true,  &HandleListMailCommand,              "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "creature",       SEC_GAMEMASTER,  true,  &HandleListCreatureCommand,          "", NULL },
+            { "item",           SEC_GAMEMASTER,  true,  &HandleListItemCommand,              "", NULL },
+            { "object",         SEC_GAMEMASTER,  true,  &HandleListObjectCommand,            "", NULL },
+            { "auras",          SEC_GAMEMASTER,  false, &HandleListAurasCommand,             "", NULL },
+            { "mail",           SEC_GAMEMASTER,  true,  &HandleListMailCommand,              "", NULL },
+            { NULL,             0,               false, NULL,                                "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "list",          SEC_ADMINISTRATOR,   true, NULL,                                 "", listCommandTable },
-            { NULL,            0,                   false, NULL,                                "", NULL }
+            { "list",          SEC_GAMEMASTER,   true, NULL,                                 "", listCommandTable },
+            { NULL,            0,                false, NULL,                                "", NULL }
         };
         return commandTable;
     }

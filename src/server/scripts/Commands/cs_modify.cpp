@@ -50,33 +50,33 @@ public:
         };
         static ChatCommand modifyCommandTable[] =
         {
-            { "hp",             SEC_ANIMATOR,      false, &HandleModifyHPCommand,            "", NULL },
-            { "mana",           SEC_ANIMATOR,      false, &HandleModifyManaCommand,          "", NULL },
-            { "rage",           SEC_ANIMATOR,      false, &HandleModifyRageCommand,          "", NULL },
-            { "runicpower",     SEC_ANIMATOR,      false, &HandleModifyRunicPowerCommand,    "", NULL },
-            { "energy",         SEC_ANIMATOR,      false, &HandleModifyEnergyCommand,        "", NULL },
-            { "money",          SEC_ANIMATOR,      false, &HandleModifyMoneyCommand,         "", NULL },
-            { "scale",          SEC_ANIMATOR,      false, &HandleModifyScaleCommand,         "", NULL },
-            { "bit",            SEC_ANIMATOR,      false, &HandleModifyBitCommand,           "", NULL },
-            { "faction",        SEC_ANIMATOR,      false, &HandleModifyFactionCommand,       "", NULL },
-            { "spell",          SEC_ANIMATOR,      false, &HandleModifySpellCommand,         "", NULL },
-            { "talentpoints",   SEC_ANIMATOR,      false, &HandleModifyTalentCommand,        "", NULL },
-            { "mount",          SEC_ANIMATOR,      false, &HandleModifyMountCommand,         "", NULL },
-            { "honor",          SEC_ANIMATOR,      false, &HandleModifyHonorCommand,         "", NULL },
+            { "hp",             SEC_ANIMATOR,       false, &HandleModifyHPCommand,            "", NULL },
+            { "mana",           SEC_ANIMATOR,       false, &HandleModifyManaCommand,          "", NULL },
+            { "rage",           SEC_ANIMATOR,       false, &HandleModifyRageCommand,          "", NULL },
+            { "runicpower",     SEC_ANIMATOR,       false, &HandleModifyRunicPowerCommand,    "", NULL },
+            { "energy",         SEC_ANIMATOR,       false, &HandleModifyEnergyCommand,        "", NULL },
+            { "money",          SEC_GAMEMASTER,     false, &HandleModifyMoneyCommand,         "", NULL },
+            { "scale",          SEC_ANIMATOR,       false, &HandleModifyScaleCommand,         "", NULL },
+            { "bit",            SEC_GAMEMASTER,     false, &HandleModifyBitCommand,           "", NULL },
+            { "faction",        SEC_ANIMATOR,       false, &HandleModifyFactionCommand,       "", NULL },
+            { "spell",          SEC_GAMEMASTER,     false, &HandleModifySpellCommand,         "", NULL },
+            { "talentpoints",   SEC_GAMEMASTER,     false, &HandleModifyTalentCommand,        "", NULL },
+            { "mount",          SEC_ANIMATOR,       false, &HandleModifyMountCommand,         "", NULL },
+            { "honor",          SEC_GAMEMASTER,     false, &HandleModifyHonorCommand,         "", NULL },
             { "reputation",     SEC_GAMEMASTER,     false, &HandleModifyRepCommand,           "", NULL },
-            { "arenapoints",    SEC_ANIMATOR,      false, &HandleModifyArenaCommand,         "", NULL },
-            { "drunk",          SEC_ANIMATOR,      false, &HandleModifyDrunkCommand,         "", NULL },
+            { "arenapoints",    SEC_GAMEMASTER,     false, &HandleModifyArenaCommand,         "", NULL },
+            { "drunk",          SEC_ANIMATOR,       false, &HandleModifyDrunkCommand,         "", NULL },
             { "standstate",     SEC_GAMEMASTER,     false, &HandleModifyStandStateCommand,    "", NULL },
             { "phase",          SEC_ADMINISTRATOR,  false, &HandleModifyPhaseCommand,         "", NULL },
             { "gender",         SEC_GAMEMASTER,     false, &HandleModifyGenderCommand,        "", NULL },
-            { "speed",          SEC_ANIMATOR,      false, NULL,           "", modifyspeedCommandTable },
+            { "speed",          SEC_ANIMATOR,       false, NULL,           "", modifyspeedCommandTable },
             { NULL,             0,                  false, NULL,                                           "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "morph",          SEC_GAMEMASTER,     false, &HandleModifyMorphCommand,          "", NULL },
-            { "demorph",        SEC_GAMEMASTER,     false, &HandleDeMorphCommand,              "", NULL },
-            { "modify",         SEC_ANIMATOR,      false, NULL,                 "", modifyCommandTable },
+            { "morph",          SEC_ANIMATOR,       false, &HandleModifyMorphCommand,          "", NULL },
+            { "demorph",        SEC_ANIMATOR,       false, &HandleDeMorphCommand,              "", NULL },
+            { "modify",         SEC_ANIMATOR,       false, NULL,                 "", modifyCommandTable },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         return commandTable;

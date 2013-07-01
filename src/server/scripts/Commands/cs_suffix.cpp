@@ -3,10 +3,10 @@
 
 int32 ChoixS(int32 item_id, int choix) {
     ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_id);
-    if (!itemProto) return 0;
+    if (!itemProto) return NULL;
 	uint32 randomPropId = choix;
 	ItemRandomSuffixEntry const* random_id = sItemRandomSuffixStore.LookupEntry(randomPropId);
-	if (!random_id) return 0;  
+	if (!random_id) return NULL;  
     return -int32(random_id->ID); }
 	
 void AddItemChoixS(Player *player, uint32 item_id, int choix) {
@@ -17,8 +17,8 @@ void AddItemChoixS(Player *player, uint32 item_id, int choix) {
     if (dest.empty()) {
 		ChatHandler(player->GetSession()).PSendSysMessage("Vous n'avez plus de place.");
         return; }
-		Item* item = player->StoreNewItem(dest, item_id, true, ChoixS(item_id, choix));
-		if (item) player->SendNewItem(item, 1, true, false);
+	if (Item* item = player->StoreNewItem(dest, item_id, true, ChoixS(item_id, choix)))
+		player->SendNewItem(item, 1, true, false);
     return; }
 
 class com_suffix : public CommandScript {
@@ -37,7 +37,7 @@ static bool HandleComSuffix(ChatHandler* handler, const char* args) {
 
 ChatCommand* GetCommands() const {
 	static ChatCommand ComSuffix[] = {
-		{ "suffix",         SEC_ADMINISTRATOR,	false, &HandleComSuffix,	"", NULL },
+		{ "suffix",         SEC_GAMEMASTER,	    false, &HandleComSuffix,	"", NULL },
 		{ NULL,             0,					false, NULL,				"", NULL } };
 	return ComSuffix; }
 };

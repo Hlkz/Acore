@@ -38,19 +38,19 @@ public:
         static ChatCommand accountSetCommandTable[] =
         {
             { "addon",          SEC_ADMINISTRATOR,  true,  &HandleAccountSetAddonCommand,     "", NULL },
-            { "gmlevel",        SEC_CONSOLE,        true,  &HandleAccountSetGmLevelCommand,   "", NULL },
-            { "password",       SEC_CONSOLE,        true,  &HandleAccountSetPasswordCommand,  "", NULL },
+            { "gmlevel",        SEC_ADMINISTRATOR,  true,  &HandleAccountSetGmLevelCommand,   "", NULL },
+            { "password",       SEC_ADMINISTRATOR,  true,  &HandleAccountSetPasswordCommand,  "", NULL },
             { NULL,             SEC_PLAYER,         false, NULL,                              "", NULL }
         };
         static ChatCommand accountCommandTable[] =
         {
-            { "addon",          SEC_ANIMATOR,      false, &HandleAccountAddonCommand,        "", NULL },
-            { "create",         SEC_CONSOLE,        true,  &HandleAccountCreateCommand,       "", NULL },
-            { "delete",         SEC_CONSOLE,        true,  &HandleAccountDeleteCommand,       "", NULL },
-            { "onlinelist",     SEC_CONSOLE,        true,  &HandleAccountOnlineListCommand,   "", NULL },
-            { "lock",           SEC_PLAYER,         false, &HandleAccountLockCommand,         "", NULL },
+            { "addon",          SEC_ANIMATOR,       false, &HandleAccountAddonCommand,        "", NULL },
+            { "create",         SEC_ADMINISTRATOR,  true,  &HandleAccountCreateCommand,       "", NULL },
+            { "delete",         SEC_ADMINISTRATOR,  true,  &HandleAccountDeleteCommand,       "", NULL },
+            { "onlinelist",     SEC_ADMINISTRATOR,  true,  &HandleAccountOnlineListCommand,   "", NULL },
+            { "lock",           SEC_ANIMATOR,       false, &HandleAccountLockCommand,         "", NULL },
             { "set",            SEC_ADMINISTRATOR,  true,  NULL,            "", accountSetCommandTable },
-            { "password",       SEC_PLAYER,         false, &HandleAccountPasswordCommand,     "", NULL },
+            { "password",       SEC_ANIMATOR,       false, &HandleAccountPasswordCommand,     "", NULL },
             { "",               SEC_PLAYER,         false, &HandleAccountCommand,             "", NULL },
             { NULL,             SEC_PLAYER,         false, NULL,                              "", NULL }
         };
@@ -451,13 +451,7 @@ public:
 
         // Check for invalid specified GM level.
         gm = (isAccountNameGiven) ? atoi(arg2) : atoi(arg1);
-        if (gm > SEC_CONSOLE)
-        {
-            handler->SendSysMessage(LANG_BAD_VALUE);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
+        
         // handler->getSession() == NULL only for console
         targetAccountId = (isAccountNameGiven) ? AccountMgr::GetId(targetAccountName) : handler->getSelectedPlayer()->GetSession()->GetAccountId();
         int32 gmRealmID = (isAccountNameGiven) ? atoi(arg3) : atoi(arg2);
@@ -470,29 +464,11 @@ public:
         // can set security level only for target with less security and to less security that we have
         // This is also reject self apply in fact
         targetSecurity = AccountMgr::GetSecurity(targetAccountId, gmRealmID);
-        if (targetSecurity >= playerSecurity || gm >= playerSecurity)
+        if (SEC_ADMINISTRATOR > playerSecurity)
         {
             handler->SendSysMessage(LANG_YOURS_SECURITY_IS_LOW);
             handler->SetSentErrorMessage(true);
             return false;
-        }
-
-        // Check and abort if the target gm has a higher rank on one of the realms and the new realm is -1
-        if (gmRealmID == -1 && !AccountMgr::IsConsoleAccount(playerSecurity))
-        {
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS_GMLEVEL_TEST);
-
-            stmt->setUInt32(0, targetAccountId);
-            stmt->setUInt8(1, uint8(gm));
-
-            PreparedQueryResult result = LoginDatabase.Query(stmt);
-
-            if (result)
-            {
-                handler->SendSysMessage(LANG_YOURS_SECURITY_IS_LOW);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
         }
 
         // Check if provided realmID has a negative value other than -1
@@ -501,6 +477,35 @@ public:
             handler->SendSysMessage(LANG_INVALID_REALMID);
             handler->SetSentErrorMessage(true);
             return false;
+        }
+
+        // If gmRealmID is -1, delete all values for the account id, else, insert values for the specific realmID
+        PreparedStatement* stmt;
+
+        if (gmRealmID == -1)
+        {
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS);
+
+            stmt->setUInt32(0, targetAccountId);
+        }
+        else
+        {
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS_BY_REALM);
+
+            stmt->setUInt32(0, targetAccountId);
+            stmt->setUInt32(1, realmID);
+        }
+        LoginDatabase.Execute(stmt);
+
+        if (gm != 0)
+        {
+            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_ACCESS);
+
+            stmt->setUInt32(0, targetAccountId);
+            stmt->setUInt8(1, uint8(gm));
+            stmt->setInt32(2, gmRealmID);
+
+            LoginDatabase.Execute(stmt);
         }
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, targetAccountName.c_str(), gm);

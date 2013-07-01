@@ -77,7 +77,7 @@ static bool HandleComucast(ChatHandler* handler, const char* args) {
 
 ChatCommand* GetCommands() const {
 	static ChatCommand Comucast[] = {
-		{ "ucast",         SEC_ADMINISTRATOR,	false, &HandleComucast,	"", NULL },
+		{ "ucast",          SEC_ADMINISTRATOR,	false, &HandleComucast,	"", NULL },
 		{ NULL,             0,					false, NULL,				"", NULL } };
 	return Comucast; }
 };
