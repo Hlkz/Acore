@@ -2099,7 +2099,7 @@ void Map::DelayedUpdate(const uint32 t_diff)
 
     // Don't unload grids if it's battleground, since we may have manually added GOs, creatures, those doesn't load from DB at grid re-load !
     // This isn't really bother us, since as soon as we have instanced BG-s, the whole map unloads as the BG gets ended
-    if (!IsBattlegroundOrArena())
+    if (!IsBattlegroundOrArena() && !IsBattleAO())
     {
         for (GridRefManager<NGridType>::iterator i = GridRefManager<NGridType>::begin(); i != GridRefManager<NGridType>::end();)
         {
