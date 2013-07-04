@@ -8,6 +8,8 @@
 #include "GameObject.h"
 #include "Battleground.h"
 #include "ObjectAccessor.h"
+#include "ScriptPCH.h"
+#include "ScriptedCreature.h"
 
 enum BattleAOIds
 {
@@ -18,13 +20,13 @@ enum BattleAOIds
 
 enum BAO_BattlegroundNodes
 {
-    BAO_NODE_PUITS			= 0,
-    BAO_NODE_SANTUM		    = 1,
-    BAO_NODE_BLEU		    = 2,
-    BAO_NODE_ROUGE		    = 3,
-    BAO_NODE_RUINS			= 4,
-    BAO_NODE_ETANG			= 5,
-    BAO_NODE_CACHE			= 6,
+    BAO_NODE_TOUR_A2		= 0,
+    BAO_NODE_SUD		    = 1,
+    BAO_NODE_RUINES		    = 2,
+    BAO_NODE_NORD		    = 3,
+    BAO_NODE_TOUR_H2		= 4,
+    BAO_NODE_PUITdS			= 5,
+    BAO_NODE_PUITS			= 6,
     BAO_DYNAMIC_NODES_COUNT	= 7,                        // dynamic nodes that can be captured
     BAO_SPIRIT_A2		    = 7,
     BAO_SPIRIT_H2			= 8,
@@ -212,8 +214,8 @@ class BattleAO : public ZoneScript
 
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
-        virtual void AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid);
-        void RemovePlayerFromResurrectQueue(uint64 player_guid);
+		uint32 LastRez(uint32 diff) { m_LastResurrectTime += diff; return m_LastResurrectTime; }
+		void NewLastRez() { m_LastResurrectTime = 0; }
 
         typedef std::vector<uint64> AOObjects;
         typedef std::vector<uint64> AOCreatures;
@@ -271,7 +273,6 @@ class BattleAO : public ZoneScript
 		void RemoveAurasFromPlayer(Player* player);
 
 	private:
-        void PostUpdateImpl(uint32 diff);		
         /* Gameobject spawning/despawning */
         void _CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay);
         void _DelBanner(uint8 node, uint8 type, uint8 teamIndex);
@@ -298,11 +299,23 @@ class BattleAO : public ZoneScript
     protected:
 
         void PlayerAddedToBAOCheck(Player* player);
-
-        Player* _GetPlayer(uint64 guid, bool offlineRemove, const char* context) const;
-        Player* _GetPlayer(BattleAOPlayerMap::iterator itr, const char* context);
-        Player* _GetPlayer(BattleAOPlayerMap::const_iterator itr, const char* context) const;
-        Player* _GetPlayerForTeam(uint32 teamId, BattleAOPlayerMap::const_iterator itr, const char* context) const;
+		
+		Player* _GetPlayer(uint64 guid, bool offlineRemove, char const* context) const {
+			Player* player = NULL;
+			if (!offlineRemove)
+				player = ObjectAccessor::FindPlayer(guid);
+			return player; }
+		Player* _GetPlayer(BattleAOPlayerMap::iterator itr, char const* context) { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime, context); }
+		Player* _GetPlayer(BattleAOPlayerMap::const_iterator itr, char const* context) const { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime, context); }
+		Player* _GetPlayerForTeam(uint32 teamId, BattleAOPlayerMap::const_iterator itr, char const* context) const {
+			Player* player = _GetPlayer(itr, context);
+			if (player) {
+				uint32 team = itr->second.Team;
+				if (!team)
+					team = player->GetTeam();
+				if (team != teamId)
+					player = NULL; }
+			return player; }
 
 		Map* m_Map;
 
@@ -320,6 +333,34 @@ class BattleAO : public ZoneScript
 		bool   m_InBAOFreeSlotQueue;
 
         void TeamCastSpell(TeamId team, int32 spellId);
+
+};
+
+
+
+class spirithealer : public CreatureScript
+{
+public:
+    spirithealer() : CreatureScript("spirithealer") { }
+
+    struct spirithealerAI : public ScriptedAI
+    {
+        spirithealerAI(Creature* creature) : ScriptedAI(creature) {}
+		
+		void UpdateAI(uint32 diff);
+		bool InQueue(uint64 player_guid);
+		void AddPlayerToQueue(uint64 player_guid);
+		void RemovePlayerFromQueue(uint64 player_guid);
+		
+		protected:
+		std::vector<uint64> m_ReviveQueue;
+		std::vector<uint64> m_ResurrectQueue;
+    };
+	
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new spirithealerAI(creature);
+    }
 
 };
 

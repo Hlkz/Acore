@@ -53,7 +53,6 @@
 #include "AccountMgr.h"
 #include "Spell.h"
 #include "BattlegroundMgr.h"
-#include "BattleAO.h"
 #include "BattleAOMgr.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
@@ -1660,8 +1659,7 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket& recvData)
 
     if (bg)
         sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(_player, bg, guid);
-
-	if(_player->GetMapId() == BATTLEAO_MAP)
+	else
 		sBattleAOMgr->GetBattleAO()->SendAreaSpiritHealerQueryOpcode(_player, guid);
 }
 
@@ -1683,9 +1681,8 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket& recvData)
 
     if (bg)
         bg->AddPlayerToResurrectQueue(guid, _player->GetGUID());
-
-	if(_player->GetMapId() == BATTLEAO_MAP)
-		sBattleAOMgr->GetBattleAO()->AddPlayerToResurrectQueue(guid, _player->GetGUID());
+	else if (spirithealer::spirithealerAI* pspirithealer = CAST_AI(spirithealer::spirithealerAI, unit->AI()))
+		pspirithealer->AddPlayerToQueue(_player->GetGUID());
 }
 
 void WorldSession::HandleHearthAndResurrect(WorldPacket& /*recvData*/)

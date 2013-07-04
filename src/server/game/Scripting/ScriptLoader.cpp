@@ -1304,6 +1304,7 @@ void AddSc_Com_Item_Info();
 void AddSC_NPC_Transmogrify();
 void AddSc_transmochange();
 void AddSc_Com_ucast();
+void AddSc_spirithealer();
 //boss
 void AddSC_kahz();
 void AddSC_zone_AO();
@@ -1333,6 +1334,7 @@ void AddCustomScripts()
 	AddSc_Com_Item_Info();
 	AddSC_NPC_Transmogrify();
 	AddSc_Com_ucast();
+	AddSc_spirithealer();
 	//boss
 	AddSC_kahz();
     AddSC_zone_AO();

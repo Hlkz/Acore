@@ -4732,8 +4732,8 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                             {
                                 if (Battleground* bg = target->ToPlayer()->GetBattleground())
                                     bg->RemovePlayerFromResurrectQueue(target->GetGUID());
-								if (target->GetMapId() == BATTLEAO_MAP)
-									sBattleAOMgr->GetBattleAO()->RemovePlayerFromResurrectQueue(target->GetGUID());
+								//tofix else if (spirithealer::spirithealerAI* pspirithealer = CAST_AI(spirithealer::spirithealerAI, unit->AI()))
+								//	pspirithealer->RemovePlayerFromQueue(_player->GetGUID());
                             }
                             break;
                         case 36730:                                     // Flame Strike

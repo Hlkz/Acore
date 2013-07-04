@@ -1408,11 +1408,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
         case 43681:                                         // Inactive
         case 44535:                                         // Spirit Heal (mana)
         {
-            MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
-            if (!mapEntry)
-                return SPELL_FAILED_INCORRECT_AREA;
-
-            return zone_id == 4197 || zone_id == 5810 || (mapEntry->IsBattleground() && player && player->InBattleground()) ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA;
+            return SPELL_CAST_OK;
         }
         case 44521:                                         // Preparation
         {
