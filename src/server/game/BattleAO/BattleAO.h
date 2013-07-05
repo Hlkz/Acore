@@ -16,23 +16,25 @@ enum BattleAOIds
     BATTLEAO_MAP = 782,
 	BATTLEAO_AREA = 5810,
     AO_SPELL_CHARGE	= 39089,
+	BAO_CREATURE_ENTRY_A_SPIRITGUIDE = 100017,
+	BAO_CREATURE_ENTRY_H_SPIRITGUIDE = 100018,
 };
 
 enum BAO_BattlegroundNodes
 {
-    BAO_NODE_TOUR_A2		= 0,
+    BAO_NODE_NORD		    = 0,
     BAO_NODE_SUD		    = 1,
     BAO_NODE_RUINES		    = 2,
-    BAO_NODE_NORD		    = 3,
-    BAO_NODE_TOUR_H2		= 4,
-    BAO_NODE_PUITdS			= 5,
-    BAO_NODE_PUITS			= 6,
-    BAO_DYNAMIC_NODES_COUNT	= 7,                        // dynamic nodes that can be captured
-    BAO_SPIRIT_A2		    = 7,
-    BAO_SPIRIT_H2			= 8,
-    BAO_SPIRIT_A2_TOUR	    = 9,
-    BAO_SPIRIT_H2_TOUR		= 10,
-    BAO_ALL_NODES_COUNT     = 11							// all nodes (dynamic and static) */
+	BAO_NODE_FIRST_SPIRIT	= 3, // graveyard from BAO_NODE_FIRST_SPIRIT to BAO_ALL_NODES_COUNT
+    BAO_NODE_PUITS			= 3,
+    BAO_NODE_TOUR_A2		= 4,
+    BAO_NODE_TOUR_H2		= 5,
+    BAO_DYNAMIC_NODES_COUNT	= 6, // dynamic nodes that can be captured
+    BAO_SPIRIT_A2		    = 6,
+    BAO_SPIRIT_H2			= 7,
+    BAO_ALL_NODES_COUNT     = 8, // all nodes (dynamic and static) */
+    BAO_SPIRIT_MAX = BAO_ALL_NODES_COUNT-BAO_NODE_FIRST_SPIRIT,
+	BAO_CREATURE_MAX = BAO_SPIRIT_MAX+BAO_DYNAMIC_NODES_COUNT // insiblemarker+spirithealers
 };
 
 enum BAO_NodeStatus
@@ -54,10 +56,10 @@ enum BAOWorldStates
     BAO_OP_OCCUPIED_BASES_HORDE    = 22004,
 };
 
-const uint32 BAO_OP_NODESTATES[BAO_DYNAMIC_NODES_COUNT] =	{3001, 3011, 3021, 3031, 3041, 3051, 3061};
-const uint32 BAO_OP_NODEICONS[BAO_DYNAMIC_NODES_COUNT]  =	{3000, 3010, 3020, 3030, 3040, 3050, 3060};
-const uint32 BAO_NODEOBJECTID[BAO_DYNAMIC_NODES_COUNT]	=	{180107, 180108, 180109, 180110, 180111, 180112, 180113};
-const uint32 BAO_SAVENODEWORLDSTATE[BAO_DYNAMIC_NODES_COUNT]	=	{22200, 22201, 22202, 22203, 22204, 22205, 22206};
+const uint32 BAO_OP_NODESTATES[BAO_DYNAMIC_NODES_COUNT] =	{3001, 3011, 3021, 3031, 3041, 3051};
+const uint32 BAO_OP_NODEICONS[BAO_DYNAMIC_NODES_COUNT]  =	{3000, 3010, 3020, 3030, 3040, 3050};
+const uint32 BAO_NODEOBJECTID[BAO_DYNAMIC_NODES_COUNT]	=	{180107, 180108, 180109, 180110, 180111, 180112};
+const uint32 BAO_SAVENODEWORLDSTATE[BAO_DYNAMIC_NODES_COUNT]	=	{22200, 22201, 22202, 22203, 22204, 22205};
 
 enum BAO_ObjectTypes
 {
@@ -82,7 +84,7 @@ enum BG_AO_ObjectType
     BAO_OBJECT_AURA_HORDE              = 6,
     BAO_OBJECT_AURA_CONTESTED          = 7,
 	BAO_BANNER_MAX = 8,
-	BAO_OBJECT_MAX = 8 * BAO_ALL_NODES_COUNT // for all 7 node points 8*7=56 objects
+	BAO_OBJECT_MAX = 8 * BAO_ALL_NODES_COUNT
 };
 
 enum BattleAOSounds
@@ -96,51 +98,38 @@ enum BattleAOSounds
 
 enum BattleAOTimers
 {
-    BAO_OBJECTIVE_UPDATE_INTERVAL        = 1000,
-    BAO_FLAG_CAPTURING_TIME           = 60000
+    BAO_OBJECTIVE_UPDATE_INTERVAL	= 1*IN_MILLISECONDS,
+    BAO_FLAG_CAPTURING_TIME			= 2*MINUTE*IN_MILLISECONDS,
+    BAO_SPIRIT_REZ_TIME				= 22*IN_MILLISECONDS
 };
 
 struct BattleAOScore
 {
     BattleAOScore() : KillingBlows(0), Deaths(0), HonorableKills(0), BonusHonor(0),
-        DamageDone(0), HealingDone(0), BasesAssaulted(0), BasesDefended(0) { }
-
-    uint32 KillingBlows;
-    uint32 Deaths;
-    uint32 HonorableKills;
-    uint32 BonusHonor;
-    uint32 DamageDone;
-    uint32 HealingDone;
-	uint32 BasesAssaulted;
-	uint32 BasesDefended;
+        DamageDone(0), HealingDone(0) {}
+    uint32 KillingBlows; uint32 Deaths; uint32 HonorableKills;
+    uint32 BonusHonor; uint32 DamageDone; uint32 HealingDone;
 };
 
-const uint32 BAO_GraveyardIds[BAO_ALL_NODES_COUNT] = {1760, 1761, 1762, 1763, 1764, 1765, 1766, 1767, 1768, 1769, 1770};
+const uint32 BAO_GraveyardIds[BAO_ALL_NODES_COUNT-BAO_NODE_FIRST_SPIRIT+1] = {1761, 1762, 1763, 1764, 1765, 1760};
 
 const float BAO_NodePositions[BAO_DYNAMIC_NODES_COUNT][4] =
 {
-    {-5623.449219f, 33.006149f, 7.052403f, 3.120155f}, //puits
-    {-5222.179688f, 47.053226f, 3.538148f, 2.837019f}, //sanctum
-    {-5510.409180f, -299.316681f, 4.405378f, 3.009199f}, //bleu
-    {-5831.860840f, -383.221375f, 4.101608f, 3.615526f}, //rouge
-    {-5638.83f, -288.73f, 35.434f, 3.14f}, //ruins
-	{-5262.734375f, -228.397034f, 2.171713f, 0.054353f}, //etang
-	{-5955.698730f, -356.054108f, 1.495916f, 2.785967f}, //cache
+    {-5510.409180f, -299.316681f, 4.405378f, 3.009199f},	// nord
+    {-5831.860840f, -383.221375f, 4.101608f, 3.615526f},	// sud
+    {-5638.83f, -288.73f, 35.434f, 3.14f},					// ruines
+    {-5623.449219f, 33.006149f, 7.052403f, 3.120155f},		// puits
+	{-5498.252441f, -113.755493f, -0.4025003f, 3.616046f},	// tour a2
+	{-5773.827637f, -123.747971f, -10.509393f, 3.352937f},	// tour h2
 
 };
-const float BAO_SpiritGuidePos[BAO_ALL_NODES_COUNT][4] = //tofix
+const float BAO_SpiritGuidePos[BAO_SPIRIT_MAX][4] =
 {
-    {-5628.989258f, -48.644108f, 15.398722f, 2.225193f}, //puits
-    {-5106.446289f, 86.217834f, 4.730451f, 0.734897f}, //sanctum
-    {0.0f, 0.0f, 0.0f, 0.0f}, //bleu
-    {0.0f, 0.0f, 0.0f, 0.0f},//rouge
-    {-5757.212891f, -240.177658f, 5.380976f, 3.148425f}, //ruins
-    {-5224.329590f, -343.908142f, 0.050214f, 0.255811f}, //etang
-	{-5955.348633f, -437.039062f, 1.207013f, 0.432519f}, //cache
-	{-5504.412598f, 231.661484f, 64.052414f, 4.132537f}, //a2 départ
-	{-5326.936523f, 163.164841f, 74.170593f, 2.756121f}, //h2 départ
-	{-5460.480957f, -98.561989f, -13.787698f, 1.368716f}, //tour a2
-	{-5866.610840f, -135.867676f, 5.397364f, 0.628477f}, //tour h2
+    {-5645.717773f, 118.826782f, 9.399622f, 3.350337f},		//puits
+	{-5459.024414f, -90.056808f, -14.164452f, 3.785068f},	// tour a2
+	{-5746.135254f, -36.832146f, -23.168255f, 2.127475f},	// tour h2
+	{-5105.729980f, -196.615295f, -1.474849f, 5.715950f},	//  a2
+	{-6139.462891f, -274.528137f, 4.637090f, 3.788593f},	// h2
 };
 
 struct BattleAOPlayer
@@ -164,9 +153,9 @@ typedef std::map<uint64, time_t> PlayerTimerMap;
 
 struct AO_BannerTimer
 {
-    uint32      timer;
-    uint8       type;
-    uint8       teamIndex;
+    uint32 timer;
+    uint8 type;
+    uint8 teamIndex;
 };
 
 class BattleAO : public ZoneScript
@@ -179,8 +168,8 @@ class BattleAO : public ZoneScript
 
         typedef std::map<uint64, BattleAOPlayer> BattleAOPlayerMap;
         BattleAOPlayerMap const& GetPlayers() const { return m_Players; }
-		bool HasPlayer(Player* player) const;
-		bool HasPlayerByGuid(uint64 guid) const;
+		bool HasPlayer(Player* player) const { return m_Players.find(player->GetGUID()) != m_Players.end(); }
+		bool HasPlayerByGuid(uint64 guid) const { return m_Players.find(guid) != m_Players.end(); }
 
         typedef std::map<uint64, BattleAOScore*> BattleAOScoreMap;
         BattleAOScoreMap::const_iterator GetPlayerScoresBegin() const { return PlayerScores.begin(); }
@@ -248,8 +237,6 @@ class BattleAO : public ZoneScript
 
 		bool SetupBattleAO();
 
-        uint32 GetReviveQueueSize() const { return m_ReviveQueue.size(); }
-
         template<class Do>
         void BroadcastWorker(Do& _do);
         void PlaySoundToAll(uint32 SoundID);
@@ -280,16 +267,11 @@ class BattleAO : public ZoneScript
         int32 _GetNodeNameId(uint8 node);
 
         /* Creature spawning/despawning */
-        // TODO: working, scripted peons spawning
+        //tofix gardes
         void _NodeOccupied(uint8 node, Team team);
         void _NodeDeOccupied(uint8 node);
 
-        /* Nodes info:
-            0: neutral
-            1: ally contested
-            2: horde contested
-            3: ally occupied
-            4: horde occupied     */
+        /* m_Nodes values : 0: neutral, 1: ally contested, 3: ally occupied, */
         uint8               m_Nodes[BAO_ALL_NODES_COUNT];
         uint8               m_prevNodes[BAO_DYNAMIC_NODES_COUNT];
         AO_BannerTimer   m_BannerTimers[BAO_DYNAMIC_NODES_COUNT];
@@ -319,9 +301,7 @@ class BattleAO : public ZoneScript
 
 		Map* m_Map;
 
-        BattleAOPlayerMap  m_Players;
-        std::map<uint64, std::vector<uint64> >  m_ReviveQueue;
-        std::vector<uint64> m_ResurrectQueue;
+        BattleAOPlayerMap m_Players;
         uint32 m_LastResurrectTime;
         std::deque<uint64> m_OfflineQueue;
         BattleAOScoreMap PlayerScores;
@@ -330,13 +310,11 @@ class BattleAO : public ZoneScript
 
         uint32 m_PlayersCount[BG_TEAMS_COUNT];
 
-		bool   m_InBAOFreeSlotQueue;
+		bool m_InBAOFreeSlotQueue;
 
         void TeamCastSpell(TeamId team, int32 spellId);
 
 };
-
-
 
 class spirithealer : public CreatureScript
 {
@@ -352,16 +330,12 @@ public:
 		void AddPlayerToQueue(uint64 player_guid);
 		void RemovePlayerFromQueue(uint64 player_guid);
 		
-		protected:
 		std::vector<uint64> m_ReviveQueue;
 		std::vector<uint64> m_ResurrectQueue;
     };
 	
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new spirithealerAI(creature);
-    }
-
+    CreatureAI* GetAI(Creature* creature) const {
+        return new spirithealerAI(creature); }
 };
 
 #endif
