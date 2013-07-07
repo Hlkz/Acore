@@ -189,7 +189,7 @@ class BattleAO : public ZoneScript
         void KickPlayerFromBattleAO(uint64 guid);
 
         void AddPlayer(Player* player);
-		void RemovePlayer(uint64 guid);
+		void RemovePlayer(uint64 guid, bool teleport=true);
         void HandlePlayerEnterZone(Player* player, uint32 zone);
         void HandlePlayerLeaveZone(Player* player, uint32 zone);
 

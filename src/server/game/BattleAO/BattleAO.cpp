@@ -224,7 +224,7 @@ void BattleAO::AddPlayer(Player* player)
     PlayerScores[player->GetGUID()] = sc;
 }
 
-void BattleAO::RemovePlayer(uint64 guid)
+void BattleAO::RemovePlayer(uint64 guid, bool teleport)
 {
 	// option quitter, 5 min de déco, tp autre map :
 	sLog->outDebug(LOG_FILTER_BAO, "BAO RemovePlayer %u", guid);
@@ -285,7 +285,7 @@ void BattleAO::RemovePlayer(uint64 guid)
         sBattleAOMgr->ScheduleQueueUpdate();
     }
 
-    if (player)
+    if (player && teleport)
     {
         player->SetBattlegroundId(0, BATTLEGROUND_TYPE_NONE);
         player->SetBGTeam(0);
@@ -305,7 +305,7 @@ void BattleAO::HandlePlayerEnterZone(Player* player, uint32 /*zone*/)
 // Called when a player leave the zone
 void BattleAO::HandlePlayerLeaveZone(Player* player, uint32 /*zone*/)
 {
-	RemovePlayer(player->GetGUID());
+	RemovePlayer(player->GetGUID(), false);
 }
 
 void BattleAO::EventPlayerLoggedIn(Player* player)
