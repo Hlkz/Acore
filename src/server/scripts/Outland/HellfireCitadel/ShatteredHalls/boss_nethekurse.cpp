@@ -66,6 +66,12 @@ enum SetData
     SETDATA_PEON_DEATH         = 2
 };
 
+enum Events
+{
+    // Fel Orc Convert
+    EVENT_HEMORRHAGE           = 1
+};
+
 // ########################################################
 // Grand Warlock Nethekurse
 // ########################################################
@@ -313,13 +319,14 @@ class npc_fel_orc_convert : public CreatureScript
             void Reset()
             {
                 me->SetNoCallAssistance(true);              //we don't want any assistance (WE R HEROZ!)
-                Hemorrhage_Timer = 3000;
             }
 
             void MoveInLineOfSight(Unit* /*who*/) { }
 
             void EnterCombat(Unit* /*who*/)
             {
+                events.ScheduleEvent(EVENT_HEMORRHAGE, 3000);
+
                 if (instance)
                     if (Creature* Kurse = Unit::GetCreature(*me, instance->GetData64(NPC_GRAND_WARLOCK_NETHEKURSE)))
                         if (Kurse && me->IsWithinDist(Kurse, 45.0f))
@@ -343,18 +350,20 @@ class npc_fel_orc_convert : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (Hemorrhage_Timer <= diff)
+                events.Update(diff);
+
+                if (uint32 EVENT_HEMORRHAGE = events.ExecuteEvent())
                 {
                     DoCastVictim(SPELL_HEMORRHAGE);
-                    Hemorrhage_Timer = 15000;
-                } else Hemorrhage_Timer -= diff;
+                    events.ScheduleEvent(EVENT_HEMORRHAGE, 15000);
+                }
 
                 DoMeleeAttackIfReady();
             }
 
             private:
                 InstanceScript* instance;
-                uint32 Hemorrhage_Timer;
+                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
