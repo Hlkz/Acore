@@ -54,7 +54,7 @@ public:
             { "create",         SEC_ADMINISTRATOR,  true,  &HandleAccountCreateCommand,       "", NULL },
             { "delete",         SEC_ADMINISTRATOR,  true,  &HandleAccountDeleteCommand,       "", NULL },
             { "onlinelist",     SEC_ADMINISTRATOR,  true,  &HandleAccountOnlineListCommand,   "", NULL },
-            { "lock",           SEC_ANIMATOR,       false, &HandleAccountLockCommand,         "", NULL },
+            { "lock",           SEC_ANIMATOR,       false, NULL,           "", accountLockCommandTable },
             { "set",            SEC_ADMINISTRATOR,  true,  NULL,            "", accountSetCommandTable },
             { "password",       SEC_ANIMATOR,       false, &HandleAccountPasswordCommand,     "", NULL },
             { "",               SEC_PLAYER,         false, &HandleAccountCommand,             "", NULL },
