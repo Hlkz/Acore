@@ -166,7 +166,7 @@ class npc_dream_fog : public CreatureScript
 						}
 						else
 						{
-							sLog->outError(LOG_FILTER_GENERAL, "WB dragon error : dreamfog cant find any target");
+							TC_LOG_ERROR(LOG_FILTER_GENERAL, "WB dragon error : dreamfog cant find any target");
 						    _roamTimer = 5000;
 						}
 					}

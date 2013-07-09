@@ -4698,15 +4698,15 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
 
     if (deleteFinally)
         charDelete_method = CHAR_DELETE_REMOVE;
-    else if (CharacterNameData const* nameData = sWorld->GetCharacterNameData(guid))    // To avoid a query, we select loaded data. If it doesn't exist, return.
+    else if (CharacterNameData const* nameData = sWorld->GetCharacterNameData(playerguid))    // To avoid a query, we select loaded data. If it doesn't exist, return.
     {
         if (!nameData)
         {
-            TC_LOG_ERROR(LOG_FILTER_PLAYER, "Cannot find CharacterNameData entry for player %u from account %u. Could not delete character.", guid, accountId);
+            TC_LOG_ERROR(LOG_FILTER_PLAYER, "Cannot find CharacterNameData entry for player %u from account %u. Could not delete character.", playerguid, accountId);
             return;
         }
         // Define the required variables
-        uint32 charDelete_minLvl = sWorld->getIntConfig(nameData->m_class != CLASS_DEATH_KNIGHT ? CONFIG_CHARDELETE_MIN_LEVEL : CONFIG_CHARDELETE_HEROIC_MIN_LEVEL);
+        uint32 charDelete_minLvl = sWorld->getIntConfig(CONFIG_CHARDELETE_MIN_LEVEL);
 
         // if we want to finalize the character removal or the character does not meet the level requirement of either heroic or non-heroic settings,
         // we set it to mode CHAR_DELETE_REMOVE
@@ -16869,8 +16869,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     PreparedQueryResult result = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_FROM);
     if (!result)
     {
-        sLog->outError(LOG_FILTER_PLAYER, "Player (GUID: %u) not found in table `characters`, can't load. ", guid);
-        TC_LOG_ERROR(LOG_FILTER_PLAYER, "Player %s (GUID: %u) not found in table `characters`, can't load. ", name.c_str(), guid);
+        TC_LOG_ERROR(LOG_FILTER_PLAYER, "Player (GUID: %u) not found in table `characters`, can't load. ", guid);
         return false;
     }
 
@@ -21344,7 +21343,7 @@ if(GetGUID()==vendorguid) {
     if (crItem->ExtendedCost) {
         ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(crItem->ExtendedCost);
         if (!iece) {
-            sLog->outError(LOG_FILTER_PLAYER, "Item %u have wrong ExtendedCost field value %u", pProto->ItemId, crItem->ExtendedCost);
+            TC_LOG_ERROR(LOG_FILTER_PLAYER, "Item %u have wrong ExtendedCost field value %u", pProto->ItemId, crItem->ExtendedCost);
             return false; }
 
         if (GetHonorPoints() < (iece->reqhonorpoints * count)) {
@@ -21367,7 +21366,7 @@ if(GetGUID()==vendorguid) {
     if (crItem->IsGoldRequired(pProto) && pProto->BuyPrice > 0) {
         uint32 maxCount = MAX_MONEY_AMOUNT / pProto->BuyPrice;
         if ((uint32)count > maxCount) {
-            sLog->outError(LOG_FILTER_PLAYER, "Player %s tried to buy %u item id %u, causing overflow", GetName().c_str(), (uint32)count, pProto->ItemId);
+            TC_LOG_ERROR(LOG_FILTER_PLAYER, "Player %s tried to buy %u item id %u, causing overflow", GetName().c_str(), (uint32)count, pProto->ItemId);
             count = (uint8)maxCount; }
         price = pProto->BuyPrice * count; //it should not exceed MAX_MONEY_AMOUNT
 
@@ -26337,7 +26336,7 @@ void Player::SetSpectator(bool bSpectator)
     {
         if (IsSpectator())
         {
-            sLog->outError(LOG_FILTER_ARENAS, "Player::SetSpectator: trying to set spectator state for player (GUID: %u) but he already has this state.", GetGUIDLow());
+            TC_LOG_ERROR(LOG_FILTER_ARENAS, "Player::SetSpectator: trying to set spectator state for player (GUID: %u) but he already has this state.", GetGUIDLow());
             return;
         }
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(8326))
@@ -26448,7 +26447,7 @@ bool Player::IsDeserter()
         return false;
     else
     {
-        sLog->outError(LOG_FILTER_PLAYER, "Player %u has wrong team id %u", GetGUID(), team);
+        TC_LOG_ERROR(LOG_FILTER_PLAYER, "Player %u has wrong team id %u", GetGUID(), team);
         return true;
     }
 }

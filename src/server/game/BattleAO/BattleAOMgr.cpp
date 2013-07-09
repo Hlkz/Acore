@@ -19,13 +19,13 @@ void BattleAOMgr::InitBattleAO()
     BattleAO* pBAO = new BattleAOAO;
     if (!pBAO->SetupBattleAO())
     {
-        sLog->outError(LOG_FILTER_BAO, "BAO : init failed.");
+        TC_LOG_ERROR(LOG_FILTER_BAO, "BAO : init failed.");
         delete pBAO;
     }
     else
     {
         m_BattleAOSet.push_back(pBAO);
-        sLog->outError(LOG_FILTER_BAO, "BAO : successfully initiated.");
+        TC_LOG_ERROR(LOG_FILTER_BAO, "BAO : successfully initiated.");
     }
 }
 
@@ -138,7 +138,7 @@ void BattleAOMgr::BuildPvpLogDataPacket(WorldPacket* data)
         itr2 = itr++;
         if (!bao->HasPlayerByGuid(itr2->first))
         {
-            sLog->outError(LOG_FILTER_BAO, "BAO player %i has scoreboard but is not in bao !", itr->first);
+            TC_LOG_ERROR(LOG_FILTER_BAO, "BAO player %i has scoreboard but is not in bao !", itr->first);
             continue;
         }
         *data << uint64(itr2->first);

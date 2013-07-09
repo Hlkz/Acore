@@ -348,7 +348,7 @@ public:
             
             if (WorldSession* session = handler->GetSession())
             {
-                if (!session->HasPermission(RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RESERVEDNAME) && sObjectMgr->IsReservedName(newName))
+                if (!AccountMgr::IsAdminAccount(session->GetSecurity()) && sObjectMgr->IsReservedName(newName))
                 {
                     handler->SendSysMessage(LANG_RESERVED_NAME);
                     handler->SetSentErrorMessage(true);

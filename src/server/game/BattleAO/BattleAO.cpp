@@ -137,7 +137,7 @@ bool BattleAO::SetupBattleAO()
             || !AddObject(BAO_OBJECT_AURA_CONTESTED + 8*i, BAO_OBJECTID_AURA_C, BAO_NodePositions[i][0], BAO_NodePositions[i][1], BAO_NodePositions[i][2], BAO_NodePositions[i][3], 0, 0, std::sin(BAO_NodePositions[i][3]/2), std::cos(BAO_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
 )
 		{
-            sLog->outError(LOG_FILTER_SQL, "BatteAO: Failed to spawn some object Battleground not created! %i",i);
+            TC_LOG_ERROR(LOG_FILTER_SQL, "BatteAO: Failed to spawn some object Battleground not created! %i",i);
             return false;
 		}
 	}
@@ -579,7 +579,7 @@ WorldSafeLocsEntry const* BattleAO::GetClosestGraveYard(Player* player)
     }
     if (!good_entry)
 	{
-		sLog->outError(LOG_FILTER_GENERAL, "BAO aucun cimetière trouvé");
+		TC_LOG_ERROR(LOG_FILTER_GENERAL, "BAO aucun cimetière trouvé");
         good_entry = sWorldSafeLocsStore.LookupEntry(BAO_GraveyardIds[BAO_DYNAMIC_NODES_COUNT+teamIndex]);
 	}
     return good_entry;
@@ -614,7 +614,7 @@ GameObject* BattleAO::GetAOObject(uint32 type)
 {
     GameObject* obj = m_Map->GetGameObject(AoObjects[type]);
     if (!obj)
-        sLog->outError(LOG_FILTER_BAO, "BAO::GetAOObject: gameobject type:%u, GUID:%u not found", type, GUID_LOPART(AoObjects[type]));
+        TC_LOG_ERROR(LOG_FILTER_BAO, "BAO::GetAOObject: gameobject type:%u, GUID:%u not found", type, GUID_LOPART(AoObjects[type]));
     return obj;
 }
 
@@ -622,7 +622,7 @@ Creature* BattleAO::GetAOCreature(uint32 type)
 {
     Creature* creature = m_Map->GetCreature(AoCreatures[type]);
     if (!creature)
-        sLog->outError(LOG_FILTER_BAO, "BAO::GetAOCreature: creature type:%u, GUID:%u not found", type, GUID_LOPART(AoCreatures[type]));
+        TC_LOG_ERROR(LOG_FILTER_BAO, "BAO::GetAOCreature: creature type:%u, GUID:%u not found", type, GUID_LOPART(AoCreatures[type]));
     return creature;
 }
 
@@ -651,8 +651,8 @@ bool BattleAO::AddObject(uint32 type, uint32 entry, float x, float y, float z, f
     if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, m_Map,
         PHASEMASK_NORMAL, x, y, z, o, rotation0, rotation1, rotation2, rotation3, 100, GO_STATE_READY))
     {
-        sLog->outError(LOG_FILTER_SQL, "BAO::AddObject: cannot create gameobject entry:%u", entry);
-        sLog->outError(LOG_FILTER_BAO, "BAO::AddObject: cannot create gameobject entry:%u", entry);
+        TC_LOG_ERROR(LOG_FILTER_SQL, "BAO::AddObject: cannot create gameobject entry:%u", entry);
+        TC_LOG_ERROR(LOG_FILTER_BAO, "BAO::AddObject: cannot create gameobject entry:%u", entry);
         delete go;
         return false;
     }
@@ -674,7 +674,7 @@ Creature* BattleAO::AddCreature(uint32 entry, uint32 type, uint32 teamval, float
     Creature* creature = new Creature;
     if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, PHASEMASK_NORMAL, entry, 0, teamval, x, y, z, o))
     {
-        sLog->outError(LOG_FILTER_BAO, "BattleAO::AddCreature: cannot create creature entry %u", entry);
+        TC_LOG_ERROR(LOG_FILTER_BAO, "BattleAO::AddCreature: cannot create creature entry %u", entry);
         delete creature;
         return NULL;
     }
@@ -682,7 +682,7 @@ Creature* BattleAO::AddCreature(uint32 entry, uint32 type, uint32 teamval, float
     CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(entry);
     if (!cinfo)
     {
-        sLog->outError(LOG_FILTER_BAO, "BattleAO::AddCreature: no template for creature entry %u", entry);
+        TC_LOG_ERROR(LOG_FILTER_BAO, "BattleAO::AddCreature: no template for creature entry %u", entry);
         delete creature;
         return NULL;
     }
@@ -708,7 +708,7 @@ bool BattleAO::DelCreature(uint32 type)
         AoCreatures[type] = 0;
         return true;
     }
-    sLog->outError(LOG_FILTER_BAO, "BAO::DelCreature: creature type:%u, GUID:%u not found", type, GUID_LOPART(AoCreatures[type]));
+    TC_LOG_ERROR(LOG_FILTER_BAO, "BAO::DelCreature: creature type:%u, GUID:%u not found", type, GUID_LOPART(AoCreatures[type]));
     AoCreatures[type] = 0;
     return false;
 }
@@ -724,7 +724,7 @@ bool BattleAO::DelObject(uint32 type)
         AoObjects[type] = 0;
         return true;
     }
-    sLog->outError(LOG_FILTER_BAO, "BAO::DelObject: gameobject type:%u GUID:%u not found", type, GUID_LOPART(AoObjects[type]));
+    TC_LOG_ERROR(LOG_FILTER_BAO, "BAO::DelObject: gameobject type:%u GUID:%u not found", type, GUID_LOPART(AoObjects[type]));
     AoObjects[type] = 0;
     return false;
 }
@@ -740,7 +740,7 @@ bool BattleAO::AddSpiritGuide(uint32 type, float x, float y, float z, float o, u
         creature->SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
         return true;
     }
-    sLog->outError(LOG_FILTER_BAO, "BAO::AddSpiritGuide: cannot create spirit guide type:%u, entry:%u", type, entry);
+    TC_LOG_ERROR(LOG_FILTER_BAO, "BAO::AddSpiritGuide: cannot create spirit guide type:%u, entry:%u", type, entry);
     return false;
 }
 
@@ -863,7 +863,7 @@ void BattleAO::_NodeOccupied(uint8 node, Team team) // spawning creatures (spiri
 	{
 		if (!AddSpiritGuide(node-BAO_NODE_FIRST_SPIRIT, BAO_SpiritGuidePos[node-BAO_NODE_FIRST_SPIRIT][0], BAO_SpiritGuidePos[node-BAO_NODE_FIRST_SPIRIT][1],
 														BAO_SpiritGuidePos[node-BAO_NODE_FIRST_SPIRIT][2], BAO_SpiritGuidePos[node-BAO_NODE_FIRST_SPIRIT][3], team))
-			sLog->outError(LOG_FILTER_BAO, "Failed to spawn spirit guide! point: %u, team: %u, ", node, team);
+			TC_LOG_ERROR(LOG_FILTER_BAO, "Failed to spawn spirit guide! point: %u, team: %u, ", node, team);
 	}
 
     uint8 capturedNodes = 0;

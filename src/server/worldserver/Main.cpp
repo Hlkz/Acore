@@ -58,7 +58,7 @@ uint32 realmID;                                             ///< Id of the realm
 /// Print out the usage string for this program on the console.
 void usage(const char *prog)
 {
-    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "Usage: \n %s [<options>]\n"
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Usage: \n %s [<options>]\n"
         "    -c config_file           use config_file as configuration file\n\r"
         #ifdef _WIN32
         "    Running as service functions:\n\r"

@@ -268,7 +268,7 @@ void BattleAOQueue::UpdateEvents(uint32 diff)
 
 void BattleAOQueue::BattleAOQueueUpdate(uint32 /*diff*/)
 {
-	sLog->outError(LOG_FILTER_GENERAL, "coucou update queue");
+	TC_LOG_ERROR(LOG_FILTER_GENERAL, "coucou update queue");
     if (m_QueuedGroups[BAO_QUEUE_PREMADE_ALLIANCE].empty() &&
         m_QueuedGroups[BAO_QUEUE_PREMADE_HORDE].empty() &&
         m_QueuedGroups[BAO_QUEUE_NORMAL_ALLIANCE].empty() &&
