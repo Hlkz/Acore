@@ -2973,8 +2973,8 @@ public:
             {
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
-                    if (Player* player = i->getSource())
-                        if (!player->isInCombat())
+                    if (Player* player = i->GetSource())
+                        if (!player->IsInCombat())
                         {
                             if (player->IsInRange(me, 0.0f, 1.0f, false))
                                     player->AddAura(58984, player);

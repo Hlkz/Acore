@@ -838,12 +838,12 @@ void WorldSession::SendVendor(uint32 entry) {
     for (uint8 slot = 0; slot < itemCount; ++slot) {
         if (VendorItem const* item = items->GetItem(slot)) {
             if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(item->item)) {
-                if (!(itemTemplate->AllowableClass & _player->getClassMask()) && itemTemplate->Bonding == BIND_WHEN_PICKED_UP && !_player->isGameMaster())
+                if (!(itemTemplate->AllowableClass & _player->getClassMask()) && itemTemplate->Bonding == BIND_WHEN_PICKED_UP && !_player->IsGameMaster())
                     continue;
-                if (!_player->isGameMaster() && ((itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY && _player->GetTeam() == ALLIANCE) || (itemTemplate->Flags2 == ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && _player->GetTeam() == HORDE)))
+                if (!_player->IsGameMaster() && ((itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY && _player->GetTeam() == ALLIANCE) || (itemTemplate->Flags2 == ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && _player->GetTeam() == HORDE)))
                     continue;
                 uint32 leftInStock = !item->maxcount ? 0xFFFFFFFF : 6;
-                if (!_player->isGameMaster() && !leftInStock)
+                if (!_player->IsGameMaster() && !leftInStock)
                     continue;
                 ConditionList conditions = sConditionMgr->GetConditionsForNpcVendorEvent(entry, item->item);
                 ++count;

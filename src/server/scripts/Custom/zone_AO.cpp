@@ -138,7 +138,7 @@ public:
             Map* map = me->GetMap();
             for (Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
             {
-                if (Player* player = itr->getSource())
+                if (Player* player = itr->GetSource())
                 {
                     if (killer->ToPlayer()->GetTeam() == player->GetTeam())
                         player->ModifyHonorPoints(8000);
@@ -216,7 +216,7 @@ public:
             Map* map = me->GetMap();
             for (Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
             {
-                if (Player* player = itr->getSource())
+                if (Player* player = itr->GetSource())
                 {
                     if (killer->ToPlayer()->GetTeam() == player->GetTeam())
                     {
@@ -307,7 +307,7 @@ public:
             Map* map = me->GetMap();
             for (Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
             {
-                if (Player* player = itr->getSource())
+                if (Player* player = itr->GetSource())
                 {
                     if (killer->ToPlayer()->GetTeam() == player->GetTeam())
                     {

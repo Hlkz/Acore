@@ -83,7 +83,7 @@ BAOGroupQueueInfo* BattleAOQueue::AddGroup(Player* leader, Group* grp, bool isPr
     {
         for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
         {
-            Player* member = itr->getSource();
+            Player* member = itr->GetSource();
             if (!member)
                 continue;
 			BAOPlayerQueueInfo&	pl_info = m_QueuedPlayers[member->GetGUID()];

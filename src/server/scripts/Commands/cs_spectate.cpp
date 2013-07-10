@@ -92,7 +92,7 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-            if (_player->isInFlight())
+            if (_player->IsInFlight())
             {
                 handler->SendSysMessage(LANG_YOU_IN_FLIGHT);
                 handler->SetSentErrorMessage(true);

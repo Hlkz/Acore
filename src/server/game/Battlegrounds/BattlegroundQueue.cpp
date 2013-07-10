@@ -827,7 +827,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
     {
 		Map* map = sMapMgr->CreateBaseMap(782);
 		for (Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
-			if (Player* player = itr->getSource())
+			if (Player* player = itr->GetSource())
 		        if (player)
 					return;
 

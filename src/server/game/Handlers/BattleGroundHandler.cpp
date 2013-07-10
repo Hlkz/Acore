@@ -133,7 +133,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
 
 			for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
 			{
-				Player* member = itr->getSource();
+				Player* member = itr->GetSource();
 				if (!member)
 					continue;   // this should never happen
 
@@ -458,12 +458,12 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
 		{
 			if (!_player->IsInvitedForBattlegroundQueueType(BATTLEGROUND_QUEUE_AO))
 				return;
-		    if (!_player->isAlive())
+		    if (!_player->IsAlive())
 	        {
 	            _player->ResurrectPlayer(1.0f);
 	            _player->SpawnCorpseBones();
 		    }
-			if (_player->isInFlight())
+			if (_player->IsInFlight())
 			{
 			    _player->GetMotionMaster()->MovementExpired();
 			    _player->CleanupAfterTaxiFlight();

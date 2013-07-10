@@ -2577,7 +2577,7 @@ void Creature::SetDisplayId(uint32 modelId)
 }
 
 void Creature::HasQuestForPlayer(Player* player) {
-	if (isQuestGiver()) {
+	if (IsQuestGiver()) {
 		player->PrepareQuestMenu(GetGUID());
 		QuestRelationBounds objectQR = sObjectMgr->GetCreatureQuestRelationBounds(GetEntry());
 		QuestRelationBounds objectQIR = sObjectMgr->GetCreatureQuestInvolvedRelationBounds(GetEntry());

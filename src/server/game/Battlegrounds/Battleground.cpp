@@ -1010,7 +1010,7 @@ void Battleground::EndBattleground(uint32 winner)
 	
     if (!PlList.isEmpty())
         for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
-            if (Player* pPlayer = i->getSource())
+            if (Player* pPlayer = i->GetSource())
                 if (pPlayer->IsSpectator())
                 {
                     pPlayer->SetSpectator(false);
