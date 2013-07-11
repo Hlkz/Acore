@@ -399,13 +399,13 @@ class npc_omrogg_heads : public CreatureScript
         {
             npc_omrogg_headsAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset() OVERRIDE
+            void Reset()
             {
                 Death_Timer = 4000;
                 DeathYell = false;
             }
 
-            void EnterCombat(Unit* /*who*/) OVERRIDE {}
+            void EnterCombat(Unit* /*who*/) {}
 
             void SetData(uint32 data, uint32 value)
             {
@@ -413,7 +413,7 @@ class npc_omrogg_heads : public CreatureScript
                     DeathYell = true;
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff)
             {
                 if (!DeathYell)
                     return;
@@ -431,7 +431,7 @@ class npc_omrogg_heads : public CreatureScript
                 bool DeathYell;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_omrogg_headsAI(creature);
         }
