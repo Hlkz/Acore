@@ -91,6 +91,7 @@ class boss_nazan : public CreatureScript
                     VazrudenGUID = summoner->GetGUID();
             }
 
+			void JustSummoned(Creature* summoned)
             {
                 if (summoned && summoned->GetEntry() == NPC_LIQUID_FIRE)
                 {

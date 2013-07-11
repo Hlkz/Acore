@@ -1069,7 +1069,7 @@ public:
                 akamaGUID = instance->GetData64(DATA_AKAMA_SHADE);
         }
 
-        void Reset() OVERRIDE
+        void Reset()
         {
             summonerGuid     = 0;
 
@@ -1077,24 +1077,24 @@ public:
                 AttackStart(target);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/)
         {
             me->DespawnOrUnsummon(5000);
         }
 
-        void IsSummonedBy(Unit* /*summoner*/) OVERRIDE
+        void IsSummonedBy(Unit* /*summoner*/)
         {
             if (Creature* summoner = (Unit::GetCreature((*me), summonerGuid)))
                 CAST_AI(npc_creature_generator_akama::npc_creature_generator_akamaAI, summoner->AI())->JustSummoned(me);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/)
         {
             events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 18000);
             events.ScheduleEvent(EVENT_LIGHTNING_BOLT, 6000);
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -1127,7 +1127,7 @@ public:
             uint64 summonerGuid;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_ashtongue_elementalistAI(creature);
     }
@@ -1151,7 +1151,7 @@ public:
                 akamaGUID = instance->GetData64(DATA_AKAMA_SHADE);
         }
 
-        void Reset() OVERRIDE
+        void Reset()
         {
             spiritMend = false;
             chainHeal  = false;
@@ -1161,23 +1161,23 @@ public:
                 AttackStart(target);
         }
 
-        void JustDied(Unit* /*killer*/) OVERRIDE
+        void JustDied(Unit* /*killer*/)
         {
             me->DespawnOrUnsummon(5000);
         }
 
-        void IsSummonedBy(Unit* /*summoner*/) OVERRIDE
+        void IsSummonedBy(Unit* /*summoner*/)
         {
             if (Creature* summoner = (Unit::GetCreature((*me), summonerGuid)))
                 CAST_AI(npc_creature_generator_akama::npc_creature_generator_akamaAI, summoner->AI())->JustSummoned(me);
         }
 
-        void EnterCombat(Unit* /*who*/) OVERRIDE
+        void EnterCombat(Unit* /*who*/)
         {
             events.ScheduleEvent(EVENT_SPIRIT_HEAL, urand (5000, 6000));
         }
 
-        void UpdateAI(uint32 diff) OVERRIDE
+        void UpdateAI(uint32 diff)
         {
             events.Update(diff);
 
@@ -1227,7 +1227,7 @@ public:
             bool chainHeal;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_ashtongue_spiritbinderAI(creature);
     }

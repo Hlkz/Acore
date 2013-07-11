@@ -466,7 +466,7 @@ public:
             bool IsMoving;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new boss_onyxiaAI(creature);
     }
