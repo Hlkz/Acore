@@ -135,13 +135,13 @@ void GameObject::AddToWorld()
             m_zoneScript->OnGameObjectCreate(this);
 
         sObjectAccessor->AddObject(this);
-
+        bool startOpen = (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? GetGOInfo()->door.startOpen : false);
         // The state can be changed after GameObject::Create but before GameObject::AddToWorld
         bool toggledState = GetGoType() == GAMEOBJECT_TYPE_CHEST ? getLootState() == GO_READY : GetGoState() == GO_STATE_READY;
         if (m_model)
             GetMap()->InsertGameObjectModel(*m_model);
 
-        EnableCollision(toggledState);
+        EnableCollision(startOpen ^ toggledState);
         WorldObject::AddToWorld();
     }
 }
@@ -1966,12 +1966,14 @@ void GameObject::SetLootState(LootState state, Unit* unit)
     sScriptMgr->OnGameObjectLootStateChanged(this, state, unit);
     if (m_model)
     {
-        bool collision = false;
+        // startOpen determines whether we are going to add or remove the LoS on activation
+        bool startOpen = (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? GetGOInfo()->door.startOpen : false);
+
         // Use the current go state
         if ((GetGoState() != GO_STATE_READY && (state == GO_ACTIVATED || state == GO_JUST_DEACTIVATED)) || state == GO_READY)
-            collision = !collision;
+            startOpen = !startOpen;
 
-        EnableCollision(collision);
+        EnableCollision(startOpen);
     }
 }
 
