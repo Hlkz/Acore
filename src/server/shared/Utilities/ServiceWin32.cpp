@@ -52,6 +52,8 @@ typedef WINADVAPI BOOL (WINAPI *CSD_T)(SC_HANDLE, DWORD, LPCVOID);
 
 bool WinServiceInstall()
 {
+    CSD_T ChangeService_Config2;
+    HMODULE advapi32;
     SC_HANDLE serviceControlManager = OpenSCManager(0, 0, SC_MANAGER_CREATE_SERVICE);
 
     if (serviceControlManager)
@@ -77,7 +79,7 @@ bool WinServiceInstall()
                 0);                                         // no password
             if (service)
             {
-                HMODULE advapi32 = GetModuleHandle("ADVAPI32.DLL");
+                advapi32 = GetModuleHandle("ADVAPI32.DLL");
                 if (!advapi32)
                 {
                     CloseServiceHandle(service);
@@ -85,7 +87,7 @@ bool WinServiceInstall()
                     return false;
                 }
 
-                CSD_T ChangeService_Config2 = (CSD_T) GetProcAddress(advapi32, "ChangeServiceConfig2A");
+                ChangeService_Config2 = (CSD_T) GetProcAddress(advapi32, "ChangeServiceConfig2A");
                 if (!ChangeService_Config2)
                 {
                     CloseServiceHandle(service);

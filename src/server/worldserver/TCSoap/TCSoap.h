@@ -45,7 +45,7 @@ class SOAPCommand
 {
     public:
         SOAPCommand():
-            pendingCommands(0, USYNC_THREAD, "pendingCommands"), m_success(false)
+            pendingCommands(0, USYNC_THREAD, "pendingCommands")
         {
         }
 

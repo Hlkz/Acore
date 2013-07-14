@@ -266,7 +266,7 @@ uint32 CreatePIDFile(const std::string& filename)
     pid_t pid = getpid();
 #endif
 
-    fprintf(pid_file, "%u", pid );
+    fprintf(pid_file, "%d", pid );
     fclose(pid_file);
 
     return (uint32)pid;

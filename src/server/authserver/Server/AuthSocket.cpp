@@ -1002,7 +1002,7 @@ bool AuthSocket::_HandleXferResume()
 {
     TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "Entering _HandleXferResume");
     // Check packet length and patch existence
-    if (socket().recv_len() < 9 || !pPatch) // FIXME: pPatch is never used
+    if (socket().recv_len() < 9 || !pPatch)
     {
         TC_LOG_ERROR(LOG_FILTER_AUTHSERVER, "Error while resuming patch transfer (wrong packet)");
         return false;
