@@ -1970,10 +1970,13 @@ void GameObject::SetLootState(LootState state, Unit* unit)
         bool startOpen = (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? GetGOInfo()->door.startOpen : false);
 
         // Use the current go state
-        if ((GetGoState() != GO_STATE_READY && (state == GO_ACTIVATED || state == GO_JUST_DEACTIVATED)) || state == GO_READY)
+        if (GetGoState() != GO_STATE_READY)
             startOpen = !startOpen;
 
-        EnableCollision(startOpen);
+        if (state == GO_ACTIVATED || state == GO_JUST_DEACTIVATED)
+            EnableCollision(startOpen);
+        else if (state == GO_READY)
+            EnableCollision(!startOpen);
     }
 }
 
@@ -2004,8 +2007,7 @@ void GameObject::SetDisplayId(uint32 displayid)
 void GameObject::SetPhaseMask(uint32 newPhaseMask, bool update)
 {
     WorldObject::SetPhaseMask(newPhaseMask, update);
-    if (m_model && m_model->isEnabled())
-        EnableCollision(true);
+    EnableCollision(true);
 }
 
 void GameObject::EnableCollision(bool enable)
