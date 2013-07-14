@@ -24,16 +24,15 @@ endif()
 
 include_directories(${include_Dirs})
 
-add_executable(vmap4extractor ${sources})
 
-target_link_libraries(vmap4extractor
+target_link_libraries(vmap3extractor
   mpq
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
 )
 
 if( UNIX )
-  install(TARGETS vmap4extractor DESTINATION bin)
+  install(TARGETS vmap3extractor DESTINATION bin)
 elseif( WIN32 )
-  install(TARGETS vmap4extractor DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  install(TARGETS vmap3extractor DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()
