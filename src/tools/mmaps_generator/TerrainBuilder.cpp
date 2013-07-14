@@ -674,14 +674,14 @@ namespace MMAP
                 // transform data
                 float scale = instance.iScale;
                 G3D::Matrix3 rotation = G3D::Matrix3::fromEulerAnglesXYZ(G3D::pi()*instance.iRot.z/-180.f, G3D::pi()*instance.iRot.x/-180.f, G3D::pi()*instance.iRot.y/-180.f);
-                G3D::Vector3 position = instance.iPos;
+                Vector3 position = instance.iPos;
                 position.x -= 32*GRID_SIZE;
                 position.y -= 32*GRID_SIZE;
 
                 for (std::vector<GroupModel>::iterator it = groupModels.begin(); it != groupModels.end(); ++it)
                 {
-                    std::vector<G3D::Vector3> tempVertices;
-                    std::vector<G3D::Vector3> transformedVertices;
+                    std::vector<Vector3> tempVertices;
+                    std::vector<Vector3> transformedVertices;
                     std::vector<MeshTriangle> tempTriangles;
                     WmoLiquid* liquid = NULL;
 
@@ -698,10 +698,10 @@ namespace MMAP
                     // now handle liquid data
                     if (liquid)
                     {
-                        std::vector<G3D::Vector3> liqVerts;
+                        std::vector<Vector3> liqVerts;
                         std::vector<int> liqTris;
                         uint32 tilesX, tilesY, vertsX, vertsY;
-                        G3D::Vector3 corner;
+                        Vector3 corner;
                         liquid->getPosInfo(tilesX, tilesY, corner);
                         vertsX = tilesX + 1;
                         vertsY = tilesY + 1;
@@ -730,11 +730,11 @@ namespace MMAP
                         // tile   = x*tilesY+y
                         // flag   = y*tilesY+x
 
-                        G3D::Vector3 vert;
+                        Vector3 vert;
                         for (uint32 x = 0; x < vertsX; ++x)
                             for (uint32 y = 0; y < vertsY; ++y)
                             {
-                                vert = G3D::Vector3(corner.x + x * GRID_PART_SIZE, corner.y + y * GRID_PART_SIZE, data[y*vertsX + x]);
+                                vert = Vector3(corner.x + x * GRID_PART_SIZE, corner.y + y * GRID_PART_SIZE, data[y*vertsX + x]);
                                 vert = vert * rotation * scale + position;
                                 vert.x *= -1.f;
                                 vert.y *= -1.f;
@@ -785,12 +785,12 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void TerrainBuilder::transform(std::vector<G3D::Vector3> &source, std::vector<G3D::Vector3> &transformedVertices, float scale, G3D::Matrix3 &rotation, G3D::Vector3 &position)
+    void TerrainBuilder::transform(std::vector<Vector3> &source, std::vector<Vector3> &transformedVertices, float scale, G3D::Matrix3 &rotation, Vector3 &position)
     {
-        for (std::vector<G3D::Vector3>::iterator it = source.begin(); it != source.end(); ++it)
+        for (std::vector<Vector3>::iterator it = source.begin(); it != source.end(); ++it)
         {
             // apply tranform, then mirror along the horizontal axes
-            G3D::Vector3 v((*it) * rotation * scale + position);
+            Vector3 v((*it) * rotation * scale + position);
             v.x *= -1.f;
             v.y *= -1.f;
             transformedVertices.push_back(v);
@@ -798,9 +798,9 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void TerrainBuilder::copyVertices(std::vector<G3D::Vector3> &source, G3D::Array<float> &dest)
+    void TerrainBuilder::copyVertices(std::vector<Vector3> &source, G3D::Array<float> &dest)
     {
-        for (std::vector<G3D::Vector3>::iterator it = source.begin(); it != source.end(); ++it)
+        for (std::vector<Vector3>::iterator it = source.begin(); it != source.end(); ++it)
         {
             dest.push_back((*it).y);
             dest.push_back((*it).z);
