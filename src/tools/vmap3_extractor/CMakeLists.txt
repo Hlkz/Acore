@@ -24,6 +24,7 @@ endif()
 
 include_directories(${include_Dirs})
 
+add_executable(vmap3extractor ${sources})
 
 target_link_libraries(vmap3extractor
   mpq
