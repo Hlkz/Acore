@@ -13,7 +13,7 @@ class npc_teleport : public CreatureScript
 		void MainMenu(Player* player, Creature* creature)
 		{
 			std::ostringstream ostr;
-			ostr << ConfigMgr::GetStringDefault("u_t_s", "");
+			ostr << sConfigMgr->GetStringDefault("u_t_s", "");
 			
 			creature->HasQuestForPlayer(player);
 			
@@ -47,11 +47,11 @@ class npc_teleport : public CreatureScript
 
 		bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
 		{
-			uint32 u_t_m = ConfigMgr::GetIntDefault("u_t_m", NULL);
-			float u_t_x = ConfigMgr::GetFloatDefault("u_t_x", NULL);
-			float u_t_y = ConfigMgr::GetFloatDefault("u_t_y", NULL);
-			float u_t_z = ConfigMgr::GetFloatDefault("u_t_z", NULL);
-			float u_t_o = ConfigMgr::GetFloatDefault("u_t_o", NULL);
+			uint32 u_t_m = sConfigMgr->GetIntDefault("u_t_m", NULL);
+			float u_t_x = sConfigMgr->GetFloatDefault("u_t_x", NULL);
+			float u_t_y = sConfigMgr->GetFloatDefault("u_t_y", NULL);
+			float u_t_z = sConfigMgr->GetFloatDefault("u_t_z", NULL);
+			float u_t_o = sConfigMgr->GetFloatDefault("u_t_o", NULL);
 
 			/*if (player->isInCombat()) {
 			creature->MonsterWhisper("Vous êtes en combat.", player->GetGUID());
