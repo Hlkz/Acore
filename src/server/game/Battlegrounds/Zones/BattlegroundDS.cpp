@@ -47,64 +47,22 @@ BattlegroundDS::~BattlegroundDS()
 
 void BattlegroundDS::PostUpdateImpl(uint32 diff)
 {
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
-    if (getPipeKnockBackCount() < BG_DS_PIPE_KNOCKBACK_TOTAL_COUNT)
-    {
-        if (getPipeKnockBackTimer() < diff)
-        {
-            for (uint32 i = BG_DS_NPC_PIPE_KNOCKBACK_1; i <= BG_DS_NPC_PIPE_KNOCKBACK_2; ++i)
-                if (Creature* waterSpout = GetBgMap()->GetCreature(BgCreatures[i]))
-                    waterSpout->CastSpell(waterSpout, BG_DS_SPELL_FLUSH, true);
-
-            setPipeKnockBackCount(getPipeKnockBackCount() + 1);
-            setPipeKnockBackTimer(BG_DS_PIPE_KNOCKBACK_DELAY);
-        }
-        else
-            setPipeKnockBackTimer(getPipeKnockBackTimer() - diff);
-    }
-
-    if (getWaterFallStatus() == BG_DS_WATERFALL_STATUS_ON) // Repeat knockback while the waterfall still active
-    {
-        if (getWaterFallKnockbackTimer() < diff)
-        {
-            if (Creature* waterSpout = GetBgMap()->GetCreature(BgCreatures[BG_DS_NPC_WATERFALL_KNOCKBACK]))
-                waterSpout->CastSpell(waterSpout, BG_DS_SPELL_WATER_SPOUT, true);
-
-            setWaterFallKnockbackTimer(BG_DS_WATERFALL_KNOCKBACK_TIMER);
-        }
-        else
-            setWaterFallKnockbackTimer(getWaterFallKnockbackTimer() - diff);
-    }
-
     if (getWaterFallTimer() < diff)
     {
-        if (getWaterFallStatus() == BG_DS_WATERFALL_STATUS_OFF) // Add the water
+        /*if (this->isWaterFallActive())
         {
-            DoorClose(BG_DS_OBJECT_WATER_2);
-            setWaterFallTimer(BG_DS_WATERFALL_WARNING_DURATION);
-            setWaterFallStatus(BG_DS_WATERFALL_STATUS_WARNING);
-        }
-        else if (getWaterFallStatus() == BG_DS_WATERFALL_STATUS_WARNING) // Active collision and start knockback timer
-        {
-            if (GameObject* gob = GetBgMap()->GetGameObject(BgObjects[BG_DS_OBJECT_WATER_1]))
-                gob->SetGoState(GO_STATE_READY);
-
-            setWaterFallTimer(BG_DS_WATERFALL_DURATION);
-            setWaterFallStatus(BG_DS_WATERFALL_STATUS_ON);
-            setWaterFallKnockbackTimer(BG_DS_WATERFALL_KNOCKBACK_TIMER);
-        }
-        else //if (getWaterFallStatus() == BG_DS_WATERFALL_STATUS_ON) // Remove collision and water
-        {
-            // turn off collision
-            if (GameObject* gob = GetBgMap()->GetGameObject(BgObjects[BG_DS_OBJECT_WATER_1]))
-                gob->SetGoState(GO_STATE_ACTIVE);
-
-            DoorOpen(BG_DS_OBJECT_WATER_2);
             setWaterFallTimer(urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX));
-            setWaterFallStatus(BG_DS_WATERFALL_STATUS_OFF);
+            for (uint32 i = BG_DS_OBJECT_WATER_1; i <= BG_DS_OBJECT_WATER_2; ++i)
+                SpawnBGObject(i, getWaterFallTimer());
+            setWaterFallActive(false);
         }
+        else
+        {
+            setWaterFallTimer(BG_DS_WATERFALL_DURATION);
+            for (uint32 i = BG_DS_OBJECT_WATER_1; i <= BG_DS_OBJECT_WATER_2; ++i)
+                SpawnBGObject(i, RESPAWN_IMMEDIATELY);
+            setWaterFallActive(true);
+        }*/
     }
     else
         setWaterFallTimer(getWaterFallTimer() - diff);

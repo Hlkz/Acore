@@ -18,12 +18,6 @@
 
 #include "BoundingIntervalHierarchy.h"
 
-#ifdef _MSC_VER
-  #define isnan _isnan
-#else
-  #define isnan std::isnan
-#endif
-
 void BIH::buildHierarchy(std::vector<uint32> &tempTree, buildData &dat, BuildStats &stats)
 {
     // create space for the first node

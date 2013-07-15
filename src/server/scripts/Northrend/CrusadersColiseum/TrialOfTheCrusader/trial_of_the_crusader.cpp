@@ -320,7 +320,7 @@ class boss_lich_king_toc : public CreatureScript
                         case 5080:
                             if (GameObject* go = _instance->instance->GetGameObject(_instance->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
                             {
-                                go->SetDisplayId(DISPLAYID_DESTROYED_FLOOR);
+                                //go->SetDisplayId(DISPLAYID_DESTROYED_FLOOR);
                                 go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_NODESPAWN);
                                 go->SetGoState(GO_STATE_ACTIVE);
                             }

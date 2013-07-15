@@ -1,5 +1,4 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -81,25 +80,13 @@ struct AABound
 
 class BIH
 {
-    private:
-        void init_empty()
-        {
-            tree.clear();
-            objects.clear();
-            // create space for the first node
-            tree.push_back(3u << 30u); // dummy leaf
-            tree.insert(tree.end(), 2, 0);
-        }
     public:
-        BIH() { init_empty(); }
-        template< class BoundsFunc, class PrimArray >
-        void build(const PrimArray &primitives, BoundsFunc &getBounds, uint32 leafSize = 3, bool printStats=false)
+        BIH() {};
+        template< class T, class BoundsFunc >
+        void build(const std::vector<T> &primitives, BoundsFunc &getBounds, uint32 leafSize = 3, bool printStats=false)
         {
-            if (primitives.size() == 0)
-            {
-                init_empty();
+            if (primitives.empty())
                 return;
-            }
 
             buildData dat;
             dat.maxPrims = leafSize;

@@ -841,7 +841,7 @@ class boss_sara : public CreatureScript
                             float angle = frand(0.0f, 2.0f * M_PI);
                             pos.m_positionX = YoggSaronSpawnPos.GetPositionX() + radius * cosf(angle);
                             pos.m_positionY = YoggSaronSpawnPos.GetPositionY() + radius * sinf(angle);
-                            pos.m_positionZ = me->GetMap()->GetHeight(me->GetPhaseMask(), pos.GetPositionX(), pos.GetPositionY(), YoggSaronSpawnPos.GetPositionZ() + 5.0f);
+                            pos.m_positionZ = me->GetMap()->GetHeight(pos.GetPositionX(), pos.GetPositionY(), YoggSaronSpawnPos.GetPositionZ() + 5.0f);
                             me->SummonCreature(NPC_DEATH_RAY, pos, TEMPSUMMON_TIMED_DESPAWN, 20000);
                         }
                         break;
@@ -1125,7 +1125,7 @@ class npc_ominous_cloud : public CreatureScript
                     G3D::Vector3 point;
                     point.x = centerPos.GetPositionX() + radius * cosf(angle);
                     point.y = centerPos.GetPositionY() + radius * sinf(angle);
-                    point.z = me->GetMap()->GetHeight(me->GetPhaseMask(), point.x, point.y, z + 5.0f);
+                    point.z = me->GetMap()->GetHeight(point.x, point.y, z + 5.0f);
                     path.push_back(point);
                 }
             }

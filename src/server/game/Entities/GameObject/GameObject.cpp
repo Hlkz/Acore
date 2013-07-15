@@ -20,8 +20,6 @@
 #include "BattlegroundAV.h"
 #include "CellImpl.h"
 #include "CreatureAISelector.h"
-#include "DynamicTree.h"
-#include "GameObjectModel.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "GroupMgr.h"
@@ -33,7 +31,7 @@
 #include "UpdateFieldFlags.h"
 #include "World.h"
 
-GameObject::GameObject(): WorldObject(false), m_model(NULL), m_goValue(), m_AI(NULL)
+GameObject::GameObject() : WorldObject(false), m_goValue(new GameObjectValue), m_AI(NULL)
 {
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
@@ -66,7 +64,6 @@ GameObject::GameObject(): WorldObject(false), m_model(NULL), m_goValue(), m_AI(N
 GameObject::~GameObject()
 {
     delete m_AI;
-    delete m_model;
     //if (m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
     //    CleanupsBeforeDelete();
 }
@@ -135,13 +132,6 @@ void GameObject::AddToWorld()
             m_zoneScript->OnGameObjectCreate(this);
 
         sObjectAccessor->AddObject(this);
-        bool startOpen = (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? GetGOInfo()->door.startOpen : false);
-        bool toggledState = GetGoType() == GAMEOBJECT_TYPE_CHEST ? getLootState() == GO_READY : GetGoState() == GO_STATE_READY;
-        if (m_model)
-            GetMap()->InsertGameObjectModel(*m_model);
-        if (startOpen ^ toggledState)
-            EnableCollision(false);
-
         WorldObject::AddToWorld();
     }
 }
@@ -155,9 +145,6 @@ void GameObject::RemoveFromWorld()
             m_zoneScript->OnGameObjectRemove(this);
 
         RemoveFromOwner();
-        if (m_model)
-            if (GetMap()->ContainsGameObjectModel(*m_model))
-                GetMap()->RemoveGameObjectModel(*m_model);
         WorldObject::RemoveFromWorld();
         sObjectAccessor->RemoveObject(this);
     }
@@ -216,10 +203,9 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
 
     // set name for logs usage, doesn't affect anything ingame
     SetName(goinfo->name);
+	
+    SetUInt32Value(GAMEOBJECT_DISPLAYID, goinfo->displayId);
 
-    SetDisplayId(goinfo->displayId);
-
-    m_model = GameObjectModel::Create(*this);
     // GAMEOBJECT_BYTES_1, index at 0, 1, 2 and 3
     SetGoType(GameobjectTypes(goinfo->type));
     SetGoState(go_state);
@@ -229,11 +215,11 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
     {
         case GAMEOBJECT_TYPE_FISHINGHOLE:
             SetGoAnimProgress(animprogress);
-            m_goValue.FishingHole.MaxOpens = urand(GetGOInfo()->fishinghole.minSuccessOpens, GetGOInfo()->fishinghole.maxSuccessOpens);
+            m_goValue->FishingHole.MaxOpens = urand(GetGOInfo()->fishinghole.minSuccessOpens, GetGOInfo()->fishinghole.maxSuccessOpens);
             break;
         case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
-            m_goValue.Building.Health = goinfo->building.intactNumHits + goinfo->building.damagedNumHits;
-            m_goValue.Building.MaxHealth = m_goValue.Building.Health;
+            m_goValue->Building.Health = goinfo->building.intactNumHits + goinfo->building.damagedNumHits;
+            m_goValue->Building.MaxHealth = m_goValue->Building.Health;
             SetGoAnimProgress(255);
             break;
         case GAMEOBJECT_TYPE_TRANSPORT:
@@ -387,7 +373,7 @@ void GameObject::Update(uint32 diff)
                             break;
                         case GAMEOBJECT_TYPE_FISHINGHOLE:
                             // Initialize a new max fish count on respawn
-                            m_goValue.FishingHole.MaxOpens = urand(GetGOInfo()->fishinghole.minSuccessOpens, GetGOInfo()->fishinghole.maxSuccessOpens);
+                            m_goValue->FishingHole.MaxOpens = urand(GetGOInfo()->fishinghole.minSuccessOpens, GetGOInfo()->fishinghole.maxSuccessOpens);
                             break;
                         default:
                             break;
@@ -1814,22 +1800,22 @@ void GameObject::UpdateRotationFields(float rotation2 /*=0.0f*/, float rotation3
 
 void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= NULL*/, uint32 spellId /*= 0*/)
 {
-    if (!m_goValue.Building.MaxHealth || !change)
+    if (!m_goValue->Building.MaxHealth || !change)
         return;
 
     // prevent double destructions of the same object
-    if (change < 0 && !m_goValue.Building.Health)
+    if (change < 0 && !m_goValue->Building.Health)
         return;
 
-    if (int32(m_goValue.Building.Health) + change <= 0)
-        m_goValue.Building.Health = 0;
-    else if (int32(m_goValue.Building.Health) + change >= int32(m_goValue.Building.MaxHealth))
-        m_goValue.Building.Health = m_goValue.Building.MaxHealth;
+    if (int32(m_goValue->Building.Health) + change <= 0)
+        m_goValue->Building.Health = 0;
+    else if (int32(m_goValue->Building.Health) + change >= int32(m_goValue->Building.MaxHealth))
+        m_goValue->Building.Health = m_goValue->Building.MaxHealth;
     else
-        m_goValue.Building.Health += change;
+        m_goValue->Building.Health += change;
 
     // Set the health bar, value = 255 * healthPct;
-    SetGoAnimProgress(m_goValue.Building.Health * 255 / m_goValue.Building.MaxHealth);
+    SetGoAnimProgress(m_goValue->Building.Health * 255 / m_goValue->Building.MaxHealth);
 
     Player* player = attackerOrHealer->GetCharmerOrOwnerPlayerOrPlayerItself();
 
@@ -1848,11 +1834,11 @@ void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= NULL*/, u
 
     GameObjectDestructibleState newState = GetDestructibleState();
 
-    if (!m_goValue.Building.Health)
+    if (!m_goValue->Building.Health)
         newState = GO_DESTRUCTIBLE_DESTROYED;
-    else if (m_goValue.Building.Health <= GetGOInfo()->building.damagedNumHits)
+    else if (m_goValue->Building.Health <= GetGOInfo()->building.damagedNumHits)
         newState = GO_DESTRUCTIBLE_DAMAGED;
-    else if (m_goValue.Building.Health == m_goValue.Building.MaxHealth)
+    else if (m_goValue->Building.Health == m_goValue->Building.MaxHealth)
         newState = GO_DESTRUCTIBLE_INTACT;
 
     if (newState == GetDestructibleState())
@@ -1870,10 +1856,10 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
     {
         case GO_DESTRUCTIBLE_INTACT:
             RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_DESTROYED);
-            SetDisplayId(m_goInfo->displayId);
+            SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->displayId);
             if (setHealth)
             {
-                m_goValue.Building.Health = m_goValue.Building.MaxHealth;
+                m_goValue->Building.Health = m_goValue->Building.MaxHealth;
                 SetGoAnimProgress(255);
             }
             break;
@@ -1892,16 +1878,16 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
                 if (modelData->DamagedDisplayId)
                     modelId = modelData->DamagedDisplayId;
-            SetDisplayId(modelId);
+            SetUInt32Value(GAMEOBJECT_DISPLAYID, modelId);
 
             if (setHealth)
             {
-                m_goValue.Building.Health = m_goInfo->building.damagedNumHits;
-                uint32 maxHealth = m_goValue.Building.MaxHealth;
+                m_goValue->Building.Health = m_goInfo->building.damagedNumHits;
+                uint32 maxHealth = m_goValue->Building.MaxHealth;
                 // in this case current health is 0 anyway so just prevent crashing here
                 if (!maxHealth)
                     maxHealth = 1;
-                SetGoAnimProgress(m_goValue.Building.Health * 255 / maxHealth);
+                SetGoAnimProgress(m_goValue->Building.Health * 255 / maxHealth);
             }
             break;
         }
@@ -1925,11 +1911,11 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
                 if (modelData->DestroyedDisplayId)
                     modelId = modelData->DestroyedDisplayId;
-            SetDisplayId(modelId);
+            SetUInt32Value(GAMEOBJECT_DISPLAYID, modelId);
 
             if (setHealth)
             {
-                m_goValue.Building.Health = 0;
+                m_goValue->Building.Health = 0;
                 SetGoAnimProgress(0);
             }
             break;
@@ -1943,12 +1929,12 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
                 if (modelData->RebuildingDisplayId)
                     modelId = modelData->RebuildingDisplayId;
-            SetDisplayId(modelId);
+            SetUInt32Value(GAMEOBJECT_DISPLAYID, modelId);
 
             // restores to full health
             if (setHealth)
             {
-                m_goValue.Building.Health = m_goValue.Building.MaxHealth;
+                m_goValue->Building.Health = m_goValue->Building.MaxHealth;
                 SetGoAnimProgress(255);
             }
             break;
@@ -1961,73 +1947,6 @@ void GameObject::SetLootState(LootState state, Unit* unit)
     m_lootState = state;
     AI()->OnStateChanged(state, unit);
     sScriptMgr->OnGameObjectLootStateChanged(this, state, unit);
-    if (m_model)
-    {
-        // startOpen determines whether we are going to add or remove the LoS on activation
-        bool startOpen = (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? GetGOInfo()->door.startOpen : false);
-
-        if (GetGOData() && GetGOData()->go_state == GO_NOT_READY)
-            startOpen = !startOpen;
-
-        if (state == GO_ACTIVATED || state == GO_JUST_DEACTIVATED)
-            EnableCollision(startOpen);
-        else if (state == GO_READY)
-            EnableCollision(!startOpen);
-    }
-}
-
-void GameObject::SetGoState(GOState state)
-{
-    SetByteValue(GAMEOBJECT_BYTES_1, 0, state);
-    sScriptMgr->OnGameObjectStateChanged(this, state);
-    if (m_model)
-    {
-        if (!IsInWorld())
-            return;
-
-        // startOpen determines whether we are going to add or remove the LoS on activation
-        bool collision = false;
-        if (state == GO_STATE_READY)
-            collision = !collision;
-
-        EnableCollision(collision);
-    }
-}
-
-void GameObject::SetDisplayId(uint32 displayid)
-{
-    SetUInt32Value(GAMEOBJECT_DISPLAYID, displayid);
-    UpdateModel();
-}
-
-void GameObject::SetPhaseMask(uint32 newPhaseMask, bool update)
-{
-    WorldObject::SetPhaseMask(newPhaseMask, update);
-    EnableCollision(true);
-}
-
-void GameObject::EnableCollision(bool enable)
-{
-    if (!m_model)
-        return;
-
-    /*if (enable && !GetMap()->ContainsGameObjectModel(*m_model))
-        GetMap()->InsertGameObjectModel(*m_model);*/
-
-    m_model->enable(enable ? GetPhaseMask() : 0);
-}
-
-void GameObject::UpdateModel()
-{
-    if (!IsInWorld())
-        return;
-    if (m_model)
-        if (GetMap()->ContainsGameObjectModel(*m_model))
-            GetMap()->RemoveGameObjectModel(*m_model);
-    delete m_model;
-    m_model = GameObjectModel::Create(*this);
-    if (m_model)
-        GetMap()->InsertGameObjectModel(*m_model);
 }
 
 Player* GameObject::GetLootRecipient() const

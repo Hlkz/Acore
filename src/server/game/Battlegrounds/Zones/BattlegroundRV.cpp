@@ -64,7 +64,6 @@ void BattlegroundRV::PostUpdateImpl(uint32 diff)
                 setState(BG_RV_STATE_SWITCH_PILLARS);
                 break;
             case BG_RV_STATE_SWITCH_PILLARS:
-                TogglePillarCollision();
                 setTimer(BG_RV_PILLAR_SWITCH_TIMER);
                 break;
         }
@@ -91,7 +90,6 @@ void BattlegroundRV::StartingEventOpenDoors()
 
     // Should be false at first, TogglePillarCollision will do it.
     SetPillarCollision(true);
-    TogglePillarCollision();
 }
 
 void BattlegroundRV::AddPlayer(Player* player)
@@ -189,53 +187,17 @@ bool BattlegroundRV::SetupBattleground()
         || !AddObject(BG_RV_OBJECT_PILAR_2, BG_RV_OBJECT_TYPE_PILAR_2, 723.644287f, -284.493256f, 24.648525f, 3.141593f, 0, 0, 0, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_RV_OBJECT_PILAR_3, BG_RV_OBJECT_TYPE_PILAR_3, 763.611145f, -261.856750f, 25.909504f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_RV_OBJECT_PILAR_4, BG_RV_OBJECT_TYPE_PILAR_4, 802.211609f, -284.493256f, 24.648525f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY)
-
-    // Pilars Collision
+/*
+    // Pilars Collision - Fixme: Use the collision pilars - should make u break LoS
         || !AddObject(BG_RV_OBJECT_PILAR_COLLISION_1, BG_RV_OBJECT_TYPE_PILAR_COLLISION_1, 763.632385f, -306.162384f, 30.639660f, 3.141593f, 0, 0, 0, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_RV_OBJECT_PILAR_COLLISION_2, BG_RV_OBJECT_TYPE_PILAR_COLLISION_2, 723.644287f, -284.493256f, 32.382710f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_RV_OBJECT_PILAR_COLLISION_3, BG_RV_OBJECT_TYPE_PILAR_COLLISION_3, 763.611145f, -261.856750f, 30.639660f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_RV_OBJECT_PILAR_COLLISION_4, BG_RV_OBJECT_TYPE_PILAR_COLLISION_4, 802.211609f, -284.493256f, 32.382710f, 3.141593f, 0, 0, 0, RESPAWN_IMMEDIATELY)
-
+*/
 )
     {
-        TC_LOG_ERROR(LOG_FILTER_SQL, "BatteGroundRV: Failed to spawn some object!");
+        sLog->outError(LOG_FILTER_SQL, "BatteGroundRV: Failed to spawn some object!");
         return false;
     }
     return true;
-}
-
-
-void BattlegroundRV::TogglePillarCollision()
-{
-    bool apply = GetPillarCollision();
-
-    // Toggle visual pillars, pulley, gear, and collision based on previous state
-    for (uint8 i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_GEAR_2; ++i)
-        apply ? DoorOpen(i) : DoorClose(i);
-
-    for (uint8 i = BG_RV_OBJECT_PILAR_2; i <= BG_RV_OBJECT_PULLEY_2; ++i)
-        apply ? DoorClose(i) : DoorOpen(i);
-
-    for (uint8 i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_PILAR_COLLISION_4; ++i)
-    {
-        if (GameObject* gob = GetBgMap()->GetGameObject(BgObjects[i]))
-        {
-            if (i >= BG_RV_OBJECT_PILAR_COLLISION_1)
-            {
-                uint32 _state = GO_STATE_READY;
-                if (gob->GetGOInfo()->door.startOpen)
-                    _state = GO_STATE_ACTIVE;
-                gob->SetGoState(apply ? (GOState)_state : (GOState)(!_state));
-
-                if (gob->GetGOInfo()->door.startOpen)
-                    gob->EnableCollision(!apply); // Forced collision toggle
-            }
-
-            for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-                if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER)))
-                    gob->SendUpdateToPlayer(player);
-        }
-    }
-
-    SetPillarCollision(!apply);
 }

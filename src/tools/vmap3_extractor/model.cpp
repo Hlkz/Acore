@@ -1,21 +1,3 @@
-/*
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
-
 #include "vmapexport.h"
 #include "model.h"
 #include "wmo.h"
@@ -24,7 +6,7 @@
 #include <algorithm>
 #include <cstdio>
 
-Model::Model(std::string &filename) : filename(filename), vertices(0), indices(0)
+Model::Model(std::string &filename) : filename(filename)
 {
 }
 
@@ -41,8 +23,6 @@ bool Model::open()
         //printf("Error loading model %s\n", filename.c_str());
         return false;
     }
-
-    _unload();
 
     memcpy(&header, f.getBuffer(), sizeof(ModelHeader));
     if(header.nBoundingTriangles > 0)
@@ -70,7 +50,7 @@ bool Model::open()
     return true;
 }
 
-bool Model::ConvertToVMAPModel(const char * outfilename)
+bool Model::ConvertToVMAPModel(char * outfilename)
 {
     int N[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
     FILE * output=fopen(outfilename,"wb");
@@ -79,7 +59,7 @@ bool Model::ConvertToVMAPModel(const char * outfilename)
         printf("Can't create the output file '%s'\n",outfilename);
         return false;
     }
-    fwrite(szRawVMAPMagic,8,1,output);
+    fwrite("VMAP003",8,1,output);
     uint32 nVertices = header.nBoundingVertices;
     fwrite(&nVertices, sizeof(int), 1, output);
     uint32 nofgroups = 1;
@@ -111,16 +91,24 @@ bool Model::ConvertToVMAPModel(const char * outfilename)
     {
         for(uint32 vpos=0; vpos <nVertices; ++vpos)
         {
-            std::swap(vertices[vpos].y, vertices[vpos].z);
+            float sy = vertices[vpos].y;
+            vertices[vpos].y = vertices[vpos].z;
+            vertices[vpos].z = sy;
         }
         fwrite(vertices, sizeof(float)*3, nVertices, output);
     }
+
+    delete[] vertices;
+    delete[] indices;
 
     fclose(output);
 
     return true;
 }
 
+Model::~Model()
+{
+}
 
 Vec3D fixCoordSystem(Vec3D v)
 {
