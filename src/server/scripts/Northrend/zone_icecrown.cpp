@@ -962,6 +962,7 @@ class npc_frostbrood_skytalon : public CreatureScript
         }
 };
 
+            uint64 _lichKingGuid;
 void AddSC_icecrown()
 {
     new npc_arete;
