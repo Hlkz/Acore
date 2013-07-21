@@ -1871,6 +1871,9 @@ void SpellMgr::LoadSpellProcs()
 
         if (allRanks)
         {
+            if (!spellInfo->IsRanked())
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Spell %u listed in `spell_proc` with all ranks, but spell has no ranks.", spellId);
+
             if (spellInfo->GetFirstRankSpell()->Id != uint32(spellId))
             {
                 TC_LOG_ERROR(LOG_FILTER_SQL, "Spell %u listed in `spell_proc` is not first rank of spell.", spellId);
@@ -1900,9 +1903,10 @@ void SpellMgr::LoadSpellProcs()
         {
             if (mSpellProcMap.find(spellInfo->Id) != mSpellProcMap.end())
             {
-                TC_LOG_ERROR(LOG_FILTER_SQL, "Spell %u listed in `spell_proc` has duplicate entry in the table", spellInfo->Id);
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Spell %u listed in `spell_proc` already has its first rank in table.", spellInfo->Id);
                 break;
             }
+
             SpellProcEntry procEntry = SpellProcEntry(baseProcEntry);
 
             // take defaults from dbcs
