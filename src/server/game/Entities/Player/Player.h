@@ -2344,7 +2344,6 @@ class Player : public Unit, public GridObject<Player>
 		void SetBgWin(uint32 bgwin);
         uint32 GetArenaWin();
 		void SetArenaWin(uint32 arenawin);
-		bool HasPvpRankRec();
 		bool IsDeserter();
 		
     protected:

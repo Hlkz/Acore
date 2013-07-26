@@ -26491,17 +26491,6 @@ void Player::SetArenaWin(uint32 arenawin)
 	m_ArenaWin = arenawin;
 }
 
-bool Player::HasPvpRankRec()
-{
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PVP_REC);
-    stmt->setUInt32(0, GUID_LOPART(GetGUID()));
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-	if (!result)
-		return false;
-	// if (guid != result->Fetch()[0].GetUInt32();)
-	return true;
-}
-
 bool Player::IsDeserter()
 {
     uint32 team = GetTeamFromDB();

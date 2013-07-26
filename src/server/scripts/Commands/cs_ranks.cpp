@@ -38,6 +38,40 @@ const uint32 PvpRankEff[6] =
 	1  // rank 6
 };
 
+
+void World::UpdateRanksText()
+{
+    std::string strText = "Le classement pvp actuel : \n ";
+	
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_TOP_RANK); //0 name 1 rankid
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+ 
+    if (!result)
+        return;
+
+    int8 i = 0;
+ 
+    do {
+        std::string strName = result->Fetch()[i, 0].GetString(); // name
+        uint32 iRank = result->Fetch()[i, 1].GetUInt32(); // rank
+  
+		std::ostringstream add;
+		add << "\n " << (i+1) << "   " << strName;
+        strText = strText + add.str(); 
+
+        ++i;
+    }
+    while (result->NextRow());
+	
+	SQLTransaction trans = WorldDatabase.BeginTransaction();
+    PreparedStatement* stmt2 = WorldDatabase.GetPreparedStatement(WORLD_UPD_TOP_RANK);
+    stmt2->setString(0, strText);
+    trans->Append(stmt2);
+    WorldDatabase.CommitTransaction(trans);
+
+	sObjectMgr->LoadPageTexts();
+};
+
 bool World::DistributeRanks()
 {
     sWorld->SendWorldText(LANG_DIST_RANKS_START);
@@ -94,7 +128,7 @@ bool World::DistributeRanks()
 		}
 		while (result->NextRow());
 	}
-
+    UpdateRanksText();
 	sWorld->SendWorldText(LANG_DIST_RANKS_END);
 
 	return true;
@@ -104,14 +138,14 @@ class com_ranks : public CommandScript {
    public: com_ranks() : CommandScript("cs_ranks") {}
 
 static bool HandleComRanks(ChatHandler* handler, const char* args) {
-
+	sWorld->UpdateRanksText();
 	//return sWorld->DistributeRanks();
-	return false; }
+	return true; }
 
 ChatCommand* GetCommands() const {
 	static ChatCommand ComSuffix[] = {
-		{ "ranks",         SEC_CONSOLE,			false, &HandleComRanks,		"", NULL },
-		{ NULL,             0,					false, NULL,				"", NULL } };
+		{ "ranks",         SEC_ADMINISTRATOR,   false, &HandleComRanks,		"", NULL },
+		{ NULL,            0,					false, NULL,				"", NULL } };
 	return ComSuffix; }
 };
 
