@@ -10,20 +10,9 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
-  Custom/beast_master.cpp
-  Custom/bienvenue.cpp
-  Custom/news_serv.cpp
-  Custom/job_master.cpp
-  Custom/char_custom.cpp
-  Custom/rand_item.cpp
-  Custom/universal_teleporter.cpp
-  Custom/class_master.cpp
-  Custom/enchant_npc.cpp
-  Custom/transmo.cpp
   Custom/kahz.cpp
   Custom/arenaspectator.cpp
   Custom/zone_AO.cpp
-  Custom/ranks.cpp
 )
 
 message("  -> Prepared: Custom")

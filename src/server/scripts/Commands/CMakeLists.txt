@@ -52,6 +52,7 @@ set(scripts_STAT_SRCS
   Commands/cs_spectate.cpp
   Commands/cs_test.cpp
   Commands/cs_ucast.cpp
+  Commands/cs_ranks.cpp
 #  Commands/cs_pdump.cpp
 #  Commands/cs_channel.cpp
 #  Commands/cs_pet.cpp
