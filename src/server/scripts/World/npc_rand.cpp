@@ -1,7 +1,7 @@
 #include "ScriptPCH.h"
 
-class rand_item : public CreatureScript {
-public: rand_item() : CreatureScript("rand_item") {}
+class npc_rand : public CreatureScript {
+public: npc_rand() : CreatureScript("npc_rand") {}
 
 uint32 count; std::string* rie;
 
@@ -210,5 +210,5 @@ lmenu2:
 	return true; }
 };
 
-void AddSc_rand_item() {
-	new rand_item(); }
+void AddSc_npc_rand() {
+	new npc_rand(); }

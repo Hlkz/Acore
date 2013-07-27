@@ -28,7 +28,6 @@ set(scripts_STAT_SRCS
   World/npc_customchar.cpp
   World/npc_enchant.cpp
   World/npc_job.cpp
-  World/npc_news.cpp
   World/npc_rand.cpp
   World/npc_teleport.cpp
   World/npc_transmo.cpp

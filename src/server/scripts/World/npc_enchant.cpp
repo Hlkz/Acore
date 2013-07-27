@@ -1,7 +1,7 @@
 #include "ScriptPCH.h"
 
-class enchant_npc : public CreatureScript {
-public: enchant_npc() : CreatureScript("enchant_npc") {}
+class npc_enchant : public CreatureScript {
+public: npc_enchant() : CreatureScript("npc_enchant") {}
 
 bool OnGossipHello(Player *player, Creature * creature) {
 	MainMenu(player, creature);
@@ -9,7 +9,9 @@ bool OnGossipHello(Player *player, Creature * creature) {
 
 void MainMenu(Player *player, Creature *creature) {
 		player->SetClmSlty(0);
+		
 		creature->HasQuestForPlayer(player);
+
         player->ADD_GOSSIP_ITEM(0, "Dos", GOSSIP_SENDER_MAIN, 14);
         player->ADD_GOSSIP_ITEM(0, "Torse", GOSSIP_SENDER_MAIN, 4);
         player->ADD_GOSSIP_ITEM(0, "Poignets", GOSSIP_SENDER_MAIN, 8);
@@ -296,5 +298,5 @@ bool OnGossipSelect(Player *player, Creature * creature, uint32 sender, uint32 a
 	return true; }
 };
 
-void AddSc_enchant_npc() {
-	new enchant_npc(); }
+void AddSc_npc_enchant() {
+	new npc_enchant(); }

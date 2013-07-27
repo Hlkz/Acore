@@ -1,8 +1,8 @@
 #include "ScriptPCH.h"
 #include "Language.h"
 
-class NPC_Transmogrify : public CreatureScript {
-public: NPC_Transmogrify() : CreatureScript("NPC_Transmogrify") {}
+class npc_transmo : public CreatureScript {
+public: npc_transmo() : CreatureScript("npc_transmo") {}
 
 bool OnGossipHello(Player* player, Creature* creature) {
 	WorldSession* session = player->GetSession();
@@ -134,5 +134,5 @@ private: std::map<uint64, std::map<uint32, Item*> > _items; // _items[lowGUID][D
         return name; }
 };
 
-void AddSC_NPC_Transmogrify() {
-    new NPC_Transmogrify(); }
+void AddSc_npc_transmo() {
+    new npc_transmo(); }

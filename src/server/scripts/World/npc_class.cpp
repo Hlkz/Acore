@@ -1,7 +1,7 @@
 #include "ScriptPCH.h"
 
-class class_master : public CreatureScript {
-    public: class_master() : CreatureScript("class_master") {}
+class npc_class : public CreatureScript {
+    public: npc_class() : CreatureScript("npc_class") {}
 
 bool OnGossipHello(Player* player, Creature* creature) {
 	creature->SetControlled(true, UNIT_STATE_STUNNED);
@@ -83,5 +83,5 @@ bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint3
     return true; }
 };
 
-void AddSc_class_master() {
-    new class_master; }
+void AddSc_npc_class() {
+    new npc_class; }

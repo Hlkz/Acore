@@ -25,8 +25,8 @@ enum Spells {
 	SKILL_LW	= 165,
 	SKILL_SK	= 393 };
 
-class job_master : public CreatureScript {
-    public: job_master() : CreatureScript("job_master") {}
+class npc_job : public CreatureScript {
+    public: npc_job() : CreatureScript("npc_job") {}
 
 bool OnGossipHello(Player* player, Creature* creature) {
 	player->ADD_GOSSIP_ITEM( 3, "Dépecage (collecte)" , GOSSIP_SENDER_MAIN, 1009);
@@ -115,5 +115,5 @@ bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint3
     return true; }
 };
 
-void AddSc_job_master() {
-    new job_master; }
+void AddSc_npc_job() {
+    new npc_job; }

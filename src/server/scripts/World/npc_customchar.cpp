@@ -1,7 +1,7 @@
 #include "ScriptPCH.h"
 
-class char_custom : public CreatureScript {
-    public: char_custom() : CreatureScript("char_custom") {}
+class npc_customchar : public CreatureScript {
+    public: npc_customchar() : CreatureScript("npc_customchar") {}
 
 bool OnGossipHello(Player* player, Creature* creature) {
 	MainMenu(player, creature);
@@ -56,5 +56,5 @@ bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint3
     return true; }
 };
 
-void AddSc_char_custom() {
-    new char_custom; }
+void AddSc_npc_customchar() {
+    new npc_customchar; }

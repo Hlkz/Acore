@@ -1,8 +1,8 @@
 #include "ScriptPCH.h"
 #include "Config.h"
 
-class universal_teleporter : public CreatureScript {
-	public: universal_teleporter() : CreatureScript("universal_teleporter") {}
+class npc_teleport : public CreatureScript {
+	public: npc_teleport() : CreatureScript("npc_teleport") {}
 
 void MainMenu(Player *player, Creature *creature) {
 
@@ -10,13 +10,14 @@ void MainMenu(Player *player, Creature *creature) {
 	ostr << ConfigMgr::GetStringDefault("u_t_s", "");
 	
 	creature->HasQuestForPlayer(player);
+
 	player->ADD_GOSSIP_ITEM(6, "[Shop] Karazhan", GOSSIP_SENDER_MAIN, 10);
 /*	if (player->GetTeam() == ALLIANCE) {
 		player->ADD_GOSSIP_ITEM(9, "[PvP sauvage] Cratère d'Azshara", GOSSIP_SENDER_MAIN, 12); }
 	if (player->GetTeam() == HORDE) {
 		player->ADD_GOSSIP_ITEM(9, "[PvP sauvage] Cratère d'Azshara", GOSSIP_SENDER_MAIN, 13); }*/
 	player->ADD_GOSSIP_ITEM(9, "[Duel] Ahn'Qiraj", GOSSIP_SENDER_MAIN, 16);
-	player->ADD_GOSSIP_ITEM(9, ostr.str().c_str(), GOSSIP_SENDER_MAIN, 20);
+//	player->ADD_GOSSIP_ITEM(9, ostr.str().c_str(), GOSSIP_SENDER_MAIN, 20);
 //	player->ADD_GOSSIP_ITEM(2, "[PvE] Donjons...", GOSSIP_SENDER_MAIN, 30);
 //	player->ADD_GOSSIP_ITEM(6, "Dalaran (accès au monde...)", GOSSIP_SENDER_MAIN, 14);
 	if(player->GetQuestStatus(100054) == QUEST_STATUS_REWARDED)
@@ -111,5 +112,5 @@ bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uin
     return true; }
 };
 
-void AddSc_universal_teleporter() {
-	new universal_teleporter(); }
+void AddSc_npc_teleport() {
+	new npc_teleport(); }

@@ -1,8 +1,8 @@
 #include "ScriptPCH.h"
 #include "Pet.h"
 
-class beast_master : public CreatureScript {
-public: beast_master() : CreatureScript("beast_master"){}
+class npc_beast : public CreatureScript {
+public: npc_beast() : CreatureScript("npc_beast"){}
 
 void CreatePet(Player *player, Creature * creature, uint32 entry){
 	
@@ -39,6 +39,7 @@ void CreatePet(Player *player, Creature * creature, uint32 entry){
 bool OnGossipHello(Player *player, Creature * creature) {
 
 	creature->HasQuestForPlayer(player);
+	
 	WorldSession* session = player->GetSession();
 
     if(player->getClass() != CLASS_HUNTER){
@@ -119,4 +120,5 @@ bool OnGossipSelect(Player *player, Creature * creature, uint32 sender, uint32 a
     return true; }
 };
 
-void AddSc_beast_master(){	new beast_master();	}
+void AddSc_npc_beast() {
+    new npc_beast();	}
