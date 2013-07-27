@@ -754,7 +754,7 @@ class spell_dk_improved_frost_presence : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_improved_frost_presence_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_DK_BLOOD_PRESENCE)
                     || !sSpellMgr->GetSpellInfo(SPELL_DK_FROST_PRESENCE)
@@ -778,14 +778,14 @@ class spell_dk_improved_frost_presence : public SpellScriptLoader
                     target->RemoveAura(SPELL_DK_FROST_PRESENCE_TRIGGERED);
             }
 
-            void Register() OVERRIDE
+            void Register()
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_dk_improved_frost_presence_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_dk_improved_frost_presence_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const
         {
             return new spell_dk_improved_frost_presence_AuraScript();
         }
@@ -861,7 +861,7 @@ class spell_dk_presence : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_presence_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_DK_BLOOD_PRESENCE)
                     || !sSpellMgr->GetSpellInfo(SPELL_DK_FROST_PRESENCE)
@@ -946,30 +946,14 @@ class spell_dk_presence : public SpellScriptLoader
                 target->RemoveAura(SPELL_DK_UNHOLY_PRESENCE_TRIGGERED);
             }
 
-            void Register() OVERRIDE
+            void Register()
             {
-                uint32 auraType = 0;
-                
-                switch (m_scriptSpellId)
-                {
-                    case SPELL_DK_BLOOD_PRESENCE:
-                        auraType = SPELL_AURA_MOD_DAMAGE_PERCENT_DONE;
-                        break;
-                    case SPELL_DK_FROST_PRESENCE:
-                        auraType = SPELL_AURA_MOD_BASE_RESISTANCE_PCT;
-                        break;
-                    case SPELL_DK_UNHOLY_PRESENCE:
-                        auraType = SPELL_AURA_MOD_MELEE_HASTE;
-                        break;
-                    default:
-                        return;
-                }
-                AfterEffectApply += AuraEffectApplyFn(spell_dk_presence_AuraScript::HandleEffectApply, EFFECT_0, auraType, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_dk_presence_AuraScript::HandleEffectRemove, EFFECT_0, auraType, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_dk_presence_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dk_presence_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const
         {
             return new spell_dk_presence_AuraScript();
         }
