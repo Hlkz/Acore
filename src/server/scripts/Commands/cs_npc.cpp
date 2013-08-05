@@ -69,6 +69,96 @@ const NpcFlagText npcFlagTexts[NPCFLAG_COUNT] =
     { UNIT_NPC_FLAG_VENDOR_REAGENT,     LANG_NPCINFO_VENDOR_REAGENT     }
 };
 
+struct MechanicImmune
+{
+    uint32 flag;
+    char const* text;
+};
+
+#define MECHANIC_MAX   33
+
+MechanicImmune const mechanicImmunes[MECHANIC_MAX] =
+{
+    { MECHANIC_NONE            , "MECHANIC_NONE"            },
+    { MECHANIC_CHARM           , "MECHANIC_CHARM"           },
+    { MECHANIC_DISORIENTED     , "MECHANIC_DISORIENTED"     },
+    { MECHANIC_DISARM          , "MECHANIC_DISARM"          },
+    { MECHANIC_DISTRACT        , "MECHANIC_DISTRACT"        },
+    { MECHANIC_FEAR            , "MECHANIC_FEAR"            },
+    { MECHANIC_GRIP            , "MECHANIC_GRIP"            },
+    { MECHANIC_ROOT            , "MECHANIC_ROOT"            },
+    { MECHANIC_SLOW_ATTACK     , "MECHANIC_SLOW_ATTACK"     },
+    { MECHANIC_SILENCE         , "MECHANIC_SILENCE"         },
+    { MECHANIC_SLEEP           , "MECHANIC_SLEEP"           },
+    { MECHANIC_SNARE           , "MECHANIC_SNARE"           },
+    { MECHANIC_STUN            , "MECHANIC_STUN"            },
+    { MECHANIC_FREEZE          , "MECHANIC_FREEZE"          },
+    { MECHANIC_KNOCKOUT        , "MECHANIC_KNOCKOUT"        },
+    { MECHANIC_BLEED           , "MECHANIC_BLEED"           },
+    { MECHANIC_BANDAGE         , "MECHANIC_BANDAGE"         },
+    { MECHANIC_POLYMORPH       , "MECHANIC_POLYMORPH"       },
+    { MECHANIC_BANISH          , "MECHANIC_BANISH"          },
+    { MECHANIC_SHIELD          , "MECHANIC_SHIELD"          },
+    { MECHANIC_SHACKLE         , "MECHANIC_SHACKLE"         },
+    { MECHANIC_MOUNT           , "MECHANIC_MOUNT"           },
+    { MECHANIC_INFECTED        , "MECHANIC_INFECTED"        },
+    { MECHANIC_TURN            , "MECHANIC_TURN"            },
+    { MECHANIC_HORROR          , "MECHANIC_HORROR"          },
+    { MECHANIC_INVULNERABILITY , "MECHANIC_INVULNERABILITY" },
+    { MECHANIC_INTERRUPT       , "MECHANIC_INTERRUPT"       },
+    { MECHANIC_DAZE            , "MECHANIC_DAZE"            },
+    { MECHANIC_DISCOVERY       , "MECHANIC_DISCOVERY"       },
+    { MECHANIC_IMMUNE_SHIELD   , "MECHANIC_IMMUNE_SHIELD"   },
+    { MECHANIC_SAPPED          , "MECHANIC_SAPPED"          },
+    { MECHANIC_ENRAGED         , "MECHANIC_ENRAGED"         },
+    { MECHANIC_WOUNDED         , "MECHANIC_WOUNDED"         }
+};
+
+
+struct UnitFlag
+{
+    uint32 flag;
+    char const* text;
+};
+
+#define UNIT_FLAGS_MAX   33
+
+UnitFlag const unitFlags[UNIT_FLAGS_MAX] =
+{
+    { UNIT_FLAG_SERVER_CONTROLLED   , "UNIT_FLAG_SERVER_CONTROLLED"     },
+    { UNIT_FLAG_NON_ATTACKABLE      , "UNIT_FLAG_NON_ATTACKABLE"        },
+    { UNIT_FLAG_DISABLE_MOVE        , "UNIT_FLAG_DISABLE_MOVE"          },
+    { UNIT_FLAG_PVP_ATTACKABLE      , "UNIT_FLAG_PVP_ATTACKABLE"        },
+    { UNIT_FLAG_RENAME              , "UNIT_FLAG_RENAME"                },
+    { UNIT_FLAG_PREPARATION         , "UNIT_FLAG_PREPARATION"           },
+    { UNIT_FLAG_UNK_6               , "UNIT_FLAG_UNK_6"                 },
+    { UNIT_FLAG_NOT_ATTACKABLE_1    , "UNIT_FLAG_NOT_ATTACKABLE_1"      },
+    { UNIT_FLAG_IMMUNE_TO_PC        , "UNIT_FLAG_IMMUNE_TO_PC"          },
+    { UNIT_FLAG_IMMUNE_TO_NPC       , "UNIT_FLAG_IMMUNE_TO_NPC"         },
+    { UNIT_FLAG_LOOTING             , "UNIT_FLAG_LOOTING"               },
+    { UNIT_FLAG_PET_IN_COMBAT       , "UNIT_FLAG_PET_IN_COMBAT"         },
+    { UNIT_FLAG_PVP                 , "UNIT_FLAG_PVP"                   },
+    { UNIT_FLAG_SILENCED            , "UNIT_FLAG_SILENCED"              },
+    { UNIT_FLAG_UNK_14              , "UNIT_FLAG_UNK_14"                },
+    { UNIT_FLAG_UNK_15              , "UNIT_FLAG_UNK_15"                },
+    { UNIT_FLAG_UNK_16              , "UNIT_FLAG_UNK_16"                },
+    { UNIT_FLAG_PACIFIED            , "UNIT_FLAG_PACIFIED"              },
+    { UNIT_FLAG_STUNNED             , "UNIT_FLAG_STUNNED"               },
+    { UNIT_FLAG_IN_COMBAT           , "UNIT_FLAG_IN_COMBAT"             },
+    { UNIT_FLAG_TAXI_FLIGHT         , "UNIT_FLAG_TAXI_FLIGHT"           },
+    { UNIT_FLAG_DISARMED            , "UNIT_FLAG_DISARMED"              },
+    { UNIT_FLAG_CONFUSED            , "UNIT_FLAG_CONFUSED"              },
+    { UNIT_FLAG_FLEEING             , "UNIT_FLAG_FLEEING"               },
+    { UNIT_FLAG_PLAYER_CONTROLLED   , "UNIT_FLAG_PLAYER_CONTROLLED"     },
+    { UNIT_FLAG_NOT_SELECTABLE      , "UNIT_FLAG_NOT_SELECTABLE"        },
+    { UNIT_FLAG_SKINNABLE           , "UNIT_FLAG_SKINNABLE"             },
+    { UNIT_FLAG_MOUNT               , "UNIT_FLAG_MOUNT"                 },
+    { UNIT_FLAG_UNK_28              , "UNIT_FLAG_UNK_28"                },
+    { UNIT_FLAG_UNK_29              , "UNIT_FLAG_UNK_29"                },
+    { UNIT_FLAG_SHEATHE             , "UNIT_FLAG_SHEATHE"               },
+    { UNIT_FLAG_UNK_31              , "UNIT_FLAG_UNK_31"                }
+};
+
 class npc_commandscript : public CommandScript
 {
 public:
