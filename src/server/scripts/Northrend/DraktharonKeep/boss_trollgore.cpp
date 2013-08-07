@@ -21,7 +21,8 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellAuras.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "drak_tharon_keep.h"
 
 enum Spells
