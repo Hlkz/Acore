@@ -364,6 +364,8 @@ public:
 
 };
 
+            events.Update(diff);
+
 void AddSC_boss_nexusprince_shaffar()
 {
     new boss_nexusprince_shaffar();
