@@ -1784,6 +1784,107 @@ class spell_q12847_summon_soul_moveto_bunny : public SpellScriptLoader
             return new spell_q12847_summon_soul_moveto_bunny_SpellScript();
         }
 };
+            {
+                OnEffectHit += SpellEffectFn(spell_q12847_summon_soul_moveto_bunny_SpellScript::ChangeSummonPos, EFFECT_0, SPELL_EFFECT_SUMMON);
+            }
+        };
+
+        SpellScript *GetSpellScript() const
+        {
+            return new spell_q12847_summon_soul_moveto_bunny_SpellScript();
+        }
+};
+
+enum BearFlankMaster
+{
+    SPELL_BEAR_FLANK_MASTER = 56565,
+    SPELL_CREATE_BEAR_FLANK = 56566,
+    SPELL_BEAR_FLANK_FAIL = 56569
+};
+
+class spell_q13011_bear_flank_master : public SpellScriptLoader
+{
+    public:
+        spell_q13011_bear_flank_master() : SpellScriptLoader("spell_q13011_bear_flank_master") { }
+
+        class spell_q13011_bear_flank_master_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q13011_bear_flank_master_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_BEAR_FLANK_MASTER) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_CREATE_BEAR_FLANK))
+                    return false;
+                return true;
+            }
+
+            bool Load()
+            {
+                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                bool failed = RAND(0, 1); // 50% chance
+                Creature* creature = GetCaster()->ToCreature();
+                if (Player* player = GetHitPlayer())
+                {
+                    if (failed)
+                    {
+                        player->CastSpell(creature, SPELL_BEAR_FLANK_FAIL);
+                        creature->AI()->Talk(0, player->GetGUID());
+                    }
+                    else
+                        player->CastSpell(player, SPELL_CREATE_BEAR_FLANK);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q13011_bear_flank_master_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q13011_bear_flank_master_SpellScript();
+        }
+};
+
+class spell_q13086_cannons_target : public SpellScriptLoader
+{
+    public:
+        spell_q13086_cannons_target() : SpellScriptLoader("spell_q13086_cannons_target") { }
+
+        class spell_q13086_cannons_target_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q13086_cannons_target_SpellScript);
+
+            bool Validate(SpellInfo const* spellInfo) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].CalcValue()))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (WorldLocation const* pos = GetExplTargetDest())
+                    GetCaster()->CastSpell(pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), GetEffectValue(), true);
+            }
+
+            void Register()
+            {
+                OnEffectHit += SpellEffectFn(spell_q13086_cannons_target_SpellScript::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q13086_cannons_target_SpellScript();
+        }
+};
 
 void AddSC_quest_spell_scripts()
 {
