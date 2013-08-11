@@ -504,7 +504,7 @@ public:
 
     static bool HandleDebugSendQuestInvalidMsgCommand(ChatHandler* handler, char const* args)
     {
-        uint32 msg = atol((char*)args);
+        QuestFailedReason msg = static_cast<QuestFailedReason>(atol((char*)args));
         handler->GetSession()->GetPlayer()->SendCanTakeQuestResponse(msg);
         return true;
     }
