@@ -781,6 +781,27 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
             return;
         }
 
+    // check spell focus object
+    if (spellInfo->RequiresSpellFocus && caster->IsVehicle())
+    {
+        CellCoord p(Trinity::ComputeCellCoord(caster->GetPositionX(), caster->GetPositionY()));
+        Cell cell(p);
+
+        GameObject* ok = NULL;
+        Trinity::GameObjectFocusCheck goCheck(caster, spellInfo->RequiresSpellFocus);
+        Trinity::GameObjectSearcher<Trinity::GameObjectFocusCheck> checker(caster, ok, goCheck);
+
+        TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectFocusCheck>, GridTypeMapContainer > objectChecker(checker);
+        Map& map = *caster->GetMap();
+        cell.Visit(p, objectChecker, map, *caster, caster->GetVisibilityRange());
+
+        if (!ok)
+        {
+            caster->SendPetCastFail(spellId, SPELL_FAILED_REQUIRES_SPELL_FOCUS);
+            return;
+        }
+    }
+
     // do not cast not learned spells
     if (!caster->HasSpell(spellId) || spellInfo->IsPassive())
         return;
@@ -801,6 +822,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
         result = spell->CheckPetCast(caster->m_movedPlayer->GetSelectedUnit());
     else
         result = spell->CheckPetCast(NULL);
+
     if (result == SPELL_CAST_OK)
     {
         if (caster->GetTypeId() == TYPEID_UNIT)
