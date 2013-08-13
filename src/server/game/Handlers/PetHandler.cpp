@@ -32,6 +32,9 @@
 #include "Group.h"
 #include "SpellInfo.h"
 #include "Player.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CellImpl.h"
 
 void WorldSession::HandleDismissCritter(WorldPacket& recvData)
 {
