@@ -33,6 +33,7 @@
 enum HunterSpells
 {
     SPELL_HUNTER_ASPECT_OF_THE_BEAST_PET            = 61669,
+    SPELL_HUNTER_ASPECT_OF_THE_VIPER                = 34074,
     SPELL_HUNTER_ASPECT_OF_THE_VIPER_ENERGIZE       = 34075,
     SPELL_HUNTER_BESTIAL_WRATH                      = 19574,
     SPELL_HUNTER_CHIMERA_SHOT_SERPENT               = 53353,
@@ -51,6 +52,8 @@ enum HunterSpells
     SPELL_HUNTER_READINESS                          = 23989,
     SPELL_HUNTER_SNIPER_TRAINING_R1                 = 53302,
     SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1            = 64418,
+    SPELL_HUNTER_VICIOUS_VIPER                      = 61609,
+    SPELL_HUNTER_VIPER_ATTACK_SPEED                 = 60144,
     SPELL_DRAENEI_GIFT_OF_THE_NAARU                 = 59543
 };
 
