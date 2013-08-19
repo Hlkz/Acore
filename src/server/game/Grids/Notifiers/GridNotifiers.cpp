@@ -27,6 +27,7 @@
 #include "ObjectAccessor.h"
 #include "CellImpl.h"
 #include "SpellInfo.h"
+#include "CombatAI.h"
 
 using namespace Trinity;
 
@@ -116,8 +117,9 @@ inline void CreatureUnitRelocationWorker(Creature* c, Unit* u)
 {
     if (!u->IsAlive() || !c->IsAlive() || c == u || u->IsInFlight())
         return;
-
-    if (c->HasReactState(REACT_AGGRESSIVE) && !c->HasUnitState(UNIT_STATE_SIGHTLESS))
+    if (c->HasUnitState(UNIT_STATE_SIGHTLESS) && !static_cast<TurretAI*>(c->GetAI()))
+        return;
+    if (c->HasReactState(REACT_AGGRESSIVE))
         if (c->IsAIEnabled && c->CanSeeOrDetect(u, false, true))
             c->AI()->MoveInLineOfSight_Safe(u);
 }

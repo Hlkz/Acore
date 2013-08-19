@@ -32,6 +32,7 @@
 #include "Creature.h"
 #include "Pet.h"
 #include "ReputationMgr.h"
+#include "BattleAOMgr.h"
 #include "BattlegroundMgr.h"
 #include "Battleground.h"
 #include "ScriptMgr.h"
@@ -316,7 +317,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
         unit->StopMoving();
     }
 
-    // If spiritguide, no need for gossip menu, just put player into resurrect queue
+    /* If spiritguide, no need for gossip menu, just put player into resurrect queue
     if (unit->IsSpiritGuide())
     {
         Battleground* bg = _player->GetBattleground();
@@ -326,7 +327,9 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
             sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(_player, bg, unit->GetGUID());
             return;
         }
-    }
+		else if (sBattleAOMgr->GetBattleAO()->HasPlayer(_player))
+			sBattleAOMgr->GetBattleAO()->SendAreaSpiritHealerQueryOpcode(_player, guid);
+    }*/
 
     if (!sScriptMgr->OnGossipHello(_player, unit))
     {

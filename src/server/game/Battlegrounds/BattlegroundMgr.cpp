@@ -354,6 +354,10 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                         *data << uint32(0x00000002);            // count of next fields
                         *data << uint32(((BattlegroundICScore*)itr2->second)->BasesAssaulted);       // bases asssulted
                         *data << uint32(((BattlegroundICScore*)itr2->second)->BasesDefended);        // bases defended
+                    case 784:                                   // BA
+                        *data << uint32(0x00000002);            // count of next fields
+                        *data << uint32(((BattlegroundBAScore*)itr2->second)->CreepsKilled);
+                        *data << uint32(((BattlegroundBAScore*)itr2->second)->ArcaneFrag);
                     case 782:
                     default:
                         *data << uint32(0);
@@ -393,8 +397,9 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                 *data << uint32(((BattlegroundICScore*)itr2->second)->BasesDefended);        // bases defended
                 break;
             case BATTLEGROUND_BA:
-                *data << uint32(0x00000001);                // count of next fields
-				*data << uint32(((BattlegroundBAScore*)itr2->second)->CreepsKilled);       // bases assaulted
+                *data << uint32(0x00000002);                // count of next fields
+                *data << uint32(((BattlegroundBAScore*)itr2->second)->CreepsKilled);
+                *data << uint32(((BattlegroundBAScore*)itr2->second)->ArcaneFrag);
                 break;
             case BATTLEGROUND_AO:
             case BATTLEGROUND_NA:
@@ -985,6 +990,10 @@ void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battlegrou
 {
     WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
     uint32 time_ = 30000 - bg->GetLastResurrectTime();      // resurrect every 30 seconds
+
+    if (BattlegroundBA* ba = static_cast<BattlegroundBA*>(bg))
+        time_ = ba->m_BAPlayers[player->GetGUID()].NextRezTimer - getMSTime();
+
     if (time_ == uint32(-1))
         time_ = 0;
     data << guid << time_;

@@ -560,7 +560,7 @@ void Creature::Update(uint32 diff)
 
             /*if (m_regenTimer <= diff)
             {*/
-            if (!IsInEvadeMode() && (!bInCombat || IsPolymorphed())) // regenerate health if not in combat or if polymorphed
+            if (!IsInEvadeMode() && ((!bInCombat && (getFaction() != 3801 && getFaction() != 3802)) || IsPolymorphed())) // regenerate health if not in combat or if polymorphed
                 RegenerateHealth();
 
             if (getPowerType() == POWER_ENERGY)
@@ -847,7 +847,8 @@ bool Creature::isCanInteractWithBattleMaster(Player* player, bool msg) const
             case BATTLEGROUND_RL:
             case BATTLEGROUND_SA:
             case BATTLEGROUND_DS:
-            case BATTLEGROUND_RV: player->PlayerTalkClass->SendGossipMenu(10024, GetGUID()); break;
+            case BATTLEGROUND_RV:
+            case BATTLEGROUND_BA: player->PlayerTalkClass->SendGossipMenu(10024, GetGUID()); break;
             default: break;
         }
         return false;

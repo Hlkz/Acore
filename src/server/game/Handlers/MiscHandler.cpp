@@ -1659,7 +1659,7 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket& recvData)
 
     if (bg)
         sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(_player, bg, guid);
-	else
+	else if (sBattleAOMgr->GetBattleAO()->HasPlayer(_player))
 		sBattleAOMgr->GetBattleAO()->SendAreaSpiritHealerQueryOpcode(_player, guid);
 }
 

@@ -19,6 +19,7 @@
 #include "HomeMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureAI.h"
+#include "CombatAI.h"
 #include "WorldPacket.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
@@ -47,7 +48,7 @@ void HomeMovementGenerator<Creature>::DoReset(Creature*)
 
 void HomeMovementGenerator<Creature>::_setTargetLocation(Creature* owner)
 {
-    if (owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
+    if ((owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED)) && !static_cast<TurretAI*>(owner->GetAI()))
         return;
 
     Movement::MoveSplineInit init(owner);

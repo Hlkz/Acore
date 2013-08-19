@@ -198,6 +198,7 @@ enum ScoreType
     SCORE_DESTROYED_WALL        = 19,
 	//MOBA
 	SCORE_CREEPS_KILLED			= 20,
+	SCORE_ARCANE_FRAG			= 21,
 };
 
 enum ArenaType

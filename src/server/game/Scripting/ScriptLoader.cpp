@@ -1302,6 +1302,7 @@ void AddSc_npc_rand();
 void AddSc_npc_teleport();
 void AddSc_npc_transmo();
 void AddSc_spirithealer();
+void AddSc_npc_ba();
 
 void AddSc_Com_Arena();
 void AddSc_Com_Bg();
@@ -1332,6 +1333,7 @@ void AddCustomScripts()
 	AddSc_npc_teleport();
 	AddSc_npc_transmo();
 	AddSc_spirithealer();
+	AddSc_npc_ba();
 
 	AddSc_Com_Arena();
 	AddSc_Com_Bg();
