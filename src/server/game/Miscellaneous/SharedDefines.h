@@ -3313,13 +3313,13 @@ enum BattlegroundTypeId
     BATTLEGROUND_SA             = 9, // Strand of the Ancients
     BATTLEGROUND_DS             = 10, // Dalaran Sewers
     BATTLEGROUND_RV             = 11, // Ring of Valor
+    BATTLEGROUND_BA             = 12, // MOBA
     BATTLEGROUND_IC             = 30, // Isle of Conquest
     BATTLEGROUND_RB             = 32, // Random Battleground
     BATTLEGROUND_AO             = 33, // AObg
-    BATTLEGROUND_BA             = 34 // MOBA
 };
 
-#define MAX_BATTLEGROUND_TYPE_ID 35
+#define MAX_BATTLEGROUND_TYPE_ID 34
 
 enum MailResponseType
 {

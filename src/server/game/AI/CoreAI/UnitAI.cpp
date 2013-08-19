@@ -25,6 +25,7 @@
 #include "SpellInfo.h"
 #include "Spell.h"
 #include "CreatureAIImpl.h"
+#include "CombatAI.h"
 
 void UnitAI::AttackStart(Unit* victim)
 {
@@ -67,7 +68,10 @@ bool UnitAI::DoSpellAttackIfReady(uint32 spell)
     {
         if (me->IsWithinCombatRange(me->GetVictim(), spellInfo->GetMaxRange(false)))
         {
-            me->CastSpell(me->GetVictim(), spell, false);
+            if (static_cast<TurretAI*>(this))
+                me->CastSpell(me->GetVictim(), spell, TRIGGERED_IGNORE_CASTER_AURAS);
+            else
+                me->CastSpell(me->GetVictim(), spell, false);
             me->resetAttackTimer();
             return true;
         }

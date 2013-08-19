@@ -1293,30 +1293,29 @@ void AddBattlegroundScripts()
 
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
-void AddSc_beast_master();
-void AddSc_job_master();
-void AddSc_char_custom();
-void AddSc_News_Serv();
-void AddSc_universal_teleporter();
-void AddSc_rand_item();
-void AddSc_class_master();
-void AddSc_enchant_npc();
+void AddSc_npc_beast();
+void AddSc_npc_class();
+void AddSc_npc_customchar();
+void AddSc_npc_enchant();
+void AddSc_npc_job();
+void AddSc_npc_rand();
+void AddSc_npc_teleport();
+void AddSc_npc_transmo();
+void AddSc_spirithealer();
+void AddSc_npc_ba();
+
 void AddSc_Com_Arena();
 void AddSc_Com_Bg();
 void AddSc_Com_Talent();
 void AddSc_Com_Rand();
+void AddSc_Com_Ranks();
 void AddSc_Com_Suffix();
 void AddSc_Com_Test();
 void AddSc_Com_Item_Info();
-void AddSC_NPC_Transmogrify();
-void AddSc_transmochange();
 void AddSc_Com_ucast();
-void AddSc_spirithealer();
-//boss
+
 void AddSC_kahz();
 void AddSC_zone_AO();
-
-void AddSc_Com_Ranks();
 
 #endif
 
@@ -1324,25 +1323,28 @@ void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
-    AddSc_beast_master();
-	AddSc_job_master();
-	AddSc_char_custom();
-	AddSc_News_Serv();
-    AddSc_universal_teleporter();
-    AddSc_rand_item();
-	AddSc_class_master();
-	AddSc_enchant_npc();
+
+        AddSc_npc_beast();
+	AddSc_npc_class();
+	AddSc_npc_customchar();
+	AddSc_npc_enchant();
+	AddSc_npc_job();
+        AddSc_npc_rand();
+	AddSc_npc_teleport();
+	AddSc_npc_transmo();
+	AddSc_spirithealer();
+	AddSc_npc_ba();
+
 	AddSc_Com_Arena();
 	AddSc_Com_Bg();
 	AddSc_Com_Talent();
 	AddSc_Com_Rand();
+	AddSc_Com_Ranks();
 	AddSc_Com_Suffix();
 	AddSc_Com_Test();
 	AddSc_Com_Item_Info();
-	AddSC_NPC_Transmogrify();
 	AddSc_Com_ucast();
-	AddSc_spirithealer();
-	//boss
+
 	AddSC_kahz();
     AddSC_zone_AO();
 

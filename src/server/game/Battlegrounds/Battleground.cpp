@@ -20,6 +20,7 @@
 #include "ArenaTeamMgr.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
+#include "BattlegroundBA.h"
 #include "Creature.h"
 #include "Formulas.h"
 #include "GridNotifiersImpl.h"
@@ -1480,7 +1481,8 @@ void Battleground::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, 
 
 void Battleground::AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid)
 {
-    m_ReviveQueue[npc_guid].push_back(player_guid);
+    if (!static_cast<BattlegroundBA*>(this))
+        m_ReviveQueue[npc_guid].push_back(player_guid);
 
     Player* player = ObjectAccessor::FindPlayer(player_guid);
     if (!player)
@@ -1491,6 +1493,13 @@ void Battleground::AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid
 
 void Battleground::RemovePlayerFromResurrectQueue(uint64 player_guid)
 {
+	if (static_cast<BattlegroundBA*>(this))
+		if (Player* player = ObjectAccessor::FindPlayer(player_guid))
+		{
+			player->RemoveAurasDueToSpell(SPELL_WAITING_FOR_RESURRECT);
+			return;
+		}
+
     for (std::map<uint64, std::vector<uint64> >::iterator itr = m_ReviveQueue.begin(); itr != m_ReviveQueue.end(); ++itr)
     {
         for (std::vector<uint64>::iterator itr2 = (itr->second).begin(); itr2 != (itr->second).end(); ++itr2)
