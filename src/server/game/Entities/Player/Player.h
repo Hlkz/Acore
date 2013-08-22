@@ -2347,13 +2347,15 @@ class Player : public Unit, public GridObject<Player>
         void SetSpectator(bool bSpectator);
 		
         uint32 GetPvpRank();
+        void SetPvpRank(uint32 pvprank);
         uint32 GetPvpLast();
-		void SetPvpLast(uint32 pvplast);
+        void SetPvpLast(uint32 pvplast);
+        void SetPvpTotal(uint32 pvptotal);
         uint32 GetBgWin();
-		void SetBgWin(uint32 bgwin);
+        void SetBgWin(uint32 bgwin);
         uint32 GetArenaWin();
-		void SetArenaWin(uint32 arenawin);
-		bool IsDeserter();
+        void SetArenaWin(uint32 arenawin);
+        bool IsDeserter();
         uint32 GetRezTime() const { return m_rezData.rezTime; }
         void SetRezTime(uint32 newreztime = 0) { m_rezData.rezTime = newreztime; }
         void SetSHGUID(uint32 newshguid) { m_rezData.shguid = newshguid; }

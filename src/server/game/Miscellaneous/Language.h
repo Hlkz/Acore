@@ -1216,12 +1216,14 @@ enum TrinityStrings
     LANG_BAO_NODE_TOUR_H2		= 17817,
     LANG_BAO_NODE_A2          = 17818,
     LANG_BAO_NODE_H2          = 17819,
-	LANG_BAO_NODE_TAKEN               = 17820,
+    LANG_BAO_NODE_TAKEN               = 17820,
     LANG_BAO_NODE_DEFENDED            = 17821,
     LANG_BAO_NODE_ASSAULTED           = 17822,
-	
-    LANG_DIST_RANKS_START				= 18000,
-    LANG_DIST_RANKS_END					= 18001,
+
+    LANG_RANKS_NAME						= 17901,
+    LANG_DIST_RANKS_START				= 17914,
+    LANG_DIST_RANKS_END					= 17915,
+    LANG_RANKS_INFO_COMMAND				= 17916,
 
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)

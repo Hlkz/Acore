@@ -17526,23 +17526,22 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS));
 
     SetSpectator(false);
-	
-	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[0][0]), true);
-	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[1][0]), true);
-	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[2][0]), true);
-	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[3][0]), true);
-	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[4][0]), true);
-	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[5][0]), true);
-	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[0][1]), true);
-	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[1][1]), true);
-	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[2][1]), true);
-	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[3][1]), true);
-	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[4][1]), true);
-	SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[5][1]), true);
-	uint32 rank = GetPvpRank();
-	if(rank != 0)
-		SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[rank-1][this->GetTeamId()]));
-	
+
+    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[0][0]), true);
+    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[1][0]), true);
+    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[2][0]), true);
+    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[3][0]), true);
+    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[4][0]), true);
+    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[5][0]), true);
+    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[0][1]), true);
+    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[1][1]), true);
+    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[2][1]), true);
+    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[3][1]), true);
+    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[4][1]), true);
+    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[5][1]), true);
+    if(uint32 rank = GetPvpRank())
+        SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[rank-1][GetTeamId()]));
+
     return true;
 }
 
@@ -26452,6 +26451,24 @@ uint32 Player::GetPvpRank()
 	return m_PvpRank;
 }
 
+void Player::SetPvpRank(uint32 pvprank)
+{
+    uint32 oldrank = GetPvpRank();
+    if (oldrank)
+        SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[oldrank-1][GetTeamId()]), true);
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PVP_RANK);
+    stmt->setUInt32(0, pvprank);
+    stmt->setUInt32(1, GUID_LOPART(GetGUID()));
+    trans->Append(stmt);
+    CharacterDatabase.CommitTransaction(trans);
+    m_PvpRank = pvprank;
+
+    if(pvprank)
+        SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[pvprank-1][GetTeamId()]));
+}
+
 uint32 Player::GetPvpLast()
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PVP_LAST);
@@ -26472,6 +26489,16 @@ void Player::SetPvpLast(uint32 pvplast)
     trans->Append(stmt);
     CharacterDatabase.CommitTransaction(trans);
 	m_PvpLast = pvplast;
+}
+
+void Player::SetPvpTotal(uint32 pvptotal)
+{
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PVP_TOTAL);
+    stmt->setUInt32(0, pvptotal);
+    stmt->setUInt32(1, GUID_LOPART(GetGUID()));
+    trans->Append(stmt);
+    CharacterDatabase.CommitTransaction(trans);
 }
 
 uint32 Player::GetBgWin()

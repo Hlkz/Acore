@@ -600,20 +600,21 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_DEL_CHAR_PET_BY_ID, "DELETE FROM character_pet WHERE id = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHAR_PET_BY_SLOT, "DELETE FROM character_pet WHERE owner = ? AND (slot = ? OR slot > ?)", CONNECTION_ASYNC);
 
-	//pvp ranks
-	PrepareStatement(CHAR_SEL_PVP_RANK, "SELECT pvprank FROM characters WHERE guid = ?", CONNECTION_SYNCH);
-	PrepareStatement(CHAR_UPD_PVP_RANK, "UPDATE characters SET pvprank = ? WHERE guid = ?", CONNECTION_ASYNC);
-	PrepareStatement(CHAR_UPD_PVP_TOTAL, "UPDATE characters SET pvptotal = ? WHERE guid = ?", CONNECTION_ASYNC);
-	PrepareStatement(CHAR_SEL_PVP_LAST, "SELECT pvplast FROM characters WHERE guid = ?", CONNECTION_SYNCH);
-	PrepareStatement(CHAR_UPD_PVP_LAST, "UPDATE characters SET pvplast = ? WHERE guid = ?", CONNECTION_ASYNC);
-	PrepareStatement(CHAR_SEL_BG_WIN, "SELECT bgwin FROM characters WHERE guid = ?", CONNECTION_SYNCH);
-	PrepareStatement(CHAR_UPD_BG_WIN, "UPDATE characters SET bgwin = ? WHERE guid = ?", CONNECTION_ASYNC);
-	PrepareStatement(CHAR_SEL_ARENA_WIN, "SELECT arenawin FROM characters WHERE guid = ?", CONNECTION_SYNCH);
-	PrepareStatement(CHAR_UPD_ARENA_WIN, "UPDATE characters SET arenawin = ? WHERE guid = ?", CONNECTION_ASYNC);
-	PrepareStatement(CHAR_UPD_PVP_POINTS, "UPDATE characters SET pvptotal = pvptotal + pvplast, pvplast = 0, pvprank = pvprank + ?, pvppoints = ? WHERE guid = ?", CONNECTION_ASYNC);
-	PrepareStatement(CHAR_SEL_PLA_BY_RANK, "SELECT guid FROM characters WHERE pvprank <= ? AND pvprank >= ? ORDER BY pvppoints DESC", CONNECTION_ASYNC);
-	PrepareStatement(CHAR_UPD_RESET_WIN_DAY, "UPDATE characters SET arenawin = 0, bgwin = 0", CONNECTION_ASYNC);
-	PrepareStatement(CHAR_SEL_PVP_ALL, "SELECT guid, pvprank, pvptotal, pvplast FROM characters WHERE pvptotal > 0 OR pvplast > 0", CONNECTION_SYNCH);
-	PrepareStatement(CHAR_SEL_TOP_RANK, "SELECT name, pvprank, team FROM characters WHERE pvprank > 0 ORDER BY pvptotal DESC LIMIT 10", CONNECTION_SYNCH);
-	
+    //pvp ranks
+    PrepareStatement(CHAR_SEL_PVP_RANK, "SELECT pvprank FROM characters WHERE guid = ?", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_UPD_PVP_RANK, "UPDATE characters SET pvprank = ? WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_PVP_TOTAL, "UPDATE characters SET pvptotal = ? WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_PVP_LAST, "SELECT pvplast FROM characters WHERE guid = ?", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_UPD_PVP_LAST, "UPDATE characters SET pvplast = ? WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_BG_WIN, "SELECT bgwin FROM characters WHERE guid = ?", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_UPD_BG_WIN, "UPDATE characters SET bgwin = ? WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_ARENA_WIN, "SELECT arenawin FROM characters WHERE guid = ?", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_UPD_ARENA_WIN, "UPDATE characters SET arenawin = ? WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_PVP_POINTS, "UPDATE characters SET pvptotal = pvptotal + pvplast, pvplast = 0, pvprank = pvprank + ?, pvppoints = ? WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_PLA_BY_RANK, "SELECT guid FROM characters WHERE pvprank <= ? AND pvprank >= ? ORDER BY pvppoints DESC", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_RESET_WIN_DAY, "UPDATE characters SET arenawin = 0, bgwin = 0", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_PVP_ALL, "SELECT guid, pvprank, pvptotal, pvplast FROM characters WHERE pvptotal > 0 OR pvplast > 0", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_SEL_TOP_RANK, "SELECT name, pvprank, team FROM characters WHERE pvprank > 0 ORDER BY pvptotal DESC LIMIT 10", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_SEL_RANKS_INFO, "SELECT team, pvprank, pvptotal, pvplast FROM characters WHERE guid = ?", CONNECTION_SYNCH);
+
 }
