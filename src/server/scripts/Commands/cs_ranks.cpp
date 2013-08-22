@@ -38,12 +38,12 @@ const uint32 PvpRankEff[6] =
 	1  // rank 6
 };
 
-
 void World::UpdateRanksText()
 {
+	std::string strGrade;
     std::string strText = "Le classement pvp actuel : \n ";
 	
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_TOP_RANK); //0 name 1 rankid
+	PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_TOP_RANK);//0 name 1 rankid
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
  
     if (!result)
@@ -54,15 +54,84 @@ void World::UpdateRanksText()
     do {
         std::string strName = result->Fetch()[i, 0].GetString(); // name
         uint32 iRank = result->Fetch()[i, 1].GetUInt32(); // rank
-  
+		uint32 iFaction = result->Fetch()[i, 2].GetUInt32();// faction Horde: 67 Alliance: 469
+
+		if (iFaction == 67)
+		{
+			switch (iRank)
+			{
+			case 0: {
+					strGrade = "";
+					break;
+				}
+			case 1: {
+					strGrade = "Grunt";
+						break;
+				}
+			case 2: {
+					strGrade = "Sergent";
+					break;
+				}
+			case 3: {
+					strGrade = "Champion";
+					break;
+				}
+			case 4: {
+					strGrade = "Porteguerre";
+					break;
+				}
+			case 5: {
+					strGrade = "Général";
+					break;
+				}
+			case 6: {
+					strGrade = "Seigneur de guerre";
+					break;
+				}
+			}
+		}
+		else
+		{
+			switch (iRank)
+			{
+			case 0: {
+					strGrade = "";
+					break;
+				}
+			case 1: {
+					strGrade = "Soldat";
+						break;
+				}
+			case 2: {
+					strGrade = "Caporal";
+					break;
+				}
+			case 3: {
+					strGrade = "Chevalier";
+					break;
+				}
+			case 4: {
+					strGrade = "Commandant";
+					break;
+				}
+			case 5: {
+					strGrade = "Maréchal";
+					break;
+				}
+			case 6: {
+					strGrade = "Connétable";
+					break;
+				}
+			}
+		}
 		std::ostringstream add;
-		add << "\n " << (i+1) << "   " << strName;
+		add << "\n " << (i+1) << "   " << strGrade << "  " << strName;
         strText = strText + add.str(); 
 
         ++i;
     }
     while (result->NextRow());
-	
+
 	SQLTransaction trans = WorldDatabase.BeginTransaction();
     PreparedStatement* stmt2 = WorldDatabase.GetPreparedStatement(WORLD_UPD_TOP_RANK);
     stmt2->setString(0, strText);
