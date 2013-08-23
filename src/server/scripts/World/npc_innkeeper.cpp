@@ -42,6 +42,7 @@ enum Spells
 #define LOCALE_TRICK_OR_TREAT_6 "¡Truco o trato!"
 
 #define LOCALE_INNKEEPER_0 "Make this inn my home."
+#define LOCALE_INNKEEPER_2 "Que cette auberge devienne mon nouveau foyer."
 #define LOCALE_INNKEEPER_3 "Ich möchte dieses Gasthaus zu meinem Heimatort machen."
 
 class npc_innkeeper : public CreatureScript
@@ -76,6 +77,7 @@ public:
             switch (player->GetSession()->GetSessionDbcLocale())
             {
                 case LOCALE_deDE: localizedEntry = LOCALE_INNKEEPER_3; break;
+                case LOCALE_frFR: localizedEntry = LOCALE_INNKEEPER_2; break;
                 case LOCALE_enUS: default: localizedEntry = LOCALE_INNKEEPER_0;
             }
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INN);
