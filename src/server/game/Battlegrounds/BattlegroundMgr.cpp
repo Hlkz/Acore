@@ -53,7 +53,7 @@
 
 BattlegroundMgr::BattlegroundMgr() :
     m_NextRatedArenaUpdate(sWorld->getIntConfig(CONFIG_ARENA_RATED_UPDATE_TIMER)),
-    m_AutoDistributionTimeChecker(0), m_AutoDistributionRankTimeChecker(0), m_AutoArenaBgWinResetTimeChecker(0),
+    m_AutoDistributionTimeChecker(0),
 	m_ArenaTesting(false), m_Testing(false)
 { }
 
@@ -162,35 +162,6 @@ void BattlegroundMgr::Update(uint32 diff)
         else
             m_AutoDistributionTimeChecker -= diff;
     }
-
-	if (m_AutoDistributionRankTimeChecker < diff) //custom ranks
-	{
-		if (time(NULL) > m_NextAutoDistributionRankTime)
-		{
-			sWorld->DistributeRanks();
-			m_NextAutoDistributionRankTime = m_NextAutoDistributionRankTime + BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY * 3;
-			sWorld->setWorldState(WS_PVPRANK_DISTRIBUTION_TIME, uint64(m_NextAutoDistributionRankTime));
-		}
-		m_AutoDistributionRankTimeChecker = 600000; // check 10 minutes
-	}
-	else
-		m_AutoDistributionRankTimeChecker -= diff;
-
-	if (m_AutoArenaBgWinResetTimeChecker < diff)
-	{
-		if (time(NULL) > m_NextAutoArenaBgWinResetTime)
-		{
-			SQLTransaction trans = CharacterDatabase.BeginTransaction();
-			PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_RESET_WIN_DAY);
-			trans->Append(stmt);
-			CharacterDatabase.CommitTransaction(trans);
-			m_NextAutoArenaBgWinResetTime = m_NextAutoArenaBgWinResetTime + BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY;
-			sWorld->setWorldState(WS_ARENABGWIN_RESET_TIME, uint64(m_NextAutoArenaBgWinResetTime));
-		}
-		m_AutoArenaBgWinResetTimeChecker = 600000; // check 10 minutes
-	}
-	else
-		m_AutoArenaBgWinResetTimeChecker -= diff;
 }
 
 void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battleground* bg, uint8 QueueSlot, uint8 StatusID, uint32 Time1, uint32 Time2, uint8 arenatype, uint32 arenaFaction)

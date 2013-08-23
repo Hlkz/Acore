@@ -1689,10 +1689,13 @@ void World::SetInitialWorldSettings()
     InitMonthlyQuestResetTime();
 
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Calculate random battleground reset time...");
-    InitRandomBGResetTime();
+    InitDailyResetTime();
 
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Calculate guild limitation(s) reset time...");
     InitGuildResetTime();
+
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Calculate ranks distrib reset time...");
+    InitRanksDistribTime();
 
     LoadCharacterNameData();
 
@@ -1854,11 +1857,14 @@ void World::Update(uint32 diff)
     if (m_gameTime > m_NextMonthlyQuestReset)
         ResetMonthlyQuests();
 
-    if (m_gameTime > m_NextRandomBGReset)
-        ResetRandomBG();
+    if (m_gameTime > m_NextDailyReset)
+        DailyReset();
 
     if (m_gameTime > m_NextGuildReset)
         ResetGuildCap();
+
+    if (m_gameTime > m_NextRanksDistrib)
+        DistribRanks();
 
     /// <ul><li> Handle auctions when the timer has passed
     if (m_timers[WUPDATE_AUCTIONS].Passed())
@@ -2735,6 +2741,33 @@ void World::InitGuildResetTime()
         sWorld->setWorldState(WS_GUILD_DAILY_RESET_TIME, uint64(m_NextGuildReset));
 }
 
+void World::InitRanksDistribTime()
+{
+    time_t ranktime = uint64(sWorld->getWorldState(WS_RANKS_DISTRIB_TIME));
+    if (!ranktime)
+        m_NextRanksDistrib = time_t(time(NULL));         // game time not yet init
+
+    // generate time by config
+    time_t curTime = time(NULL);
+    tm localTm = *localtime(&curTime);
+    localTm.tm_hour = 0;
+    localTm.tm_min = 0;
+    localTm.tm_sec = 0;
+
+    // current day reset time
+    time_t nextDayResetTime = mktime(&localTm);
+
+    // next reset time before current moment
+    if (curTime >= nextDayResetTime)
+        nextDayResetTime += DAY;
+
+    // normalize reset time
+    m_NextRanksDistrib = ranktime < curTime ? nextDayResetTime - DAY : nextDayResetTime;
+
+    if (!ranktime)
+        sWorld->setWorldState(WS_RANKS_DISTRIB_TIME, uint64(m_NextRanksDistrib));
+}
+
 void World::ResetDailyQuests()
 {
     TC_LOG_INFO(LOG_FILTER_GENERAL, "Daily quests reset for all characters.");
@@ -2841,10 +2874,11 @@ void World::ResetEventSeasonalQuests(uint16 event_id)
             itr->second->GetPlayer()->ResetSeasonalQuestStatus(event_id);
 }
 
-void World::ResetRandomBG()
+void World::DailyReset()
 {
-    TC_LOG_INFO(LOG_FILTER_GENERAL, "Random BG status reset for all characters.");
+    TC_LOG_INFO(LOG_FILTER_GENERAL, "Daily reset for all characters.");
 
+    // reset randombg
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BATTLEGROUND_RANDOM);
     CharacterDatabase.Execute(stmt);
 
@@ -2852,8 +2886,14 @@ void World::ResetRandomBG()
         if (itr->second->GetPlayer())
             itr->second->GetPlayer()->SetRandomWinner(false);
 
-    m_NextRandomBGReset = time_t(m_NextRandomBGReset + DAY);
-    sWorld->setWorldState(WS_BG_DAILY_RESET_TIME, uint64(m_NextRandomBGReset));
+    // reset bg/arena daily win
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_RESET_WIN_DAY);
+    trans->Append(stmt);
+    CharacterDatabase.CommitTransaction(trans);
+
+    m_NextDailyReset = time_t(m_NextDailyReset + DAY);
+    sWorld->setWorldState(WS_DAILY_RESET_TIME, uint64(m_NextDailyReset));
 }
 
 void World::ResetGuildCap()
@@ -2863,6 +2903,15 @@ void World::ResetGuildCap()
     m_NextGuildReset = time_t(m_NextGuildReset + DAY);
     sWorld->setWorldState(WS_GUILD_DAILY_RESET_TIME, uint64(m_NextGuildReset));
     sGuildMgr->ResetTimes();
+}
+
+void World::DistribRanks()
+{
+    TC_LOG_INFO(LOG_FILTER_GENERAL, "Ranks distrib !");
+	DistributeRanks();
+
+    m_NextRanksDistrib = time_t(m_NextRanksDistrib + DAY * 3);
+    sWorld->setWorldState(WS_RANKS_DISTRIB_TIME, uint64(m_NextRanksDistrib));
 }
 
 void World::UpdateMaxSessionCounters()
