@@ -1481,7 +1481,7 @@ void Battleground::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, 
 
 void Battleground::AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid)
 {
-    if (!static_cast<BattlegroundBA*>(this))
+    if (GetTypeID() != BATTLEGROUND_BA)
         m_ReviveQueue[npc_guid].push_back(player_guid);
 
     Player* player = ObjectAccessor::FindPlayer(player_guid);
@@ -1493,7 +1493,7 @@ void Battleground::AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid
 
 void Battleground::RemovePlayerFromResurrectQueue(uint64 player_guid)
 {
-	if (static_cast<BattlegroundBA*>(this))
+    if (GetTypeID() != BATTLEGROUND_BA)
 		if (Player* player = ObjectAccessor::FindPlayer(player_guid))
 		{
 			player->RemoveAurasDueToSpell(SPELL_WAITING_FOR_RESURRECT);
