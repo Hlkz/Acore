@@ -178,10 +178,6 @@ class BattlegroundMgr
         uint32 m_NextRatedArenaUpdate;
         time_t m_NextAutoDistributionTime;
         uint32 m_AutoDistributionTimeChecker;
-        time_t m_NextAutoDistributionRankTime;
-        uint32 m_AutoDistributionRankTimeChecker;
-		time_t m_NextAutoArenaBgWinResetTime;
-        uint32 m_AutoArenaBgWinResetTimeChecker;
         bool   m_ArenaTesting;
         bool   m_Testing;
         BattleMastersMap mBattleMastersMap;

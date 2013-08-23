@@ -450,6 +450,7 @@ enum WorldStates
     WS_CLEANING_FLAGS           = 20004,                     // Cleaning Flags
     WS_GUILD_DAILY_RESET_TIME   = 20006,                     // Next guild cap reset time
     WS_MONTHLY_QUEST_RESET_TIME = 20007,                     // Next monthly reset time
+    WS_RANKS_DISTRIB_TIME       = 20008,                     // Next ranks distrib time
 };
 
 /// Storage class for commands issued for delayed execution
@@ -725,13 +726,15 @@ class World
         void InitDailyQuestResetTime();
         void InitWeeklyQuestResetTime();
         void InitMonthlyQuestResetTime();
-        void InitRandomBGResetTime();
+        void InitDailyResetTime();
         void InitGuildResetTime();
+        void InitRanksDistribTime();
         void ResetDailyQuests();
         void ResetWeeklyQuests();
         void ResetMonthlyQuests();
-        void ResetRandomBG();
+        void DailyReset();
         void ResetGuildCap();
+        void DistribRanks();
     private:
         static ACE_Atomic_Op<ACE_Thread_Mutex, bool> m_stopEvent;
         static uint8 m_ExitCode;
@@ -792,8 +795,9 @@ class World
         time_t m_NextDailyQuestReset;
         time_t m_NextWeeklyQuestReset;
         time_t m_NextMonthlyQuestReset;
-        time_t m_NextRandomBGReset;
+        time_t m_NextDailyReset;
         time_t m_NextGuildReset;
+        time_t m_NextRanksDistrib;
 
         //Player Queue
         Queue m_QueuedPlayer;
