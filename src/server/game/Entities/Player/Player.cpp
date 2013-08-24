@@ -1819,6 +1819,9 @@ void Player::Update(uint32 p_time)
     //if (pet && !pet->IsWithinDistInMap(this, GetMap()->GetVisibilityDistance()) && (GetCharmGUID() && (pet->GetGUID() != GetCharmGUID())))
         RemovePet(pet, PET_SAVE_NOT_IN_SLOT, true);
 
+	if (m_rezData.rezTime)
+		ProcessResurrect();
+
     //we should execute delayed teleports only for alive(!) players
     //because we don't want player's ghost teleported from graveyard
     if (IsHasDelayedTeleport() && IsAlive())
@@ -5579,6 +5582,30 @@ void Player::RepopAtGraveyard()
     }
     else if (GetPositionZ() < -500.0f)
         TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
+}
+
+void Player::ProcessResurrect()
+{
+	if (!m_rezData.ready && getMSTime() >= m_rezData.rezTime)
+	{
+        if (HasAura(SPELL_WAITING_FOR_RESURRECT))
+        {
+            if (Creature* sh = GetMap()->GetCreature(m_rezData.shguid))
+                sh->CastSpell(sh, SPELL_SPIRIT_HEAL, true);
+            CastSpell(this, SPELL_RESURRECTION_VISUAL, true);
+            m_rezData.ready = true;
+			m_rezData.shguid = 0;
+        }
+	}
+    if (m_rezData.ready && getMSTime() >= m_rezData.rezTime+500)
+	{
+        ResurrectPlayer(1.0f);
+        CastSpell(this, 6962, true);
+        CastSpell(this, SPELL_SPIRIT_HEAL_MANA, true);
+        sObjectAccessor->ConvertCorpseForPlayer(GetGUID());
+        m_rezData.ready = false;
+        m_rezData.rezTime = 0;
+    }
 }
 
 bool Player::CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, AreaTableEntry const* zone)

@@ -152,11 +152,6 @@ const uint32 BG_BA_NodeWorldStates[20][4] =
 };
 inline BG_BA_Nodes &operator++(BG_BA_Nodes &i){ return i = BG_BA_Nodes(i + 1); }
 
-struct BGBAPlayer
-{
-    time_t  NextRezTimer;
-};
-
 struct BattlegroundBAScore : public BattlegroundScore
 {
     BattlegroundBAScore() : CreepsKilled(0), ArcaneFrag(0) { }
@@ -170,8 +165,7 @@ class BattlegroundBA : public Battleground
     public:
         BattlegroundBA();
         ~BattlegroundBA();
-		
-        typedef std::map<uint64, BGBAPlayer> BGBAPlayerMap;
+
         void AddPlayer(Player* player);
         void StartingEventCloseDoors();
         void StartingEventOpenDoors();
@@ -196,8 +190,6 @@ class BattlegroundBA : public Battleground
 		bool IsNexusAttackable[BG_TEAMS_COUNT];
 
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
-		
-		BGBAPlayerMap m_BAPlayers;
 
     private:
         void PostUpdateImpl(uint32 diff);

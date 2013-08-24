@@ -1657,10 +1657,7 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket& recvData)
     if (!unit->IsSpiritService())                            // it's not spirit service
         return;
 
-    if (bg)
-        sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(_player, bg, guid);
-	else if (sBattleAOMgr->GetBattleAO()->HasPlayer(_player))
-		sBattleAOMgr->GetBattleAO()->SendAreaSpiritHealerQueryOpcode(_player, guid);
+    sWorld->SendAreaSpiritHealerQueryOpcode(_player, guid);
 }
 
 void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket& recvData)
@@ -1679,10 +1676,7 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket& recvData)
     if (!unit->IsSpiritService())                            // it's not spirit service
         return;
 
-    if (bg)
-        bg->AddPlayerToResurrectQueue(guid, _player->GetGUID());
-	else if (spirithealer::spirithealerAI* pspirithealer = CAST_AI(spirithealer::spirithealerAI, unit->AI()))
-		pspirithealer->AddPlayerToQueue(_player->GetGUID());
+    sWorld->AddPlayerToResurrectQueue(guid, _player->GetGUID());
 }
 
 void WorldSession::HandleHearthAndResurrect(WorldPacket& /*recvData*/)

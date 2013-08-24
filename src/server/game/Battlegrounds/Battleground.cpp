@@ -136,7 +136,6 @@ Battleground::Battleground()
     m_Status            = STATUS_NONE;
     m_ClientInstanceID  = 0;
     m_EndTime           = 0;
-    m_LastResurrectTime = 0;
     m_BracketId         = BG_BRACKET_ID_FIRST;
     m_InvitedAlliance   = 0;
     m_InvitedHorde      = 0;
@@ -280,7 +279,6 @@ void Battleground::Update(uint32 diff)
             }
             else
             {
-                _ProcessRessurect(diff);
                 if (sBattlegroundMgr->GetPrematureFinishTime() && (GetPlayersCountByTeam(ALLIANCE) < GetMinPlayersPerTeam() || GetPlayersCountByTeam(HORDE) < GetMinPlayersPerTeam()))
                     _ProcessProgress(diff);
                 else if (m_PrematureCountDown)
@@ -343,65 +341,6 @@ inline void Battleground::_ProcessOfflineQueue()
                 //do not use itr for anything, because it is erased in RemovePlayerAtLeave()
             }
         }
-    }
-}
-
-inline void Battleground::_ProcessRessurect(uint32 diff)
-{
-    // *********************************************************
-    // ***        BATTLEGROUND RESSURECTION SYSTEM           ***
-    // *********************************************************
-    // this should be handled by spell system
-    m_LastResurrectTime += diff;
-    if (m_LastResurrectTime >= RESURRECTION_INTERVAL)
-    {
-        if (GetReviveQueueSize())
-        {
-            for (std::map<uint64, std::vector<uint64> >::iterator itr = m_ReviveQueue.begin(); itr != m_ReviveQueue.end(); ++itr)
-            {
-                Creature* sh = NULL;
-                for (std::vector<uint64>::const_iterator itr2 = (itr->second).begin(); itr2 != (itr->second).end(); ++itr2)
-                {
-                    Player* player = ObjectAccessor::FindPlayer(*itr2);
-                    if (!player)
-                        continue;
-
-                    if (!sh && player->IsInWorld())
-                    {
-                        sh = player->GetMap()->GetCreature(itr->first);
-                        // only for visual effect
-                        if (sh)
-                            // Spirit Heal, effect 117
-                            sh->CastSpell(sh, SPELL_SPIRIT_HEAL, true);
-                    }
-
-                    // Resurrection visual
-                    player->CastSpell(player, SPELL_RESURRECTION_VISUAL, true);
-                    m_ResurrectQueue.push_back(*itr2);
-                }
-                (itr->second).clear();
-            }
-
-            m_ReviveQueue.clear();
-            m_LastResurrectTime = 0;
-        }
-        else
-            // queue is clear and time passed, just update last resurrection time
-            m_LastResurrectTime = 0;
-    }
-    else if (m_LastResurrectTime > 500)    // Resurrect players only half a second later, to see spirit heal effect on NPC
-    {
-        for (std::vector<uint64>::const_iterator itr = m_ResurrectQueue.begin(); itr != m_ResurrectQueue.end(); ++itr)
-        {
-            Player* player = ObjectAccessor::FindPlayer(*itr);
-            if (!player)
-                continue;
-            player->ResurrectPlayer(1.0f);
-            player->CastSpell(player, 6962, true);
-            player->CastSpell(player, SPELL_SPIRIT_HEAL_MANA, true);
-            sObjectAccessor->ConvertCorpseForPlayer(*itr);
-        }
-        m_ResurrectQueue.clear();
     }
 }
 
@@ -1052,7 +991,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         PlayerScores.erase(itr2);
     }
 
-    RemovePlayerFromResurrectQueue(guid);
+    sWorld->RemovePlayerFromResurrectQueue(guid);
 
     Player* player = ObjectAccessor::FindPlayer(guid);
 
@@ -1168,7 +1107,6 @@ void Battleground::Reset()
     SetStatus(STATUS_WAIT_QUEUE);
     SetStartTime(0);
     SetEndTime(0);
-    SetLastResurrectTime(0);
     m_Events = 0;
 
     if (m_InvitedAlliance > 0 || m_InvitedHorde > 0)
@@ -1191,7 +1129,6 @@ void Battleground::Reset()
 void Battleground::StartBattleground()
 {
     SetStartTime(0);
-    SetLastResurrectTime(0);
     // add BG to free slot queue
     AddToBGFreeSlotQueue();
 
@@ -1476,42 +1413,6 @@ void Battleground::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, 
             TC_LOG_ERROR(LOG_FILTER_BATTLEGROUND, "Battleground::UpdatePlayerScore: unknown score type (%u) for BG (map: %u, instance id: %u)!",
                 type, m_MapId, m_InstanceID);
             break;
-    }
-}
-
-void Battleground::AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid)
-{
-    if (GetTypeID() != BATTLEGROUND_BA)
-        m_ReviveQueue[npc_guid].push_back(player_guid);
-
-    Player* player = ObjectAccessor::FindPlayer(player_guid);
-    if (!player)
-        return;
-
-    player->CastSpell(player, SPELL_WAITING_FOR_RESURRECT, true);
-}
-
-void Battleground::RemovePlayerFromResurrectQueue(uint64 player_guid)
-{
-    if (GetTypeID() != BATTLEGROUND_BA)
-		if (Player* player = ObjectAccessor::FindPlayer(player_guid))
-		{
-			player->RemoveAurasDueToSpell(SPELL_WAITING_FOR_RESURRECT);
-			return;
-		}
-
-    for (std::map<uint64, std::vector<uint64> >::iterator itr = m_ReviveQueue.begin(); itr != m_ReviveQueue.end(); ++itr)
-    {
-        for (std::vector<uint64>::iterator itr2 = (itr->second).begin(); itr2 != (itr->second).end(); ++itr2)
-        {
-            if (*itr2 == player_guid)
-            {
-                (itr->second).erase(itr2);
-                if (Player* player = ObjectAccessor::FindPlayer(player_guid))
-                    player->RemoveAurasDueToSpell(SPELL_WAITING_FOR_RESURRECT);
-                return;
-            }
-        }
     }
 }
 

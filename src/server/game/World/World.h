@@ -41,6 +41,7 @@ class WorldSession;
 class Player;
 class WorldSocket;
 class SystemMgr;
+class Map;
 
 // ServerMessages.dbc
 enum ServerMessageType
@@ -446,7 +447,7 @@ enum RealmZone
 enum WorldStates
 {
     WS_WEEKLY_QUEST_RESET_TIME  = 20002,                     // Next weekly reset time
-    WS_BG_DAILY_RESET_TIME      = 20003,                     // Next daily BG reset time
+    WS_DAILY_RESET_TIME         = 20003,                     // Next daily BG reset time
     WS_CLEANING_FLAGS           = 20004,                     // Cleaning Flags
     WS_GUILD_DAILY_RESET_TIME   = 20006,                     // Next guild cap reset time
     WS_MONTHLY_QUEST_RESET_TIME = 20007,                     // Next monthly reset time
@@ -578,7 +579,9 @@ class World
         /// Next daily quests and random bg reset time
         time_t GetNextDailyQuestsResetTime() const { return m_NextDailyQuestReset; }
         time_t GetNextWeeklyQuestsResetTime() const { return m_NextWeeklyQuestReset; }
-        time_t GetNextRandomBGResetTime() const { return m_NextRandomBGReset; }
+        time_t GetNextDailyResetTime() const { return m_NextDailyReset; }
+
+        uint32 GetResurrectQueueSize() const { return m_ResurrectQueue.size(); }
 
         /// Get the maximum skill level a player can reach
         uint16 GetConfigMaxSkillValue() const
@@ -717,7 +720,11 @@ class World
         void   ResetEventSeasonalQuests(uint16 event_id);
 		bool   DistributeRanks();
 		void   UpdateRanksText();
-		
+        void AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid);
+        void RemovePlayerFromResurrectQueue(uint64 player_guid);
+        void SendAreaSpiritHealerQueryOpcode(Player* player, uint64 guid);
+        std::vector<uint64> GetShReviveQueue(uint64 sh_guid) { return m_ReviveQueue[sh_guid]; }
+
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
@@ -735,6 +742,8 @@ class World
         void DailyReset();
         void ResetGuildCap();
         void DistribRanks();
+        void ProcessResurrect(uint32 diff);
+
     private:
         static ACE_Atomic_Op<ACE_Thread_Mutex, bool> m_stopEvent;
         static uint8 m_ExitCode;
@@ -799,6 +808,9 @@ class World
         time_t m_NextGuildReset;
         time_t m_NextRanksDistrib;
 
+        time_t m_LastResurrectTime;
+        std::map<uint64, std::vector<uint64> >  m_ReviveQueue; // spirit + list
+        std::vector<uint64> m_ResurrectQueue; // final list
         //Player Queue
         Queue m_QueuedPlayer;
 
