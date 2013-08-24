@@ -119,7 +119,8 @@ public:
                     case 3:
                         DoCast(me, SPELL_EXPLODE_CART, true);
                         phaseTimer = 2000;
-                        phase = 4;
+                        phase = 5; // @fixme: phase 4 is missing...
+                        break;
                     case 5:
                         DoCast(me, SPELL_SUMMON_WORM, true);
                         if (Unit* worm = me->FindNearestCreature(26250, 3))
