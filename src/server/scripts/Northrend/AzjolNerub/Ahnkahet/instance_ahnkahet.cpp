@@ -86,13 +86,13 @@ public:
             JedogaTarget = 0;
         }
 
-        bool IsEncounterInProgress() const
-        {
+                SpheresState[0]             = 0;
+                SpheresState[1]             = 0;
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)
                     return true;
 
-            return false;
+                InitiandGUIDs.clear();
         }
 
         void OnCreatureCreate(Creature* creature)
