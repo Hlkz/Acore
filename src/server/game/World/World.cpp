@@ -1020,7 +1020,7 @@ void World::LoadConfigSettings(bool reload)
 
     ///- Read the "Data" directory from the config file
     std::string dataPath = ConfigMgr::GetStringDefault("DataDir", "./");
-    if (dataPath.empty() || (dataPath.back() != '/' && dataPath.back() != '\\'))
+    if (dataPath.empty() || (dataPath.at(dataPath.length()-1) != '/' && dataPath.at(dataPath.length()-1) != '\\'))
         dataPath.push_back('/');
 
 #if PLATFORM == PLATFORM_UNIX || PLATFORM == PLATFORM_APPLE
