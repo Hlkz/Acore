@@ -999,6 +999,15 @@ struct BGData
     bool HasTaxiPath() const { return taxiPath[0] && taxiPath[1]; }
 };
 
+struct rezData
+{
+    rezData() : rezTime(0), shguid(0), ready(false) { }
+
+    uint32 rezTime;
+    uint64 shguid;
+	bool ready;
+};
+
 class TradeData
 {
     public:                                                 // constructors
@@ -2316,7 +2325,7 @@ class Player : public Unit, public GridObject<Player>
         float GetCollisionHeight(bool mounted) const;
 		
 		uint32 SuitableForTransmogrification(Item* oldItem, Item* newItem); // custom transmo
-		
+
         uint8 GetClmSlotid() const { return m_ClmSlotid; }
         void SetClmSlotid(uint8 slotid) { m_ClmSlotid = slotid; }
         uint32 GetClmSlty() const { return m_ClmSlty; }
@@ -2345,7 +2354,10 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetArenaWin();
 		void SetArenaWin(uint32 arenawin);
 		bool IsDeserter();
-		
+        uint32 GetRezTime() const { return m_rezData.rezTime; }
+        void SetRezTime(uint32 newreztime = 0) { m_rezData.rezTime = newreztime; }
+        void SetSHGUID(uint32 newshguid) { m_rezData.shguid = newshguid; }
+
     protected:
         // Gamemaster whisper whitelist
         WhisperListContainer WhisperList;
@@ -2368,6 +2380,7 @@ class Player : public Unit, public GridObject<Player>
 
         BgBattlegroundQueueID_Rec m_bgBattlegroundQueueID[PLAYER_MAX_BATTLEGROUND_QUEUES];
         BGData                    m_bgData;
+		rezData                   m_rezData;
 
         bool m_IsBGRandomWinner;
 
@@ -2526,6 +2539,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_resurrectMap;
         float m_resurrectX, m_resurrectY, m_resurrectZ;
         uint32 m_resurrectHealth, m_resurrectMana;
+        void ProcessResurrect();
 
         WorldSession* m_session;
 

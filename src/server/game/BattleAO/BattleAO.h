@@ -203,9 +203,6 @@ class BattleAO : public ZoneScript
 
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
-		uint32 LastRez(uint32 diff) { m_LastResurrectTime += diff; return m_LastResurrectTime; }
-		void NewLastRez() { m_LastResurrectTime = 0; }
-
         typedef std::vector<uint64> AOObjects;
         typedef std::vector<uint64> AOCreatures;
         AOObjects AoObjects;
@@ -232,8 +229,6 @@ class BattleAO : public ZoneScript
 		void FillInitialWorldStatesForKZ(WorldPacket& data);
         void SendPacketToAll(WorldPacket* packet);
         void SendPacketToTeam(uint32 TeamID, WorldPacket* packet, Player* sender = NULL, bool self = true);
-
-        void SendAreaSpiritHealerQueryOpcode(Player* player, uint64 guid);
 
 		bool SetupBattleAO();
 
@@ -302,7 +297,6 @@ class BattleAO : public ZoneScript
 		Map* m_Map;
 
         BattleAOPlayerMap m_Players;
-        uint32 m_LastResurrectTime;
         std::deque<uint64> m_OfflineQueue;
         BattleAOScoreMap PlayerScores;
 
@@ -314,28 +308,6 @@ class BattleAO : public ZoneScript
 
         void TeamCastSpell(TeamId team, int32 spellId);
 
-};
-
-class spirithealer : public CreatureScript
-{
-public:
-    spirithealer() : CreatureScript("spirithealer") { }
-
-    struct spirithealerAI : public ScriptedAI
-    {
-        spirithealerAI(Creature* creature) : ScriptedAI(creature) {}
-		
-		void UpdateAI(uint32 diff);
-		bool InQueue(uint64 player_guid);
-		void AddPlayerToQueue(uint64 player_guid);
-		void RemovePlayerFromQueue(uint64 player_guid);
-		
-		std::vector<uint64> m_ReviveQueue;
-		std::vector<uint64> m_ResurrectQueue;
-    };
-	
-    CreatureAI* GetAI(Creature* creature) const {
-        return new spirithealerAI(creature); }
 };
 
 #endif

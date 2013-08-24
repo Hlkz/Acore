@@ -109,6 +109,7 @@ World::World()
     m_MaxPlayerCount = 0;
     m_NextDailyQuestReset = 0;
     m_NextWeeklyQuestReset = 0;
+    m_LastResurrectTime = 0;
 
     m_defaultDbcLocale = LOCALE_enUS;
     m_availableDbcLocaleMask = 0;
@@ -1652,8 +1653,6 @@ void World::SetInitialWorldSettings()
     ///- Initialize Battlegrounds
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Starting Battleground System");
     sBattlegroundMgr->CreateInitialBattlegrounds();
-    sBattlegroundMgr->InitAutomaticArenaPointDistribution();
-	sBattlegroundMgr->InitAutomaticPvpRankDistribution();
 
     ///- Initialize outdoor pvp
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Starting Outdoor PvP System");
@@ -1865,6 +1864,8 @@ void World::Update(uint32 diff)
 
     if (m_gameTime > m_NextRanksDistrib)
         DistribRanks();
+
+    ProcessResurrect(diff);
 
     /// <ul><li> Handle auctions when the timer has passed
     if (m_timers[WUPDATE_AUCTIONS].Passed())
@@ -2687,16 +2688,16 @@ void World::InitMonthlyQuestResetTime()
     m_NextMonthlyQuestReset = wstime < curtime ? curtime : time_t(wstime);
 }
 
-void World::InitRandomBGResetTime()
+void World::InitDailyResetTime()
 {
-    time_t bgtime = uint64(sWorld->getWorldState(WS_BG_DAILY_RESET_TIME));
+    time_t bgtime = uint64(sWorld->getWorldState(WS_DAILY_RESET_TIME));
     if (!bgtime)
-        m_NextRandomBGReset = time_t(time(NULL));         // game time not yet init
+        m_NextDailyReset = time_t(time(NULL));         // game time not yet init
 
     // generate time by config
     time_t curTime = time(NULL);
     tm localTm = *localtime(&curTime);
-    localTm.tm_hour = getIntConfig(CONFIG_RANDOM_BG_RESET_HOUR);
+    localTm.tm_hour = 0;
     localTm.tm_min = 0;
     localTm.tm_sec = 0;
 
@@ -2708,10 +2709,10 @@ void World::InitRandomBGResetTime()
         nextDayResetTime += DAY;
 
     // normalize reset time
-    m_NextRandomBGReset = bgtime < curTime ? nextDayResetTime - DAY : nextDayResetTime;
+    m_NextDailyReset = bgtime < curTime ? nextDayResetTime - DAY : nextDayResetTime;
 
     if (!bgtime)
-        sWorld->setWorldState(WS_BG_DAILY_RESET_TIME, uint64(m_NextRandomBGReset));
+        sWorld->setWorldState(WS_DAILY_RESET_TIME, uint64(m_NextDailyReset));
 }
 
 void World::InitGuildResetTime()
@@ -2888,8 +2889,8 @@ void World::DailyReset()
 
     // reset bg/arena daily win
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_RESET_WIN_DAY);
-    trans->Append(stmt);
+    PreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_UPD_RESET_WIN_DAY);
+    trans->Append(stmt2);
     CharacterDatabase.CommitTransaction(trans);
 
     m_NextDailyReset = time_t(m_NextDailyReset + DAY);
@@ -2912,6 +2913,96 @@ void World::DistribRanks()
 
     m_NextRanksDistrib = time_t(m_NextRanksDistrib + DAY * 3);
     sWorld->setWorldState(WS_RANKS_DISTRIB_TIME, uint64(m_NextRanksDistrib));
+}
+
+void World::ProcessResurrect(uint32 diff)
+{
+    m_LastResurrectTime += diff;
+    if (m_LastResurrectTime >= RESURRECTION_INTERVAL)
+    {
+        if (m_ReviveQueue.size())
+        {
+            for (std::map<uint64, std::vector<uint64> >::iterator itr = m_ReviveQueue.begin(); itr != m_ReviveQueue.end(); ++itr)
+            {
+                Creature* sh = NULL;
+                for (std::vector<uint64>::const_iterator itr2 = (itr->second).begin(); itr2 != (itr->second).end(); ++itr2)
+                {
+                    Player* player = ObjectAccessor::FindPlayer(*itr2);
+                    if (!player)
+                        continue;
+
+                    if (!sh && player->IsInWorld())
+                        if (sh = player->GetMap()->GetCreature(itr->first))
+                            sh->CastSpell(sh, SPELL_SPIRIT_HEAL, true);
+
+                    player->CastSpell(player, SPELL_RESURRECTION_VISUAL, true);
+                    m_ResurrectQueue.push_back(*itr2);
+                }
+                (itr->second).clear();
+            }
+
+            m_ReviveQueue.clear();
+        }
+        m_LastResurrectTime = 0;
+    }
+    else if (m_LastResurrectTime > 500)    // Resurrect players only half a second later, to see spirit heal effect on NPC
+    {
+        for (std::vector<uint64>::const_iterator itr = m_ResurrectQueue.begin(); itr != m_ResurrectQueue.end(); ++itr)
+        {
+            Player* player = ObjectAccessor::FindPlayer(*itr);
+            if (!player)
+                continue;
+            player->ResurrectPlayer(1.0f);
+            player->CastSpell(player, 6962, true);
+            player->CastSpell(player, SPELL_SPIRIT_HEAL_MANA, true);
+            sObjectAccessor->ConvertCorpseForPlayer(*itr);
+        }
+        m_ResurrectQueue.clear();
+    }
+}
+
+void World::AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid)
+{
+    RemovePlayerFromResurrectQueue(player_guid);
+
+    Player* player = ObjectAccessor::FindPlayer(player_guid);
+    if (!player)
+        return;
+
+    if (!player->GetRezTime())
+        m_ReviveQueue[npc_guid].push_back(player_guid);
+    player->CastSpell(player, SPELL_WAITING_FOR_RESURRECT, true);
+}
+
+void World::RemovePlayerFromResurrectQueue(uint64 player_guid)
+{
+    Player* player = ObjectAccessor::FindPlayer(player_guid);
+    if (!player)
+        return;
+
+    if (!player->GetRezTime())
+        for (std::map<uint64, std::vector<uint64> >::iterator itr = m_ReviveQueue.begin(); itr != m_ReviveQueue.end(); ++itr)
+            for (std::vector<uint64>::iterator itr2 = (itr->second).begin(); itr2 != (itr->second).end(); ++itr2)
+                if (*itr2 == player_guid)
+                {
+                    (itr->second).erase(itr2);
+                    break;
+                }
+    player->RemoveAurasDueToSpell(SPELL_WAITING_FOR_RESURRECT);
+}
+
+void World::SendAreaSpiritHealerQueryOpcode(Player* player, uint64 guid)
+{
+    WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
+    uint32 time_ = 30000 - m_LastResurrectTime;      // resurrect every 30 seconds
+
+    if (player->GetRezTime())
+       time_ = player->GetRezTime() - getMSTime();
+
+    if (time_ == uint32(-1))
+        time_ = 0;
+    data << guid << time_;
+    player->GetSession()->SendPacket(&data);
 }
 
 void World::UpdateMaxSessionCounters()

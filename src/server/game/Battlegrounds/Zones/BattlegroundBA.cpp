@@ -311,24 +311,6 @@ void BattlegroundBA::PostUpdateImpl(uint32 diff)
 				m_WavesTimer = 600;
 		}
 	}
-	
-	//REZ
-	for (BattlegroundBA::BGBAPlayerMap::const_iterator itr = m_BAPlayers.begin(); itr != m_BAPlayers.end(); ++itr)
-		if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER)))
-			if (m_BAPlayers[player->GetGUID()].NextRezTimer)
-				if (getMSTime() >= m_BAPlayers[player->GetGUID()].NextRezTimer)
-					if (player->HasAura(SPELL_WAITING_FOR_RESURRECT))
-					{
-						player->ResurrectPlayer(1.0f);
-						player->CastSpell(player, 6962, true);
-						player->CastSpell(player, SPELL_RESURRECTION_VISUAL, true);
-						player->CastSpell(player, SPELL_SPIRIT_HEAL_MANA, true);
-						player->RemoveAurasDueToSpell(SPELL_WAITING_FOR_RESURRECT);
-						sObjectAccessor->ConvertCorpseForPlayer(player->GetGUID());
-						m_BAPlayers[player->GetGUID()].NextRezTimer = 0;
-					}
-					else
-						m_BAPlayers[player->GetGUID()].NextRezTimer = getMSTime() + 6*IN_MILLISECONDS;
 }
 
 void BattlegroundBA::SpawnCreeps(uint32 count)
@@ -416,10 +398,6 @@ void BattlegroundBA::AddPlayer(Player* player)
 		player->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(3801), -42000);
 	}
 	player->AddItem(BG_BA_ITEMID_COLLECT, 1);
-	
-    BGBAPlayer bp;
-	bp.NextRezTimer = 0;
-	m_BAPlayers[player->GetGUID()] = bp;
 }
 
 void BattlegroundBA::EndBattleground(uint32 winner)
@@ -501,7 +479,7 @@ uint32 BattlegroundBA::GetPrematureWinner()
 
 WorldSafeLocsEntry const* BattlegroundBA::GetClosestGraveYard(Player* player)
 {
-	m_BAPlayers[player->GetGUID()].NextRezTimer = getMSTime() + 12*IN_MILLISECONDS;
+	player->SetRezTime(getMSTime() + 12*IN_MILLISECONDS);
     TeamId teamIndex = GetTeamIndexByTeamId(player->GetTeamFromDB());
     std::vector<uint8> graveyards;
 	WorldSafeLocsEntry const*entry = sWorldSafeLocsStore.LookupEntry(BG_BA_GraveyardIds[teamIndex]);

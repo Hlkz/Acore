@@ -116,7 +116,6 @@ BattleAO::BattleAO() //ctor
     m_PlayersCount[0] = 0;
     m_PlayersCount[1] = 0;
     m_InBAOFreeSlotQueue = false;
-    m_LastResurrectTime = 0;
 }
 BattleAO::~BattleAO() {} //dtor
 
@@ -889,21 +888,19 @@ void BattleAO::_NodeDeOccupied(uint8 node)
 	if (node < BAO_DYNAMIC_NODES_COUNT) //only dynamic nodes, no start points
 		DelCreature(node+BAO_SPIRIT_MAX);
 
-	std::vector<uint64> ghost_list;
-	if (spirithealer::spirithealerAI* pspirithealer = CAST_AI(spirithealer::spirithealerAI, GetAOCreature(node)->AI()))
-		ghost_list = pspirithealer->m_ReviveQueue;
-	if (!ghost_list.empty())
+    std::vector<uint64> ghost_list = sWorld->GetShReviveQueue(GetAOCreature(node)->GetGUID());
+    if (!ghost_list.empty())
     {
-		WorldSafeLocsEntry const* ClosestGrave = NULL;
-		for (std::vector<uint64>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
-		{
-			Player* player = ObjectAccessor::FindPlayer(*itr);
-			if (!player)
-				continue;
-			if (ClosestGrave = GetClosestGraveYard(player))
-			    player->TeleportTo(BATTLEAO_MAP, ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, player->GetOrientation());
-		}
-	}
+        WorldSafeLocsEntry const* ClosestGrave = NULL;
+        for (std::vector<uint64>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
+        {
+            Player* player = ObjectAccessor::FindPlayer(*itr);
+            if (!player)
+                continue;
+            if (ClosestGrave = GetClosestGraveYard(player))
+                player->TeleportTo(BATTLEAO_MAP, ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, player->GetOrientation());
+         }
+    }
 
     if (node >= BAO_NODE_FIRST_SPIRIT)
 		if (AoCreatures[node-BAO_NODE_FIRST_SPIRIT])
@@ -1096,105 +1093,3 @@ void BattleAO::HandleQuestComplete(uint32 questid, Player* player)
             break;
     }
 }
-
-////////////////
-// REZ SYSTEM //
-////////////////
-
-void BattleAO::SendAreaSpiritHealerQueryOpcode(Player* player, uint64 guid)
-{
-    WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
-    uint32 time = BAO_SPIRIT_REZ_TIME - m_LastResurrectTime;
-
-    data << guid << time;
-    ASSERT(player && player->GetSession());
-    player->GetSession()->SendPacket(&data);
-}
-
-void spirithealer::spirithealerAI::UpdateAI(uint32 diff)
-{
-	/*
-	Map* map = me->GetMap();
-	Map::PlayerList const &PlayerList = map->GetPlayers();
-	if (!PlayerList.isEmpty()) {
-		for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i) {
-			if (Player* player = i->getSource()) {
-				if (player->IsInRange(me, 0.0f, 12.0f, false)) {
-					if (!InQueue(player->GetGUID()) && player->isDead()) {
-						AddPlayerToQueue(player->GetGUID());
-						sBattleAOMgr->GetBattleAO()->SendAreaSpiritHealerQueryOpcode(player, me->GetGUID()); } }
-				else if (InQueue(player->GetGUID()))
-					RemovePlayerFromQueue(player->GetGUID());
-			}      
-		}
-	}*/
-
-	uint32 LastRez = sBattleAOMgr->GetBattleAO()->LastRez(diff);
-	
-	if (LastRez >= BAO_SPIRIT_REZ_TIME) {
-		if (m_ReviveQueue.size()) {
-			for (std::vector<uint64>::const_iterator itr = m_ReviveQueue.begin(); itr != m_ReviveQueue.end(); ++itr)
-			{
-				Player* player = ObjectAccessor::FindPlayer(*itr);
-				if (!player)
-				  continue;
-				
-				if (player->IsInWorld())
-					player->CastSpell(player, SPELL_RESURRECTION_VISUAL, true);
-				m_ResurrectQueue.push_back(*itr);
-			}
-			m_ReviveQueue.clear(); }
-		if (Creature* sh = me->ToCreature())
-			sh->CastSpell(sh, SPELL_SPIRIT_HEAL, true);
-		sBattleAOMgr->GetBattleAO()->NewLastRez();
-	}
-	else if (LastRez > 500)
-	{
-	    for (std::vector<uint64>::const_iterator itr = m_ResurrectQueue.begin(); itr != m_ResurrectQueue.end(); ++itr)
-	    {
-	        Player* player = ObjectAccessor::FindPlayer(*itr);
-	        if (!player)
-		        continue;
-		    player->ResurrectPlayer(1.0f);
-		    player->CastSpell(player, 6962, true);
-		    player->CastSpell(player, SPELL_SPIRIT_HEAL_MANA, true);
-			player->RemoveAurasDueToSpell(2584);
-		    sObjectAccessor->ConvertCorpseForPlayer(*itr);
-	    }
-	    m_ResurrectQueue.clear();
-	}
-}
-
-bool spirithealer::spirithealerAI::InQueue(uint64 player_guid)
-{
-	for (std::vector<uint64>::const_iterator itr = m_ReviveQueue.begin(); itr != m_ReviveQueue.end(); ++itr)
-		if (player_guid == *itr)
-			return true;
-	return false;
-}
-
-void spirithealer::spirithealerAI::AddPlayerToQueue(uint64 player_guid)
-{
-	m_ReviveQueue.push_back(player_guid);
-	Player* player = ObjectAccessor::FindPlayer(player_guid);
-	if (player)
-		player->CastSpell(player, SPELL_WAITING_FOR_RESURRECT, true);
-}
-		
-void spirithealer::spirithealerAI::RemovePlayerFromQueue(uint64 player_guid)
-{
-	for (std::vector<uint64>::iterator itr = m_ReviveQueue.begin(); itr != m_ReviveQueue.end(); ++itr)
-	{
-		if (*itr == player_guid)
-		{
-			m_ReviveQueue.erase(itr);
-			if (Player* player = ObjectAccessor::FindPlayer(player_guid))
-				player->RemoveAurasDueToSpell(SPELL_WAITING_FOR_RESURRECT);
-			return;
-		}
-	}
-}
-
-
-void AddSc_spirithealer() {
-    new spirithealer; }

@@ -4699,12 +4699,8 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                         case 2584: // Waiting to Resurrect
                             // Waiting to resurrect spell cancel, we must remove player from resurrect queue
                             if (target->GetTypeId() == TYPEID_PLAYER)
-                            {
-                                if (Battleground* bg = target->ToPlayer()->GetBattleground())
-                                    bg->RemovePlayerFromResurrectQueue(target->GetGUID());
-								//tofix else if (spirithealer::spirithealerAI* pspirithealer = CAST_AI(spirithealer::spirithealerAI, unit->AI()))
-								//	pspirithealer->RemovePlayerFromQueue(_player->GetGUID());
-                            }
+                                if (!target->ToPlayer()->GetRezTime())
+                                    sWorld->RemovePlayerFromResurrectQueue(target->GetGUID());
                             break;
                         case 36730:                                     // Flame Strike
                         {

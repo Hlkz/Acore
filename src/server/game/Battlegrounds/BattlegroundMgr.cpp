@@ -845,36 +845,6 @@ void BattlegroundMgr::InitAutomaticArenaPointDistribution()
     TC_LOG_DEBUG(LOG_FILTER_BATTLEGROUND, "Automatic Arena Point Distribution initialized.");
 }
 
-void BattlegroundMgr::InitAutomaticPvpRankDistribution()
-{
-    time_t wstime = time_t(sWorld->getWorldState(WS_PVPRANK_DISTRIBUTION_TIME));
-    time_t curtime = time(NULL);
-    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Initializing Automatic Pvp Rank Distribution");
-    if (wstime < curtime)
-    {
-        m_NextAutoDistributionRankTime = curtime;           // reset will be called in the next update
-        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Next Pvp Rank distribution time in the past, reseting it now.");
-    }
-    else
-        m_NextAutoDistributionRankTime = wstime;
-    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Automatic Pvp Rank Distribution initialized.");
-}
-
-void BattlegroundMgr::InitAutomaticArenaBgWinReset()
-{
-    time_t wstime = time_t(sWorld->getWorldState(WS_ARENABGWIN_RESET_TIME));
-    time_t curtime = time(NULL);
-    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Initializing Automatic ArenaBgWin Reset");
-    if (wstime < curtime)
-    {
-        m_NextAutoArenaBgWinResetTime = curtime;           // reset will be called in the next update
-        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Next ArenaBgWin Reset time in the past, reseting it now.");
-    }
-    else
-        m_NextAutoArenaBgWinResetTime = wstime;
-    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Automatic ArenaBgWin Reset initialized.");
-}
-
 void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid, Player* player, BattlegroundTypeId bgTypeId, uint8 fromWhere)
 {
     if (!player)
@@ -955,20 +925,6 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
     }
     else
         TC_LOG_ERROR(LOG_FILTER_BATTLEGROUND, "BattlegroundMgr::SendToBattleground: Instance %u (bgType %u) not found while trying to teleport player %s", instanceId, bgTypeId, player->GetName().c_str());
-}
-
-void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battleground* bg, uint64 guid)
-{
-    WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
-    uint32 time_ = 30000 - bg->GetLastResurrectTime();      // resurrect every 30 seconds
-
-    if (BattlegroundBA* ba = static_cast<BattlegroundBA*>(bg))
-        time_ = ba->m_BAPlayers[player->GetGUID()].NextRezTimer - getMSTime();
-
-    if (time_ == uint32(-1))
-        time_ = 0;
-    data << guid << time_;
-    player->GetSession()->SendPacket(&data);
 }
 
 bool BattlegroundMgr::IsArenaType(BattlegroundTypeId bgTypeId)
