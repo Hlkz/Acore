@@ -159,6 +159,7 @@ public:
 
         void Reset()
         {
+            m_bIsWalking = false;
             m_bIsPause = false;
             m_bIsActiveWithBJORN = false;
             m_bIsActiveWithHALDOR = false;
