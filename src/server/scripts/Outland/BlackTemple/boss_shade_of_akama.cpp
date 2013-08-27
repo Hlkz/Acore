@@ -866,7 +866,6 @@ public:
             uint64 akamaGUID;
             uint64 shadeGUID;
             uint64 summonerGuid;
-            float distanceToShade;
             bool startedBanishing;
             bool switchToCombat;
     };
