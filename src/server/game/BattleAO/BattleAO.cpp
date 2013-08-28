@@ -543,6 +543,7 @@ bool BattleAO::AddOrSetPlayerToCorrectBAOGroup(Player* player)
 
 WorldSafeLocsEntry const* BattleAO::GetClosestGraveYard(Player* player)
 {
+	//player->SetRezTime(20000);
     TeamId teamIndex = GetTeamIndexByTeamId(player->GetTeamFromDB());
     std::vector<uint8> graveyards;
 	if (player->IsDeserter())

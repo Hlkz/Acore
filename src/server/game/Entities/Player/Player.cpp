@@ -5586,19 +5586,20 @@ void Player::RepopAtGraveyard()
 
 void Player::ProcessResurrect()
 {
-	if (!m_rezData.ready && getMSTime() >= m_rezData.rezTime)
-	{
+    if (!m_rezData.ready && getMSTime() >= m_rezData.rezTime)
         if (HasAura(SPELL_WAITING_FOR_RESURRECT))
         {
             if (Creature* sh = GetMap()->GetCreature(m_rezData.shguid))
                 sh->CastSpell(sh, SPELL_SPIRIT_HEAL, true);
             CastSpell(this, SPELL_RESURRECTION_VISUAL, true);
             m_rezData.ready = true;
-			m_rezData.shguid = 0;
+            m_rezData.shguid = 0;
         }
-	}
+        else
+            m_rezData.rezTime = 6000;
+
     if (m_rezData.ready && getMSTime() >= m_rezData.rezTime+500)
-	{
+    {
         ResurrectPlayer(1.0f);
         CastSpell(this, 6962, true);
         CastSpell(this, SPELL_SPIRIT_HEAL_MANA, true);
