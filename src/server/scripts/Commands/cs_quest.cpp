@@ -205,24 +205,17 @@ public:
         for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         {
             int32 creature = quest->RequiredNpcOrGo[i];
-            uint32 creaturecount = quest->RequiredNpcOrGoCount[i];
+            uint32 creatureCount = quest->RequiredNpcOrGoCount[i];
 
-            if (uint32 spell_id = quest->RequiredSpellCast[i])
+            if (creature > 0)
             {
-                for (uint16 z = 0; z < creaturecount; ++z)
-                    player->CastedCreatureOrGO(creature, 0, spell_id);
-            }
-            else if (creature > 0)
-            {
-                if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(creature))
-                    for (uint16 z = 0; z < creaturecount; ++z)
-                        player->KilledMonster(cInfo, 0);
+                if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creature))
+                    for (uint16 z = 0; z < creatureCount; ++z)
+                        player->KilledMonster(creatureInfo, 0);
             }
             else if (creature < 0)
-            {
-                for (uint16 z = 0; z < creaturecount; ++z)
-                    player->CastedCreatureOrGO(creature, 0, 0);
-            }
+                for (uint16 z = 0; z < creatureCount; ++z)
+                    player->KillCreditGO(creature, 0);
         }
 
         // If the quest requires reputation to complete
