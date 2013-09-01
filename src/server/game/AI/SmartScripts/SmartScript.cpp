@@ -876,7 +876,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_CALL_KILLEDMONSTER:
         {
-            Player* player = NULL;
+            if (e.target.type == SMART_TARGET_NONE || e.target.type == SMART_TARGET_SELF) // Loot recipient and his group members
             if (me)
                 player = me->GetLootRecipient();
 
