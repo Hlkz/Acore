@@ -276,18 +276,15 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     {
         if (!AntiDOS.EvaluateOpcode(*packet))
         {
-            delete packet;
-            packet = NULL;
             KickPlayer();
         }
-
-        if (packet && packet->GetOpcode() >= NUM_MSG_TYPES)
+        else if (packet->GetOpcode() >= NUM_MSG_TYPES)
         {
             TC_LOG_ERROR(LOG_FILTER_OPCODES, "Received non-existed opcode %s from %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str()
                             , GetPlayerInfo().c_str());
             sScriptMgr->OnUnknownPacketReceive(m_Socket, WorldPacket(*packet));
         }
-        else if (packet)
+        else
         {
             OpcodeHandler &opHandle = opcodeTable[packet->GetOpcode()];
             try
@@ -372,7 +369,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         break;
                 }
             }
-            catch(ByteBufferException &)
+            catch (ByteBufferException const&)
             {
                 TC_LOG_ERROR(LOG_FILTER_GENERAL, "WorldSession::Update ByteBufferException occured while parsing a packet (opcode: %u) from client %s, accountid=%i. Skipped packet.",
                         packet->GetOpcode(), GetRemoteAddress().c_str(), GetAccountId());
@@ -382,6 +379,8 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
         if (deletePacket)
             delete packet;
+
+        deletePacket = true;
     }
 
     if (m_Socket && !m_Socket->IsClosed() && _warden)
