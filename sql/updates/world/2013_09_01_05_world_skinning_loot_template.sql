@@ -64,7 +64,7 @@ UPDATE `creature_template` SET `skinloot`=@var+6 WHERE `skinloot` IN (1225,3653,
 DELETE FROM `skinning_loot_template` WHERE `entry` IN (1225,3653,3851,3853,3854,3855,3861,3862,3864,3865,3914,5058);
 -- Var+7 
 -- --------------------------------------------------------------------------------------
-UPDATE `creature_template` SET `skinloot`=@var+7 WHERE `skinloot` IN (3857,3859,3866,3868,3886,4279,4511,4514,4824,4827,4887,14357);
+UPDATE `creature_template` SET `skinloot`=@var+7 WHERE `skinloot` IN (3653,3851,3853,3854,3855,3861,3862,3864,3865,3914,5058);
 DELETE FROM `skinning_loot_template` WHERE `entry` IN (3857,3859,3866,3868,3886,4279,4511,4514,4824,4827,4887,14357);
 -- Var+8
 -- --------------------------------------------------------------------------------------
