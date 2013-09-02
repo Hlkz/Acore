@@ -106,13 +106,17 @@ public:
         if (!*args)
             return false;
 
+        std::string email;
         ///- %Parse the command line arguments
         char* accountName = strtok((char*)args, " ");
         char* password = strtok(NULL, " ");
+        char* possibleEmail = strtok(NULL, " ' ");
+        if (possibleEmail)
+            email = possibleEmail;
         if (!accountName || !password)
             return false;
 
-        AccountOpResult result = sAccountMgr->CreateAccount(std::string(accountName), std::string(password));
+        AccountOpResult result = sAccountMgr->CreateAccount(std::string(accountName), std::string(password), email);
         switch (result)
         {
             case AOR_OK:
@@ -122,6 +126,7 @@ public:
                     TC_LOG_INFO(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Character:[%s] (GUID: %u) Change Password.",
                         handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                         handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUIDLow());
+                        accountName, email.c_str());
                 }
                 break;
             case AOR_NAME_TOO_LONG:
@@ -401,6 +406,7 @@ public:
     {
         AccountTypes gmLevel = handler->GetSession()->GetSecurity();
         handler->PSendSysMessage(LANG_ACCOUNT_LEVEL, uint32(gmLevel));
+
         return true;
     }
 
