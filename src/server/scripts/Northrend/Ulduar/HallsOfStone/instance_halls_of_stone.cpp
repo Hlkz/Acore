@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "halls_of_stone.h"
+#include <Player.h>
 
 #define MAX_ENCOUNTER 4
 

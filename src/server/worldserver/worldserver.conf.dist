@@ -28,6 +28,7 @@
 #    CHARACTER DELETE OPTIONS
 #    CUSTOM SERVER OPTIONS
 #    LOGGING SYSTEM SETTINGS
+#    PACKET SPOOF PROTECTION SETTINGS
 #
 ###################################################################################################
 
@@ -1060,7 +1061,6 @@ AllowTickets = 1
 #        Default:     1
 
 DungeonFinder.OptionsMask = 1
-
 
 #
 #   DBC.EnforceItemAttributes
@@ -2583,14 +2583,14 @@ Log.Async.Enable = 0
 
 ###################################################################################################
 #
-# Packet Spoof Protection Settings
+# PACKET SPOOF PROTECTION SETTINGS
 #
 # These settings determine which action to take when harmful packet spoofing is detected.
 #
 #    PacketSpoof.Policy
 #        Description: Determines the course of action when packet spoofing is detected.
-#        Values:     0 - Log only (LOG_FILTER_NETWORKIO)
-#                    1 - Log + kick
+#        Default:     1 - Log + kick
+#                    0 - Log only (LOG_FILTER_NETWORKIO)
 #                    2 - Log + kick + ban
 
 PacketSpoof.Policy = 1
@@ -2598,9 +2598,9 @@ PacketSpoof.Policy = 1
 #
 #    PacketSpoof.BanMode
 #        Description: If PacketSpoof.Policy equals 2, this will determine the ban mode.
-#        Values:     0 - Ban Account
-#                    2 - Ban IP
 #        Note: Banning by character not supported for logical reasons.
+#        Default:    0 - Ban Account
+#                    2 - Ban IP
 #
 
 PacketSpoof.BanMode = 0
