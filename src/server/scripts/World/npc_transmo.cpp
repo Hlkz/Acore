@@ -1,10 +1,12 @@
 #include "ScriptPCH.h"
 #include "Language.h"
 
-class NPC_Transmogrify : public CreatureScript {
-public: NPC_Transmogrify() : CreatureScript("NPC_Transmogrify") {}
+class npc_transmo : public CreatureScript {
+public:
+	npc_transmo() : CreatureScript("npc_transmo") { }
 
-bool OnGossipHello(Player* player, Creature* creature) {
+bool OnGossipHello(Player* player, Creature* creature)
+{
 	WorldSession* session = player->GetSession();
 	for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_TABARD; slot++) {// EQUIPMENT_SLOT_END
 		if (Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot)) {
@@ -14,9 +16,11 @@ bool OnGossipHello(Player* player, Creature* creature) {
 //	player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_INTERACT_1, session->GetTrinityString(LANG_OPTION_REMOVE_ALL), EQUIPMENT_SLOT_END+2, 0, session->GetTrinityString(LANG_POPUP_REMOVE_ALL), 0, false);
 	player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TALK, session->GetTrinityString(LANG_OPTION_UPDATE_MENU), EQUIPMENT_SLOT_END+1, 0);
 	player->SEND_GOSSIP_MENU(1000022, creature->GetGUID());
-	return true; }
+	return true;
+}
 
-bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 uiAction) {
+bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 uiAction)
+{
 	WorldSession* session = player->GetSession();
 	player->PlayerTalkClass->ClearMenus();
 			switch(sender) {
@@ -123,16 +127,21 @@ private: std::map<uint64, std::map<uint32, Item*> > _items; // _items[lowGUID][D
         case EQUIPMENT_SLOT_OFFHAND   : return session->GetTrinityString(LANG_SLOT_NAME_OFFHAND);
         case EQUIPMENT_SLOT_RANGED    : return session->GetTrinityString(LANG_SLOT_NAME_RANGED);
         case EQUIPMENT_SLOT_TABARD    : return session->GetTrinityString(LANG_SLOT_NAME_TABARD);
-        default: return NULL; } }
+        default: return NULL; }
+	}
 
-    std::string GetItemName(Item* item, WorldSession* session) {
+    std::string GetItemName(Item* item, WorldSession* session)
+	{
         std::string name = item->GetTemplate()->Name1;
         int loc_idx = session->GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
             if (ItemLocale const* il = sObjectMgr->GetItemLocale(item->GetEntry()))
                 ObjectMgr::GetLocaleString(il->Name, loc_idx, name);
-        return name; }
+        return name;
+	}
 };
 
-void AddSC_NPC_Transmogrify() {
-    new NPC_Transmogrify(); }
+void AddSc_npc_transmo()
+{
+    new npc_transmo();
+}
