@@ -7005,8 +7005,24 @@ int32 Player::CalculateReputationGain(ReputationSource source, uint32 creatureOr
 
     percent += rep > 0 ? repMod : -repMod;
 
-    float rate = 1.0f; // reputation rate here
+    float rate;
+    switch (source)
+    {
+        case REPUTATION_SOURCE_KILL:
+            rate = sWorld->getRate(RATE_REPUTATION_LOWLEVEL_KILL);
+            break;
+        case REPUTATION_SOURCE_QUEST:
+        case REPUTATION_SOURCE_DAILY_QUEST:
+        case REPUTATION_SOURCE_WEEKLY_QUEST:
+        case REPUTATION_SOURCE_MONTHLY_QUEST:
         case REPUTATION_SOURCE_REPEATABLE_QUEST:
+            rate = sWorld->getRate(RATE_REPUTATION_LOWLEVEL_QUEST);
+            break;
+        case REPUTATION_SOURCE_SPELL:
+        default:
+            rate = 1.0f;
+            break;
+    }
 
     if (rate != 1.0f && creatureOrQuestLevel <= Trinity::XP::GetGrayLevel(getLevel()))
         percent *= rate;
@@ -7049,7 +7065,6 @@ int32 Player::CalculateReputationGain(ReputationSource source, uint32 creatureOr
 
         percent *= repRate;
     }
-
     return CalculatePct(rep, percent);
 }
 
@@ -14915,7 +14930,7 @@ bool Player::CanCompleteQuest(uint32 quest_id)
                 }
             }
 
-            if (qInfo->HasFlag(QUEST_TRINITY_FLAGS_KILL | QUEST_TRINITY_FLAGS_CAST | QUEST_TRINITY_FLAGS_SPEAKTO))
+            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_KILL | QUEST_SPECIAL_FLAGS_CAST | QUEST_SPECIAL_FLAGS_SPEAKTO))
             {
                 for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; i++)
                 {
@@ -15070,7 +15085,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
             questStatusData.ItemCount[i] = 0;
     }
 
-    if (quest->HasFlag(QUEST_TRINITY_FLAGS_KILL | QUEST_TRINITY_FLAGS_CAST | QUEST_TRINITY_FLAGS_SPEAKTO))
+    if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_KILL | QUEST_SPECIAL_FLAGS_CAST | QUEST_SPECIAL_FLAGS_SPEAKTO))
     {
         for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
             questStatusData.CreatureOrGOCount[i] = 0;
@@ -16211,7 +16226,7 @@ void Player::KilledMonster(CreatureTemplate const* cInfo, uint64 guid)
             KilledMonsterCredit(cInfo->KillCredit[i], 0);
 }
 
-void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
+void Player::KilledMonsterCredit(uint32 entry, uint64 guid /*= 0*/)
 {
     uint16 addkillcount = 1;
     uint32 real_entry = entry;
@@ -16239,16 +16254,12 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
         QuestStatusData& q_status = m_QuestStatus[questid];
         if (q_status.Status == QUEST_STATUS_INCOMPLETE && (!GetGroup() || !GetGroup()->isRaidGroup() || qInfo->IsAllowedInRaid(GetMap()->GetDifficulty())))
         {
-            if (qInfo->HasFlag(QUEST_TRINITY_FLAGS_KILL) /*&& !qInfo->HasFlag(QUEST_TRINITY_FLAGS_CAST)*/)
+            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_KILL) /*&& !qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_CAST)*/)
             {
                 for (uint8 j = 0; j < QUEST_OBJECTIVES_COUNT; ++j)
                 {
                     // skip GO activate objective or none
                     if (qInfo->RequiredNpcOrGo[j] <= 0)
-                        continue;
-
-                    // skip Cast at creature objective
-                    if (qInfo->RequiredSpellCast[j] != 0)
                         continue;
 
                     uint32 reqkill = qInfo->RequiredNpcOrGo[j];
@@ -16334,14 +16345,10 @@ void Player::KillCreditGO(uint32 entry, uint64 guid)
 
         if (q_status.Status == QUEST_STATUS_INCOMPLETE)
         {
-            if (qInfo->HasFlag(QUEST_TRINITY_FLAGS_CAST) /*&& !qInfo->HasFlag(QUEST_TRINITY_FLAGS_KILL)*/)
+            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_CAST) /*&& !qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_KILL)*/)
             {
                 for (uint8 j = 0; j < QUEST_OBJECTIVES_COUNT; ++j)
                 {
-                    // skip kill creature objective (0) or wrong spell casts
-                    if (qInfo->RequiredSpellCast[j] != spell_id)
-                        continue;
-
                     uint32 reqTarget = 0;
 
                     // GO activate objective
@@ -16392,12 +16399,12 @@ void Player::TalkedToCreature(uint32 entry, uint64 guid)
 
         if (q_status.Status == QUEST_STATUS_INCOMPLETE)
         {
-            if (qInfo->HasFlag(QUEST_TRINITY_FLAGS_KILL | QUEST_TRINITY_FLAGS_CAST | QUEST_TRINITY_FLAGS_SPEAKTO))
+            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_KILL | QUEST_SPECIAL_FLAGS_CAST | QUEST_SPECIAL_FLAGS_SPEAKTO))
             {
                 for (uint8 j = 0; j < QUEST_OBJECTIVES_COUNT; ++j)
                 {
-                                                            // skip spell casts and Gameobject objectives
-                    if (qInfo->RequiredSpellCast[j] > 0 || qInfo->RequiredNpcOrGo[j] < 0)
+                    // skip gameobject objectives
+                    if (qInfo->RequiredNpcOrGo[j] < 0)
                         continue;
 
                     uint32 reqTarget = 0;

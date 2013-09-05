@@ -119,7 +119,6 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8
     m_TutorialsChanged(false),
     recruiterId(recruiter),
     isRecruiter(isARecruiter)
-    AntiDOS(this)
 {
     if (sock)
     {
