@@ -584,7 +584,7 @@ class npc_dark_rider_of_acherus : public CreatureScript
             uint64 TargetGUID;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_dark_rider_of_acherusAI(creature);
         }

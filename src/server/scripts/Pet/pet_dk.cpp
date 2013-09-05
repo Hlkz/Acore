@@ -45,7 +45,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
         {
             npc_pet_dk_ebon_gargoyleAI(Creature* creature) : CasterAI(creature) { }
 
-            void InitializeAI() OVERRIDE
+            void InitializeAI()
             {
                 CasterAI::InitializeAI();
                 uint64 ownerGuid = me->GetOwnerGUID();
@@ -67,7 +67,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                     }
             }
 
-            void JustDied(Unit* /*killer*/) OVERRIDE
+            void JustDied(Unit* /*killer*/)
             {
                 // Stop Feeding Gargoyle when it dies
                 if (Unit* owner = me->GetOwner())
@@ -75,7 +75,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
             }
 
             // Fly away when dismissed
-            void SpellHit(Unit* source, SpellInfo const* spell) OVERRIDE
+            void SpellHit(Unit* source, SpellInfo const* spell)
             {
                 if (spell->Id != SPELL_DK_DISMISS_GARGOYLE || !me->IsAlive())
                     return;
@@ -106,7 +106,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                 _despawnTimer = 4 * IN_MILLISECONDS;
             }
 
-            void UpdateAI(uint32 diff) OVERRIDE
+            void UpdateAI(uint32 diff)
             {
                 if (_despawnTimer > 0)
                 {
@@ -124,7 +124,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
            uint32 _despawnTimer;
         };
 
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_pet_dk_ebon_gargoyleAI(creature);
         }
