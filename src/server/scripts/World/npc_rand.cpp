@@ -2,58 +2,62 @@
 
 class npc_rand : public CreatureScript {
 public:
-	npc_rand() : CreatureScript("npc_rand") { }
+    npc_rand() : CreatureScript("npc_rand") { }
 
-uint32 count; std::string* rie;
+    uint32 count; std::string* rie;
 
-int32 Choix(int32 item_id, int choix) {
-    ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_id);
-    if (!itemProto) return 0;
-    if ((!itemProto->RandomProperty) && (!itemProto->RandomSuffix)) return 0;
-    if ((itemProto->RandomProperty) && (itemProto->RandomSuffix)) return 0;
-    if (itemProto->RandomProperty) {
-        uint32 randomPropId = choix;
-        ItemRandomPropertiesEntry const* random_id = sItemRandomPropertiesStore.LookupEntry(randomPropId);
-        if (!random_id) return 0;
-        return random_id->ID; }
-    else {
-        uint32 randomPropId = choix;
-        ItemRandomSuffixEntry const* random_id = sItemRandomSuffixStore.LookupEntry(randomPropId);
-        if (!random_id) return 0;
-        return -int32(random_id->ID); } }
+    int32 Choix(int32 item_id, int choix)
+    {
+        ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_id);
+        if (!itemProto) return 0;
+        if ((!itemProto->RandomProperty) && (!itemProto->RandomSuffix)) return 0;
+        if ((itemProto->RandomProperty) && (itemProto->RandomSuffix)) return 0;
+        if (itemProto->RandomProperty) {
+            uint32 randomPropId = choix;
+            ItemRandomPropertiesEntry const* random_id = sItemRandomPropertiesStore.LookupEntry(randomPropId);
+            if (!random_id) return 0;
+            return random_id->ID; }
+        else {
+            uint32 randomPropId = choix;
+            ItemRandomSuffixEntry const* random_id = sItemRandomSuffixStore.LookupEntry(randomPropId);
+            if (!random_id) return 0;
+            return -int32(random_id->ID); }
+    }
 
-void AddItemChoix(Player *player, uint32 item_id, int choix) {
-    uint32 noSpaceForCount = 0;
-    ItemPosCountVec dest;
-    InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item_id, 1, &noSpaceForCount);
-    if (msg != EQUIP_ERR_OK)
-    if (dest.empty()) {
-		ChatHandler(player->GetSession()).PSendSysMessage("Vous n'avez plus de place.");
-        return; }
-		Item* item = player->StoreNewItem(dest, item_id, true, Choix(item_id, choix));
-		if (item) player->SendNewItem(item, 1, true, false);
-    return; }
+    void AddItemChoix(Player *player, uint32 item_id, int choix)
+    {
+        uint32 noSpaceForCount = 0;
+        ItemPosCountVec dest;
+        InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item_id, 1, &noSpaceForCount);
+        if (msg != EQUIP_ERR_OK)
+        if (dest.empty()) {
+            ChatHandler(player->GetSession()).PSendSysMessage("Vous n'avez plus de place.");
+            return; }
+        Item* item = player->StoreNewItem(dest, item_id, true, Choix(item_id, choix));
+        if (item) player->SendNewItem(item, 1, true, false);
+        return;
+    }
 
-void MainMenu(Player *player, Creature *creature) {
-	WorldSession* session = player->GetSession();
-	player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12050), GOSSIP_SENDER_MAIN, 300);
-	player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12051), GOSSIP_SENDER_MAIN, 400);
-	player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12052), GOSSIP_SENDER_MAIN, 500);
-	player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12053), GOSSIP_SENDER_MAIN, 600);
-	player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12054), GOSSIP_SENDER_MAIN, 200);
-	player->SEND_GOSSIP_MENU(1000023, creature->GetGUID()); }
+    bool OnGossipHello(Player *player, Creature *creature)
+    {
+        WorldSession* session = player->GetSession();
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12050), GOSSIP_SENDER_MAIN, 300);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12051), GOSSIP_SENDER_MAIN, 400);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12052), GOSSIP_SENDER_MAIN, 500);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12053), GOSSIP_SENDER_MAIN, 600);
+        player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12054), GOSSIP_SENDER_MAIN, 200);
+        player->SEND_GOSSIP_MENU(1000023, creature->GetGUID());
+        return true;
+    }
+
+    bool OnGossipSelect(Player *player, Creature * creature, uint32 sender, uint32 action)
+    {
+        player->PlayerTalkClass->ClearMenus();
+        WorldSession* session = player->GetSession();
+
+        switch (action) {
 	
-bool OnGossipHello(Player *player, Creature * creature) {
-	creature->SetControlled(true, UNIT_STATE_STUNNED);
-	MainMenu(player, creature); return true; }
-	
-bool OnGossipSelect(Player *player, Creature * creature, uint32 sender, uint32 action) {
-    player->PlayerTalkClass->ClearMenus();
-	WorldSession* session = player->GetSession();
-
-		switch (action) {
-	
-	case 100: MainMenu(player, creature); break;
+	case 100: OnGossipHello(player, creature); break;
 
 	case 101: player->CLOSE_GOSSIP_MENU(); break;
 		
@@ -208,10 +212,18 @@ lmenu2:
 			AddItemChoix(player, player->GetRandItId(), player->GetRandRie()[action-10001]);
 			goto lmenu; break;
 		}
-	return true; }
+	    return true;
+    }
+
+    struct npc_randAI : public CreatureAI
+    {
+        npc_randAI(Creature* creature) : CreatureAI(creature) { me->SetControlled(true, UNIT_STATE_STUNNED); }
+        void UpdateAI(uint32 /*diff*/) { if (!me->HasUnitState(UNIT_STATE_STUNNED)) me->SetControlled(true, UNIT_STATE_STUNNED); }
+    };
+    CreatureAI* GetAI(Creature* creature) const { return new npc_randAI(creature); }
 };
 
 void AddSc_npc_rand()
 {
-	new npc_rand();
+    new npc_rand();
 }

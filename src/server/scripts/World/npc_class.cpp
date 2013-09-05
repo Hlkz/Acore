@@ -2,29 +2,29 @@
 
 class npc_class : public CreatureScript {
 public:
-	npc_class() : CreatureScript("npc_class") { }
-	
-	bool OnGossipHello(Player* player, Creature* creature)
-	{
-		creature->SetControlled(true, UNIT_STATE_STUNNED);
-		MainMenu(player, creature);
-		return true;
-	}
+    npc_class() : CreatureScript("npc_class") { }
+
+    bool OnGossipHello(Player* player, Creature* creature)
+    {
+        creature->SetControlled(true, UNIT_STATE_STUNNED);
+        MainMenu(player, creature);
+        return true;
+    }
 		
-	void MainMenu(Player *player, Creature *creature)
-	{
-		player->ADD_GOSSIP_ITEM( 3, "Mise a niveau des sorts, stats et compétences" , GOSSIP_SENDER_MAIN, 1);
-		player->ADD_GOSSIP_ITEM( 2, "Apprentissage de la double spécalisation" , GOSSIP_SENDER_MAIN, 2);
-		player->ADD_GOSSIP_ITEM( 1, "Vendeur de glyphes." , GOSSIP_SENDER_MAIN, 3);
-		player->ADD_GOSSIP_ITEM( 2, "Réinitialisation des talents" , GOSSIP_SENDER_MAIN, 4);
-		player->SEND_GOSSIP_MENU(1000003, creature->GetGUID());
-	}
+    void MainMenu(Player *player, Creature *creature)
+    {
+        player->ADD_GOSSIP_ITEM( 3, "Mise a niveau des sorts, stats et compétences" , GOSSIP_SENDER_MAIN, 1);
+        player->ADD_GOSSIP_ITEM( 2, "Apprentissage de la double spécalisation" , GOSSIP_SENDER_MAIN, 2);
+        player->ADD_GOSSIP_ITEM( 1, "Vendeur de glyphes." , GOSSIP_SENDER_MAIN, 3);
+        player->ADD_GOSSIP_ITEM( 2, "Réinitialisation des talents" , GOSSIP_SENDER_MAIN, 4);
+        player->SEND_GOSSIP_MENU(1000003, creature->GetGUID());
+    }
 
-	bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-	{
-		player->PlayerTalkClass->ClearMenus();
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    {
+        player->PlayerTalkClass->ClearMenus();
 
-		switch (action) {
+        switch (action) {
 
 		case 1:
 			MainMenu(player, creature);
@@ -67,26 +67,21 @@ public:
 			else player->GetSession()->SendVendor(100006);
 			break;
 
-		case 30:
-			if(player->getClass() == 1) {    player->GetSession()->SendListInventory(999991); } // guerrier
-			if(player->getClass() == 2) {	player->GetSession()->SendListInventory(999992); } // paladin
-			if(player->getClass() == 3) {	player->GetSession()->SendListInventory(999993); } // chasseur
-			if(player->getClass() == 4) {	player->GetSession()->SendListInventory(999994); } // voleur
-			if(player->getClass() == 5) {	player->GetSession()->SendListInventory(999995); } // prêtre
-			if(player->getClass() == 7) {	player->GetSession()->SendListInventory(999996); } // chaman
-			if(player->getClass() == 8) {	player->GetSession()->SendListInventory(999997); } // mage
-			if(player->getClass() == 9) {	player->GetSession()->SendListInventory(999998); } // démoniste
-			if(player->getClass() == 11) {	player->GetSession()->SendListInventory(999999); } // druide
-			break;
-	
 		case 4:
 			MainMenu(player, creature);
 			player->resetTalents(true);
  			player->SendTalentsInfoData(false);
 			break;
-		}
-		return true;
-	}
+        }
+        return true;
+    }
+
+    struct npc_jobAI : public CreatureAI
+    {
+        npc_jobAI(Creature* creature) : CreatureAI(creature) { me->SetControlled(true, UNIT_STATE_STUNNED); }
+        void UpdateAI(uint32 /*diff*/) { if (!me->HasUnitState(UNIT_STATE_STUNNED)) me->SetControlled(true, UNIT_STATE_STUNNED); }
+    };
+    CreatureAI* GetAI(Creature* creature) const { return new npc_jobAI(creature); }
 };
 
 void AddSc_npc_class()
