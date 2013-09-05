@@ -33,21 +33,24 @@ AccountMgr::~AccountMgr()
 {
 }
 
-AccountOpResult AccountMgr::CreateAccount(std::string username, std::string password)
+AccountOpResult AccountMgr::CreateAccount(std::string username, std::string password, std::string email = "")
 {
     if (utf8length(username) > MAX_ACCOUNT_STR)
         return AOR_NAME_TOO_LONG;                           // username's too long
 
     normalizeString(username);
     normalizeString(password);
+    normalizeString(email);
 
     if (GetId(username))
-        return AOR_NAME_ALREDY_EXIST;                       // username does already exist
+        return AOR_NAME_ALREADY_EXIST;                       // username does already exist
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT);
 
     stmt->setString(0, username);
     stmt->setString(1, CalculateShaPassHash(username, password));
+    stmt->setString(2, email);
+    stmt->setString(3, email);
 
     LoginDatabase.DirectExecute(stmt); // Enforce saving, otherwise AddGroup can fail
 

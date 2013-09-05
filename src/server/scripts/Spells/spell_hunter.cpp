@@ -285,7 +285,7 @@ class spell_hun_improved_mend_pet : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_improved_mend_pet_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_IMPROVED_MEND_PET))
                     return false;
@@ -303,14 +303,14 @@ class spell_hun_improved_mend_pet : public SpellScriptLoader
                 GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_IMPROVED_MEND_PET, true, NULL, aurEff);
             }
 
-            void Register() OVERRIDE
+            void Register()
             {
                 DoCheckProc += AuraCheckProcFn(spell_hun_improved_mend_pet_AuraScript::CheckProc);
                 OnEffectProc += AuraEffectProcFn(spell_hun_improved_mend_pet_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const
         {
             return new spell_hun_improved_mend_pet_AuraScript();
         }
@@ -857,7 +857,7 @@ class spell_hun_viper_attack_speed : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_viper_attack_speed_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_ASPECT_OF_THE_VIPER) ||
                     !sSpellMgr->GetSpellInfo(SPELL_HUNTER_VICIOUS_VIPER))
@@ -877,14 +877,14 @@ class spell_hun_viper_attack_speed : public SpellScriptLoader
                 GetTarget()->RemoveAurasDueToSpell(SPELL_HUNTER_VICIOUS_VIPER);
             }
 
-            void Register() OVERRIDE
+            void Register()
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_hun_viper_attack_speed_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_hun_viper_attack_speed_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const OVERRIDE
+        AuraScript* GetAuraScript() const
         {
             return new spell_hun_viper_attack_speed_AuraScript();
         }
