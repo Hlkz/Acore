@@ -666,7 +666,7 @@ public:
                 instance->SetData64(DATA_ADD_TRASH_MOB, summoned->GetGUID());
         }
 
-        void SummonedCreatureDies(Creature* summoned, Unit* killer) OVERRIDE
+        void SummonedCreatureDies(Creature* summoned, Unit* killer)
         {
             listOfMobs.Despawn(summoned);
             if (instance)
@@ -1129,7 +1129,7 @@ public:
         bool _tacticalBlinkCast;
     };
 
-    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_azure_stalkerAI(creature);
     }
