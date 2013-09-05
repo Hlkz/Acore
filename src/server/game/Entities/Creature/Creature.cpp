@@ -2637,17 +2637,8 @@ void Creature::SetDisplayId(uint32 modelId)
     }
 }
 
-void Creature::HasQuestForPlayer(Player* player) {
-	if (IsQuestGiver()) {
-		player->PrepareQuestMenu(GetGUID());
-		QuestRelationBounds objectQR = sObjectMgr->GetCreatureQuestRelationBounds(GetEntry());
-		QuestRelationBounds objectQIR = sObjectMgr->GetCreatureQuestInvolvedRelationBounds(GetEntry());
-		QuestMenu& qm = player->PlayerTalkClass->GetQuestMenu();
-        qm.ClearMenu();
-		for (QuestRelations::const_iterator i = objectQIR.first; i != objectQIR.second; ++i) {
-			uint32 questId = i->second;
-			QuestStatus status = player->GetQuestStatus(questId);
-			const Quest* quest = sObjectMgr->GetQuestTemplate(questId);
-			if (status==1 || status==3)
-				qm.AddMenuItem(questId, 4);
-			else if(player->CanSeeStartQuest(quest)) qm.AddMenuItem(questId, 1); } } }
+void Creature::HasQuestForPlayer(Player* player)
+{
+    player->PrepareQuestMenu(GetGUID());
+    player->SendPreparedQuest(GetGUID());
+}
