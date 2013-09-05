@@ -107,12 +107,14 @@ public:
             return false;
 
         std::string email;
+
         ///- %Parse the command line arguments
         char* accountName = strtok((char*)args, " ");
         char* password = strtok(NULL, " ");
         char* possibleEmail = strtok(NULL, " ' ");
         if (possibleEmail)
             email = possibleEmail;
+
         if (!accountName || !password)
             return false;
 
@@ -123,7 +125,7 @@ public:
                 handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName);
                 if (handler->GetSession())
                 {
-                    TC_LOG_INFO(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Character:[%s] (GUID: %u) Change Password.",
+                    TC_LOG_INFO(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Character:[%s] (GUID: %u) created Account %s (Email: '%s')",
                         handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                         handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUIDLow(),
                         accountName, email.c_str());
@@ -133,7 +135,7 @@ public:
                 handler->SendSysMessage(LANG_ACCOUNT_TOO_LONG);
                 handler->SetSentErrorMessage(true);
                 return false;
-            case AOR_NAME_ALREDY_EXIST:
+            case AOR_NAME_ALREADY_EXIST:
                 handler->SendSysMessage(LANG_ACCOUNT_ALREADY_EXIST);
                 handler->SetSentErrorMessage(true);
                 return false;

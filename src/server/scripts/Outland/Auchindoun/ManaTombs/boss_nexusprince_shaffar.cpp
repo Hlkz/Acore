@@ -73,7 +73,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_nexusprince_shaffarAI (creature);
+        return new boss_nexusprince_shaffarAI(creature);
     }
 
     struct boss_nexusprince_shaffarAI : public ScriptedAI
@@ -117,6 +117,7 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who)
+
         {
             if (!HasTaunted && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 100.0f))
             {
@@ -233,7 +234,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_ethereal_beaconAI (creature);
+        return new npc_ethereal_beaconAI(creature);
     }
 
     struct npc_ethereal_beaconAI : public ScriptedAI
@@ -325,7 +326,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_ethereal_apprenticeAI (creature);
+        return new npc_ethereal_apprenticeAI(creature);
     }
 
     struct npc_ethereal_apprenticeAI : public ScriptedAI
@@ -364,11 +365,65 @@ public:
 
 };
 
+enum Yor
+{
+    SPELL_DOUBLE_BREATH          = 38361,
+    EVENT_DOUBLE_BREATH          = 1
+};
+
+class npc_yor : public CreatureScript
+{
+public:
+    npc_yor() : CreatureScript("npc_yor") { }
+
+    struct npc_yorAI : public ScriptedAI
+    {
+        npc_yorAI(Creature* creature) : ScriptedAI(creature) {}
+
+        void Reset() {}
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            events.ScheduleEvent(EVENT_DOUBLE_BREATH, urand(6000,9000));
+        }
+
+        void UpdateAI(uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
             events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_DOUBLE_BREATH:
+                        if (me->IsWithinDist(me->GetVictim(), ATTACK_DISTANCE))
+                            DoCastVictim(SPELL_DOUBLE_BREATH);
+                        events.ScheduleEvent(EVENT_DOUBLE_BREATH, urand(6000,9000));
+                        break;
+                    default:
+                        break;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+
+        private:
+            EventMap events;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_yorAI(creature);
+    }
+};
 
 void AddSC_boss_nexusprince_shaffar()
 {
     new boss_nexusprince_shaffar();
     new npc_ethereal_beacon();
     new npc_ethereal_apprentice();
+    new npc_yor();
 }
