@@ -703,7 +703,7 @@ CharactersPerRealm = 10
 #                     1 - (Show intro only for first character of selected race)
 #                     2 - (Disable intro for all classes)
 
-SkipCinematics = 0
+SkipCinematics = 2
 
 #
 #    MaxPlayerLevel
@@ -945,7 +945,7 @@ MaxPrimaryTradeSkill = 2
 #        Range:       0-9
 #        Default:     9
 
-MinPetitionSigns = 9
+MinPetitionSigns = 0
 
 #
 #    MaxGroupXPDistance
@@ -1181,7 +1181,7 @@ AllowTwoSide.Interaction.Group = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Guild = 0
+AllowTwoSide.Interaction.Guild = 1
 
 #
 #    AllowTwoSide.trade
@@ -1849,7 +1849,7 @@ DurabilityLoss = 1
 #        Description: Chance to lose durability on one equipped item from damage.
 #        Default:     0.5 - (100/0.5 = 200, Each 200 damage one equipped item will use durability)
 
-DurabilityLossChance.Damage = 0.5
+DurabilityLossChance.Damage = 0
 
 #
 #    DurabilityLossChance.Absorb
@@ -1857,7 +1857,7 @@ DurabilityLossChance.Damage = 0.5
 #        Default:     0.5 - (100/0.5 = 200, Each 200 absorbed damage one equipped item will lose
 #                           durability)
 
-DurabilityLossChance.Absorb = 0.5
+DurabilityLossChance.Absorb = 0
 
 #
 #    DurabilityLossChance.Parry
@@ -1865,7 +1865,7 @@ DurabilityLossChance.Absorb = 0.5
 #        Default:     0.05 - (100/0.05 = 2000, Each 2000 parried damage the main weapon will lose
 #                            durability)
 
-DurabilityLossChance.Parry = 0.05
+DurabilityLossChance.Parry = 0
 
 #
 #    DurabilityLossChance.Block
@@ -1873,7 +1873,7 @@ DurabilityLossChance.Parry = 0.05
 #        Default:     0.05 - (100/0.05 = 2000, Each 2000 blocked damage the shield will lose
 #                            durability)
 
-DurabilityLossChance.Block = 0.05
+DurabilityLossChance.Block = 0
 
 #
 #    Death.SicknessLevel
@@ -1885,7 +1885,7 @@ DurabilityLossChance.Block = 0.05
 #                     MaxPlayerLevel+1 - (Disabled)
 #                     -10              - (Enabled, Level 1+ characters have 10 minute duration)
 
-Death.SicknessLevel = 11
+Death.SicknessLevel = 256
 
 #
 #    Death.CorpseReclaimDelay.PvP
@@ -1894,7 +1894,7 @@ Death.SicknessLevel = 11
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-Death.CorpseReclaimDelay.PvP = 1
+Death.CorpseReclaimDelay.PvP = 0
 Death.CorpseReclaimDelay.PvE = 0
 
 #
@@ -1915,7 +1915,7 @@ Death.Bones.BattlegroundOrArena = 1
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-Die.Command.Mode = 1
+Die.Command.Mode = 0
 
 #
 ###################################################################################################
@@ -1927,7 +1927,7 @@ Die.Command.Mode = 1
 #        Description: Enable or disable stats system
 #        Default:     0 - Disabled
 
-Stats.Limits.Enable = 0
+Stats.Limits.Enable = 1
 
 #
 #    Stats.Limit.[STAT]
