@@ -1225,6 +1225,9 @@ enum TrinityStrings
     LANG_DIST_RANKS_END					= 17915,
     LANG_RANKS_INFO_COMMAND				= 17916,
 
+    LANG_BUY_ERROR_RANK            = 17925,
+    LANG_BUY_ERROR_RANK_FACTION    = 17926,
+
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
     // For other tables maybe             2000010000-2147483647 (max index)

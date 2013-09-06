@@ -609,6 +609,7 @@ struct ItemTemplate
     uint32 RequiredSpell;                                   // id from Spell.dbc
     uint32 RequiredHonorRank;
     uint32 RequiredCityRank;
+    uint32 RequiredPvpRank;                                 // custom pvp rank 0-12
     uint32 RequiredReputationFaction;                       // id from Faction.dbc
     uint32 RequiredReputationRank;
     int32  MaxCount;                                        // <= 0: no limit
