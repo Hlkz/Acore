@@ -21507,6 +21507,21 @@ else {
         return false;
     }
 
+    if (pProto->RequiredPvpRank)
+        if ((GetTeamFromDB() == ALLIANCE && 6 >= pProto->RequiredPvpRank && pProto->RequiredPvpRank >= 1) || (GetTeamFromDB() == HORDE && 12 >= pProto->RequiredPvpRank && pProto->RequiredPvpRank >= 7))
+        {
+            if (GetPvpRank()+(GetTeamFromDB()==HORDE)*6 < pProto->RequiredPvpRank)
+            {
+                GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_BUY_ERROR_RANK));
+                return false;
+            }
+        }
+        else
+        {
+            GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_BUY_ERROR_RANK_FACTION));
+            return false;
+        }
+
     if (crItem->ExtendedCost)
     {
         ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(crItem->ExtendedCost);

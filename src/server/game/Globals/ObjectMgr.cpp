@@ -2179,8 +2179,8 @@ void ObjectMgr::LoadItemTemplates()
                                              "TotemCategory, socketColor_1, socketContent_1, socketColor_2, socketContent_2, socketColor_3, socketContent_3, socketBonus, "
     //                                            126                 127                     128            129            130            131         132         133
                                              "GemProperties, RequiredDisenchantSkill, ArmorDamageModifier, duration, ItemLimitCategory, HolidayId, ScriptName, DisenchantID, "
-    //                                           134        135            136
-                                             "FoodType, minMoneyLoot, maxMoneyLoot, flagsCustom FROM item_template");
+    //                                           134        135            136           137           138
+                                             "FoodType, minMoneyLoot, maxMoneyLoot, flagsCustom, RequiredPvpRank FROM item_template");
 
     if (!result)
     {
@@ -2222,6 +2222,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.RequiredSpell             = fields[19].GetUInt32();
         itemTemplate.RequiredHonorRank         = fields[20].GetUInt32();
         itemTemplate.RequiredCityRank          = fields[21].GetUInt32();
+        itemTemplate.RequiredPvpRank           = fields[138].GetUInt32();
         itemTemplate.RequiredReputationFaction = uint32(fields[22].GetUInt16());
         itemTemplate.RequiredReputationRank    = uint32(fields[23].GetUInt16());
         itemTemplate.MaxCount                  = fields[24].GetInt32();

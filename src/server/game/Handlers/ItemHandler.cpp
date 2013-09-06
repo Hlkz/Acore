@@ -327,6 +327,7 @@ void WorldSession::HandleItemQuerySingleOpcode(WorldPacket& recvData)
         data << pProto->RequiredSpell;
         data << pProto->RequiredHonorRank;
         data << pProto->RequiredCityRank;
+        data << pProto->RequiredPvpRank;
         data << pProto->RequiredReputationFaction;
         data << pProto->RequiredReputationRank;
         data << int32(pProto->MaxCount);
