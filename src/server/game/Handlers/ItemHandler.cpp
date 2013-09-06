@@ -327,7 +327,6 @@ void WorldSession::HandleItemQuerySingleOpcode(WorldPacket& recvData)
         data << pProto->RequiredSpell;
         data << pProto->RequiredHonorRank;
         data << pProto->RequiredCityRank;
-        data << pProto->RequiredPvpRank;
         data << pProto->RequiredReputationFaction;
         data << pProto->RequiredReputationRank;
         data << int32(pProto->MaxCount);
@@ -557,42 +556,37 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
         ItemTemplate const* pProto = pItem->GetTemplate();
         if (pProto)
         {
-            if (pProto->SellPrice > 0)
+            if (count < pItem->GetCount())               // need split items
             {
-                if (count < pItem->GetCount())               // need split items
+                Item* pNewItem = pItem->CloneItem(count, _player);
+                if (!pNewItem)
                 {
-                    Item* pNewItem = pItem->CloneItem(count, _player);
-                    if (!pNewItem)
-                    {
-                        TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "WORLD: HandleSellItemOpcode - could not create clone of item %u; count = %u", pItem->GetEntry(), count);
-                        _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemguid, 0);
-                        return;
-                    }
-
-                    pItem->SetCount(pItem->GetCount() - count);
-                    _player->ItemRemovedQuestCheck(pItem->GetEntry(), count);
-                    if (_player->IsInWorld())
-                        pItem->SendUpdateToPlayer(_player);
-                    pItem->SetState(ITEM_CHANGED, _player);
-
-                    _player->AddItemToBuyBackSlot(pNewItem);
-                    if (_player->IsInWorld())
-                        pNewItem->SendUpdateToPlayer(_player);
-                }
-                else
-                {
-                    _player->ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
-                    _player->RemoveItem(pItem->GetBagSlot(), pItem->GetSlot(), true);
-                    pItem->RemoveFromUpdateQueueOf(_player);
-                    _player->AddItemToBuyBackSlot(pItem);
+                    TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "WORLD: HandleSellItemOpcode - could not create clone of item %u; count = %u", pItem->GetEntry(), count);
+                    _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemguid, 0);
+                    return;
                 }
 
-                uint32 money = pProto->SellPrice * count;
-                _player->ModifyMoney(money);
-                _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS, money);
+                pItem->SetCount(pItem->GetCount() - count);
+                _player->ItemRemovedQuestCheck(pItem->GetEntry(), count);
+                if (_player->IsInWorld())
+                    pItem->SendUpdateToPlayer(_player);
+                pItem->SetState(ITEM_CHANGED, _player);
+
+                _player->AddItemToBuyBackSlot(pNewItem);
+                if (_player->IsInWorld())
+                    pNewItem->SendUpdateToPlayer(_player);
             }
             else
-                _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemguid, 0);
+            {
+                _player->ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
+                _player->RemoveItem(pItem->GetBagSlot(), pItem->GetSlot(), true);
+                pItem->RemoveFromUpdateQueueOf(_player);
+                _player->AddItemToBuyBackSlot(pItem);
+            }
+
+            uint32 money = pProto->SellPrice * count;
+            _player->ModifyMoney(money);
+            _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS, money);
             return;
         }
     }
