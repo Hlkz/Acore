@@ -5011,6 +5011,45 @@ void ObjectMgr::LoadPageTextLocales()
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu PageText locale strings in %u ms", (unsigned long)_pageTextLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadMapTemplate()
+{
+    uint32 oldMSTime = getMSTime();
+
+    //                                                0     1
+    QueryResult result = WorldDatabase.Query("SELECT map, script FROM map_template");
+
+    if (!result)
+    {
+        TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 map templates. DB table `map_template` is empty!");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint16 mapID = fields[0].GetUInt16();
+
+        if (!MapManager::IsValidMAP(mapID, true))
+        {
+            TC_LOG_ERROR(LOG_FILTER_SQL, "ObjectMgr::LoadMapTemplate: bad mapid %d for template!", mapID);
+            continue;
+        }
+
+        MapTemplate mapTemplate;
+
+        mapTemplate.ScriptId   = sObjectMgr->GetScriptId(fields[1].GetCString());
+
+        _mapTemplateStore[mapID] = mapTemplate;
+
+        ++count;
+    }
+    while (result->NextRow());
+
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded %u map templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
 void ObjectMgr::LoadInstanceTemplate()
 {
     uint32 oldMSTime = getMSTime();
@@ -5020,7 +5059,7 @@ void ObjectMgr::LoadInstanceTemplate()
 
     if (!result)
     {
-        TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 instance templates. DB table `page_text` is empty!");
+        TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 instance templates. DB table `instance_template` is empty!");
         return;
     }
 
@@ -5050,6 +5089,15 @@ void ObjectMgr::LoadInstanceTemplate()
     while (result->NextRow());
 
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded %u instance templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+MapTemplate const* ObjectMgr::GetMapTemplate(uint32 mapID)
+{
+    MapTemplateContainer::const_iterator itr = _mapTemplateStore.find(uint16(mapID));
+    if (itr != _mapTemplateStore.end())
+        return &(itr->second);
+
+    return NULL;
 }
 
 InstanceTemplate const* ObjectMgr::GetInstanceTemplate(uint32 mapID)

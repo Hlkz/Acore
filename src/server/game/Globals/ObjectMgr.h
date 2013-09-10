@@ -129,6 +129,7 @@ enum ScriptCommands
 typedef std::map<uint32, PageText> PageTextContainer;
 
 // Benchmarked: Faster than std::map (insert/find)
+typedef UNORDERED_MAP<uint16, MapTemplate> MapTemplateContainer;
 typedef UNORDERED_MAP<uint16, InstanceTemplate> InstanceTemplateContainer;
 
 struct GameTele
@@ -700,6 +701,7 @@ class ObjectMgr
             return NULL;
         }
 
+        MapTemplate const* GetMapTemplate(uint32 mapId);
         InstanceTemplate const* GetInstanceTemplate(uint32 mapId);
 
         PetLevelInfo const* GetPetLevelInfo(uint32 creature_id, uint8 level) const;
@@ -918,6 +920,7 @@ class ObjectMgr
         void LoadPageTextLocales();
         void LoadGossipMenuItemsLocales();
         void LoadPointOfInterestLocales();
+        void LoadMapTemplate();
         void LoadInstanceTemplate();
         void LoadInstanceEncounters();
         void LoadMailLevelRewards();
@@ -1291,6 +1294,7 @@ class ObjectMgr
         LocaleConstant DBCLocaleIndex;
 
         PageTextContainer _pageTextStore;
+        MapTemplateContainer _mapTemplateStore;
         InstanceTemplateContainer _instanceTemplateStore;
 
     private:

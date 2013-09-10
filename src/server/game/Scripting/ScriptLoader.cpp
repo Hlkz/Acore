@@ -276,6 +276,7 @@ void AddSC_westfall();
 void AddSC_wetlands();
 
 //kalimdor
+void AddSC_mapevent_kalimdor();
 void AddSC_blackfathom_deeps();              //Blackfathom Depths
 void AddSC_boss_gelihast();
 void AddSC_boss_kelris();
@@ -934,6 +935,7 @@ void AddEasternKingdomsScripts()
 void AddKalimdorScripts()
 {
 #ifdef SCRIPTS
+    AddSC_mapevent_kalimdor();
     AddSC_blackfathom_deeps();              //Blackfathom Depths
     AddSC_boss_gelihast();
     AddSC_boss_kelris();

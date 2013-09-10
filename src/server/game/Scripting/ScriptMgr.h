@@ -42,6 +42,7 @@ class GameObjectAI;
 class Guild;
 class GridMap;
 class Group;
+class WMScript;
 class InstanceMap;
 class InstanceScript;
 class Item;
@@ -346,6 +347,11 @@ class WorldMapScript : public ScriptObject, public MapScript<Map>
     protected:
 
         WorldMapScript(const char* name, uint32 mapId);
+
+    public:
+
+        // Gets an WMScript object for this map.
+        virtual WMScript* GetWMScript(Map* /*map*/) const { return NULL; }
 };
 
 class InstanceMapScript : public ScriptObject, public MapScript<InstanceMap>
@@ -903,6 +909,7 @@ class ScriptMgr
         void OnPlayerEnterMap(Map* map, Player* player);
         void OnPlayerLeaveMap(Map* map, Player* player);
         void OnMapUpdate(Map* map, uint32 diff);
+        WMScript* CreateMapData(Map* map);
 
     public: /* InstanceMapScript */
 

@@ -38,6 +38,7 @@
 
 class Unit;
 class WorldPacket;
+class WMScript;
 class InstanceScript;
 class Group;
 class InstanceSave;
@@ -216,6 +217,11 @@ public:
 #pragma pack(push, 1)
 #endif
 
+struct MapTemplate
+{
+    uint32 ScriptId;
+};
+
 struct InstanceTemplate
 {
     uint32 Parent;
@@ -263,6 +269,10 @@ class Map : public GridRefManager<NGridType>
             m_unloadTimer -= diff;
             return false;
         }
+
+        void CreateMapData();
+        uint32 GetScriptId() { return m_script_id; }
+        WMScript* GetWMScript() { return m_data; }
 
         virtual bool AddPlayerToMap(Player*);
         virtual void RemovePlayerFromMap(Player*, bool);
@@ -370,6 +380,7 @@ class Map : public GridRefManager<NGridType>
         MapDifficulty const* GetMapDifficulty() const;
 
         bool Instanceable() const { return i_mapEntry && i_mapEntry->Instanceable(); }
+        bool IsWorldMap() const { return i_mapEntry && i_mapEntry->IsWorldMap(); }
         bool IsDungeon() const { return i_mapEntry && i_mapEntry->IsDungeon(); }
         bool IsNonRaidDungeon() const { return i_mapEntry && i_mapEntry->IsNonRaidDungeon(); }
         bool IsRaid() const { return i_mapEntry && i_mapEntry->IsRaid(); }
@@ -571,6 +582,9 @@ class Map : public GridRefManager<NGridType>
         //used for fast base_map (e.g. MapInstanced class object) search for
         //InstanceMaps and BattlegroundMaps...
         Map* m_parentMap;
+
+        WMScript* m_data;
+        uint32 m_script_id;
 
         NGridType* i_grids[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
         GridMap* GridMaps[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
