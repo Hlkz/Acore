@@ -649,6 +649,14 @@ void ScriptMgr::OnMapUpdate(Map* map, uint32 diff)
 #undef SCR_MAP_BGN
 #undef SCR_MAP_END
 
+WMScript* ScriptMgr::CreateMapData(Map* map)
+{
+    ASSERT(map);
+
+    GET_SCRIPT_RET(WorldMapScript, map->GetScriptId(), tmpscript, NULL);
+    return tmpscript->GetWMScript(map);
+}
+
 InstanceScript* ScriptMgr::CreateInstanceData(InstanceMap* map)
 {
     ASSERT(map);

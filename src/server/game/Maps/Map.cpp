@@ -24,6 +24,7 @@
 #include "GridNotifiersImpl.h"
 #include "GridStates.h"
 #include "Group.h"
+#include "MapScript.h"
 #include "InstanceScript.h"
 #include "MapInstanced.h"
 #include "MapManager.h"
@@ -66,6 +67,9 @@ Map::~Map()
         sScriptMgr->DecreaseScheduledScriptCount(m_scriptSchedule.size());
 
     MMAP::MMapFactory::createOrGetMMapManager()->unloadMapInstance(GetId(), i_InstanceId);
+
+    delete m_data;
+    m_data = NULL;
 }
 
 bool Map::ExistMap(uint32 mapid, int gx, int gy)
@@ -220,7 +224,7 @@ _creatureToMoveLock(false), i_mapEntry (sMapStore.LookupEntry(id)), i_spawnMode(
 m_unloadTimer(0), m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE),
 m_VisibilityNotifyPeriod(DEFAULT_VISIBILITY_NOTIFY_PERIOD),
 m_activeNonPlayersIter(m_activeNonPlayers.end()), i_gridExpiry(expiry),
-i_scriptLock(false)
+i_scriptLock(false), m_data(NULL), m_script_id(0)
 {
     m_parentMap = (_parent ? _parent : this);
     for (unsigned int idx=0; idx < MAX_NUMBER_OF_GRIDS; ++idx)
@@ -576,6 +580,8 @@ void Map::Update(const uint32 t_diff)
         ProcessRelocationNotifies(t_diff);
 
     sScriptMgr->OnMapUpdate(this, t_diff);
+    if (m_data)
+		m_data->Update(t_diff);
 }
 
 struct ResetNotifier
@@ -2254,6 +2260,29 @@ template void Map::RemoveFromMap(Corpse*, bool);
 template void Map::RemoveFromMap(Creature*, bool);
 template void Map::RemoveFromMap(GameObject*, bool);
 template void Map::RemoveFromMap(DynamicObject*, bool);
+
+void Map::CreateMapData()
+{
+    // make sure we have a valid map id
+    const MapEntry* entry = sMapStore.LookupEntry(GetId());
+    if (!entry)
+        return;
+
+    const MapTemplate* mTemplate = sObjectMgr->GetMapTemplate(GetId());
+    if (!mTemplate)
+        return;
+
+    if (m_data != NULL)
+        return;
+	
+    m_script_id = mTemplate->ScriptId;
+    m_data = sScriptMgr->CreateMapData(this);
+
+    if (m_data)
+        m_data->Initialize();
+
+    TC_LOG_DEBUG(LOG_FILTER_MAPS, "Map::CreateMapData: %u WMScript Initialized", GetId());
+}
 
 /* ******* Dungeon Instance Maps ******* */
 

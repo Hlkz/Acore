@@ -1233,6 +1233,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Script Names...");
     sObjectMgr->LoadScriptNames();
 
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Map Template...");
+    sObjectMgr->LoadMapTemplate();
+
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Instance Template...");
     sObjectMgr->LoadInstanceTemplate();
 
