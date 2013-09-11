@@ -1,4 +1,3 @@
-
 #include "ZoneScript.h"
 #include "World.h"
 #include "ObjectMgr.h"
@@ -10,9 +9,6 @@ class Unit;
 class Player;
 class GameObject;
 class Creature;
-
-typedef std::set<GameObject*> DoorSet;
-typedef std::set<Creature*> MinionSet;
 
 class WMScript : public ZoneScript
 {
@@ -27,6 +23,7 @@ class WMScript : public ZoneScript
 
         virtual void Update(uint32 /*diff*/) { }
 
+/*
         //Handle open / close objects
         //use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts
         //use HandleGameObject(GUID, boolen, NULL); in any other script
@@ -56,12 +53,12 @@ class WMScript : public ZoneScript
 
         // Cast spell on all players in instance
         void DoCastSpellOnPlayers(uint32 spell);
-
+*/
         // Achievement criteria additional requirements check
         // NOTE: not use this if same can be checked existed requirement types from AchievementCriteriaRequirementType
-        virtual bool CheckAchievementCriteriaMeet(uint32 /*criteria_id*/, Player const* /*source*/, Unit const* /*target*/ = NULL, uint32 /*miscvalue1*/ = 0);
+        //virtual bool CheckAchievementCriteriaMeet(uint32 /*criteria_id*/, Player const* /*source*/, Unit const* /*target*/ = NULL, uint32 /*miscvalue1*/ = 0);
 
-        virtual void FillInitialWorldStates(WorldPacket& /*data*/) { }
+        //virtual void FillInitialWorldStates(WorldPacket& /*data*/) { }
 
     protected:
     private:

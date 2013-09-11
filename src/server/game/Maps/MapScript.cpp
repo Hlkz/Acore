@@ -1,4 +1,3 @@
-
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "DatabaseEnv.h"
@@ -12,6 +11,7 @@
 #include "WorldSession.h"
 #include "Opcodes.h"
 
+/*
 void WMScript::HandleGameObject(uint64 GUID, bool open, GameObject* go)
 {
     if (!go)
@@ -73,9 +73,11 @@ void WMScript::DoUpdateWorldState(uint32 uiStateId, uint32 uiStateData)
         TC_LOG_DEBUG(LOG_FILTER_TSCR, "DoUpdateWorldState attempt send data but no players in map.");
 }
 
+*/
+
 // Update Achievement Criteria for all players in instance
-void WMScript::DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, Unit* unit /*= NULL*/)
-{
+//void WMScript::DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, Unit* unit /*= NULL*/)
+/*{
     Map::PlayerList const &PlayerList = world->GetPlayers();
 
     if (!PlayerList.isEmpty())
@@ -134,10 +136,11 @@ void WMScript::DoCastSpellOnPlayers(uint32 spell)
             if (Player* player = i->GetSource())
                 player->CastSpell(player, spell, true);
 }
-
-bool WMScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ /*= NULL*/, uint32 /*miscvalue1*/ /*= 0*/)
-{
+*/
+//bool WMScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ /*= NULL*/, uint32 /*miscvalue1*/ /*= 0*/)
+/*{
     TC_LOG_ERROR(LOG_FILTER_GENERAL, "Achievement system call InstanceScript::CheckAchievementCriteriaMeet but instance script for map %u not have implementation for achievement criteria %u",
         world->GetId(), criteria_id);
     return false;
 }
+*/

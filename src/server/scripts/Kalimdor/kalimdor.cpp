@@ -1,10 +1,4 @@
-#include "ScriptMgr.h"
-#include "Cell.h"
-#include "CellImpl.h"
 #include "kalimdor.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "TemporarySummon.h"
 
 void mapevent_kalimdor::mapevent_kalimdor_WMS::Initialize()
 {
