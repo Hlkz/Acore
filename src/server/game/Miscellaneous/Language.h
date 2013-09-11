@@ -1220,10 +1220,11 @@ enum TrinityStrings
     LANG_BAO_NODE_DEFENDED            = 17821,
     LANG_BAO_NODE_ASSAULTED           = 17822,
 
-    LANG_RANKS_NAME						= 17901,
-    LANG_DIST_RANKS_START				= 17914,
-    LANG_DIST_RANKS_END					= 17915,
-    LANG_RANKS_INFO_COMMAND				= 17916,
+    LANG_RANKS_NAME                     = 17901,
+    LANG_DIST_RANKS_START               = 17914,
+    LANG_DIST_RANKS_TITLEACH            = 17920,
+    LANG_DIST_RANKS_END                 = 17915,
+    LANG_RANKS_INFO_COMMAND             = 17916,
 
     LANG_BUY_ERROR_RANK            = 17925,
     LANG_BUY_ERROR_RANK_FACTION    = 17926,
