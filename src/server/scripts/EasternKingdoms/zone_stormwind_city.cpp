@@ -38,6 +38,8 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "Player.h"
+#include "ReputationMgr.h"
+#include "AchievementMgr.h"
 
 /*######
 ## npc_archmage_malin
@@ -635,6 +637,45 @@ public:
     }
 };
 
+/*######
+## npc_varian_king
+######*/
+
+class npc_varian_king : public CreatureScript
+{
+public:
+    npc_varian_king() : CreatureScript("npc_varian_king") { }
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    {
+        player->PlayerTalkClass->ClearMenus();
+        switch (action)
+        {
+            case GOSSIP_ACTION_INFO_DEF:
+                player->CLOSE_GOSSIP_MENU();
+                player->SetTeam(ALLIANCE);
+                if (AchievementEntry const* achievementEntry = sAchievementMgr->GetAchievement(7000))
+                    player->CompletedAchievement(achievementEntry);
+                player->SetUInt32Value(UNIT_FIELD_LEVEL, player->getLevel());
+                break;
+        }
+        return true;
+    }
+
+    bool OnGossipHello(Player* player, Creature* creature)
+    {
+        if (creature->IsQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
+
+        if (player->CanSwitchTeam() == ALLIANCE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Rejoindre l'Alliance", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+		
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+
+        return true;
+    }
+};
+
 void AddSC_stormwind_city()
 {
     new npc_archmage_malin();
@@ -644,4 +685,5 @@ void AddSC_stormwind_city()
     new npc_tyrion_spybot();
     new npc_lord_gregor_lescovar();
     new npc_marzon_silent_blade();
+    new npc_varian_king();
 }

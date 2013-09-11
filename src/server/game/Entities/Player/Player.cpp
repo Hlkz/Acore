@@ -6986,9 +6986,16 @@ uint32 Player::TeamForRace(uint8 race)
 
 void Player::SetTeam(uint32 team)
 {
-    m_team = team;
     ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry((team==HORDE)+1);
     setFaction(rEntry ? rEntry->FactionID : 0);
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TEAM);
+    stmt->setUInt32(0, team);
+    stmt->setUInt32(1, GUID_LOPART(GetGUID()));
+    trans->Append(stmt);
+    CharacterDatabase.CommitTransaction(trans);
+    m_team = team;
 }
 
 void Player::setFactionForRace(uint8 race)
@@ -7022,15 +7029,11 @@ int32 Player::CalculateReputationGain(ReputationSource source, uint32 creatureOr
     switch (source)
     {
         case REPUTATION_SOURCE_KILL:
-            rate = sWorld->getRate(RATE_REPUTATION_LOWLEVEL_KILL);
-            break;
         case REPUTATION_SOURCE_QUEST:
         case REPUTATION_SOURCE_DAILY_QUEST:
         case REPUTATION_SOURCE_WEEKLY_QUEST:
         case REPUTATION_SOURCE_MONTHLY_QUEST:
         case REPUTATION_SOURCE_REPEATABLE_QUEST:
-            rate = sWorld->getRate(RATE_REPUTATION_LOWLEVEL_QUEST);
-            break;
         case REPUTATION_SOURCE_SPELL:
         default:
             rate = 1.0f;
@@ -7255,23 +7258,14 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
 
             honor_f = ceil(Trinity::Honor::hk_honor_at_level_f(k_level) * (v_level - k_grey) / (k_level - k_grey));
 
-			// reputation
-			if (GetTeam() == plrVictim->GetTeam())
-			{
-				if((int)plrVictim->GetReputation(plrVictim->GetTeam())>=0)
-				{
-					GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(-1*(GetTeam()-536)),3);
-					GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(GetTeam()),-5);
-				}
-			}
-			else
-			{
-				if((int)plrVictim->GetReputation(plrVictim->GetTeam())>=0)
-				{
-					GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(GetTeam()),3);
-					GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(plrVictim->GetTeam()),-5);
-				}
-			}
+            // reputation
+            if (!plrVictim->IsDeserter())
+            {
+                GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(plrVictim->GetTeamFromDB()==ALLIANCE?HORDE:ALLIANCE),3+plrVictim->GetPvpRank());
+                GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(plrVictim->GetTeamFromDB()),-5-plrVictim->GetPvpRank());
+                GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(plrVictim->GetTeamFromDB()==ALLIANCE?FACTION_THUNDERLORD:FACTION_SENTINEL),3+plrVictim->GetPvpRank());
+                GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(plrVictim->GetTeamFromDB()==ALLIANCE?FACTION_SENTINEL:FACTION_THUNDERLORD),-5-plrVictim->GetPvpRank());
+            }
 
             // count the number of playerkills in one day
             ApplyModUInt32Value(PLAYER_FIELD_KILLS, 1, true);
@@ -26623,11 +26617,19 @@ void Player::SetArenaWin(uint32 arenawin)
 	m_ArenaWin = arenawin;
 }
 
+uint32 Player::CanSwitchTeam()
+{
+    uint32 team = GetTeamFromDB();
+    if ((int)GetReputation(team==ALLIANCE?FACTION_STORMWIND:FACTION_ORGRIMMAR)<0
+     && (int)GetReputation(team==ALLIANCE?FACTION_ORGRIMMAR:FACTION_STORMWIND)>=0)
+        return team==ALLIANCE?HORDE:ALLIANCE;
+    return 0;
+}
+
 bool Player::IsDeserter()
 {
     uint32 team = GetTeamFromDB();
-    if((team==ALLIANCE && (int)GetReputation(ALLIANCE)<0)
-       || (team==HORDE && (int)GetReputation(HORDE)<0))
+    if((int)GetReputation(team==ALLIANCE?FACTION_STORMWIND:FACTION_ORGRIMMAR)<0)
         return true;
     else if (team == ALLIANCE || team == HORDE)
         return false;

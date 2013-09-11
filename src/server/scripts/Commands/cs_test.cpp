@@ -2,14 +2,15 @@
 #include "Chat.h"
 #include "Object.h"
 #include "BattleAOMgr.h"
+#include "ReputationMgr.h"
 
 class com_test : public CommandScript {
    public: com_test() : CommandScript("cs_test") {}
 
 static bool HandleComTest(ChatHandler* handler, char const* /*args*/) {
 
-	BattleAO* bao = sBattleAOMgr->GetBattleAO();
-	sLog->outError(LOG_FILTER_GENERAL, "coucou %f", bao->AoCreatures[0]);
+	Player* player = handler->GetSession()->GetPlayer();
+	player->GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(72), 1);
 
 	return true; }
 

@@ -8,7 +8,7 @@ const uint32 PvpRankTitle[6][2] =
     {1, 16}, // rank 1 Soldat Grunt
     {2, 17}, // rank 2 Caporal Sergent
     {6, 24}, // rank 3 Chevalier Champion
-    {11, 62}, // rank 4 Commandant Porteguerre
+    {11, 94}, // rank 4 Commandant Porteguerre
     {12, 26}, // rank 5 Maréchal Général
     {14, 27}, // rank 6 Connétable Warlord
 };

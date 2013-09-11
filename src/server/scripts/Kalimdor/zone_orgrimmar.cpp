@@ -32,6 +32,8 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "Player.h"
+#include "ReputationMgr.h"
+#include "AchievementMgr.h"
 
 /*######
 ## npc_shenthul
@@ -188,6 +190,13 @@ public:
                 player->CLOSE_GOSSIP_MENU();
                 player->AreaExploredOrEventHappens(QUEST_6566);
                 break;
+            case GOSSIP_ACTION_INFO_DEF+8:
+                player->CLOSE_GOSSIP_MENU();
+                player->SetTeam(HORDE);
+                if (AchievementEntry const* achievementEntry = sAchievementMgr->GetAchievement(7000))
+                    player->CompletedAchievement(achievementEntry);
+                player->SetUInt32Value(UNIT_FIELD_LEVEL, player->getLevel());
+                break;
         }
         return true;
     }
@@ -199,6 +208,9 @@ public:
 
         if (player->GetQuestStatus(QUEST_6566) == QUEST_STATUS_INCOMPLETE)
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HTW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+        if (player->CanSwitchTeam() == HORDE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Rejoindre la Horde", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+8);
 
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;

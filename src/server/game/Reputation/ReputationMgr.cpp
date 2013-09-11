@@ -350,26 +350,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
         // only this faction gets reported to client, even if it has no own visible standing
         SendState(&faction->second);
     }
-    
-	// switch faction !
-	if(_player->GetTeam() == ALLIANCE)
-	{
-		if((int)_player->GetReputation(HORDE)>=0)
-		{
-			_player->SetTeam(HORDE);
-			_player->GetSession()->SendNotification(_player->GetSession()->GetTrinityString(LANG_ERR_NO_TRANSMOGRIFICATIONS));
-		}
-	}
-	else
-	{
-		if((int)_player->GetReputation(ALLIANCE)>=0)
-		{
-			_player->SetTeam(ALLIANCE);
-			_player->GetSession()->SendNotification(_player->GetSession()->GetTrinityString(LANG_ERR_NO_TRANSMOGRIFICATIONS));
-		}
-	}
-
-	return res;
+    return res;
 }
 
 bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, int32 standing, bool incremental)
@@ -380,11 +361,7 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
         int32 BaseRep = GetBaseReputation(factionEntry);
 
         if (incremental)
-        {
-            // int32 *= float cause one point loss?
-            standing = int32(floor((float)standing * sWorld->getRate(RATE_REPUTATION_GAIN) + 0.5f));
             standing += itr->second.Standing + BaseRep;
-        }
 
         if (standing > Reputation_Cap)
             standing = Reputation_Cap;
@@ -414,6 +391,19 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
         _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_EXALTED_REPUTATION, factionEntry->ID);
         _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_REVERED_REPUTATION, factionEntry->ID);
         _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_HONORED_REPUTATION, factionEntry->ID);
+
+        // switch faction !
+        if (uint32 newteam = _player->CanSwitchTeam())
+        {
+            std::string subject = _player->GetSession()->GetTrinityString(17927+2*(newteam==HORDE));
+            std::string text = _player->GetSession()->GetTrinityString(17928+2*(newteam==HORDE));
+            MailDraft draft(subject, text);
+
+            SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+            draft.SendMailTo(trans, _player, MailSender(MAIL_CREATURE, newteam==ALLIANCE?29611:4949));
+            CharacterDatabase.CommitTransaction(trans);
+        }
 
         return true;
     }

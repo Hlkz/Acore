@@ -56,6 +56,14 @@ struct FactionState
     bool needSave;
 };
 
+enum Factions
+{
+    FACTION_STORMWIND                = 72,
+    FACTION_SENTINEL                 = 3804,
+    FACTION_ORGRIMMAR                = 76,
+    FACTION_THUNDERLORD              = 3806,
+};
+
 typedef std::map<RepListID, FactionState> FactionStateList;
 typedef std::map<uint32, ReputationRank> ForcedReactions;
 
