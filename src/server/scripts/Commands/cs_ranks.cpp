@@ -137,6 +137,12 @@ bool World::DistributeRanks()
         }
         while (result->NextRow());
     }
+    sWorld->SendWorldText(LANG_DIST_RANKS_TITLEACH);
+
+    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+        if (Player* player = itr->second->_player)
+            player->SetPvpRank(player->GetPvpRank());
+
     UpdateRanksText();
     sWorld->SendWorldText(LANG_DIST_RANKS_END);
 

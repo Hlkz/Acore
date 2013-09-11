@@ -873,6 +873,19 @@ Player::Player(WorldSession* session): Unit(true)
     _activeCheats = CHEAT_NONE;
     m_achievementMgr = new AchievementMgr(this);
     m_reputationMgr = new ReputationMgr(this);
+
+    m_ClmSlotid = 0;
+    m_ClmSlty = 0;
+    m_RandRie = 0;
+    m_RandRis = 0;
+    m_RandRetour = 0;
+    m_RandItId = 0;
+    m_VendorEntry = 0;
+    m_spectator = false;
+    m_PvpRank = 0;
+    m_PvpLast = 0;
+    m_BgWin = 0;
+    m_ArenaWin = 0;
 }
 
 Player::~Player()
@@ -7312,7 +7325,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
 	if (!victim || victim == this || victim->HasAuraType(SPELL_AURA_NO_PVP_CREDIT))
             return true;
 	if (Player* vict = ObjectAccessor::FindPlayer(victim->GetGUID()))
-		SetPvpLast(GetPvpLast()+vict->GetPvpRank()+1);
+		SetPvpLast(GetPvpLast()+vict->m_PvpRank+1);
 
     return true;
 }
@@ -17571,20 +17584,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     SetSpectator(false);
 
-    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[0][0]), true);
-    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[1][0]), true);
-    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[2][0]), true);
-    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[3][0]), true);
-    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[4][0]), true);
-    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[5][0]), true);
-    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[0][1]), true);
-    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[1][1]), true);
-    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[2][1]), true);
-    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[3][1]), true);
-    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[4][1]), true);
-    SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[5][1]), true);
-    if(uint32 rank = GetPvpRank())
-        SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[rank-1][GetTeamId()]));
+    InitRank();
 
     return true;
 }
@@ -21515,7 +21515,7 @@ else {
     if (pProto->RequiredPvpRank)
         if ((GetTeamFromDB() == ALLIANCE && 6 >= pProto->RequiredPvpRank && pProto->RequiredPvpRank >= 1) || (GetTeamFromDB() == HORDE && 12 >= pProto->RequiredPvpRank && pProto->RequiredPvpRank >= 7))
         {
-            if (GetPvpRank()+(GetTeamFromDB()==HORDE)*6 < pProto->RequiredPvpRank)
+            if (m_PvpRank+(GetTeamFromDB()==HORDE)*6 < pProto->RequiredPvpRank)
             {
                 GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_BUY_ERROR_RANK));
                 return false;
@@ -26502,16 +26502,27 @@ void Player::SetSpectator(bool bSpectator)
     m_spectator = bSpectator;
 }
 
-
-uint32 Player::GetPvpRank()
+void Player::InitRank()
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PVP_RANK);
     stmt->setUInt32(0, GUID_LOPART(GetGUID()));
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
-        return m_PvpRank;
-    m_PvpRank = result->Fetch()[0].GetUInt32();
-	return m_PvpRank;
+        m_PvpRank = 0;
+    else
+        m_PvpRank = result->Fetch()[0].GetUInt32();
+
+    for (uint8 i = 0; i < 6; ++i)
+        for (uint8 j = 0; j < 2; ++j)
+            SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[i][j]), true);
+
+    if(m_PvpRank)
+    {
+        for (uint8 i = 0; i < m_PvpRank; ++i)
+            if (AchievementEntry const* achievementEntry = sAchievementMgr->GetAchievement(i+6000-1000*GetTeamId()))
+                CompletedAchievement(achievementEntry);
+        SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[m_PvpRank-1][GetTeamId()]));
+    }
 }
 
 void Player::SetPvpRank(uint32 pvprank)
@@ -26528,8 +26539,12 @@ void Player::SetPvpRank(uint32 pvprank)
     CharacterDatabase.CommitTransaction(trans);
     m_PvpRank = pvprank;
 
-    if(pvprank)
+    if (pvprank)
         SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[pvprank-1][GetTeamId()]));
+
+    for (uint8 i = 0; i < pvprank; ++i)
+        if (AchievementEntry const* achievementEntry = sAchievementMgr->GetAchievement(i+6000-1000*GetTeamId()))
+            CompletedAchievement(achievementEntry);
 }
 
 uint32 Player::GetPvpLast()

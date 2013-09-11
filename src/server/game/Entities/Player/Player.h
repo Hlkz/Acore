@@ -2346,8 +2346,9 @@ class Player : public Unit, public GridObject<Player>
 
         bool IsSpectator() const { return m_spectator; }
         void SetSpectator(bool bSpectator);
-		
-        uint32 GetPvpRank();
+
+        void InitRank();
+        uint32 GetPvpRank() const { return m_PvpRank; }
         void SetPvpRank(uint32 pvprank);
         uint32 GetPvpLast();
         void SetPvpLast(uint32 pvplast);
