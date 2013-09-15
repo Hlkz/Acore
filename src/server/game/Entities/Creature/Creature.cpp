@@ -31,6 +31,7 @@
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "GroupMgr.h"
+#include "MapScript.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "LootMgr.h"
@@ -183,6 +184,8 @@ void Creature::AddToWorld()
     {
         if (m_zoneScript)
             m_zoneScript->OnCreatureCreate(this);
+        if (WMScript* data = GetMap()->GetWMScript())
+            data->OnCreatureCreate(this);
         sObjectAccessor->AddObject(this);
         Unit::AddToWorld();
         SearchFormation();
@@ -198,6 +201,8 @@ void Creature::RemoveFromWorld()
     {
         if (m_zoneScript)
             m_zoneScript->OnCreatureRemove(this);
+        if (WMScript* data = GetMap()->GetWMScript())
+            data->OnCreatureRemove(this);
         if (m_formation)
             sFormationMgr->RemoveCreatureFromGroup(m_formation, this);
         Unit::RemoveFromWorld();

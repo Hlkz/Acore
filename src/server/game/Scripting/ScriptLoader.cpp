@@ -1343,6 +1343,7 @@ void AddSc_Com_Suffix();
 void AddSc_Com_Test();
 void AddSc_Com_Item_Info();
 void AddSc_Com_ucast();
+void AddSc_Com_WE();
 
 void AddSC_kahz();
 void AddSC_zone_AO();
@@ -1354,25 +1355,26 @@ void AddCustomScripts()
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
 
-        AddSc_npc_beast();
-	AddSc_npc_class();
-	AddSc_npc_customchar();
-	AddSc_npc_enchant();
-	AddSc_npc_job();
-        AddSc_npc_rand();
-	AddSc_npc_teleport();
-	AddSc_npc_transmo();
-	AddSc_npc_ba();
+    AddSc_npc_beast();
+    AddSc_npc_class();
+    AddSc_npc_customchar();
+    AddSc_npc_enchant();
+    AddSc_npc_job();
+    AddSc_npc_rand();
+    AddSc_npc_teleport();
+    AddSc_npc_transmo();
+    AddSc_npc_ba();
 
-	AddSc_Com_Arena();
-	AddSc_Com_Bg();
-	AddSc_Com_Talent();
-	AddSc_Com_Rand();
-	AddSc_Com_Ranks();
-	AddSc_Com_Suffix();
-	AddSc_Com_Test();
-	AddSc_Com_Item_Info();
-	AddSc_Com_ucast();
+    AddSc_Com_Arena();
+    AddSc_Com_Bg();
+    AddSc_Com_Talent();
+    AddSc_Com_Rand();
+    AddSc_Com_Ranks();
+    AddSc_Com_Suffix();
+    AddSc_Com_Test();
+    AddSc_Com_Item_Info();
+    AddSc_Com_ucast();
+    AddSc_Com_WE();
 
 	AddSC_kahz();
     AddSC_zone_AO();

@@ -5,15 +5,7 @@
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "PassiveAI.h"
-
-/*enum EmeraldDragonNPC
-{
-    NPC_DREAM_FOG                   = 15224,
-    DRAGON_YSONDRE                  = 14887,
-    DRAGON_LETHON                   = 14888,
-    DRAGON_EMERISS                  = 14889,
-    DRAGON_TAERAR                   = 14890,
-};*/
+#include "MapScript.h"
 
 enum EmeraldDragonSpells
 {
@@ -35,99 +27,14 @@ enum EmerissTexts
     SAY_EMERISS_FOG					= 3
 };
 
-//
-// Emerald Dragon Eventlists (shared and specials)
-//
-
 enum Events
 {
-    // General events for all dragons
     EVENT_SEEPING_FOG = 1,
     EVENT_NOXIOUS_BREATH,
     EVENT_TAIL_SWEEP,
-
-    // Emeriss
     EVENT_CORRUPTION_OF_EARTH,
 };
 
-/*
- * ---
- * --- Emerald Dragons : Base AI-structure used for all the Emerald dragons
- * ---
- */
-
-struct emerald_dragonAI : public WorldBossAI
-{
-    emerald_dragonAI(Creature* creature) : WorldBossAI(creature)
-    {
-    }
-
-    void Reset()
-    {
-        WorldBossAI::Reset();
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
-        me->SetReactState(REACT_AGGRESSIVE);
-        events.ScheduleEvent(EVENT_TAIL_SWEEP, 4000);
-        events.ScheduleEvent(EVENT_NOXIOUS_BREATH, 10000);
-        events.ScheduleEvent(EVENT_SEEPING_FOG, urand(12500, 20000));
-    }
-
-    // Target killed during encounter, mark them as suspectible for Aura Of Nature
-    void KilledUnit(Unit* who)
-    {
-        //if (who->GetTypeId() == TYPEID_PLAYER)
-        //    who->CastSpell(who, SPELL_MARK_OF_NATURE, true);
-    }
-
-    // Execute and reschedule base events shared between all Emerald Dragons
-    void ExecuteEvent(uint32 eventId)
-    {
-        switch (eventId)
-        {
-            case EVENT_SEEPING_FOG:
-                // Seeping Fog appears only as "pairs", and only ONE pair at any given time!
-                // Despawntime is 2 minutes, so reschedule it for new cast after 2 minutes + a minor "random time" (30 seconds at max)
-                DoCast(me, SPELL_SEEPING_FOG_LEFT, true);
-                DoCast(me, SPELL_SEEPING_FOG_RIGHT, true);
-                events.ScheduleEvent(EVENT_SEEPING_FOG, urand(100000, 140000));
-				Talk(SAY_EMERISS_FOG);
-                break;
-            case EVENT_NOXIOUS_BREATH:
-                // Noxious Breath is cast on random intervals, no less than 7.5 seconds between
-                DoCast(me, SPELL_NOXIOUS_BREATH);
-                events.ScheduleEvent(EVENT_NOXIOUS_BREATH, 20000);
-                break;
-            case EVENT_TAIL_SWEEP:
-                // Tail Sweep is cast every two seconds, no matter what goes on in front of the dragon
-                DoCast(me, SPELL_TAIL_SWEEP);
-                events.ScheduleEvent(EVENT_TAIL_SWEEP, 6000);
-                break;
-        }
-    }
-
-    void UpdateAI(uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        events.Update(diff);
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        while (uint32 eventId = events.ExecuteEvent())
-            ExecuteEvent(eventId);
-
-        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, -50.0f, true))
-            DoCast(target, SPELL_SUMMON_PLAYER);
-
-        DoMeleeAttackIfReady();
-    }
-};
-
-/*
- * --- NPC: Dream Fog
- */
 class npc_dream_fog : public CreatureScript
 {
     public:
@@ -135,13 +42,11 @@ class npc_dream_fog : public CreatureScript
 
         struct npc_dream_fogAI : public ScriptedAI
         {
-            npc_dream_fogAI(Creature* creature) : ScriptedAI(creature), summonerUnit((Unit*)NULL), targetUnit((Unit*)NULL)
-            {
-            }
-			
+            npc_dream_fogAI(Creature* creature) : ScriptedAI(creature), summonerUnit((Unit*)NULL), targetUnit((Unit*)NULL) { }
+
             void IsSummonedBy(Unit* summoner)
             {
-				summonerUnit = summoner;
+                summonerUnit = summoner;
             }
 
             void Reset()
@@ -156,37 +61,33 @@ class npc_dream_fog : public CreatureScript
 
                 if (_roamTimer <= diff)
                 {
-                    // Chase target, but don't attack - otherwise just roam around
-					if (summonerUnit)
-					{
-						if (Unit* target = summonerUnit->GetAI()->SelectTarget(SELECT_TARGET_RANDOM))
-						{
-							targetUnit = target;
-						    _roamTimer = 15000;
-						}
-						else
-						{
-							TC_LOG_ERROR(LOG_FILTER_GENERAL, "WB dragon error : dreamfog cant find any target");
-						    _roamTimer = 5000;
-						}
-					}
+                    if (summonerUnit)
+                    {
+                        if (Unit* target = summonerUnit->GetAI()->SelectTarget(SELECT_TARGET_RANDOM))
+                        {
+                            targetUnit = target;
+                            _roamTimer = 15000;
+                        }
+                        else
+                            _roamTimer = 5000;
+                    }
                     me->GetMotionMaster()->Clear(false);
-					me->GetMotionMaster()->MoveChase(targetUnit, 0.2f);
+                    me->GetMotionMaster()->MoveChase(targetUnit, 0.2f);
                     me->SetWalk(true);
                     me->SetSpeed(MOVE_WALK, 0.75f);
                 }
                 else
-				{
+                {
                     _roamTimer -= diff;
-					if (targetUnit->IsInRange(me, 0.0f, 1.0f, false))
-						_roamTimer = 1000;
-				}
+                    if (targetUnit->IsInRange(me, 0.0f, 1.0f, false))
+                        _roamTimer = 1000;
+                }
             }
 
         private:
             uint32 _roamTimer;
-			Unit* summonerUnit;
-			Unit* targetUnit;
+            Unit* summonerUnit;
+            Unit* targetUnit;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -202,9 +103,7 @@ class npc_dream_fog_cine : public CreatureScript
 
         struct npc_dream_fog_cineAI : public PassiveAI
         {
-            npc_dream_fog_cineAI(Creature* creature) : PassiveAI(creature), _summonerGuid(0)
-            {
-            }
+            npc_dream_fog_cineAI(Creature* creature) : PassiveAI(creature), _summonerGuid(0) { }
 
             void IsSummonedBy(Unit* summoner)
             {
@@ -215,9 +114,7 @@ class npc_dream_fog_cine : public CreatureScript
             void MovementInform(uint32 moveType, uint32 data)
             {
                 if (moveType == FOLLOW_MOTION_TYPE && data == _summonerGuid)
-                {
                     me->DespawnOrUnsummon(1000);
-                }
             }
 
         private:
@@ -230,43 +127,80 @@ class npc_dream_fog_cine : public CreatureScript
         }
 };
 
-/*
- * ---
- * --- Dragonspecific scripts and handling: EMERISS
- * ---
- */
-
 class boss_emeriss : public CreatureScript
 {
     public:
         boss_emeriss() : CreatureScript("boss_emeriss") { }
 
-        struct boss_emerissAI : public emerald_dragonAI
+        struct boss_emerissAI : public WorldBossAI
         {
-            boss_emerissAI(Creature* creature) : emerald_dragonAI(creature)
-            {
-            }
+            boss_emerissAI(Creature* creature) : WorldBossAI(creature), ini(false) { }
+            bool ini;
 
             void Reset()
             {
-                _stage = 1;
-                emerald_dragonAI::Reset();
+                WorldBossAI::Reset();
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                me->SetReactState(REACT_AGGRESSIVE);
+                events.ScheduleEvent(EVENT_TAIL_SWEEP, 4000);
+                events.ScheduleEvent(EVENT_NOXIOUS_BREATH, 10000);
+                events.ScheduleEvent(EVENT_SEEPING_FOG, urand(12500, 20000));
+                if (!ini)
+                {
+                    me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
+                    me->SetSpeed(MOVE_FLIGHT, 1.0f);
+                    me->setActive(true);
+                    me->SetCanFly(true);
+                    me->SetDisableGravity(true);
+                    me->AddUnitState(UNIT_STATE_IN_FLIGHT);
+                    if (WMScript* data = me->GetWMScript())
+                        if (Unit* trigger = ObjectAccessor::FindUnit(data->GetData64(1000046)))
+                            me->GetMotionMaster()->MoveFollow(trigger, 0.0f, 0.0f);
+                    ini = true;
+                }
+            }
+
+            void UpdateAI(uint32 diff)
+            {
+                if (!me->IsInCombat())
+                    if (WMScript* data = me->GetWMScript())
+                        if (data->GetData(1) == 7)
+                            if (me->IsInDist(3167.062988f, -3663.271973f, 121.738525f, 3.0f))
+                            {
+                                Talk(SAY_EMERISS_AGGRO);
+                                data->SetData(2, 8);
+                            }
+
+                if (!UpdateVictim())
+	        		return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                    ExecuteEvent(eventId);
+
+                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, -50.0f, true))
+                    DoCast(target, SPELL_SUMMON_PLAYER);
+
+                DoMeleeAttackIfReady();
             }
 
             void KilledUnit(Unit* who)
             {
-                emerald_dragonAI::KilledUnit(who);
             }
 
             void EnterCombat(Unit* who)
 			{
-                Talk(SAY_EMERISS_AGGRO);
                 WorldBossAI::EnterCombat(who);
             }
 
 			void JustDied(Unit* /*killer*/)
 			{
 				Talk(SAY_EMERISS_DIE);
+				ini = false;
 			}
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
@@ -283,12 +217,23 @@ class boss_emeriss : public CreatureScript
             {
                 switch (eventId)
                 {
-					case 0:
-                    default:
-                        emerald_dragonAI::ExecuteEvent(eventId);
+                    case EVENT_SEEPING_FOG:
+                        DoCast(me, SPELL_SEEPING_FOG_LEFT, true);
+                        DoCast(me, SPELL_SEEPING_FOG_RIGHT, true);
+                        events.ScheduleEvent(EVENT_SEEPING_FOG, urand(100000, 140000));
+                        Talk(SAY_EMERISS_FOG);
+                        break;
+                    case EVENT_NOXIOUS_BREATH:
+                        DoCast(me, SPELL_NOXIOUS_BREATH);
+                        events.ScheduleEvent(EVENT_NOXIOUS_BREATH, 20000);
+                        break;
+                    case EVENT_TAIL_SWEEP:
+                         DoCast(me, SPELL_TAIL_SWEEP);
+                        events.ScheduleEvent(EVENT_TAIL_SWEEP, 6000);
                         break;
                 }
             }
+	
 
         private:
             uint8 _stage;
@@ -300,41 +245,9 @@ class boss_emeriss : public CreatureScript
         }
 };
 
-
-/*
- * --- Spell: Dream Fog
- */
-
-class spell_dream_fog_sleep : public SpellScriptLoader
-{
-    public:
-        spell_dream_fog_sleep() : SpellScriptLoader("spell_dream_fog_sleep") { }
-
-        class spell_dream_fog_sleep_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dream_fog_sleep_SpellScript);
-			
-            void Register()
-            {}
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dream_fog_sleep_SpellScript();
-        }
-};
-
-
-
 void AddSC_emerald_dragons()
 {
-    // helper NPC scripts
     new npc_dream_fog();
     new npc_dream_fog_cine();
-
-    // dragons
     new boss_emeriss();
-
-    // dragon spellscripts
-    new spell_dream_fog_sleep();
 };
