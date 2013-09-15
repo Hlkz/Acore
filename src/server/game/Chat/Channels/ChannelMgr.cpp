@@ -34,7 +34,9 @@ ChannelMgr* ChannelMgr::forTeam(uint32 team)
 Channel* ChannelMgr::GetJoinChannel(std::string const& name, uint32 channelId)
 {
     std::wstring wname;
-    Utf8toWStr(name, wname);
+    if (!Utf8toWStr(name, wname))
+        return NULL;
+
     wstrToLower(wname);
 
     ChannelMap::const_iterator i = channels.find(wname);
@@ -52,7 +54,9 @@ Channel* ChannelMgr::GetJoinChannel(std::string const& name, uint32 channelId)
 Channel* ChannelMgr::GetChannel(std::string const& name, Player* player, bool pkt)
 {
     std::wstring wname;
-    Utf8toWStr(name, wname);
+    if (!Utf8toWStr(name, wname))
+        return NULL;
+
     wstrToLower(wname);
 
     ChannelMap::const_iterator i = channels.find(wname);
@@ -75,7 +79,9 @@ Channel* ChannelMgr::GetChannel(std::string const& name, Player* player, bool pk
 void ChannelMgr::LeftChannel(std::string const& name)
 {
     std::wstring wname;
-    Utf8toWStr(name, wname);
+    if (!Utf8toWStr(name, wname))
+        return;
+
     wstrToLower(wname);
 
     ChannelMap::const_iterator i = channels.find(wname);
