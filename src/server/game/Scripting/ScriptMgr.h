@@ -1070,8 +1070,8 @@ class ScriptMgr
 
     public: /* UnitScript */
 
-        void OnHeal(Unit* healer, Unit* reciever, uint32 gain);
-        void OnDamage(Unit* attacker, Unit* victim, uint32 damage);
+        void OnHeal(Unit* healer, Unit* reciever, uint32& gain);
+        void OnDamage(Unit* attacker, Unit* victim, uint32& damage);
         void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage);
         void ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage);
         void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage);

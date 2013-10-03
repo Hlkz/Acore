@@ -278,7 +278,7 @@ void ChatHandler::PSendSysMessage(const char *format, ...)
     SendSysMessage(str);
 }
 
-bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, const std::string& fullcmd)
+bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, std::string const& fullcmd)
 {
     char const* oldtext = text;
     std::string cmd = "";
@@ -346,7 +346,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
                 if (m_session)
                 {
                     Player* p = m_session->GetPlayer();
-                    uint64 sel_guid = p->GetSelection();
+                    uint64 sel_guid = p->GetUInt64Value(UNIT_FIELD_TARGET);
                     sLog->outCommand(m_session->GetAccountId(), "Command: %s [Player: %s (Account: %u) X: %f Y: %f Z: %f Map: %u Selected %s: %s (GUID: %u)]",
                         fullcmd.c_str(), p->GetName().c_str(), m_session->GetAccountId(), p->GetPositionX(), p->GetPositionY(), p->GetPositionZ(), p->GetMapId(),
                         GetLogNameForGuid(sel_guid), (p->GetSelectedUnit()) ? p->GetSelectedUnit()->GetName().c_str() : "", GUID_LOPART(sel_guid));
@@ -702,12 +702,10 @@ Player* ChatHandler::getSelectedPlayer()
     if (!m_session)
         return NULL;
 
-    uint64 guid  = m_session->GetPlayer()->GetSelection();
+    if (Player* selected = m_session->GetPlayer()->GetSelectedPlayer())
+        return selected;
 
-    if (guid == 0)
-        return m_session->GetPlayer();
-
-    return ObjectAccessor::FindPlayer(guid);
+    return m_session->GetPlayer();
 }
 
 Unit* ChatHandler::getSelectedUnit()
@@ -715,12 +713,10 @@ Unit* ChatHandler::getSelectedUnit()
     if (!m_session)
         return NULL;
 
-    uint64 guid = m_session->GetPlayer()->GetSelection();
+    if (Unit* selected = m_session->GetPlayer()->GetSelectedUnit())
+        return selected;
 
-    if (guid == 0)
-        return m_session->GetPlayer();
-
-    return ObjectAccessor::GetUnit(*m_session->GetPlayer(), guid);
+    return m_session->GetPlayer();
 }
 
 WorldObject* ChatHandler::getSelectedObject()
@@ -728,7 +724,7 @@ WorldObject* ChatHandler::getSelectedObject()
     if (!m_session)
         return NULL;
 
-    uint64 guid = m_session->GetPlayer()->GetSelection();
+    uint64 guid = m_session->GetPlayer()->GetTarget();
 
     if (guid == 0)
         return GetNearbyGameObject();
@@ -741,7 +737,7 @@ Creature* ChatHandler::getSelectedCreature()
     if (!m_session)
         return NULL;
 
-    return ObjectAccessor::GetCreatureOrPetOrVehicle(*m_session->GetPlayer(), m_session->GetPlayer()->GetSelection());
+    return ObjectAccessor::GetCreatureOrPetOrVehicle(*m_session->GetPlayer(), m_session->GetPlayer()->GetTarget());
 }
 
 char* ChatHandler::extractKeyFromLink(char* text, char const* linkType, char** something1)

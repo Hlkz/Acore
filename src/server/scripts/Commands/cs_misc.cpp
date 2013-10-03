@@ -647,7 +647,7 @@ public:
     {
         Unit* target = handler->getSelectedUnit();
 
-        if (!target || !handler->GetSession()->GetPlayer()->GetSelection())
+        if (!target || !handler->GetSession()->GetPlayer()->GetTarget())
         {
             handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
             handler->SetSentErrorMessage(true);
@@ -712,7 +712,7 @@ public:
 
     static bool HandleGUIDCommand(ChatHandler* handler, char const* /*args*/)
     {
-        uint64 guid = handler->GetSession()->GetPlayer()->GetSelection();
+        uint64 guid = handler->GetSession()->GetPlayer()->GetTarget();
 
         if (guid == 0)
         {
@@ -1839,7 +1839,7 @@ public:
 
         // accept only explicitly selected target (not implicitly self targeting case)
         Unit* target = handler->getSelectedUnit();
-        if (player->GetSelection() && target)
+        if (player->GetTarget() && target)
         {
             if (target->GetTypeId() != TYPEID_UNIT || target->IsPet())
             {
@@ -2184,7 +2184,7 @@ public:
         }
 
         Unit* target = handler->getSelectedUnit();
-        if (!target || !handler->GetSession()->GetPlayer()->GetSelection())
+        if (!target || !handler->GetSession()->GetPlayer()->GetTarget())
         {
             handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
             handler->SetSentErrorMessage(true);

@@ -703,7 +703,12 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         bool m_isTempWorldObject; //true when possessed
 
-		void HasQuestForPlayer(Player* player);
+        void HasQuestForPlayer(Player* player);
+
+        // Handling caster facing during spellcast
+        void SetTarget(uint64 guid);
+        void FocusTarget(Spell const* focusSpell, WorldObject const* target);
+        void ReleaseFocus(Spell const* focusSpell);
 
     protected:
         bool CreateFromProto(uint32 guidlow, uint32 Entry, uint32 vehId, uint32 team, const CreatureData* data = NULL);
@@ -764,6 +769,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         //Formation var
         CreatureGroup* m_formation;
         bool TriggerJustRespawned;
+
+        Spell const* _focusSpell;   ///> Locks the target during spell cast for proper facing
 };
 
 class AssistDelayEvent : public BasicEvent

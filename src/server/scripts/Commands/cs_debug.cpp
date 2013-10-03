@@ -178,7 +178,7 @@ public:
             return false;
         }
 
-        if (handler->GetSession()->GetPlayer()->GetSelection())
+        if (handler->GetSession()->GetPlayer()->GetTarget())
             unit->PlayDistanceSound(soundId, handler->GetSession()->GetPlayer());
         else
             unit->PlayDirectSound(soundId, handler->GetSession()->GetPlayer());
