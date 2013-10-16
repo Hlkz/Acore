@@ -2518,10 +2518,15 @@ void Map::AddToActive(Creature* c)
     }
 }
 
+template<>
+void Map::AddToActive(DynamicObject* d)
+{
+    AddToActiveHelper(d);
+}
+
 template<class T>
 void Map::RemoveFromActive(T* obj)
 {
-    RemoveFromActiveHelper(obj);
 }
 
 template <>
@@ -2544,6 +2549,12 @@ void Map::RemoveFromActive(Creature* c)
                 c->GetGUIDLow(), c->GetEntry(), p.x_coord, p.y_coord, p2.x_coord, p2.y_coord);
         }
     }
+}
+
+template<>
+void Map::RemoveFromActive(DynamicObject* obj)
+{
+    RemoveFromActiveHelper(obj);
 }
 
 template bool Map::AddToMap(Corpse*);
@@ -2578,10 +2589,6 @@ void Map::CreateMapData()
 
     TC_LOG_DEBUG(LOG_FILTER_MAPS, "Map::CreateMapData: %u WMScript Initialized", GetId());
 }
-
-template void Map::AddToActive(DynamicObject*);
-
-template void Map::RemoveFromActive(DynamicObject*);
 
 /* ******* Dungeon Instance Maps ******* */
 
