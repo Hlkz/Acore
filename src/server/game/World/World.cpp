@@ -80,6 +80,7 @@
 #include "Warden.h"
 #include "CalendarMgr.h"
 #include "BattleAOMgr.h"
+#include "TransportMgr.h"
 
 ACE_Atomic_Op<ACE_Thread_Mutex, bool> World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -1199,6 +1200,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Game Object Templates...");         // must be after LoadPageTexts
     sObjectMgr->LoadGameObjectTemplate();
 
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Transport templates...");
+    sTransportMgr->LoadTransportTemplates();
+
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Spell Rank Data...");
     sSpellMgr->LoadSpellRanks();
 
@@ -1611,10 +1615,7 @@ void World::SetInitialWorldSettings()
     sBattleAOMgr->InitBattleAO();
 
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Transports...");
-    sMapMgr->LoadTransports();
-
-    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Transport NPCs...");
-    sMapMgr->LoadTransportNPCs();
+    sTransportMgr->SpawnContinentTransports();
 
     ///- Initialize Warden
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Warden Checks...");
