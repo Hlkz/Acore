@@ -2077,6 +2077,8 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
                     case GAMEOBJECT_TYPE_MO_TRANSPORT:
                         pathProgress = int16(float(m_goValue->Transport.PathProgress) / float(GetUInt32Value(GAMEOBJECT_LEVEL)) * 65535.0f);
                         break;
+                    default:
+                        break;
                 }
 
                 fieldBuffer << uint16(dynFlags);

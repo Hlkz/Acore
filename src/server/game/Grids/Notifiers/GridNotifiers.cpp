@@ -55,6 +55,8 @@ void VisibleNotifier::SendToSelf()
                     case TYPEID_UNIT:
                         i_player.UpdateVisibilityOf((*itr)->ToCreature(), i_data, i_visibleNow);
                         break;
+                    default:
+                        break;
                 }
             }
         }
