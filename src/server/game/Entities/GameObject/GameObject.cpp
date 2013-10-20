@@ -101,7 +101,11 @@ void GameObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
         RemoveFromOwner();
 
     if (GetTransport() && !ToTransport())
+    {
         GetTransport()->RemovePassenger(this);
+        SetTransport(NULL);
+        m_movementInfo.transport.Reset();
+    }
 }
 
 void GameObject::RemoveFromOwner()
