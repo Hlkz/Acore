@@ -276,7 +276,7 @@ enum ArgentTournamentAreas
 class achievement_tilted : public AchievementCriteriaScript
 {
     public:
-        achievement_tilted() : AchievementCriteriaScript("achievement_tilted") {}
+        achievement_tilted() : AchievementCriteriaScript("achievement_tilted") { }
 
         bool OnCheck(Player* player, Unit* /*target*/)
         {

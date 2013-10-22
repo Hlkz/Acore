@@ -491,7 +491,7 @@ public:
 
     struct npc_tyrion_spybotAI : public npc_escortAI
     {
-        npc_tyrion_spybotAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_tyrion_spybotAI(Creature* creature) : npc_escortAI(creature) { }
 
         uint32 uiTimer;
         uint32 uiPhase;
