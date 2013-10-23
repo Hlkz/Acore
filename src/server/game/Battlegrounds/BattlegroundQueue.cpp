@@ -825,11 +825,8 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
 
     if (bg_template->isBattleground())
     {
-		Map* map = sMapMgr->CreateBaseMap(782);
-		for (Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
-			if (Player* player = itr->GetSource())
-		        if (player)
-					return;
+        if (bg_template->GetMapId() == 782)
+            return;
 
         if (CheckPremadeMatch(bracket_id, MinPlayersPerTeam, MaxPlayersPerTeam))
         {

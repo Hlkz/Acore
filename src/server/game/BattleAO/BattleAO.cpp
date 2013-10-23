@@ -297,7 +297,6 @@ void BattleAO::HandlePlayerEnterZone(Player* player, uint32 /*zone*/)
 {
 	player->AddBattlegroundQueueId(BATTLEGROUND_QUEUE_AO); // problem with handlejoinbao ?
 	player->SetInviteForBattlegroundQueueType(BATTLEGROUND_QUEUE_AO, true);
-	UpdatePlayersCount(player->GetTeam(), false);
 	AddPlayer(player);
 }
 

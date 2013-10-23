@@ -31,19 +31,19 @@ void BattleAOMgr::InitBattleAO()
 
 void BattleAOMgr::SendToBattleAO(Player* player)
 {
-	uint32 team = player->GetTeamFromDB();
+    uint32 team = player->GetTeamFromDB();
 
-	if (sWorld->getWorldState(22003) == 0)
-		player->TeleportTo(BATTLEAO_MAP, -5369.008789f, 219.136292f, 50.291454f, 3.776330f);
-	else
-	{
-		if(player->IsDeserter())
-			player->TeleportTo(BATTLEAO_MAP, -5610.104980f, -592.819092f, -20.958515f, 1.135133f);
-		else if (team == ALLIANCE)
-			player->TeleportTo(BATTLEAO_MAP, -5522.344238f, -123.176567f, -17.148638f, 3.033346f);
-		else if (team == HORDE)
-			player->TeleportTo(BATTLEAO_MAP, -5787.119629f, -127.544693f, -9.115396f, 0.080639f);
-	}
+    if (sWorld->getWorldState(22301) < 11)
+        player->TeleportTo(BATTLEAO_MAP, -5372.850098f, 232.33900f, 52.181530f, 3.837210f);
+    else
+    {
+        if(player->IsDeserter())
+            player->TeleportTo(BATTLEAO_MAP, -5610.104980f, -592.819092f, -20.958515f, 1.135133f);
+        else if (team == ALLIANCE)
+            player->TeleportTo(BATTLEAO_MAP, -5172.204590f, -210.363510f, 13.777737f, 5.422875f);
+        else if (team == HORDE)
+            player->TeleportTo(BATTLEAO_MAP, -6146.884766f, -195.528625f, 7.960495f, 4.080634f);
+    }
 }
 
 BattleAO *BattleAOMgr::GetBattleAO()
