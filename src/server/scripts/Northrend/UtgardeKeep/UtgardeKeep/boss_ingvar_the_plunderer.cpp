@@ -1,1 +1,0 @@
-void AddSC_boss_ingvar_the_plunderer() {}

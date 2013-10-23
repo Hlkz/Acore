@@ -1,1 +1,0 @@
-void AddSC_instance_ahnkahet() {}
