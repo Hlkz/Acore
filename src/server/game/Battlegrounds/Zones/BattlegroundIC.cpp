@@ -59,8 +59,6 @@ BattlegroundIC::BattlegroundIC()
 
 BattlegroundIC::~BattlegroundIC()
 {
-    delete gunshipHorde;
-    delete gunshipAlliance;
 }
 
 void BattlegroundIC::HandlePlayerResurrect(Player* player)
