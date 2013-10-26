@@ -139,24 +139,34 @@ class boss_emeriss : public CreatureScript
 
             void Reset()
             {
-                WorldBossAI::Reset();
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
-                me->SetReactState(REACT_AGGRESSIVE);
-                events.ScheduleEvent(EVENT_TAIL_SWEEP, 4000);
-                events.ScheduleEvent(EVENT_NOXIOUS_BREATH, 10000);
-                events.ScheduleEvent(EVENT_SEEPING_FOG, urand(12500, 20000));
-                if (!ini)
+                if (sWorld->getWorldState(22301) < 7)
                 {
-                    me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
-                    me->SetSpeed(MOVE_FLIGHT, 1.0f);
-                    me->setActive(true);
-                    me->SetCanFly(true);
-                    me->SetDisableGravity(true);
-                    me->AddUnitState(UNIT_STATE_IN_FLIGHT);
-                    if (WMScript* data = me->GetWMScript())
-                        if (Unit* trigger = ObjectAccessor::FindUnit(data->GetData64(1000046)))
-                            me->GetMotionMaster()->MoveFollow(trigger, 0.0f, 0.0f);
-                    ini = true;
+                    WorldBossAI::Reset();
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    events.ScheduleEvent(EVENT_TAIL_SWEEP, 4000);
+                    events.ScheduleEvent(EVENT_NOXIOUS_BREATH, 10000);
+                    events.ScheduleEvent(EVENT_SEEPING_FOG, urand(12500, 20000));
+                    if (!ini)
+                    {
+                        me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
+                        me->SetSpeed(MOVE_FLIGHT, 1.0f);
+                        me->setActive(true);
+                        me->SetCanFly(true);
+                        me->SetDisableGravity(true);
+                        me->AddUnitState(UNIT_STATE_IN_FLIGHT);
+                        if (WMScript* data = me->GetWMScript())
+                            if (Unit* trigger = ObjectAccessor::FindUnit(data->GetData64(1000046)))
+                                me->GetMotionMaster()->MoveFollow(trigger, 0.0f, 0.0f);
+                        ini = true;
+                    }
+                }
+                else
+                {
+                    me->SetCanFly(false);
+                    me->SetDisableGravity(false);
+                    me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
+                    me->ClearUnitState(UNIT_STATE_IN_FLIGHT);
                 }
             }
 

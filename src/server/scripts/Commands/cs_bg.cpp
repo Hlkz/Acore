@@ -11,6 +11,11 @@ class com_bg : public CommandScript
 
        static bool HandleComBg(ChatHandler* handler, const char* /*args*/)
        {
+            if (sWorld->getWorldState(22301) < 9)
+            {
+                handler->PSendSysMessage(17930);
+                return true;
+            }
 			Player* player = handler->GetSession()->GetPlayer();
 			if (sBattleAOMgr->GetBattleAO()->HasPlayer(player))
 				return true;

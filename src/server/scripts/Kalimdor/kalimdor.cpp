@@ -166,19 +166,21 @@ public:
         if (sWorld->getWorldState(WS_BO_PHASE) > 6)
             return true;
         creature->HasQuestForPlayer(player);
-        player->ADD_GOSSIP_ITEM(9, "Bouge !", GOSSIP_SENDER_MAIN, 30);
+        player->ADD_GOSSIP_ITEM(0, "Avancer", GOSSIP_SENDER_MAIN, 4);
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
-
-    bool OnGossipSelect(Player *player, Creature * creature, uint32 sender, uint32 action)
-    {
+	
+	bool OnGossipSelect(Player *player, Creature * creature, uint32 sender, uint32 action)
+	{
         player->PlayerTalkClass->ClearMenus();
-        switch (action) {
-        case 100:
-            uint32 step = sWorld->getWorldState(WS_BO_PHASE)-3;
-            creature->GetMotionMaster()->MovePoint(step+1, WEBO_Steps_Positions[step][0], WEBO_Steps_Positions[step][1], WEBO_Steps_Positions[step][2]);
-            break; }
+        switch (action)
+        {
+            case 4:
+                uint32 step = sWorld->getWorldState(WS_BO_PHASE)-3;
+                creature->GetMotionMaster()->MovePoint(step+1, WEBO_Steps_Positions[step][0], WEBO_Steps_Positions[step][1], WEBO_Steps_Positions[step][2]);
+                break;
+        }
         return true;
     }
 };
