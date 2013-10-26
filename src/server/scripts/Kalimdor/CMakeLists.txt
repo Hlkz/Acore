@@ -59,8 +59,6 @@ set(scripts_STAT_SRCS
   Kalimdor/zone_teldrassil.cpp
   Kalimdor/RagefireChasm/instance_ragefire_chasm.cpp
   Kalimdor/DireMaul/instance_dire_maul.cpp
-  Kalimdor/kalimdor.h
-  Kalimdor/kalimdor.cpp
 )
 
 message("  -> Prepared: Kalimdor")

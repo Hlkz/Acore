@@ -1,5 +1,4 @@
 #include "BattleAOMgr.h"
-#include "BattleAOAO.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 
@@ -16,7 +15,7 @@ BattleAOMgr::~BattleAOMgr()
 
 void BattleAOMgr::InitBattleAO()
 {
-    BattleAO* pBAO = new BattleAOAO;
+    BattleAO* pBAO = new BattleAO;
     if (!pBAO->SetupBattleAO())
     {
         TC_LOG_ERROR(LOG_FILTER_BAO, "BAO : init failed.");
