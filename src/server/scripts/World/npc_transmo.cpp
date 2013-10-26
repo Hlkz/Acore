@@ -92,11 +92,11 @@ bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 ui
 				if (_items[lowGUID].find(uiAction) != _items[lowGUID].end() && _items[lowGUID][uiAction]->IsInWorld()) {
 					Item* newItem = _items[lowGUID][uiAction];
 					if (newItem->GetOwnerGUID() == player->GetGUIDLow() && (newItem->IsInBag() || newItem->GetBagSlot() == INVENTORY_SLOT_BAG_0) && player->SuitableForTransmogrification(oldItem, newItem) == ERR_FAKE_OK) {
-						if (!player->HasEnoughMoney(10000)) {
+						/*if (!player->HasEnoughMoney(0)) {
 							creature->MonsterWhisper(session->GetTrinityString(11129), player->GetGUID());
 							player->PlayerTalkClass->SendCloseGossip();
 							return false; }
-						player->ModifyMoney(-10000); // take cost
+						//player->ModifyMoney(-10000); // take cost */
 						oldItem->SetFakeEntry(newItem->GetEntry());
 //						player->DestroyItemCount(newItem->GetTemplate()->ItemId, 1, true, false);
 						player->PlayDirectSound(3337);
