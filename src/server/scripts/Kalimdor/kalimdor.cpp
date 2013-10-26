@@ -163,7 +163,7 @@ public:
     {
         if (creature->IsInCombat())
             return true;
-        if (sWorld->getWorldState(WS_BO_PHASE) > 6)
+        if ((sWorld->getWorldState(WS_BO_PHASE) > 6) || (sWorld->getWorldState(WS_BO_PHASE) < 1))
             return true;
         creature->HasQuestForPlayer(player);
         player->ADD_GOSSIP_ITEM(0, "Avancer", GOSSIP_SENDER_MAIN, 4);
@@ -215,6 +215,9 @@ void mapevent_kalimdor::mapevent_kalimdor_WMS::Initialize()
 
 void  mapevent_kalimdor::mapevent_kalimdor_WMS::Update(uint32 diff)
 {
+
+if ((sWorld->getWorldState(WS_BO_PHASE) > 0) && (sWorld->getWorldState(WS_BO_PHASE) < 7))
+{
     wave_timer -= diff;
     if (wave_timer < 0)
     {
@@ -245,7 +248,8 @@ void  mapevent_kalimdor::mapevent_kalimdor_WMS::Update(uint32 diff)
 		}
 		else
 			wave_timer = urand(400, 800);
-	}
+    }
+}
 
 	for (WEBONodesMap::iterator itr = nodes.begin(); itr != nodes.end(); ++itr)
 	{
