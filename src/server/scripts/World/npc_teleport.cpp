@@ -17,6 +17,8 @@ class npc_teleport : public CreatureScript
 			
 			creature->HasQuestForPlayer(player);
 			
+			if ((player->GetQuestStatus(100054) == QUEST_STATUS_REWARDED) && (sWorld->getWorldState(22301) > 0) && (sWorld->getWorldState(22301) < 9))
+				player->ADD_GOSSIP_ITEM(3, "[World Event] Orneval...", GOSSIP_SENDER_MAIN, 40);
 			player->ADD_GOSSIP_ITEM(6, "[Shop] Karazhan", GOSSIP_SENDER_MAIN, 10);
 			/*	if (player->GetTeam() == ALLIANCE)
 			player->ADD_GOSSIP_ITEM(9, "[PvP sauvage] Cratère d'Azshara", GOSSIP_SENDER_MAIN, 12);
@@ -26,10 +28,8 @@ class npc_teleport : public CreatureScript
 			//	player->ADD_GOSSIP_ITEM(9, ostr.str().c_str(), GOSSIP_SENDER_MAIN, 20);
 			//	player->ADD_GOSSIP_ITEM(2, "[PvE] Donjons...", GOSSIP_SENDER_MAIN, 30);
 			//	player->ADD_GOSSIP_ITEM(6, "Dalaran (accès au monde...)", GOSSIP_SENDER_MAIN, 14);
-			if(player->GetQuestStatus(100054) == QUEST_STATUS_REWARDED)
-				player->ADD_GOSSIP_ITEM(3, "[World Event] Bosquet du crépuscule", GOSSIP_SENDER_MAIN, 40);
-			player->ADD_GOSSIP_ITEM(2, "Elwynn...", GOSSIP_SENDER_MAIN, 60);
-			player->ADD_GOSSIP_ITEM(2, "Durotar...", GOSSIP_SENDER_MAIN, 61);
+			// player->ADD_GOSSIP_ITEM(2, "Elwynn...", GOSSIP_SENDER_MAIN, 60);
+			// player->ADD_GOSSIP_ITEM(2, "Durotar...", GOSSIP_SENDER_MAIN, 61);
 			player->SEND_GOSSIP_MENU(1, creature->GetGUID());
 		}
 		
@@ -112,7 +112,7 @@ class npc_teleport : public CreatureScript
 				TeleportTo(player, 0, -10420.893f, -3794.955f, 32.67f, 3.85f); break;
 		
 			case 40: player->CLOSE_GOSSIP_MENU(); // Taerar
-				TeleportTo(player, 0, -10712.433594f, -422.857239f, 126.675827f, 0.493374f); break;
+				TeleportTo(player, 1, 2987.293945f, -3265.250488f, 161.123459f, 4.358917f); break;
 
 			case 50: player->CLOSE_GOSSIP_MENU(); // Gurubashi
 				TeleportTo(player, 0, -13229.830078f, 225.240143f, 32.587940f, 1.100993f); break;

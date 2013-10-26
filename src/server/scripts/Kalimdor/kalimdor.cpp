@@ -82,7 +82,7 @@ public:
                 phasetimer = 4000;
                 phasestate = sWorld->getWorldState(WS_BO_PHASE);
             }
-            if (phasestate < 8)
+            if (phasestate < 9)
                 return;
 
             Map* map = me->GetMap();
@@ -91,7 +91,7 @@ public:
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     if (Player* player = i->GetSource())
                         if (player->IsInRange(me, 0.0f, 3.0f, false))
-                            player->TeleportTo(783, -5369.008789f, 219.136292f, 53.291454f, 3.776330f);
+                            player->TeleportTo(782, -5375.187012f, 230.771652f, 52.250080f, 3.632217f);
         }
     };
 
