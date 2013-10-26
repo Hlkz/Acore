@@ -234,7 +234,7 @@ class boss_emeriss : public CreatureScript
                         Talk(SAY_EMERISS_FOG);
                         break;
                     case EVENT_NOXIOUS_BREATH:
-                        DoCast(me, SPELL_NOXIOUS_BREATH);
+                        //DoCast(me, SPELL_NOXIOUS_BREATH);
                         events.ScheduleEvent(EVENT_NOXIOUS_BREATH, 20000);
                         break;
                     case EVENT_TAIL_SWEEP:
