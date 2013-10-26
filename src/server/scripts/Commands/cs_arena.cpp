@@ -1,31 +1,30 @@
 #include "ScriptPCH.h"
 #include "Chat.h"
 
-class com_arena : public CommandScript
+class arena_commandscript : public CommandScript
 {
-   public:
-       com_arena() : CommandScript("cs_arena") { }
-
-
-       static bool HandleComArena(ChatHandler* handler, const char* /*args*/)
-       {
-		    BattlegroundTypeId bgTypeId = BATTLEGROUND_AA;
-			handler->GetSession()->SendBattleGroundList(handler->GetSession()->GetPlayer()->GetGUID(), bgTypeId);
-			return true;
-       }
+public:
+   arena_commandscript() : CommandScript("arena_commandscript") { }
 
        ChatCommand* GetCommands() const
        {
-           static ChatCommand ComArena[] =
+           static ChatCommand commandTable[] =
            {
-               { "arena",          SEC_PLAYER,			false, &HandleComArena,	"", NULL },
-               { NULL,             0,					false, NULL,				"", NULL }
+               { "arena",          SEC_PLAYER,          false, &HandleArenaCommand, "", NULL },
+               { NULL,             0,                   false, NULL,                "", NULL }
            };
-           return ComArena;
+           return commandTable;
+       }
+	   
+       static bool HandleArenaCommand(ChatHandler* handler, const char* /*args*/)
+       {
+		    BattlegroundTypeId bgTypeId = BATTLEGROUND_AA;
+            handler->GetSession()->SendBattleGroundList(handler->GetSession()->GetPlayer()->GetGUID(), bgTypeId);
+            return true;
        }
 };
 
-void AddSc_Com_Arena()
+void AddSC_arena_commandscript()
 {
-   new com_arena();
+   new arena_commandscript();
 }

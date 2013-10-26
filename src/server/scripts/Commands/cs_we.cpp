@@ -1,10 +1,20 @@
 #include "ScriptPCH.h"
 #include "Chat.h"
 
-class com_we : public CommandScript
+class WE_commandscript : public CommandScript
 {
 public:
-    com_we() : CommandScript("cs_we") { }
+    WE_commandscript() : CommandScript("WE_commandscript") { }
+
+    ChatCommand* GetCommands() const
+    {
+        static ChatCommand commandTable[] =
+        {
+            { "we",             SEC_ADMINISTRATOR,  false, &HandleComWE,        "", NULL },
+            { NULL,             0,                  false, NULL,                "", NULL }
+        };
+	    return commandTable;
+    }
 
     static bool HandleComWE(ChatHandler* handler, const char* args)
     {
@@ -16,19 +26,9 @@ public:
         uint64 Peuxieme = (uint64)atof(deuxieme);
         return true;
     }
-
-    ChatCommand* GetCommands() const
-    {
-        static ChatCommand ComWE[] =
-        {
-            { "we",             SEC_ADMINISTRATOR,  false, &HandleComWE,        "", NULL },
-            { NULL,             0,                  false, NULL,                "", NULL }
-        };
-	    return ComWE;
-    }
 };
 
-void AddSc_Com_WE()
+void AddSC_WE_commandscript()
 {
-   new com_we();
+   new WE_commandscript();
 }

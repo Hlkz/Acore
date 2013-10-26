@@ -78,6 +78,17 @@ void AddSC_titles_commandscript();
 void AddSC_wp_commandscript();
 void AddSC_spectate_commandscript();
 
+void AddSC_arena_commandscript();
+void AddSC_bao_commandscript();
+void AddSC_bg_commandscript();
+void AddSC_talent_commandscript();
+void AddSC_item_rand_commandscript();
+void AddSC_item_suffix_commandscript();
+void AddSC_ranks_commandscript();
+void AddSC_test_commandscript();
+void AddSC_ucast_commandscript();
+void AddSC_WE_commandscript();
+
 #ifdef SCRIPTS
 //world
 void AddSC_areatrigger_scripts();
@@ -177,20 +188,6 @@ void AddSC_boss_archaedas();                 //Uldaman
 void AddSC_boss_ironaya();
 void AddSC_uldaman();
 void AddSC_instance_uldaman();
-void AddSC_boss_jeklik();                    //Zul'Gurub
-void AddSC_boss_venoxis();
-void AddSC_boss_marli();
-void AddSC_boss_mandokir();
-void AddSC_boss_gahzranka();
-void AddSC_boss_thekal();
-void AddSC_boss_arlokk();
-void AddSC_boss_jindo();
-void AddSC_boss_hakkar();
-void AddSC_boss_grilek();
-void AddSC_boss_hazzarah();
-void AddSC_boss_renataki();
-void AddSC_boss_wushoolay();
-void AddSC_instance_zulgurub();
 
 //void AddSC_alterac_mountains();
 void AddSC_arathi_highlands();
@@ -218,7 +215,6 @@ void AddSC_westfall();
 void AddSC_wetlands();
 
 //kalimdor
-void AddSC_mapevent_kalimdor();
 void AddSC_blackfathom_deeps();              //Blackfathom Depths
 void AddSC_boss_gelihast();
 void AddSC_boss_kelris();
@@ -398,6 +394,17 @@ void AddCommandScripts()
     AddSC_titles_commandscript();
     AddSC_wp_commandscript();
 	AddSC_spectate_commandscript();
+	
+    AddSC_arena_commandscript();
+    AddSC_bao_commandscript();
+    AddSC_bg_commandscript();
+    AddSC_talent_commandscript();
+    AddSC_item_rand_commandscript();
+    AddSC_item_suffix_commandscript();
+    AddSC_ranks_commandscript();
+    AddSC_test_commandscript();
+    AddSC_ucast_commandscript();
+    AddSC_WE_commandscript();
 }
 
 void AddWorldScripts()
@@ -505,20 +512,6 @@ void AddEasternKingdomsScripts()
     AddSC_boss_ironaya();
     AddSC_uldaman();
     AddSC_instance_uldaman();
-    AddSC_boss_jeklik();                    //Zul'Gurub
-    AddSC_boss_venoxis();
-    AddSC_boss_marli();
-    AddSC_boss_mandokir();
-    AddSC_boss_gahzranka();
-    AddSC_boss_thekal();
-    AddSC_boss_arlokk();
-    AddSC_boss_jindo();
-    AddSC_boss_hakkar();
-    AddSC_boss_grilek();
-    AddSC_boss_hazzarah();
-    AddSC_boss_renataki();
-    AddSC_boss_wushoolay();
-    AddSC_instance_zulgurub();
 
     //AddSC_alterac_mountains();
     AddSC_arathi_highlands();
@@ -550,7 +543,6 @@ void AddEasternKingdomsScripts()
 void AddKalimdorScripts()
 {
 #ifdef SCRIPTS
-    AddSC_mapevent_kalimdor();
     AddSC_blackfathom_deeps();              //Blackfathom Depths
     AddSC_boss_gelihast();
     AddSC_boss_kelris();
@@ -680,17 +672,6 @@ void AddSc_npc_teleport();
 void AddSc_npc_transmo();
 void AddSc_npc_ba();
 
-void AddSc_Com_Arena();
-void AddSc_Com_Bg();
-void AddSc_Com_Talent();
-void AddSc_Com_Rand();
-void AddSc_Com_Ranks();
-void AddSc_Com_Suffix();
-void AddSc_Com_Test();
-void AddSc_Com_Item_Info();
-void AddSc_Com_ucast();
-void AddSc_Com_WE();
-
 void AddSC_kahz();
 void AddSC_zone_AO();
 
@@ -711,21 +692,8 @@ void AddCustomScripts()
     AddSc_npc_transmo();
     AddSc_npc_ba();
 
-    AddSc_Com_Arena();
-    AddSc_Com_Bg();
-    AddSc_Com_Talent();
-    AddSc_Com_Rand();
-    AddSc_Com_Ranks();
-    AddSc_Com_Suffix();
-    AddSc_Com_Test();
-    AddSc_Com_Item_Info();
-    AddSc_Com_ucast();
-    AddSc_Com_WE();
-
 	AddSC_kahz();
     AddSC_zone_AO();
-
-	AddSc_Com_Ranks();
 
 #endif
 }

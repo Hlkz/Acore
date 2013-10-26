@@ -150,10 +150,10 @@ bool World::DistributeRanks()
 };
 
 
-class com_ranks : public CommandScript
+class ranks_commandscript : public CommandScript
 {
 public:
-    com_ranks() : CommandScript("cs_ranks") { }
+    ranks_commandscript() : CommandScript("ranks_commandscript") { }
 
     ChatCommand* GetCommands() const
     {
@@ -251,8 +251,8 @@ public:
     }
 };
 
-void AddSc_Com_Ranks()
+void AddSC_ranks_commandscript()
 {
-    new com_ranks();
+    new ranks_commandscript();
 }
 

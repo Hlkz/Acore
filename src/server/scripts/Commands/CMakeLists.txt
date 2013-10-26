@@ -44,10 +44,10 @@ set(scripts_STAT_SRCS
   Commands/cs_mmaps.cpp
   
   Commands/cs_arena.cpp
+  Commands/cs_bao.cpp
   Commands/cs_bg.cpp
-  Commands/cs_rand.cpp
-  Commands/cs_iteminfo.cpp
-  Commands/cs_suffix.cpp
+  Commands/cs_item_rand.cpp
+  Commands/cs_item_suffix.cpp
   Commands/cs_talent.cpp
   Commands/cs_spectate.cpp
   Commands/cs_test.cpp

@@ -1,25 +1,30 @@
 #include "ScriptPCH.h"
 #include "Chat.h"
-#include "Object.h"
-#include "BattleAOMgr.h"
-#include "ReputationMgr.h"
+//#include "Object.h"
 
-class com_test : public CommandScript {
-   public: com_test() : CommandScript("cs_test") {}
+class test_commandscript : public CommandScript
+{
+public:
+    test_commandscript() : CommandScript("test_commandscript") {}
 
-static bool HandleComTest(ChatHandler* handler, char const* /*args*/) {
+    ChatCommand* GetCommands() const
+    {
+        static ChatCommand commandTable[] =
+        {
+            { "test",           SEC_ADMINISTRATOR,  false, &HandleTestCommand,    "", NULL },
+            { NULL,             0,                  false, NULL,                  "", NULL }
+        };
+        return commandTable;
+    }
 
-	Player* player = handler->GetSession()->GetPlayer();
-	player->GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(72), 1);
-
-	return true; }
-
-ChatCommand* GetCommands() const {
-	static ChatCommand ComTest[] = {
-		{ "test",        	SEC_ADMINISTRATOR,	false, &HandleComTest,	"", NULL },
-		{ NULL,             0,					false, NULL,			"", NULL } };
-	return ComTest; }
+    static bool HandleTestCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        Player* player = handler->GetSession()->GetPlayer();
+        return true;
+    }
 };
 
-void AddSc_Com_Test() {
-   new com_test(); }
+void AddSC_test_commandscript()
+{
+   new test_commandscript();
+}

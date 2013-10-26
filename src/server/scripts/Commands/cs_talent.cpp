@@ -1,31 +1,30 @@
 #include "ScriptPCH.h"
 #include "Chat.h"
 
-class com_talent : public CommandScript
+class talent_commandscript : public CommandScript
 {
-   public:
-       com_talent() : CommandScript("cs_talent") { }
+public:
+    talent_commandscript() : CommandScript("talent_commandscript") { }
 
+    ChatCommand* GetCommands() const
+    {
+        static ChatCommand ComTalent[] =
+        {
+            { "talent",         SEC_PLAYER,         false, &HandleTalentCommand,    "", NULL },
+            { NULL,             0,                  false, NULL,                    "", NULL }
+        };
+        return ComTalent;
+    }
 
-       static bool HandleComTalent(ChatHandler* handler, const char* /*args*/)
-       {
-			handler->GetSession()->GetPlayer()->resetTalents(true);
-			handler->GetSession()->GetPlayer()->SendTalentsInfoData(false);
-			return true;
-       }
-
-       ChatCommand* GetCommands() const
-       {
-           static ChatCommand ComTalent[] =
-           {
-               { "talent",          SEC_PLAYER,			false, &HandleComTalent,	"", NULL },
-               { NULL,             0,					false, NULL,				"", NULL }
-           };
-           return ComTalent;
-       }
+    static bool HandleTalentCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        handler->GetSession()->GetPlayer()->resetTalents(true);
+        handler->GetSession()->GetPlayer()->SendTalentsInfoData(false);
+        return true;
+    }
 };
 
-void AddSc_Com_Talent()
+void AddSC_talent_commandscript()
 {
-   new com_talent();
+   new talent_commandscript();
 }

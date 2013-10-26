@@ -40,17 +40,17 @@ public:
     {
         static ChatCommand gmCommandTable[] =
         {
-            { "chat",           SEC_ANIMATOR,      false, &HandleGMChatCommand,              "", NULL },
+            { "chat",           SEC_ANIMATOR,       false, &HandleGMChatCommand,              "", NULL },
             { "fly",            SEC_ADMINISTRATOR,  false, &HandleGMFlyCommand,               "", NULL },
             { "ingame",         SEC_PLAYER,         true,  &HandleGMListIngameCommand,        "", NULL },
             { "list",           SEC_ADMINISTRATOR,  true,  &HandleGMListFullCommand,          "", NULL },
-            { "visible",        SEC_ANIMATOR,      false, &HandleGMVisibleCommand,           "", NULL },
-            { "",               SEC_ANIMATOR,      false, &HandleGMCommand,                  "", NULL },
+            { "visible",        SEC_ANIMATOR,       false, &HandleGMVisibleCommand,           "", NULL },
+            { "",               SEC_ANIMATOR,       false, &HandleGMCommand,                  "", NULL },
             { NULL,             0,                  false, NULL,                              "", NULL }
         };
         static ChatCommand commandTable[] =
         {
-            { "gm",             SEC_ANIMATOR,      false, NULL,                     "", gmCommandTable },
+            { "gm",             SEC_ANIMATOR,       false, NULL,                     "", gmCommandTable },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         return commandTable;
