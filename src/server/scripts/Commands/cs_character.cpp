@@ -57,11 +57,13 @@ public:
             { "customize",      SEC_GAMEMASTER,     true,  &HandleCharacterCustomizeCommand,       "", NULL },
             { "changefaction",  SEC_ADMINISTRATOR,  true,  &HandleCharacterChangeFactionCommand,   "", NULL },
             { "changerace",     SEC_ADMINISTRATOR,  true,  &HandleCharacterChangeRaceCommand,      "", NULL },
+            { "setteam",        SEC_ADMINISTRATOR,  true,  &HandleCharacterSetTeamCommand,         "", NULL },
             { "deleted",        SEC_GAMEMASTER,     true,  NULL,                                   "", characterDeletedCommandTable },
             { "erase",          SEC_ADMINISTRATOR,  true,  &HandleCharacterEraseCommand,           "", NULL },
             { "level",          SEC_ADMINISTRATOR,  true,  &HandleCharacterLevelCommand,           "", NULL },
             { "rename",         SEC_GAMEMASTER,     true,  &HandleCharacterRenameCommand,          "", NULL },
             { "reputation",     SEC_GAMEMASTER,     true,  &HandleCharacterReputationCommand,      "", NULL },
+            { "initfaction",    SEC_ADMINISTRATOR,  true,  &HandleCharacterInitFactionCommand,     "", NULL },
             { "titles",         SEC_GAMEMASTER,     true,  &HandleCharacterTitlesCommand,          "", NULL },
             { NULL,             0,                  false, NULL,                                   "", NULL }
         };
@@ -593,6 +595,49 @@ public:
             handler->SendSysMessage(ss.str().c_str());
         }
 
+        return true;
+    }
+	
+    static bool HandleCharacterSetTeamCommand(ChatHandler* handler, char const* args)
+    {
+        Player* target = handler->getSelectedPlayer();
+        if (!target)
+			target = handler->GetSession()->GetPlayer();
+		
+        if (!*args)
+            return false;
+
+        std::string param = (char*)args;
+
+        if (param == "469" || param == "alliance")
+        {
+			target->SetTeam(ALLIANCE);
+            handler->PSendSysMessage(LANG_GM_SET_TEAM, target->GetName(), target->GetGUID());
+            return true;
+        }
+
+        if (param == "67" || param == "horde")
+        {
+			target->SetTeam(HORDE);
+            handler->PSendSysMessage(LANG_GM_SET_TEAM, target->GetName(), target->GetGUID());
+            return true;
+        }
+        return false;
+    }
+
+    static bool HandleCharacterInitFactionCommand(ChatHandler* handler, char const* args)
+    {
+        Player* target = handler->getSelectedPlayer();
+        if (!target)
+            return false;
+
+        uint32 team = target->GetTeamFromDB();
+        target->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(team==ALLIANCE?FACTION_SENTINEL:FACTION_THUNDERLORD), 3000);
+        target->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(team==ALLIANCE?FACTION_THUNDERLORD:FACTION_SENTINEL), -6000);
+        target->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(team==ALLIANCE?ALLIANCE:HORDE), 3000);
+        target->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(team==ALLIANCE?HORDE:ALLIANCE), -6000);
+        target->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(FACTION_LIFEMARKET), 3000);
+        handler->PSendSysMessage(LANG_GM_FACTION_INIT, target->GetName(), target->GetGUID());
         return true;
     }
 

@@ -62,6 +62,7 @@ enum Factions
     FACTION_SENTINEL                 = 3804,
     FACTION_ORGRIMMAR                = 76,
     FACTION_THUNDERLORD              = 3806,
+    FACTION_LIFEMARKET               = 3800,
 };
 
 typedef std::map<RepListID, FactionState> FactionStateList;
