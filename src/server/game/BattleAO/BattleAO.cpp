@@ -635,6 +635,7 @@ void BattleAO::SpawnAOObject(uint32 type, uint32 respawntime)
                 if (obj->getLootState() == GO_JUST_DEACTIVATED)
                     obj->SetLootState(GO_READY);
             obj->SetRespawnTime(respawntime);
+            obj->SetSpawnedByDefault(false);
             m_Map->AddToMap(obj);
         }
 }
