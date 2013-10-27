@@ -611,15 +611,15 @@ public:
 
         if (param == "469" || param == "alliance")
         {
-			target->SetTeam(ALLIANCE);
-            handler->PSendSysMessage(LANG_GM_SET_TEAM, target->GetName(), target->GetGUID());
+            target->SetTeam(ALLIANCE);
+            handler->PSendSysMessage(LANG_GM_SET_TEAM, target->GetName().c_str(), target->GetGUID());
             return true;
         }
 
         if (param == "67" || param == "horde")
         {
-			target->SetTeam(HORDE);
-            handler->PSendSysMessage(LANG_GM_SET_TEAM, target->GetName(), target->GetGUID());
+            target->SetTeam(HORDE);
+            handler->PSendSysMessage(LANG_GM_SET_TEAM, target->GetName().c_str(), target->GetGUID());
             return true;
         }
         return false;
@@ -637,7 +637,7 @@ public:
         target->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(team==ALLIANCE?ALLIANCE:HORDE), 3000);
         target->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(team==ALLIANCE?HORDE:ALLIANCE), -6000);
         target->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(FACTION_LIFEMARKET), 3000);
-        handler->PSendSysMessage(LANG_GM_FACTION_INIT, target->GetName(), target->GetGUID());
+        handler->PSendSysMessage(LANG_GM_FACTION_INIT, target->GetName().c_str(), target->GetGUID());
         return true;
     }
 
