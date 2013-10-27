@@ -196,7 +196,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) { }
 
-        void Reset() {}
+        void Reset() { }
 
         void JustDied(Unit* /*killer*/)
         {

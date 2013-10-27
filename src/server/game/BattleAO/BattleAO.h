@@ -108,7 +108,7 @@ enum BAO_Timers
 struct BattleAOScore
 {
     BattleAOScore() : KillingBlows(0), Deaths(0), HonorableKills(0), BonusHonor(0),
-        DamageDone(0), HealingDone(0) {}
+        DamageDone(0), HealingDone(0) { }
     uint32 KillingBlows; uint32 Deaths; uint32 HonorableKills;
     uint32 BonusHonor; uint32 DamageDone; uint32 HealingDone;
 };

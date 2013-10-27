@@ -5,7 +5,7 @@
 class test_commandscript : public CommandScript
 {
 public:
-    test_commandscript() : CommandScript("test_commandscript") {}
+    test_commandscript() : CommandScript("test_commandscript") { }
 
     ChatCommand* GetCommands() const
     {

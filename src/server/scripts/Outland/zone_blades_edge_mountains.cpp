@@ -67,7 +67,7 @@ public:
 
     struct npc_bladespire_ogreAI : public ScriptedAI
     {
-        npc_bladespire_ogreAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_bladespire_ogreAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() { }
 
@@ -119,7 +119,7 @@ public:
 
     struct npc_nether_drakeAI : public ScriptedAI
     {
-        npc_nether_drakeAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_nether_drakeAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool IsNihil;
         uint32 NihilSpeech_Timer;
@@ -140,7 +140,7 @@ public:
             IntangiblePresence_Timer = 15000;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) { }
 
         void MoveInLineOfSight(Unit* who)
         {
@@ -283,11 +283,11 @@ public:
 
     struct npc_daranelleAI : public ScriptedAI
     {
-        npc_daranelleAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_daranelleAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() { }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) { }
 
         void MoveInLineOfSight(Unit* who)
         {
@@ -468,7 +468,7 @@ public:
             OgreGUID = 0;
         }
 
-        void UpdateAI(uint32 /*uiDiff*/) {}
+        void UpdateAI(uint32 /*uiDiff*/) { }
     };
 };
 
@@ -488,7 +488,7 @@ public:
 
     struct npc_ogre_bruteAI : public ScriptedAI
     {
-        npc_ogre_bruteAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_ogre_bruteAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 PlayerGUID;
 

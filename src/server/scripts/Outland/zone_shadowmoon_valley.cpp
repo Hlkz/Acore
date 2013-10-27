@@ -1286,7 +1286,7 @@ public:
             me->SetTarget(0);
         }
 
-        void EnterCombat(Unit* /*who*/){}
+        void EnterCombat(Unit* /*who*/) { }
 
         void HandleAnimation()
         {
@@ -1447,9 +1447,9 @@ public:
             me->SetVisible(false);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
-        void MoveInLineOfSight(Unit* /*who*/) {}
-        void AttackStart(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) { }
+        void MoveInLineOfSight(Unit* /*who*/) { }
+        void AttackStart(Unit* /*who*/) { }
 
         void SummonNextWave();
 
@@ -1577,7 +1577,7 @@ public:
             Timers = false;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) { }
 
         void JustDied(Unit* /*killer*/)
         {
@@ -1824,7 +1824,7 @@ public:
 
         void Reset() { }
 
-        void EnterCombat(Unit* /*who*/){}
+        void EnterCombat(Unit* /*who*/) { }
 
         void JustDied(Unit* /*killer*/)
         {

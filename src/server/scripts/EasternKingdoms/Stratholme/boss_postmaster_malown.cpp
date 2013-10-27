@@ -61,7 +61,7 @@ class boss_postmaster_malown : public CreatureScript
         {
             boss_postmaster_malownAI(Creature* creature) : BossAI(creature, TYPE_MALOWN) { }
 
-            void Reset() {}
+            void Reset() { }
 
             void EnterCombat(Unit* /*who*/)
             {

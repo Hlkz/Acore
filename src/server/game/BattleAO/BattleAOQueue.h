@@ -63,7 +63,7 @@ public:
     class SelectionPool
     {
     public:
-        SelectionPool(): PlayerCount(0) {};
+        SelectionPool(): PlayerCount(0) { };
         void Init();
         bool AddGroup(BAOGroupQueueInfo* ginfo, uint32 desiredCount);
         bool KickGroup(uint32 size);
@@ -83,8 +83,8 @@ private:
 class BAOQueueInviteEvent : public BasicEvent
 {
     public:
-        BAOQueueInviteEvent(uint64 pl_guid, uint32 removeTime) : m_PlayerGuid(pl_guid), m_RemoveTime(removeTime) {}
-        virtual ~BAOQueueInviteEvent() {}
+        BAOQueueInviteEvent(uint64 pl_guid, uint32 removeTime) : m_PlayerGuid(pl_guid), m_RemoveTime(removeTime) { }
+        virtual ~BAOQueueInviteEvent() { }
 
         virtual bool Execute(uint64 e_time, uint32 p_time);
         virtual void Abort(uint64 e_time);
@@ -96,9 +96,9 @@ class BAOQueueInviteEvent : public BasicEvent
 class BAOQueueRemoveEvent : public BasicEvent
 {
     public:
-        BAOQueueRemoveEvent(uint64 pl_guid, uint32 removeTime) : m_PlayerGuid(pl_guid), m_RemoveTime(removeTime) {}
+        BAOQueueRemoveEvent(uint64 pl_guid, uint32 removeTime) : m_PlayerGuid(pl_guid), m_RemoveTime(removeTime) { }
 
-        virtual ~BAOQueueRemoveEvent() {}
+        virtual ~BAOQueueRemoveEvent() { }
 
         virtual bool Execute(uint64 e_time, uint32 p_time);
         virtual void Abort(uint64 e_time);

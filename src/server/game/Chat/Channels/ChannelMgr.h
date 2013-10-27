@@ -51,6 +51,6 @@ class ChannelMgr
         void MakeNotOnPacket(WorldPacket* data, std::string const& name);
 };
 
-class NeutralChannelMgr : public ChannelMgr {};
+class NeutralChannelMgr : public ChannelMgr { };
 
 #endif

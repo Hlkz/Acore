@@ -373,7 +373,7 @@ enum TournamentDummy
 class npc_tournament_training_dummy : public CreatureScript
 {
     public:
-        npc_tournament_training_dummy(): CreatureScript("npc_tournament_training_dummy"){}
+        npc_tournament_training_dummy(): CreatureScript("npc_tournament_training_dummy") { }
 
         struct npc_tournament_training_dummyAI : ScriptedAI
         {
@@ -492,7 +492,7 @@ class npc_tournament_training_dummy : public CreatureScript
                     me->SetControlled(true, UNIT_STATE_STUNNED);
             }
 
-            void MoveInLineOfSight(Unit* /*who*/){}
+            void MoveInLineOfSight(Unit* /*who*/) { }
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -624,9 +624,9 @@ public:
             events.ScheduleEvent(EVENT_SPAWN, 3000);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) { }
 
-        void MoveInLineOfSight(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) { }
 
         void JustSummoned(Creature* Summoned)
         {

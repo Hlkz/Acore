@@ -107,7 +107,7 @@ public:
             Talk(SAY_ZAPPED);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) { }
     };
 
 };
@@ -155,7 +155,7 @@ public:
             Tagged = false;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) { }
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
         {
@@ -235,7 +235,7 @@ public:
             Tagged = false;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) { }
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {

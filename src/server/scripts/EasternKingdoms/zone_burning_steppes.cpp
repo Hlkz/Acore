@@ -132,7 +132,7 @@ public:
     {
         npc_ragged_johnAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() {}
+        void Reset() { }
 
         void MoveInLineOfSight(Unit* who)
         {
@@ -149,7 +149,7 @@ public:
             ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) { }
     };
 };
 

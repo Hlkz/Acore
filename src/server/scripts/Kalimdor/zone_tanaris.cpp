@@ -269,8 +269,8 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) {}
-        void Reset() {}
+        void EnterCombat(Unit* /*who*/) { }
+        void Reset() { }
 
         void UpdateAI(uint32 diff)
         {
@@ -499,7 +499,7 @@ public:
             }
         }
 
-        void Reset(){}
+        void Reset() { }
 
         void EnterCombat(Unit* /*who*/)
         {

@@ -634,8 +634,8 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who) {}
-        void Reset() {}
+        void EnterCombat(Unit* who) { }
+        void Reset() { }
 
         void JustDied(Unit* killer)
         {
@@ -804,7 +804,7 @@ public:
             }
         }
 
-        void Reset() {}
+        void Reset() { }
 
         void JustDied(Unit* slayer)
         {
@@ -1018,7 +1018,7 @@ public:
                     break;
             }
         }
-        void Reset() {}
+        void Reset() { }
 
         void JustDied(Unit* slayer)
         {
@@ -1126,8 +1126,8 @@ public:
     {
         npc_tobias_seecherAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void EnterCombat(Unit* who) {}
-        void Reset() {}
+        void EnterCombat(Unit* who) { }
+        void Reset() { }
 
         void JustDied(Unit* killer)
         {

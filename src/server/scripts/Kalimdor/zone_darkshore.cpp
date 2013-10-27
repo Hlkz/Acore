@@ -285,7 +285,7 @@ public:
             }
         }
 
-        void Reset() {}
+        void Reset() { }
 
         void EnterCombat(Unit* who)
         {

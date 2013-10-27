@@ -162,8 +162,8 @@ public:
         uint32 delay;
         uint32 spell;
         uint32 spell2;
-        void Reset() {}
-        void EnterCombat(Unit* /*who*/) {}
+        void Reset() { }
+        void EnterCombat(Unit* /*who*/) { }
         void SetType(uint32 _type)
         {
             switch (Creaturetype = _type)
@@ -819,7 +819,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) { }
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {

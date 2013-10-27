@@ -66,7 +66,7 @@ namespace Trinity
     {
         public:
             BattleAO2ChatBuilder(ChatMsg msgtype, int32 textId, Player const* source, int32 arg1, int32 arg2)
-                : _msgtype(msgtype), _textId(textId), _source(source), _arg1(arg1), _arg2(arg2) {}
+                : _msgtype(msgtype), _textId(textId), _source(source), _arg1(arg1), _arg2(arg2) { }
 
             void operator()(WorldPacket& data, LocaleConstant loc_idx)
             {
@@ -115,7 +115,7 @@ BattleAO::BattleAO() //ctor
     m_playerscantag = sWorld->getWorldState(BAO_WS_CANPLAYERSTAG);
     m_balancetag = false;
 }
-BattleAO::~BattleAO() {} //dtor
+BattleAO::~BattleAO() { } //dtor
 
 bool BattleAO::SetupBattleAO()
 {

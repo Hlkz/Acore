@@ -69,7 +69,7 @@ public:
             DoCast(me, SPELL_ICEARMOR, true);
         }
 
-        void EnterCombat(Unit* /*who*/){}
+        void EnterCombat(Unit* /*who*/) { }
 
         void UpdateAI(uint32 diff)
         {

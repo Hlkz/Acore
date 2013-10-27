@@ -68,8 +68,8 @@ public:
             Timer = 2500;
         }
 
-        void MoveInLineOfSight(Unit* /*who*/) {}
-        void EnterCombat(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) { }
+        void EnterCombat(Unit* /*who*/) { }
 
         void UpdateAI(uint32 diff)
         {
@@ -114,7 +114,7 @@ public:
 
         uint64 PlayerGUID;
 
-        void EnterCombat(Unit* /*who*/){}
+        void EnterCombat(Unit* /*who*/) { }
 
         void Reset()
         {

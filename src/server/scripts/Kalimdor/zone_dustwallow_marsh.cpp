@@ -568,7 +568,7 @@ public:
             Talk(SAY_ATTACKED_1, who->GetGUID());
         }
 
-        void Reset() {}
+        void Reset() { }
 
         void JustDied(Unit* /*killer*/)
         {

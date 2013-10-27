@@ -64,7 +64,7 @@ public:
 
     struct npc_sinkhole_kill_creditAI : public ScriptedAI
     {
-        npc_sinkhole_kill_creditAI(Creature* creature) : ScriptedAI(creature){}
+        npc_sinkhole_kill_creditAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 phaseTimer;
         uint8  phase;
@@ -90,7 +90,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/){}
+        void EnterCombat(Unit* /*who*/) { }
 
         void UpdateAI(uint32 diff)
         {
@@ -356,9 +356,9 @@ public:
     {
         npc_nerubar_victimAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() {}
-        void EnterCombat(Unit* /*who*/) {}
-        void MoveInLineOfSight(Unit* /*who*/) {}
+        void Reset() { }
+        void EnterCombat(Unit* /*who*/) { }
+        void MoveInLineOfSight(Unit* /*who*/) { }
 
         void JustDied(Unit* killer)
         {
@@ -554,8 +554,8 @@ public:
             go_caribouGUID = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
-        void MoveInLineOfSight(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) { }
+        void MoveInLineOfSight(Unit* /*who*/) { }
 
         void JustDied(Unit* /*killer*/)
         {
@@ -668,7 +668,7 @@ public:
 
     struct npc_lurgglbrAI : public npc_escortAI
     {
-        npc_lurgglbrAI(Creature* creature) : npc_escortAI(creature){}
+        npc_lurgglbrAI(Creature* creature) : npc_escortAI(creature) { }
 
         uint32 IntroTimer;
         uint32 IntroPhase;
@@ -2229,9 +2229,9 @@ public:
             m_uiTimer = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) { }
 
-        void AttackStart(Unit* /*who*/) {}
+        void AttackStart(Unit* /*who*/) { }
 
         void UpdateAI(uint32 uiDiff)
         {

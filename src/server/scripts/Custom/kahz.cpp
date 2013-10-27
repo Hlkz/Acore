@@ -12,9 +12,9 @@ enum Spells {
 };
 
 class kahz : public CreatureScript {
-    public: kahz() : CreatureScript("kahz") {}
+    public: kahz() : CreatureScript("kahz") { }
         struct kahzAI : public BossAI {
-            kahzAI(Creature* creature) : BossAI(creature, creature->GetGUID()) {}
+            kahzAI(Creature* creature) : BossAI(creature, creature->GetGUID()) { }
 
 uint32 Phase; uint32 Auto_Timer; uint32 Auto2_Timer;
 uint32 Breath_Timer; uint32 Aoe_Timer; uint32 Flamme_Timer; uint32 Fear_Timer;

@@ -102,7 +102,7 @@ public:
             add = NULL;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) { }
 
         /*void SpellHit(Unit* caster, const SpellInfo* spell)
         {

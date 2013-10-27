@@ -269,7 +269,7 @@ public:
             Talk(SAY_AGGRO, who->GetGUID());
         }
 
-        void Reset() {}
+        void Reset() { }
     };
 };
 

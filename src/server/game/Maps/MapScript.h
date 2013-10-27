@@ -16,13 +16,13 @@ class Creature;
 class WMScript : public ZoneScript
 {
     public:
-        explicit WMScript(Map* map) : world(map) {}
+        explicit WMScript(Map* map) : world(map) { }
 
-        virtual ~WMScript() {}
+        virtual ~WMScript() { }
 
         Map* world;
 
-        virtual void Initialize() {}
+        virtual void Initialize() { }
 
         virtual void Update(uint32 /*diff*/) { }
 

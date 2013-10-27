@@ -145,8 +145,8 @@ public:
             }
         }
 
-        void Reset() {}
-        void EnterCombat(Unit* /*who*/) {}
+        void Reset() { }
+        void EnterCombat(Unit* /*who*/) { }
     };
 
 };

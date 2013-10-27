@@ -840,7 +840,7 @@ public:
             hasTarget = false;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) { }
         void JustDied(Unit* /*slayer*/);
 
         void UpdateAI(uint32 diff)

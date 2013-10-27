@@ -7,7 +7,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 
-BattleAOQueue::BattleAOQueue() {}
+BattleAOQueue::BattleAOQueue() { }
 
 BattleAOQueue::~BattleAOQueue()
 {
@@ -325,7 +325,7 @@ bool BAOQueueInviteEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
     return true;
 }
 
-void BAOQueueInviteEvent::Abort(uint64 /*e_time*/) {}
+void BAOQueueInviteEvent::Abort(uint64 /*e_time*/) { }
 
 bool BAOQueueRemoveEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 {
@@ -354,4 +354,4 @@ bool BAOQueueRemoveEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
     return true;
 }
 
-void BAOQueueRemoveEvent::Abort(uint64 /*e_time*/) {}
+void BAOQueueRemoveEvent::Abort(uint64 /*e_time*/) { }

@@ -65,9 +65,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) { }
 
-        void Reset() {}
+        void Reset() { }
 
         void JustDied(Unit* /*killer*/)
         {
@@ -325,9 +325,9 @@ public:
     {
         npc_icefangAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void AttackStart(Unit* /*who*/) {}
-        void EnterCombat(Unit* /*who*/) {}
-        void EnterEvadeMode() {}
+        void AttackStart(Unit* /*who*/) { }
+        void EnterCombat(Unit* /*who*/) { }
+        void EnterEvadeMode() { }
 
         void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
         {

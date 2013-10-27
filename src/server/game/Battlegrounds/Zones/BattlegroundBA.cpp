@@ -147,7 +147,7 @@ public:
 			DoMeleeAttackIfReady();
         }
 
-		void WaypointReached(uint32 pointId) {}
+		void WaypointReached(uint32 pointId) { }
 
     };
 	

@@ -108,7 +108,7 @@ public:
             }
         }
 
-        void Reset() {}
+        void Reset() { }
 
         void EnterCombat(Unit* who)
         {
@@ -212,7 +212,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/){}
+        void EnterCombat(Unit* /*who*/) { }
 
         void JustSummoned(Creature* summoned)
         {

@@ -159,7 +159,7 @@ public:
         SpawnAssociation* SpawnAssoc;
         uint64 SpawnedGUID;
 
-        void Reset() {}
+        void Reset() { }
 
         Creature* SummonGuard()
         {
@@ -342,7 +342,7 @@ public:
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) { }
 
         void UpdateAI(uint32 diff)
         {
@@ -462,7 +462,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/){}
+        void EnterCombat(Unit* /*who*/) { }
 
         void ReceiveEmote(Player* player, uint32 emote)
         {
@@ -694,7 +694,7 @@ public:
 
         void UpdateAI(uint32 diff);
 
-        void EnterCombat(Unit* /*who*/){}
+        void EnterCombat(Unit* /*who*/) { }
     };
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
@@ -760,7 +760,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/){}
+        void EnterCombat(Unit* /*who*/) { }
 
         void SpellHit(Unit* caster, SpellInfo const* spell)
         {
@@ -1501,8 +1501,8 @@ public:
     {
         npc_steam_tonkAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset() {}
-        void EnterCombat(Unit* /*who*/) {}
+        void Reset() { }
+        void EnterCombat(Unit* /*who*/) { }
 
         void OnPossess(bool apply)
         {
@@ -1549,9 +1549,9 @@ public:
             ExplosionTimer = 3000;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
-        void AttackStart(Unit* /*who*/) {}
-        void MoveInLineOfSight(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) { }
+        void AttackStart(Unit* /*who*/) { }
+        void MoveInLineOfSight(Unit* /*who*/) { }
 
         void UpdateAI(uint32 diff)
         {
@@ -1678,7 +1678,7 @@ public:
                     despawnTimer -= diff;
             }
         }
-        void MoveInLineOfSight(Unit* /*who*/){return;}
+        void MoveInLineOfSight(Unit* /*who*/) { }
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -2449,7 +2449,7 @@ public:
 
     struct npc_invisiblemakerAI : public ScriptedAI
     {
-        npc_invisiblemakerAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_invisiblemakerAI(Creature* creature) : ScriptedAI(creature) { }
 
         void UpdateAI(uint32 diff)
         {

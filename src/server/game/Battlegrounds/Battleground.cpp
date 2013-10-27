@@ -88,7 +88,7 @@ namespace Trinity
     {
         public:
             Battleground2ChatBuilder(ChatMsg msgtype, int32 textId, Player const* source, int32 arg1, int32 arg2)
-                : _msgtype(msgtype), _textId(textId), _source(source), _arg1(arg1), _arg2(arg2) {}
+                : _msgtype(msgtype), _textId(textId), _source(source), _arg1(arg1), _arg2(arg2) { }
 
             void operator()(WorldPacket& data, LocaleConstant loc_idx)
             {
@@ -1965,7 +1965,7 @@ void Battleground::SetPlayerReady(uint64 guid)
 
 class go_arena_player_ready : public GameObjectScript
 {
-    public: go_arena_player_ready() : GameObjectScript("go_arena_player_ready") {}
+    public: go_arena_player_ready() : GameObjectScript("go_arena_player_ready") { }
 
         bool OnGossipHello(Player* player, GameObject* /*go*/)
         {

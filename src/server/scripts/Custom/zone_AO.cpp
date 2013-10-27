@@ -90,7 +90,7 @@ public:
 
     struct npc_azsharinAI : public ScriptedAI
     {
-        npc_azsharinAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_azsharinAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset()
         {
@@ -163,7 +163,7 @@ public:
 
     struct npc_hordebossAI : public ScriptedAI
     {
-        npc_hordebossAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_hordebossAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset()
         {
@@ -245,7 +245,7 @@ public:
 
     struct npc_alliancebossAI : public ScriptedAI
     {
-        npc_alliancebossAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_alliancebossAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset()
         {
