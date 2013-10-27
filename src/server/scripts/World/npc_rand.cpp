@@ -1,12 +1,13 @@
 #include "ScriptPCH.h"
 
-class npc_rand : public CreatureScript {
+class npc_rand : public CreatureScript
+{
 public:
     npc_rand() : CreatureScript("npc_rand") { }
 
     uint32 count; std::string* rie;
 
-    int32 Choix(int32 item_id, int choix)
+    int32 NpcRandChoix(int32 item_id, int choix)
     {
         ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_id);
         if (!itemProto) return 0;
@@ -24,7 +25,7 @@ public:
             return -int32(random_id->ID); }
     }
 
-    void AddItemChoix(Player *player, uint32 item_id, int choix)
+    void NpcRandAddChoix(Player *player, uint32 item_id, int choix)
     {
         uint32 noSpaceForCount = 0;
         ItemPosCountVec dest;
@@ -33,7 +34,7 @@ public:
         if (dest.empty()) {
             ChatHandler(player->GetSession()).PSendSysMessage("Vous n'avez plus de place.");
             return; }
-        Item* item = player->StoreNewItem(dest, item_id, true, Choix(item_id, choix));
+        Item* item = player->StoreNewItem(dest, item_id, true, NpcRandChoix(item_id, choix));
         if (item) player->SendNewItem(item, 1, true, false);
         return;
     }
@@ -46,7 +47,7 @@ public:
         player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12052), GOSSIP_SENDER_MAIN, 500);
         player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12053), GOSSIP_SENDER_MAIN, 600);
         player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12054), GOSSIP_SENDER_MAIN, 200);
-        player->SEND_GOSSIP_MENU(1000023, creature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
@@ -56,11 +57,11 @@ public:
         WorldSession* session = player->GetSession();
 
         switch (action) {
-	
-	case 100: OnGossipHello(player, creature); break;
+    
+    case 100: OnGossipHello(player, creature); break;
 
-	case 101: player->CLOSE_GOSSIP_MENU(); break;
-		
+    case 101: player->CLOSE_GOSSIP_MENU(); break;
+        
     case 200:
         player->SetRandRetour(action);
         player->ADD_GOSSIP_ITEM(6, "Chevalière d'aigue marine (Ring)", GOSSIP_SENDER_MAIN, 156);
@@ -73,19 +74,19 @@ public:
         player->ADD_GOSSIP_ITEM(6, "Carabine de precision (Gun)", GOSSIP_SENDER_MAIN, 209);
         player->ADD_GOSSIP_ITEM(6, "Sphère de sorcier (Off-hand)", GOSSIP_SENDER_MAIN, 212);
         player->ADD_GOSSIP_ITEM(6, "Baguette de braise.", GOSSIP_SENDER_MAIN, 210);
-		player->ADD_GOSSIP_ITEM(20, session->GetTrinityString(12041), GOSSIP_SENDER_MAIN, 100);
+        player->ADD_GOSSIP_ITEM(20, session->GetTrinityString(12041), GOSSIP_SENDER_MAIN, 100);
         player->SEND_GOSSIP_MENU(1000023, creature->GetGUID());
-		break;
-	    case 156: player->SetRandItId(20964); goto l276276; break;
-	    case 158: player->SetRandItId(10504); goto l276276; break;
-	    case 202: player->SetRandItId(7524); goto l276276; break;
-	    case 203: player->SetRandItId(7544); goto l276276; break;
-	    case 204: player->SetRandItId(7533); goto l276276; break;;
-	    case 211: player->SetRandItId(3187); goto l276276; break;
-	    case 208: player->SetRandItId(15592); goto l276276; break;
-	    case 209: player->SetRandItId(3430); goto l276276; break;
-	    case 212: player->SetRandItId(9882); goto l276276; break;
-	    case 210: player->SetRandItId(5215); goto l276276; break;
+        break;
+        case 156: player->SetRandItId(20964); goto l276276; break;
+        case 158: player->SetRandItId(10504); goto l276276; break;
+        case 202: player->SetRandItId(7524); goto l276276; break;
+        case 203: player->SetRandItId(7544); goto l276276; break;
+        case 204: player->SetRandItId(7533); goto l276276; break;;
+        case 211: player->SetRandItId(3187); goto l276276; break;
+        case 208: player->SetRandItId(15592); goto l276276; break;
+        case 209: player->SetRandItId(3430); goto l276276; break;
+        case 212: player->SetRandItId(9882); goto l276276; break;
+        case 210: player->SetRandItId(5215); goto l276276; break;
 
     case 300: // Sac
         player->SetRandRetour(action);
@@ -103,20 +104,20 @@ public:
         player->ADD_GOSSIP_ITEM(6, "Ceinturon liés à la terre (Waist)", GOSSIP_SENDER_MAIN, 313);
         player->ADD_GOSSIP_ITEM(20, session->GetTrinityString(12041), GOSSIP_SENDER_MAIN, 100);
         player->SEND_GOSSIP_MENU(1000023, creature->GetGUID());
-		break;
-	    case 302: player->SetRandItId(51994); goto l276276; break;
-	    case 303: player->SetRandItId(51965); goto l276276; break;
-	    case 304: player->SetRandItId(51973); goto l276276; break;
-	    case 305: player->SetRandItId(51980); goto l276276; break;
-	    case 306: player->SetRandItId(51996); goto l276276; break;
-	    case 307: player->SetRandItId(51966); goto l276276; break;
-	    case 308: player->SetRandItId(51974); goto l276276; break;
-		case 309: player->SetRandItId(51976); goto l276276; break;
-	    case 310: player->SetRandItId(51992); goto l276276; break;
-	    case 311: player->SetRandItId(51968); goto l276276; break;
-	    case 312: player->SetRandItId(51964); goto l276276; break;
-	    case 313: player->SetRandItId(51978); goto l276276; break;
-		
+        break;
+        case 302: player->SetRandItId(51994); goto l276276; break;
+        case 303: player->SetRandItId(51965); goto l276276; break;
+        case 304: player->SetRandItId(51973); goto l276276; break;
+        case 305: player->SetRandItId(51980); goto l276276; break;
+        case 306: player->SetRandItId(51996); goto l276276; break;
+        case 307: player->SetRandItId(51966); goto l276276; break;
+        case 308: player->SetRandItId(51974); goto l276276; break;
+        case 309: player->SetRandItId(51976); goto l276276; break;
+        case 310: player->SetRandItId(51992); goto l276276; break;
+        case 311: player->SetRandItId(51968); goto l276276; break;
+        case 312: player->SetRandItId(51964); goto l276276; break;
+        case 313: player->SetRandItId(51978); goto l276276; break;
+        
     case 400: // Tissu
         player->SetRandRetour(action);
         player->ADD_GOSSIP_ITEM(6, "Chapeau de Sombrebrume (Head)", GOSSIP_SENDER_MAIN, 401);
@@ -130,17 +131,17 @@ public:
         player->ADD_GOSSIP_ITEM(6, "Bottes royales (Feets)", GOSSIP_SENDER_MAIN, 408);
         player->ADD_GOSSIP_ITEM(20, session->GetTrinityString(12041), GOSSIP_SENDER_MAIN, 100);
         player->SEND_GOSSIP_MENU(1000023, creature->GetGUID());
-		break;
-		case 401: player->SetRandItId(14246); goto l276276; break;
-		case 402: player->SetRandItId(14247); goto l276276; break;
-		case 403: player->SetRandItId(9874); goto l276276; break;
-		case 404: player->SetRandItId(14260); goto l276276; break;
-		case 405: player->SetRandItId(9910); goto l276276; break;
-		case 406: player->SetRandItId(9906); goto l276276; break;
-		case 407: player->SetRandItId(7469); goto l276276; break;
-		case 408: player->SetRandItId(9907); goto l276276; break;
-	    case 409: player->SetRandItId(9390); goto l276276; break;
-	
+        break;
+        case 401: player->SetRandItId(14246); goto l276276; break;
+        case 402: player->SetRandItId(14247); goto l276276; break;
+        case 403: player->SetRandItId(9874); goto l276276; break;
+        case 404: player->SetRandItId(14260); goto l276276; break;
+        case 405: player->SetRandItId(9910); goto l276276; break;
+        case 406: player->SetRandItId(9906); goto l276276; break;
+        case 407: player->SetRandItId(7469); goto l276276; break;
+        case 408: player->SetRandItId(9907); goto l276276; break;
+        case 409: player->SetRandItId(9390); goto l276276; break;
+    
     case 500: // Cuir
         player->SetRandRetour(action);
         player->ADD_GOSSIP_ITEM(6, "Chapeau de noctambule (Head)", GOSSIP_SENDER_MAIN, 501);
@@ -154,17 +155,17 @@ public:
         player->ADD_GOSSIP_ITEM(6, "Bottes de chevaucheur (Feets)", GOSSIP_SENDER_MAIN, 508);
         player->ADD_GOSSIP_ITEM(20, session->GetTrinityString(12041), GOSSIP_SENDER_MAIN, 100);
         player->SEND_GOSSIP_MENU(1000023, creature->GetGUID());
-		break;
-		case 501: player->SetRandItId(15156); goto l276276; break;
-		case 502: player->SetRandItId(9389); goto l276276; break;
-		case 503: player->SetRandItId(9887); goto l276276; break;
-		case 504: player->SetRandItId(9925); goto l276276; break;
-		case 505: player->SetRandItId(9920); goto l276276; break;
-		case 506: player->SetRandItId(9916); goto l276276; break;
-		case 507: player->SetRandItId(15374); goto l276276; break;
-		case 508: player->SetRandItId(15370); goto l276276; break;
-		case 509: player->SetRandItId(9428); goto l276276; break;
-		
+        break;
+        case 501: player->SetRandItId(15156); goto l276276; break;
+        case 502: player->SetRandItId(9389); goto l276276; break;
+        case 503: player->SetRandItId(9887); goto l276276; break;
+        case 504: player->SetRandItId(9925); goto l276276; break;
+        case 505: player->SetRandItId(9920); goto l276276; break;
+        case 506: player->SetRandItId(9916); goto l276276; break;
+        case 507: player->SetRandItId(15374); goto l276276; break;
+        case 508: player->SetRandItId(15370); goto l276276; break;
+        case 509: player->SetRandItId(9428); goto l276276; break;
+        
     case 600: // Maille
         player->SetRandRetour(action);
         player->ADD_GOSSIP_ITEM(6, "Diademe de la brigade (Head)", GOSSIP_SENDER_MAIN, 601);
@@ -179,40 +180,40 @@ public:
         player->ADD_GOSSIP_ITEM(6, "Grêves anciennes.", GOSSIP_SENDER_MAIN, 608);
         player->ADD_GOSSIP_ITEM(20, session->GetTrinityString(12041), GOSSIP_SENDER_MAIN, 100);
         player->SEND_GOSSIP_MENU(1000023, creature->GetGUID());
-		break;
-		case 601: player->SetRandItId(9932); goto l276276; break;
-		case 602: player->SetRandItId(15608); goto l276276; break;
-		case 603: player->SetRandItId(7486); goto l276276; break;
-		case 604: player->SetRandItId(15612); goto l276276; break;
-		case 605: player->SetRandItId(15610); goto l276276; break;
-		case 606: player->SetRandItId(9931); goto l276276; break;
-		case 607: player->SetRandItId(15607); goto l276276; break;
-		case 608: player->SetRandItId(15599); goto l276276; break;
-	    case 609: player->SetRandItId(9388); goto l276276; break;
-	    case 610: player->SetRandItId(9409); goto l276276; break;
-		
+        break;
+        case 601: player->SetRandItId(9932); goto l276276; break;
+        case 602: player->SetRandItId(15608); goto l276276; break;
+        case 603: player->SetRandItId(7486); goto l276276; break;
+        case 604: player->SetRandItId(15612); goto l276276; break;
+        case 605: player->SetRandItId(15610); goto l276276; break;
+        case 606: player->SetRandItId(9931); goto l276276; break;
+        case 607: player->SetRandItId(15607); goto l276276; break;
+        case 608: player->SetRandItId(15599); goto l276276; break;
+        case 609: player->SetRandItId(9388); goto l276276; break;
+        case 610: player->SetRandItId(9409); goto l276276; break;
+        
 l276276:
-		case 9999:
-			lmenu:
-			player->PlayerTalkClass->ClearMenus();
-			player->SetRandRis(RandItemSuffix(player->GetRandItId(), player->GetSession()->GetSessionDbLocaleIndex()));
-			player->SetRandRie(RandItemEnch(player->GetRandItId()));
-			for (count=0; count<31; count++) {
-				if (player->GetRandRie()[count] == 2) goto lmenu2;
-				player->ADD_GOSSIP_ITEM(6, " " + player->GetRandRis()[count], GOSSIP_SENDER_MAIN, 10001+count); }
+        case 9999:
+            lmenu:
+            player->PlayerTalkClass->ClearMenus();
+            player->SetRandRis(RandItemSuffix(player->GetRandItId(), player->GetSession()->GetSessionDbLocaleIndex()));
+            player->SetRandRie(RandItemEnch(player->GetRandItId()));
+            for (count=0; count<31; count++) {
+                if (player->GetRandRie()[count] == 2) goto lmenu2;
+                player->ADD_GOSSIP_ITEM(6, " " + player->GetRandRis()[count], GOSSIP_SENDER_MAIN, 10001+count); }
 lmenu2:
-			player->ADD_GOSSIP_ITEM(0, player->GetSession()->GetTrinityString(12040), GOSSIP_SENDER_MAIN, player->GetRandRetour());
-			player->SEND_GOSSIP_MENU(1000023, creature->GetGUID());
-			break;
+            player->ADD_GOSSIP_ITEM(0, player->GetSession()->GetTrinityString(12040), GOSSIP_SENDER_MAIN, player->GetRandRetour());
+            player->SEND_GOSSIP_MENU(1000023, creature->GetGUID());
+            break;
 
-		case 10001: case 10002: case 10003: case 10004: case 10005: case 10006: case 10007: case 10008: case 10009: case 10010:
-		case 10011: case 10012: case 10013: case 10014: case 10015: case 10016: case 10017: case 10018: case 10019: case 10020:
-		case 10021: case 10022: case 10023: case 10024: case 10025: case 10026: case 10027: case 10028: case 10029: case 10030:
+        case 10001: case 10002: case 10003: case 10004: case 10005: case 10006: case 10007: case 10008: case 10009: case 10010:
+        case 10011: case 10012: case 10013: case 10014: case 10015: case 10016: case 10017: case 10018: case 10019: case 10020:
+        case 10021: case 10022: case 10023: case 10024: case 10025: case 10026: case 10027: case 10028: case 10029: case 10030:
 
-			AddItemChoix(player, player->GetRandItId(), player->GetRandRie()[action-10001]);
-			goto lmenu; break;
-		}
-	    return true;
+            NpcRandAddChoix(player, player->GetRandItId(), player->GetRandRie()[action-10001]);
+            goto lmenu; break;
+        }
+        return true;
     }
 
     struct npc_randAI : public CreatureAI
@@ -223,7 +224,7 @@ lmenu2:
     CreatureAI* GetAI(Creature* creature) const { return new npc_randAI(creature); }
 };
 
-void AddSc_npc_rand()
+void AddSC_npc_rand()
 {
     new npc_rand();
 }

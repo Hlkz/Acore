@@ -662,15 +662,16 @@ void AddBattlegroundScripts()
 
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
-void AddSc_npc_beast();
-void AddSc_npc_class();
-void AddSc_npc_customchar();
-void AddSc_npc_enchant();
-void AddSc_npc_job();
-void AddSc_npc_rand();
-void AddSc_npc_teleport();
-void AddSc_npc_transmo();
-void AddSc_npc_ba();
+
+void AddSC_npc_beast();
+void AddSC_npc_class();
+void AddSC_npc_customchar();
+void AddSC_npc_enchant();
+void AddSC_npc_job();
+void AddSC_npc_rand();
+void AddSC_npc_teleport();
+void AddSC_npc_transmo();
+void AddSC_npc_ba();
 
 void AddSC_kahz();
 void AddSC_zone_AO();
@@ -682,15 +683,15 @@ void AddCustomScripts()
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
 
-    AddSc_npc_beast();
-    AddSc_npc_class();
-    AddSc_npc_customchar();
-    AddSc_npc_enchant();
-    AddSc_npc_job();
-    AddSc_npc_rand();
-    AddSc_npc_teleport();
-    AddSc_npc_transmo();
-    AddSc_npc_ba();
+    AddSC_npc_beast();
+    AddSC_npc_class();
+    AddSC_npc_customchar();
+    AddSC_npc_enchant();
+    AddSC_npc_job();
+    AddSC_npc_rand();
+    AddSC_npc_teleport();
+    AddSC_npc_transmo();
+    AddSC_npc_ba();
 
 	AddSC_kahz();
     AddSC_zone_AO();

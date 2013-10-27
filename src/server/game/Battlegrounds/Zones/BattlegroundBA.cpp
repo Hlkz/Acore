@@ -486,7 +486,7 @@ WorldSafeLocsEntry const* BattlegroundBA::GetClosestGraveYard(Player* player)
     return entry;
 }
 
-void AddSc_npc_ba()
+void AddSC_npc_ba()
 {
     new npc_ba_turret();
     new npc_ba_nexus();

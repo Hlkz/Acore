@@ -4,59 +4,60 @@
 class npc_beast : public CreatureScript
 {
 public:
-	npc_beast() : CreatureScript("npc_beast"){ }
+    npc_beast() : CreatureScript("npc_beast") { }
+
+    void CreatePet(Player *player, Creature * creature, uint32 entry)
+    {
+        if (player->GetPet())
+        {
+            creature->MonsterWhisper(player->GetSession()->GetTrinityString(12001), player->GetGUID());
+            player->PlayerTalkClass->SendCloseGossip();
+            return;
+        }
+
+        Creature *creatureTarget = creature->SummonCreature(entry, player->GetPositionX(), player->GetPositionY()+2, player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 500);
+        if(!creatureTarget)
+            return;
+        Pet*pet = player->CreateTamedPetFrom(creatureTarget, 0);
+        if (!pet)
+            return;
 	
-	void CreatePet(Player *player, Creature * creature, uint32 entry)
-	{
-		if(player->GetPet())
-		{
-			creature->MonsterWhisper(player->GetSession()->GetTrinityString(12001), player->GetGUID());
-			player->PlayerTalkClass->SendCloseGossip();
-			return;
-		}
+        creatureTarget->setDeathState(JUST_DIED); // kill original creature
+        creatureTarget->RemoveCorpse();
+        creatureTarget->SetHealth(0); // just for nice GM-mode view
+        pet->SetPower(POWER_HAPPINESS, 1048000);
+        pet->SetUInt32Value(UNIT_FIELD_LEVEL, player->getLevel() - 1); // prepare visual effect for levelup
+        pet->GetMap()->AddToMap((Creature*)pet);
+        pet->SetUInt32Value(UNIT_FIELD_LEVEL, player->getLevel()); // visual effect for levelup
+        if (!pet->InitStatsForLevel(player->getLevel()))
+            TC_LOG_ERROR(LOG_FILTER_PETS, "Pet Create fail: no init stats for entry %u", entry);
+        pet->UpdateAllStats();
+        player->SetMinion(pet, true); // caster have pet now
+        pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+        pet->InitTalentForLevel();
+        player->PetSpellInitialize();
+        player->PlayerTalkClass->SendCloseGossip();
+        creature->MonsterWhisper(player->GetSession()->GetTrinityString(12002), player->GetGUID());
+    }
 
-		Creature *creatureTarget = creature->SummonCreature(entry, player->GetPositionX(), player->GetPositionY()+2, player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 500);
-		if(!creatureTarget) return;
+    bool OnGossipHello(Player *player, Creature * creature)
+    {
+        WorldSession* session = player->GetSession();
+        creature->HasQuestForPlayer(player);
 
-		Pet*pet = player->CreateTamedPetFrom(creatureTarget, 0);
-		if (!pet) return;
-	
-		creatureTarget->setDeathState(JUST_DIED); // kill original creature
-		creatureTarget->RemoveCorpse();
-		creatureTarget->SetHealth(0); // just for nice GM-mode view
-		pet->SetPower(POWER_HAPPINESS, 1048000);
-		pet->SetUInt32Value(UNIT_FIELD_LEVEL, player->getLevel() - 1); // prepare visual effect for levelup
-		pet->GetMap()->AddToMap((Creature*)pet);
-		pet->SetUInt32Value(UNIT_FIELD_LEVEL, player->getLevel()); // visual effect for levelup
-		if (!pet->InitStatsForLevel(player->getLevel()))
-			TC_LOG_ERROR(LOG_FILTER_PETS, "Pet Create fail: no init stats for entry %u", entry);
-		pet->UpdateAllStats();
-		player->SetMinion(pet, true); // caster have pet now
-		pet->SavePetToDB(PET_SAVE_AS_CURRENT);
-	    pet->InitTalentForLevel();
-	    player->PetSpellInitialize();
-	    player->PlayerTalkClass->SendCloseGossip();
-	    creature->MonsterWhisper(player->GetSession()->GetTrinityString(12002), player->GetGUID());
-	}
-	
-	bool OnGossipHello(Player *player, Creature * creature)
-	{
-		creature->HasQuestForPlayer(player);
-		WorldSession* session = player->GetSession();
+        if(player->getClass() != CLASS_HUNTER)
+        {
+            player->ADD_GOSSIP_ITEM(0, session->GetTrinityString(12000), GOSSIP_SENDER_MAIN, 150);
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+            return true;
+        }
 
-		if(player->getClass() != CLASS_HUNTER)
-		{
-			player->ADD_GOSSIP_ITEM(0, session->GetTrinityString(12000), GOSSIP_SENDER_MAIN, 150);
-			player->SEND_GOSSIP_MENU(1000005, creature->GetGUID());
-			return true;
-		}
-
-		player->ADD_GOSSIP_ITEM(4, session->GetTrinityString(12003), GOSSIP_SENDER_MAIN, 30);
-		player->ADD_GOSSIP_ITEM(2, session->GetTrinityString(12004), GOSSIP_SENDER_MAIN, 31);
-		player->ADD_GOSSIP_ITEM(5, session->GetTrinityString(12000), GOSSIP_SENDER_MAIN, 150);
-		player->SEND_GOSSIP_MENU(1000008, creature->GetGUID());
-		return true;
-	}
+        player->ADD_GOSSIP_ITEM(4, session->GetTrinityString(12003), GOSSIP_SENDER_MAIN, 30);
+        player->ADD_GOSSIP_ITEM(2, session->GetTrinityString(12004), GOSSIP_SENDER_MAIN, 31);
+        player->ADD_GOSSIP_ITEM(5, session->GetTrinityString(12000), GOSSIP_SENDER_MAIN, 150);
+        player->SEND_GOSSIP_MENU(1000008, creature->GetGUID());
+        return true;
+    }
 
 	bool OnGossipSelect(Player *player, Creature * creature, uint32 sender, uint32 action)
 	{
@@ -123,7 +124,7 @@ public:
 	}
 };
 
-void AddSc_npc_beast()
+void AddSC_npc_beast()
 {
     new npc_beast();
 }
