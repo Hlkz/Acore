@@ -109,13 +109,12 @@ void BattleAO::BroadcastWorker(Do& _do)
 
 BattleAO::BattleAO() //ctor
 {
-	m_Map = sMapMgr->CreateBaseMap(BATTLEAO_MAP);
-	if (m_Map == NULL)
-
-    m_PlayersCount[1] = 0;
+    m_Map = sMapMgr->CreateBaseMap(BATTLEAO_MAP);
     m_PlayersCount[0] = 0;
     m_PlayersCount[1] = 0;
     m_InBAOFreeSlotQueue = false;
+    playerscantag = sWorld->getWorldState(BAO_WS_CANPLAYERSTAG);
+    balancetag = true;
 }
 BattleAO::~BattleAO() {} //dtor
 
@@ -484,9 +483,9 @@ void BattleAO::SendAllNodeUpdate(Player* player)
 		player->GetSession()->SendPacket(&data);
 	}
 
-    sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, BAO_OP_OCCUPIED_BASES_ALLY, ally);
+    sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, BAO_WS_OCCUPIED_BASES_ALLY, ally);
     player->GetSession()->SendPacket(&data);
-    sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, BAO_OP_OCCUPIED_BASES_HORDE, horde);
+    sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, BAO_WS_OCCUPIED_BASES_HORDE, horde);
     player->GetSession()->SendPacket(&data);
 }
 
@@ -813,18 +812,18 @@ void BattleAO::FillInitialWorldStates(WorldPacket& data)
 		data << uint32(BAO_OP_NODESTATES[node] + plusArray[m_Nodes[node]]) << 1;
 	}
 
-    data << uint32(BAO_OP_OCCUPIED_BASES_ALLY)  << uint32(ally);
-    data << uint32(BAO_OP_OCCUPIED_BASES_HORDE) << uint32(horde);
+    data << uint32(BAO_WS_OCCUPIED_BASES_ALLY)  << uint32(ally);
+    data << uint32(BAO_WS_OCCUPIED_BASES_HORDE) << uint32(horde);
 
 	// ressources
-    data << uint32(BAO_OP_RESOURCES_ALLY)     << uint32(sWorld->getWorldState(BAO_OP_RESOURCES_ALLY));
-    data << uint32(BAO_OP_RESOURCES_HORDE)    << uint32(sWorld->getWorldState(BAO_OP_RESOURCES_HORDE));
+    data << uint32(BAO_WS_RESOURCES_ALLY)     << uint32(sWorld->getWorldState(BAO_WS_RESOURCES_ALLY));
+    data << uint32(BAO_WS_RESOURCES_HORDE)    << uint32(sWorld->getWorldState(BAO_WS_RESOURCES_HORDE));
 }
 
 void BattleAO::FillInitialWorldStatesForKZ(WorldPacket& data)
 {
-    data << uint32(BAO_OP_RESOURCES_ALLY)     << uint32(sWorld->getWorldState(BAO_OP_RESOURCES_ALLY));
-    data << uint32(BAO_OP_RESOURCES_HORDE)    << uint32(sWorld->getWorldState(BAO_OP_RESOURCES_HORDE));
+    data << uint32(BAO_WS_RESOURCES_ALLY)     << uint32(sWorld->getWorldState(BAO_WS_RESOURCES_ALLY));
+    data << uint32(BAO_WS_RESOURCES_HORDE)    << uint32(sWorld->getWorldState(BAO_WS_RESOURCES_HORDE));
 }
 
 void BattleAO::_SendNodeUpdate(uint8 node)
@@ -847,10 +846,10 @@ void BattleAO::_SendNodeUpdate(uint8 node)
         else if (m_Nodes[i] == BAO_NODE_STATUS_HORDE_OCCUPIED)
             ++horde;
 
-    SendUpdateWorldState(BAO_OP_OCCUPIED_BASES_ALLY, ally);
-    SendUpdateWorldState(BAO_OP_OCCUPIED_BASES_HORDE, horde);
-    SendUpdateWorldState(BAO_OP_RESOURCES_ALLY, int32(sWorld->getWorldState(BAO_OP_RESOURCES_ALLY)));
-    SendUpdateWorldState(BAO_OP_RESOURCES_HORDE,int32(sWorld->getWorldState(BAO_OP_RESOURCES_HORDE)));
+    SendUpdateWorldState(BAO_WS_OCCUPIED_BASES_ALLY, ally);
+    SendUpdateWorldState(BAO_WS_OCCUPIED_BASES_HORDE, horde);
+    SendUpdateWorldState(BAO_WS_RESOURCES_ALLY, int32(sWorld->getWorldState(BAO_WS_RESOURCES_ALLY)));
+    SendUpdateWorldState(BAO_WS_RESOURCES_HORDE,int32(sWorld->getWorldState(BAO_WS_RESOURCES_HORDE)));
 }
 
 void BattleAO::_NodeOccupied(uint8 node, Team team) // spawning creatures (spirithealers)
@@ -1065,6 +1064,9 @@ void BattleAO::RemoveAurasFromPlayer(Player* player)
 
 uint32 BattleAO::GetFreeSlotsForTeam(Team Team) const
 {
+    if (!balancetag)
+        return true;
+
     uint32 otherTeam;
     if (Team == ALLIANCE)
         otherTeam = GetPlayersCount(HORDE);

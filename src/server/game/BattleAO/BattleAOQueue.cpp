@@ -209,7 +209,7 @@ bool BattleAOQueue::InviteGroupToBAO(BAOGroupQueueInfo* ginfo, uint32 side)
 
 void BattleAOQueue::FillPlayersToBAO()
 {
-	BattleAO* BAO = sBattleAOMgr->GetBattleAO();
+    BattleAO* BAO = sBattleAOMgr->GetBattleAO();
     int32 hordeFree = BAO->GetFreeSlotsForTeam(HORDE);
     int32 aliFree   = BAO->GetFreeSlotsForTeam(ALLIANCE);
 
@@ -224,7 +224,7 @@ void BattleAOQueue::FillPlayersToBAO()
     for (; hordeIndex < hordeCount && m_SelectionPools[TEAM_HORDE].AddGroup((*Horde_itr), hordeFree); hordeIndex++)
         ++Horde_itr;
 
-	int32 diffAli   = aliFree   - int32(m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount());
+    int32 diffAli   = aliFree   - int32(m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount());
     int32 diffHorde = hordeFree - int32(m_SelectionPools[TEAM_HORDE].GetPlayerCount());
     while (abs(diffAli - diffHorde) > 1 && (m_SelectionPools[TEAM_HORDE].GetPlayerCount() > 0 || m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() > 0))
     {

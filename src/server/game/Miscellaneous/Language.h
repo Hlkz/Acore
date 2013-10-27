@@ -1219,6 +1219,11 @@ enum TrinityStrings
     LANG_BAO_NODE_TAKEN               = 17820,
     LANG_BAO_NODE_DEFENDED            = 17821,
     LANG_BAO_NODE_ASSAULTED           = 17822,
+    LANG_BAO_ENABLED          = 17931,
+    LANG_BAO_DISABLE          = 17932,
+    LANG_BAO_ENABLE           = 17933,
+    LANG_BAO_BALANCE_DISABLE  = 17934,
+    LANG_BAO_BALANCE_ENABLE   = 17935,
 
     LANG_RANKS_NAME                     = 17901,
     LANG_DIST_RANKS_START               = 17914,

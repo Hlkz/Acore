@@ -50,16 +50,17 @@ enum BAO_NodeStatus
 
 enum BAOWorldStates
 {
-    BAO_OP_RESOURCES_ALLY          = 22001,
-    BAO_OP_RESOURCES_HORDE         = 22002,
-    BAO_OP_OCCUPIED_BASES_ALLY     = 22003,
-    BAO_OP_OCCUPIED_BASES_HORDE    = 22004,
+    BAO_WS_RESOURCES_ALLY          = 22001,
+    BAO_WS_RESOURCES_HORDE         = 22002,
+    BAO_WS_OCCUPIED_BASES_ALLY     = 22003,
+    BAO_WS_OCCUPIED_BASES_HORDE    = 22004,
+    BAO_WS_CANPLAYERSTAG           = 22005,
 };
 
-const uint32 BAO_OP_NODESTATES[BAO_DYNAMIC_NODES_COUNT] =	{3001, 3011, 3021, 3031, 3041, 3051};
-const uint32 BAO_OP_NODEICONS[BAO_DYNAMIC_NODES_COUNT]  =	{3000, 3010, 3020, 3030, 3040, 3050};
-const uint32 BAO_NODEOBJECTID[BAO_DYNAMIC_NODES_COUNT]	=	{180107, 180108, 180109, 180110, 180111, 180112};
-const uint32 BAO_SAVENODEWORLDSTATE[BAO_DYNAMIC_NODES_COUNT]	=	{22200, 22201, 22202, 22203, 22204, 22205};
+const uint32 BAO_OP_NODESTATES[BAO_DYNAMIC_NODES_COUNT] =   { 3001, 3011, 3021, 3031, 3041, 3051 };
+const uint32 BAO_OP_NODEICONS[BAO_DYNAMIC_NODES_COUNT]  =   { 3000, 3010, 3020, 3030, 3040, 3050 };
+const uint32 BAO_NODEOBJECTID[BAO_DYNAMIC_NODES_COUNT]	=   { 180107, 180108, 180109, 180110, 180111, 180112 };
+const uint32 BAO_SAVENODEWORLDSTATE[BAO_DYNAMIC_NODES_COUNT]	=	{ 22200, 22201, 22202, 22203, 22204, 22205 };
 
 enum BAO_ObjectTypes
 {
@@ -251,6 +252,9 @@ class BattleAO : public ZoneScript
 
         uint32 GetFreeSlotsForTeam(Team Team) const;
 		void RemoveFromBAOFreeSlotQueue();
+		bool CanPlayersTag() { return playerscantag; }
+		void SetPlayersCanTag(bool cantag) { playerscantag = cantag; }
+		void SetBalanceTag(bool balance) { balancetag = balance; }
 
 		void RemoveAurasFromPlayer(Player* player);
 
@@ -299,12 +303,14 @@ class BattleAO : public ZoneScript
         BattleAOPlayerMap m_Players;
         std::deque<uint64> m_OfflineQueue;
         BattleAOScoreMap PlayerScores;
+        bool playerscantag;
+        bool balancetag;
 
         GuidSet m_Groups[BG_TEAMS_COUNT]; // Contain different raid group
 
         uint32 m_PlayersCount[BG_TEAMS_COUNT];
 
-		bool m_InBAOFreeSlotQueue;
+        bool m_InBAOFreeSlotQueue;
 
         void TeamCastSpell(TeamId team, int32 spellId);
 

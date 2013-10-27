@@ -85,78 +85,83 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
     recvData >> instanceId;                                // instance id, 0 if First Available selected
     recvData >> joinAsGroup;                               // join as group
 
-	if (bgTypeId_ == BATTLEGROUND_AO)
-	{
-		Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_AO);
-		PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), _player->getLevel());
-		if (!bracketEntry)
-			return;
-		if (!joinAsGroup)
-		{
-			if (_player->GetBattlegroundQueueIndex(BATTLEGROUND_QUEUE_AO) < PLAYER_MAX_BATTLEGROUND_QUEUES)
-				return;
+    if (bgTypeId_ == BATTLEGROUND_AO)
+    {
+        if (!sBattleAOMgr->GetBattleAO()->CanPlayersTag())
+        {
+            ChatHandler(_player->GetSession()).SendSysMessage(LANG_BAO_ENABLED);
+            return;
+        }
+        Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_AO);
+        PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), _player->getLevel());
+        if (!bracketEntry)
+            return;
+        if (!joinAsGroup)
+        {
+            if (_player->GetBattlegroundQueueIndex(BATTLEGROUND_QUEUE_AO) < PLAYER_MAX_BATTLEGROUND_QUEUES)
+            return;
 
-			if (!_player->HasFreeBattlegroundQueueId())
-			{
-				WorldPacket data;
-				sBattlegroundMgr->BuildGroupJoinedBattlegroundPacket(&data, ERR_BATTLEGROUND_TOO_MANY_QUEUES);
-				_player->GetSession()->SendPacket(&data);
-				return;
-			}
-			
-			BattleAOQueue& baoQueue = sBattleAOMgr->GetBattleAOQueue();
-			BAOGroupQueueInfo* ginfo = baoQueue.AddGroup(_player, NULL, isPremade);
-			uint32 queueSlot = _player->AddBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);
-			WorldPacket data;
-			sBattleAOMgr->BuildBattleAOStatusPacket(&data, queueSlot, STATUS_WAIT_QUEUE, 10, 0);
-			SendPacket(&data);
-		}
-		else
-		{
-			grp = _player->GetGroup();
-			if (!grp)
-				return;
-			if (grp->GetLeaderGUID() != _player->GetGUID())
-				return;
-			GroupJoinBattlegroundResult err;
-			err = grp->CanJoinBattlegroundQueue(bg, BATTLEGROUND_QUEUE_AO, 0, bg->GetMaxPlayersPerTeam(), false, 0);
-			isPremade = (grp->GetMembersCount() >= bg->GetMinPlayersPerTeam());
-			BattleAOQueue& baoQueue = sBattleAOMgr->GetBattleAOQueue();
-			BAOGroupQueueInfo* ginfo = NULL;
-			uint32 avgTime = 0;
+            if (!_player->HasFreeBattlegroundQueueId())
+            {
+                WorldPacket data;
+                sBattlegroundMgr->BuildGroupJoinedBattlegroundPacket(&data, ERR_BATTLEGROUND_TOO_MANY_QUEUES);
+                _player->GetSession()->SendPacket(&data);
+                return;
+            }
 
-			if (err > 0)
-			{
-				ginfo = baoQueue.AddGroup(_player, grp, isPremade);
-				avgTime = 10;
-			}
+            BattleAOQueue& baoQueue = sBattleAOMgr->GetBattleAOQueue();
+            BAOGroupQueueInfo* ginfo = baoQueue.AddGroup(_player, NULL, isPremade);
+            uint32 queueSlot = _player->AddBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);
+            WorldPacket data;
+            sBattleAOMgr->BuildBattleAOStatusPacket(&data, queueSlot, STATUS_WAIT_QUEUE, 10, 0);
+            SendPacket(&data);
+        }
+        else
+        {
+            grp = _player->GetGroup();
+            if (!grp)
+                return;
+            if (grp->GetLeaderGUID() != _player->GetGUID())
+                return;
+            GroupJoinBattlegroundResult err;
+            err = grp->CanJoinBattlegroundQueue(bg, BATTLEGROUND_QUEUE_AO, 0, bg->GetMaxPlayersPerTeam(), false, 0);
+            isPremade = (grp->GetMembersCount() >= bg->GetMinPlayersPerTeam());
+            BattleAOQueue& baoQueue = sBattleAOMgr->GetBattleAOQueue();
+            BAOGroupQueueInfo* ginfo = NULL;
+            uint32 avgTime = 0;
 
-			for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
-			{
-				Player* member = itr->GetSource();
-				if (!member)
-					continue;   // this should never happen
+            if (err > 0)
+            {
+                ginfo = baoQueue.AddGroup(_player, grp, isPremade);
+                avgTime = 10;
+            }
 
-				WorldPacket data;
+            for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+            {
+                Player* member = itr->GetSource();
+	                if (!member)
+                        continue;   // this should never happen
 
-				if (err <= 0)
-				{
-					sBattlegroundMgr->BuildGroupJoinedBattlegroundPacket(&data, err);
-					member->GetSession()->SendPacket(&data);
-					continue;
-				}
+                WorldPacket data;
 
-				uint32 queueSlot = member->AddBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);
-				sBattleAOMgr->BuildBattleAOStatusPacket(&data, queueSlot, STATUS_WAIT_QUEUE, avgTime, 0);            
-				member->GetSession()->SendPacket(&data);
-				sBattlegroundMgr->BuildGroupJoinedBattlegroundPacket(&data, err);
-				member->GetSession()->SendPacket(&data);
-			}
-		}
-		sBattleAOMgr->ScheduleQueueUpdate();
-		sLog->outDebug(LOG_FILTER_BAO, "BAO : group tag");
-		return;
-	}
+                if (err <= 0)
+                {
+                    sBattlegroundMgr->BuildGroupJoinedBattlegroundPacket(&data, err);
+                    member->GetSession()->SendPacket(&data);
+                    continue;
+                }
+
+                uint32 queueSlot = member->AddBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);
+                sBattleAOMgr->BuildBattleAOStatusPacket(&data, queueSlot, STATUS_WAIT_QUEUE, avgTime, 0);            
+                member->GetSession()->SendPacket(&data);
+                sBattlegroundMgr->BuildGroupJoinedBattlegroundPacket(&data, err);
+                member->GetSession()->SendPacket(&data);
+            }
+        }
+        sBattleAOMgr->ScheduleQueueUpdate();
+        sLog->outDebug(LOG_FILTER_BAO, "BAO : group tag");
+        return;
+    }
 
     if (!sBattlemasterListStore.LookupEntry(bgTypeId_))
     {

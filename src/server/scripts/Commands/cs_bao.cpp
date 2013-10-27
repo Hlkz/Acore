@@ -1,7 +1,8 @@
 #include "Chat.h"
-#include "GameEventMgr.h"
 #include "Language.h"
 #include "Player.h"
+#include "BattleAOMgr.h"
+#include "World.h"
 #include "ScriptMgr.h"
 
 class bao_commandscript : public CommandScript
@@ -36,11 +37,17 @@ public:
 
             if (param == "on")
             {
+                sBattleAOMgr->GetBattleAO()->SetPlayersCanTag(true);
+                sWorld->setWorldState(BAO_WS_CANPLAYERSTAG, true);
+                handler->SendSysMessage(LANG_BAO_DISABLE);
                 return true;
             }
 
             if (param == "off")
             {
+                sBattleAOMgr->GetBattleAO()->SetPlayersCanTag(false);
+                sWorld->setWorldState(BAO_WS_CANPLAYERSTAG, false);
+                handler->SendSysMessage(LANG_BAO_ENABLE);
                 return true;
             }
         }
@@ -61,11 +68,15 @@ public:
 
             if (param == "on")
             {
+                sBattleAOMgr->GetBattleAO()->SetBalanceTag(true);
+                handler->SendSysMessage(LANG_BAO_BALANCE_DISABLE);
                 return true;
             }
 
             if (param == "off")
             {
+                sBattleAOMgr->GetBattleAO()->SetBalanceTag(false);
+                handler->SendSysMessage(LANG_BAO_BALANCE_ENABLE);
                 return true;
             }
         }
