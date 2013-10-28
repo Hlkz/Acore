@@ -1864,9 +1864,7 @@ int32 Battleground::GetObjectType(uint64 guid)
     return -1;
 }
 
-void Battleground::HandleKillUnit(Creature* /*victim*/, Player* /*killer*/)
-{
-}
+void Battleground::HandleKillUnit(Creature* /*victim*/, Player* /*killer*/) { }
 
 void Battleground::CheckArenaAfterTimerConditions()
 {

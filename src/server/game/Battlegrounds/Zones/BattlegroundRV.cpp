@@ -72,9 +72,7 @@ void BattlegroundRV::PostUpdateImpl(uint32 diff)
         setTimer(getTimer() - diff);
 }
 
-void BattlegroundRV::StartingEventCloseDoors()
-{
-}
+void BattlegroundRV::StartingEventCloseDoors() { }
 
 void BattlegroundRV::StartingEventOpenDoors()
 {

@@ -286,9 +286,7 @@ void Map::AddToGrid(GameObject* obj, Cell const& cell)
 }
 
 template<class T>
-void Map::SwitchGridContainers(T* /*obj*/, bool /*on*/)
-{
-}
+void Map::SwitchGridContainers(T* /*obj*/, bool /*on*/) { }
 
 template<>
 void Map::SwitchGridContainers(Creature* obj, bool on)
@@ -482,9 +480,7 @@ bool Map::AddPlayerToMap(Player* player)
 }
 
 template<class T>
-void Map::InitializeObject(T* /*obj*/)
-{
-}
+void Map::InitializeObject(T* /*obj*/) { }
 
 template<>
 void Map::InitializeObject(Creature* obj)
@@ -2525,9 +2521,7 @@ void Map::AddToActive(DynamicObject* d)
 }
 
 template<class T>
-void Map::RemoveFromActive(T* /*obj*/)
-{
-}
+void Map::RemoveFromActive(T* /*obj*/) { }
 
 template <>
 void Map::RemoveFromActive(Creature* c)
