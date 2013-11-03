@@ -1923,7 +1923,6 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetTeamFromDB();
         TeamId GetTeamId() const { return m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
         void setFactionForRace(uint8 race);
-		void setPlayerFaction(uint32 team) { m_team = team; }
 
         void InitDisplayIds();
 
@@ -2358,7 +2357,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetArenaWin();
         void SetArenaWin(uint32 arenawin);
         uint32 CanSwitchTeam();
-        bool IsDeserter();
+        bool IsDeserter(uint32 team = 0);
         uint32 GetRezTime() const { return m_rezData.rezTime; }
         void SetRezTime(uint32 newreztime = 0) { m_rezData.rezTime = newreztime; }
         void SetSHGUID(uint32 newshguid) { m_rezData.shguid = newshguid; }

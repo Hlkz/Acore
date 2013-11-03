@@ -29,8 +29,8 @@ class BattleAOMgr
     // create battleAO events
     void InitBattleAO();
 
-    void HandlePlayerEnterZone(Player* player, uint32 areaflag);
-    void HandlePlayerLeaveZone(Player* player, uint32 areaflag);
+    void HandlePlayerEnterZone(Player* player, uint32 zoneid);
+    void HandlePlayerLeaveZone(Player* player, uint32 zoneid);
 
     void HandlePlayerResurrects(Player* player, uint32 areaflag);
     void HandleDropFlag(Player* player, uint32 spellId);

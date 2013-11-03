@@ -7517,8 +7517,10 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     {
         sOutdoorPvPMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
         sOutdoorPvPMgr->HandlePlayerEnterZone(this, newZone);
-        sBattleAOMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
-        sBattleAOMgr->HandlePlayerEnterZone(this, newZone);
+        if (GetMapId() == BATTLEAO_MAP)
+            sBattleAOMgr->HandlePlayerEnterZone(this, newZone);
+        else
+            sBattleAOMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
         SendInitWorldStates(newZone, newArea);              // only if really enters to new zone, not just area change, works strange...
         if (Guild* guild = GetGuild())
             guild->UpdateMemberData(this, GUILD_MEMBER_DATA_ZONEID, newZone);
@@ -17055,21 +17057,21 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     outDebugValues();
 
     //Initiate team if new char
-	uint32 team = GetTeamFromDB();
-	if (team != ALLIANCE && team != HORDE)
-	{
-		setFactionForRace(getRace());
-		PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TEAM);
-		stmt->setUInt32(0, m_team);
-		stmt->setUInt32(1, GUID_LOPART(GetGUID()));
-		CharacterDatabase.Execute(stmt);
-	}
-	else
-	{
-		m_team = team;
-		ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry((team==HORDE)+1);
-		setFaction(rEntry ? rEntry->FactionID : 0);
-	}
+    uint32 team = GetTeamFromDB();
+    if (team != ALLIANCE && team != HORDE)
+    {
+        setFactionForRace(getRace());
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TEAM);
+        stmt->setUInt32(0, m_team);
+        stmt->setUInt32(1, GUID_LOPART(GetGUID()));
+        CharacterDatabase.Execute(stmt);
+    }
+    else
+    {
+        m_team = team;
+        ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry((team==HORDE)+1);
+        setFaction(rEntry ? rEntry->FactionID : 0);
+    }
 
     // load home bind and check in same time class/race pair, it used later for restore broken positions
     if (!_LoadHomeBind(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_HOME_BIND)))
@@ -26626,9 +26628,10 @@ uint32 Player::CanSwitchTeam()
     return 0;
 }
 
-bool Player::IsDeserter()
+bool Player::IsDeserter(uint32 team)
 {
-    uint32 team = GetTeamFromDB();
+    if (!team)
+        team = GetTeamFromDB();
     if((int)GetReputation(team==ALLIANCE?FACTION_STORMWIND:FACTION_ORGRIMMAR)<0)
         return true;
     else if (team == ALLIANCE || team == HORDE)

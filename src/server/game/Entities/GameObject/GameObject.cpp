@@ -2049,6 +2049,13 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
                 if (GetGoType() == GAMEOBJECT_TYPE_CHEST)
                     if (GetGOInfo()->chest.groupLootRules && !IsLootAllowedFor(target))
                         flags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
+                if (target->IsDeserter())
+                {
+                    if (flags & GO_FLAG_CANTNEUTRAL)
+                        flags |= GO_FLAG_NOT_SELECTABLE;
+                }
+                else if ((target->GetTeam() == ALLIANCE && flags & GO_FLAG_CANTA2) || (target->GetTeam() == HORDE && flags & GO_FLAG_CANTH2))
+                    flags |= GO_FLAG_NOT_SELECTABLE;
 
                 fieldBuffer << flags;
             }

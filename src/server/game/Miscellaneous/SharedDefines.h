@@ -1487,7 +1487,10 @@ enum GameObjectFlags
     GO_FLAG_NODESPAWN       = 0x00000020,                   // never despawn, typically for doors, they just change state
     GO_FLAG_TRIGGERED       = 0x00000040,                   // typically, summoned objects. Triggered by spell or other events
     GO_FLAG_DAMAGED         = 0x00000200,
-    GO_FLAG_DESTROYED       = 0x00000400
+    GO_FLAG_DESTROYED       = 0x00000400,
+    GO_FLAG_CANTA2          = 0x00000800,                   // test for bao
+    GO_FLAG_CANTH2          = 0x00001000,
+    GO_FLAG_CANTNEUTRAL     = 0x00002000
 };
 
 enum GameObjectDynamicLowFlags

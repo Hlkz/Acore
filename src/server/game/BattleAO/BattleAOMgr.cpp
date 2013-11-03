@@ -31,8 +31,7 @@ void BattleAOMgr::InitBattleAO()
 void BattleAOMgr::SendToBattleAO(Player* player)
 {
     uint32 team = player->GetTeamFromDB();
-
-    if(player->IsDeserter())
+    if (player->IsDeserter(team))
         player->TeleportTo(BATTLEAO_MAP, -5610.104980f, -592.819092f, -20.958515f, 1.135133f);
     else if (team == ALLIANCE)
         player->TeleportTo(BATTLEAO_MAP, -5172.204590f, -210.363510f, 13.777737f, 5.422875f);
@@ -169,8 +168,6 @@ void BattleAOMgr::ScheduleQueueUpdate()
 
 void BattleAOMgr::HandlePlayerEnterZone(Player* player, uint32 zoneid)
 {
-    if (zoneid != BATTLEAO_AREA)
-        return;
     if (GetBattleAO()->HasPlayer(player))
         return;
     GetBattleAO()->HandlePlayerEnterZone(player, zoneid);
@@ -179,8 +176,6 @@ void BattleAOMgr::HandlePlayerEnterZone(Player* player, uint32 zoneid)
 
 void BattleAOMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
 {
-    if (zoneid != BATTLEAO_AREA)
-        return;
     if (!GetBattleAO()->HasPlayer(player))
         return;
     GetBattleAO()->HandlePlayerLeaveZone(player, zoneid);

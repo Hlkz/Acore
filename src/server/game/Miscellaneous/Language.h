@@ -1219,6 +1219,8 @@ enum TrinityStrings
     LANG_BAO_NODE_TAKEN               = 17820,
     LANG_BAO_NODE_DEFENDED            = 17821,
     LANG_BAO_NODE_ASSAULTED           = 17822,
+    LANG_BAO_NODE_NEUTRALTAKEN        = 17823,
+    LANG_BAO_NODE_NEUTRALASSAULTED    = 17824,
     LANG_BAO_ENABLED          = 17931,
     LANG_BAO_DISABLE          = 17932,
     LANG_BAO_ENABLE           = 17933,
