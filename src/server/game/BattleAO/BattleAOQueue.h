@@ -39,43 +39,43 @@ enum BattleAOQueueGroupTypes
 class BattleAO;
 class BattleAOQueue
 {
+public:
+
+    BattleAOQueue();
+    ~BattleAOQueue();
+
+    void BattleAOQueueUpdate();
+    void UpdateEvents(uint32 diff);
+
+    void FillPlayersToBAO();
+    BAOGroupQueueInfo* AddGroup(Player* leader, Group* group, bool isPremade);
+    void RemovePlayer(uint64 guid, bool decreasePlayersCount);
+    bool IsPlayerInvited(uint64 pl_guid, const uint32 removeTime);
+    bool GetPlayerGroupInfoData(uint64 guid, BAOGroupQueueInfo* ginfo);
+
+    typedef std::map<uint64, BAOPlayerQueueInfo> BAOQueuedPlayersMap;
+    BAOQueuedPlayersMap m_QueuedPlayers;
+    typedef std::deque<BAOGroupQueueInfo*> BAOGroupsQueueType;
+    BAOGroupsQueueType m_QueuedGroups[BAO_QUEUE_GROUP_TYPES_COUNT];
+
+    class SelectionPool
+    {
     public:
-        BattleAOQueue();
-        ~BattleAOQueue();
-		
-        void BattleAOQueueUpdate(uint32 diff);
-        void UpdateEvents(uint32 diff);
-
-        void FillPlayersToBAO();
-		BAOGroupQueueInfo* AddGroup(Player* leader, Group* group, bool isPremade);
-        void RemovePlayer(uint64 guid, bool decreasePlayersCount);
-        bool IsPlayerInvited(uint64 pl_guid, const uint32 removeTime);
-        bool GetPlayerGroupInfoData(uint64 guid, BAOGroupQueueInfo* ginfo);
-		
-        typedef std::map<uint64, BAOPlayerQueueInfo> BAOQueuedPlayersMap;
-        BAOQueuedPlayersMap m_QueuedPlayers;
-        typedef std::deque<BAOGroupQueueInfo*> BAOGroupsQueueType;
-		BAOGroupsQueueType m_QueuedGroups[BAO_QUEUE_GROUP_TYPES_COUNT];
-
-        class SelectionPool
-        {
-		public:
-			SelectionPool(): PlayerCount(0) {};
-			void Init();
-			bool AddGroup(BAOGroupQueueInfo* ginfo, uint32 desiredCount);
-			bool KickGroup(uint32 size);
-			uint32 GetPlayerCount() const {return PlayerCount;}
-		public:
-			BAOGroupsQueueType SelectedGroups;
-		private:
-			uint32 PlayerCount;
-        };
-
-        SelectionPool m_SelectionPools[BG_TEAMS_COUNT];
-        uint32 GetPlayersInQueue(TeamId id);
+        SelectionPool(): PlayerCount(0) {};
+        void Init();
+        bool AddGroup(BAOGroupQueueInfo* ginfo, uint32 desiredCount);
+        bool KickGroup(uint32 size);
+        uint32 GetPlayerCount() const {return PlayerCount;}
+        BAOGroupsQueueType SelectedGroups;
     private:
-        bool InviteGroupToBAO(BAOGroupQueueInfo* ginfo, uint32 side);
-		EventProcessor m_events;
+        uint32 PlayerCount;
+    };
+
+    SelectionPool m_SelectionPools[BG_TEAMS_COUNT];
+    uint32 GetPlayersInQueue(TeamId id);
+private:
+    bool InviteGroupToBAO(BAOGroupQueueInfo* ginfo, uint32 side);
+    EventProcessor m_events;
 };
 
 class BAOQueueInviteEvent : public BasicEvent

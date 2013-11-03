@@ -63,7 +63,7 @@ void BattleAOMgr::Update(uint32 diff)
     {
         std::vector<uint64> scheduled;
         std::swap(scheduled, m_QueueUpdateScheduler);
-        m_BattleAOQueues.BattleAOQueueUpdate(diff);
+        m_BattleAOQueues.BattleAOQueueUpdate();
     }
 }
 
@@ -131,7 +131,7 @@ void BattleAOMgr::BuildPvpLogDataPacket(WorldPacket* data)
         itr2 = itr++;
         if (!bao->HasPlayerByGuid(itr2->first))
         {
-            TC_LOG_ERROR(LOG_FILTER_BAO, "BAO player %i has scoreboard but is not in bao !", itr->first);
+            TC_LOG_ERROR(LOG_FILTER_BAO, "BAO player %u has scoreboard but is not in bao !", GUID_LOPART(itr->first));
             continue;
         }
         *data << uint64(itr2->first);

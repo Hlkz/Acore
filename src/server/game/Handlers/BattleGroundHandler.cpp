@@ -449,49 +449,50 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
         return;
     }
 
-	if (bgTypeId_ == BATTLEGROUND_AO)
-	{
-		BattleAOQueue& baoQueue = sBattleAOMgr->GetBattleAOQueue();
-		BAOGroupQueueInfo ginfo;
-		if (!baoQueue.GetPlayerGroupInfoData(_player->GetGUID(), &ginfo))
-			return;
-		BattleAO* bao = sBattleAOMgr->GetBattleAO();
-	
-		uint32 queueSlot = _player->GetBattlegroundQueueIndex(BATTLEGROUND_QUEUE_AO);
-		WorldPacket data;
-		if (action) // enter battle
-		{
-			if (!_player->IsInvitedForBattlegroundQueueType(BATTLEGROUND_QUEUE_AO))
-				return;
-		    if (!_player->IsAlive())
-	        {
-	            _player->ResurrectPlayer(1.0f);
-	            _player->SpawnCorpseBones();
-		    }
-			if (_player->IsInFlight())
-			{
-			    _player->GetMotionMaster()->MovementExpired();
-			    _player->CleanupAfterTaxiFlight();
-			}
-			
-			sBattleAOMgr->BuildBattleAOStatusPacket(&data, queueSlot, STATUS_IN_PROGRESS, 0, 0); //2e 0 => start time
-			_player->GetSession()->SendPacket(&data);
+    if (bgTypeId_ == BATTLEGROUND_AO)
+    {
+        BattleAOQueue& baoQueue = sBattleAOMgr->GetBattleAOQueue();
+        BAOGroupQueueInfo ginfo;
+        if (!baoQueue.GetPlayerGroupInfoData(_player->GetGUID(), &ginfo))
+            return;
+        BattleAO* bao = sBattleAOMgr->GetBattleAO();
 
-	        baoQueue.RemovePlayer(_player->GetGUID(), false);
-	        if (Battleground* currentBg = _player->GetBattleground())
-	            currentBg->RemovePlayerAtLeave(_player->GetGUID(), false, true);
-			_player->SetBGTeam(ginfo.Team);
-			sBattleAOMgr->SendToBattleAO(_player);
-		}
-		else // leave queue
-		{
-		    _player->RemoveBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);
-		    sBattleAOMgr->BuildBattleAOStatusPacket(&data,queueSlot, STATUS_NONE, 0, 0);
-		    baoQueue.RemovePlayer(_player->GetGUID(), true);
-		    SendPacket(&data);
-		}
-		return;
-	}
+        uint32 queueSlot = _player->GetBattlegroundQueueIndex(BATTLEGROUND_QUEUE_AO);
+        WorldPacket data;
+        if (action) // enter battle
+        {
+            if (!_player->IsInvitedForBattlegroundQueueType(BATTLEGROUND_QUEUE_AO))
+                return;
+            if (!_player->IsAlive())
+            {
+                _player->ResurrectPlayer(1.0f);
+                _player->SpawnCorpseBones();
+            }
+            if (_player->IsInFlight())
+            {
+                _player->GetMotionMaster()->MovementExpired();
+                _player->CleanupAfterTaxiFlight();
+            }
+
+            sBattleAOMgr->BuildBattleAOStatusPacket(&data, queueSlot, STATUS_IN_PROGRESS, 0, 0); //2e 0 => start time
+            _player->GetSession()->SendPacket(&data);
+
+            baoQueue.RemovePlayer(_player->GetGUID(), false);
+            if (Battleground* currentBg = _player->GetBattleground())
+                currentBg->RemovePlayerAtLeave(_player->GetGUID(), false, true);
+            _player->SetBGTeam(ginfo.Team);
+            sBattleAOMgr->SendToBattleAO(_player);
+        }
+        else // leave queue
+        {
+            TC_LOG_ERROR(LOG_FILTER_GENERAL, "coucou leaveQopcode");
+            _player->RemoveBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);
+            sBattleAOMgr->BuildBattleAOStatusPacket(&data,queueSlot, STATUS_NONE, 0, 0);
+            baoQueue.RemovePlayer(_player->GetGUID(), true);
+            SendPacket(&data);
+        }
+        return;
+    }
 
     //get GroupQueueInfo from BattlegroundQueue
     BattlegroundTypeId bgTypeId = BattlegroundTypeId(bgTypeId_);
@@ -639,15 +640,15 @@ void WorldSession::HandleBattlefieldLeaveOpcode(WorldPacket& recvData)
     recvData.read_skip<uint8>();                           // unk2
     recvData.read_skip<uint32>();                          // BattlegroundTypeId
     recvData.read_skip<uint16>();                          // unk3
-	
+
     if (Battleground* bg = _player->GetBattleground())
-	{
-		if (_player->IsInCombat() && (bg->GetStatus() != STATUS_WAIT_LEAVE))
-			return;
-		_player->LeaveBattleground();
-	}
-	else if (sBattleAOMgr->GetBattleAO()->HasPlayer(_player))
-		sBattleAOMgr->GetBattleAO()->RemovePlayer(_player->GetGUID());
+    {
+        if (_player->IsInCombat() && (bg->GetStatus() != STATUS_WAIT_LEAVE))
+            return;
+        _player->LeaveBattleground();
+    }
+    else if (sBattleAOMgr->GetBattleAO()->HasPlayer(_player))
+        sBattleAOMgr->GetBattleAO()->RemovePlayer(_player->GetGUID());
 }
 
 void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket & /*recvData*/)

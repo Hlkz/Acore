@@ -4717,7 +4717,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     {
         if (!nameData)
         {
-            TC_LOG_ERROR(LOG_FILTER_PLAYER, "Cannot find CharacterNameData entry for player %u from account %u. Could not delete character.", playerguid, accountId);
+            TC_LOG_ERROR(LOG_FILTER_PLAYER, "Cannot find CharacterNameData entry for player %u from account %u. Could not delete character.", GUID_LOPART(playerguid), accountId);
             return;
         }
         // Define the required variables
@@ -21513,13 +21513,13 @@ else {
         {
             if (m_PvpRank+(GetTeamFromDB()==HORDE)*6 < pProto->RequiredPvpRank)
             {
-                GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_BUY_ERROR_RANK));
+                GetSession()->SendAreaTriggerMessage("%s", GetSession()->GetTrinityString(LANG_BUY_ERROR_RANK));
                 return false;
             }
         }
         else
         {
-            GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_BUY_ERROR_RANK_FACTION));
+            GetSession()->SendAreaTriggerMessage("%s", GetSession()->GetTrinityString(LANG_BUY_ERROR_RANK_FACTION));
             return false;
         }
 

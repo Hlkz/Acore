@@ -136,7 +136,10 @@ void BattleAOQueue::RemovePlayer(uint64 guid, bool decreasePlayersCount)
         group->Players.erase(pitr);
 	
     if (decreasePlayersCount && group->IsInvitedToBAO)
+    {
         sBattleAOMgr->GetBattleAO()->UpdatePlayersCount(group->Team, true);
+        sBattleAOMgr->ScheduleQueueUpdate();
+    }
 
     m_QueuedPlayers.erase(itr);
 	
@@ -266,26 +269,26 @@ void BattleAOQueue::UpdateEvents(uint32 diff)
     m_events.Update(diff);
 }
 
-void BattleAOQueue::BattleAOQueueUpdate(uint32 /*diff*/)
+void BattleAOQueue::BattleAOQueueUpdate()
 {
-	TC_LOG_ERROR(LOG_FILTER_GENERAL, "coucou update queue");
+    TC_LOG_ERROR(LOG_FILTER_GENERAL, "coucou update queue");
     if (m_QueuedGroups[BAO_QUEUE_PREMADE_ALLIANCE].empty() &&
         m_QueuedGroups[BAO_QUEUE_PREMADE_HORDE].empty() &&
         m_QueuedGroups[BAO_QUEUE_NORMAL_ALLIANCE].empty() &&
         m_QueuedGroups[BAO_QUEUE_NORMAL_HORDE].empty())
         return;
-	
-	m_SelectionPools[TEAM_ALLIANCE].Init();
-	m_SelectionPools[TEAM_HORDE].Init();
-	
-	FillPlayersToBAO();
 
-	for (BAOGroupsQueueType::const_iterator citr = m_SelectionPools[TEAM_ALLIANCE].SelectedGroups.begin(); citr != m_SelectionPools[TEAM_ALLIANCE].SelectedGroups.end(); ++citr)
-		InviteGroupToBAO((*citr), (*citr)->Team);
+    m_SelectionPools[TEAM_ALLIANCE].Init();
+    m_SelectionPools[TEAM_HORDE].Init();
 
-	for (BAOGroupsQueueType::const_iterator citr = m_SelectionPools[TEAM_HORDE].SelectedGroups.begin(); citr != m_SelectionPools[TEAM_HORDE].SelectedGroups.end(); ++citr)
-		InviteGroupToBAO((*citr), (*citr)->Team);
-	
+    FillPlayersToBAO();
+
+    for (BAOGroupsQueueType::const_iterator citr = m_SelectionPools[TEAM_ALLIANCE].SelectedGroups.begin(); citr != m_SelectionPools[TEAM_ALLIANCE].SelectedGroups.end(); ++citr)
+        InviteGroupToBAO((*citr), (*citr)->Team);
+
+    for (BAOGroupsQueueType::const_iterator citr = m_SelectionPools[TEAM_HORDE].SelectedGroups.begin(); citr != m_SelectionPools[TEAM_HORDE].SelectedGroups.end(); ++citr)
+        InviteGroupToBAO((*citr), (*citr)->Team);
+
     m_SelectionPools[TEAM_ALLIANCE].Init();
     m_SelectionPools[TEAM_HORDE].Init();
 }

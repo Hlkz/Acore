@@ -246,14 +246,12 @@ void BattleAO::RemovePlayer(uint64 guid, bool teleport)
         if (player)
         {
             player->ClearAfkReports();
-            if (!team) team = player->GetTeam();
-
             WorldPacket data;
             sBattleAOMgr->BuildBattleAOStatusPacket(&data, player->GetBattlegroundQueueIndex(BATTLEGROUND_QUEUE_AO), STATUS_NONE, 0, 0);
             player->GetSession()->SendPacket(&data);
-
-            player->RemoveBattlegroundQueueId(BATTLEGROUND_QUEUE_AO); //important call
+            player->RemoveBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);
         }
+        sBattleAOMgr->ScheduleQueueUpdate();
 
         /*// remove from raid group if player is member tofix
         if (Group* group = GetBgRaid(team))
@@ -263,24 +261,27 @@ void BattleAO::RemovePlayer(uint64 guid, bool teleport)
                 SetBgRaid(team, NULL);
             }
         }*/
-
-        sBattleAOMgr->ScheduleQueueUpdate();
     }
 
     if (player && teleport)
     {
         player->SetBattlegroundId(0, BATTLEGROUND_TYPE_NONE);
         player->SetBGTeam(0);
-		player->TeleportToBAOEntryPoint();
+        player->TeleportToBAOEntryPoint();
     }
 }
 
 // Called when a player enters the zone
 void BattleAO::HandlePlayerEnterZone(Player* player, uint32 /*zoneid*/)
 {
-	player->AddBattlegroundQueueId(BATTLEGROUND_QUEUE_AO); // problem with handlejoinbao ?
-	player->SetInviteForBattlegroundQueueType(BATTLEGROUND_QUEUE_AO, true);
-	AddPlayer(player);
+    if (player->GetBattlegroundQueueIndex(BATTLEGROUND_QUEUE_AO) == PLAYER_MAX_BATTLEGROUND_QUEUES)
+    {
+        player->AddBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);
+        UpdatePlayersCount(player->GetTeamFromDB(), false);
+        sBattleAOMgr->ScheduleQueueUpdate();
+    }
+    player->SetInviteForBattlegroundQueueType(BATTLEGROUND_QUEUE_AO, true);
+    AddPlayer(player);
 }
 
 // Called when a player leave the zone
