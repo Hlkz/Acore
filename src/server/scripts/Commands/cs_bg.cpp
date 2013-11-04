@@ -23,7 +23,11 @@ public:
     {
         Player* player = handler->GetSession()->GetPlayer();
         if (sBattleAOMgr->GetBattleAO()->HasPlayer(player))
+        {
+            if (!player->IsDeserter())
+                sBattleAOMgr->GetBattleAO()->AddOrSetPlayerToCorrectBAOGroup(player);
             return true;
+        }
         BattleAOQueue& baoQueue = sBattleAOMgr->GetBattleAOQueue();
 
         WorldPacket data;

@@ -602,7 +602,7 @@ bool Group::RemoveMember(uint64 guid, const RemoveMethod& method /*= GROUP_REMOV
             }
         }
 
-        if (m_memberMgr.getSize() < ((isLFGGroup() || isBGGroup()) ? 1u : 2u))
+        if (m_memberMgr.getSize() < ((isLFGGroup() || isBGGroup() || isBAOGroup()) ? 1u : 2u))
             Disband();
 
         return true;
@@ -1780,7 +1780,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         return ERR_BATTLEGROUND_JOIN_FAILED;
 
     uint32 arenaTeamId = reference->GetArenaTeamId(arenaSlot);
-    uint32 team = reference->GetTeam();
+    uint32 team = (bgQueueTypeId==BATTLEGROUND_QUEUE_AO && reference->IsDeserter()) ? TEAM_NEUTRAL : reference->GetTeamFromDB();
 
     BattlegroundQueueTypeId bgQueueTypeIdRandom = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_RB, 0);
 
@@ -1793,7 +1793,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         if (!member)
             return ERR_BATTLEGROUND_JOIN_FAILED;
         // don't allow cross-faction join as group
-        if (member->GetTeam() != team)
+        if (((bgQueueTypeId==BATTLEGROUND_QUEUE_AO && member->IsDeserter()) ? TEAM_NEUTRAL :member->GetTeamFromDB()) != team)
             return ERR_BATTLEGROUND_JOIN_TIMED_OUT;
         // not in the same battleground level braket, don't let join
         PvPDifficultyEntry const* memberBracketEntry = GetBattlegroundBracketByLevel(bracketEntry->mapId, member->getLevel());

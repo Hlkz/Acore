@@ -109,10 +109,11 @@ void BattleAO::BroadcastWorker(Do& _do)
 BattleAO::BattleAO() //ctor
 {
     m_Map = sMapMgr->CreateBaseMap(BATTLEAO_MAP);
-    m_PlayersCount[0] = 0;
-    m_PlayersCount[1] = 0;
-    playerscantag = sWorld->getWorldState(BAO_WS_CANPLAYERSTAG);
-    balancetag = true;
+    m_PlayersCount[TEAM_ALLIANCE] = 0;
+    m_PlayersCount[TEAM_HORDE]    = 0;
+    m_PlayersCount[TEAM_NEUTRAL]  = 0;
+    m_playerscantag = sWorld->getWorldState(BAO_WS_CANPLAYERSTAG);
+    m_balancetag = false;
 }
 BattleAO::~BattleAO() {} //dtor
 
@@ -179,13 +180,15 @@ void BattleAO::AddPlayer(Player* player)
         player->ToggleAFK();
 
     uint64 guid = player->GetGUID();
-    uint32 team = player->GetBGTeam();
+    uint32 team = player->IsDeserter() ? TEAM_NEUTRAL : player->GetTeamFromDB();
 
     BattleAOPlayer bp;
     bp.OfflineRemoveTime = 0;
     bp.Team = team;
 
     m_Players[guid] = bp;
+    if (m_Players.size() > BAO_MIN_PLAYERS_FOR_BALANCE)
+        m_balancetag = true;
 
     WorldPacket data;
     sBattlegroundMgr->BuildPlayerJoinedBattlegroundPacket(&data, player);
@@ -216,11 +219,13 @@ void BattleAO::RemovePlayer(uint64 guid, bool teleport)
     if (itr != m_Players.end())
     {
 		BattleAOPlayer bap = itr->second;
-		team=bap.Team;
+		team = bap.Team;
 		UpdatePlayersCount(team, true);
         m_Players.erase(itr);
         participant = true;
     }
+    if (m_Players.size() < BAO_MIN_PLAYERS_FOR_BALANCE)
+        m_balancetag = false;
 
     BattleAOScoreMap::iterator itr2 = PlayerScores.find(guid);
     if (itr2 != PlayerScores.end())
@@ -252,15 +257,10 @@ void BattleAO::RemovePlayer(uint64 guid, bool teleport)
             player->RemoveBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);
         }
         sBattleAOMgr->ScheduleQueueUpdate();
-
-        /*// remove from raid group if player is member tofix
-        if (Group* group = GetBgRaid(team))
-        {
-            if (!group->RemoveMember(guid))                // group was disbanded
-            {
-                SetBgRaid(team, NULL);
-            }
-        }*/
+		
+        if (Group* group = player->GetGroup())
+            if (group->isBAOGroup())
+                group->RemoveMember(player->GetGUID(), GROUP_REMOVEMETHOD_LEAVE);
     }
 
     if (player && teleport)
@@ -277,7 +277,7 @@ void BattleAO::HandlePlayerEnterZone(Player* player, uint32 /*zoneid*/)
     if (player->GetBattlegroundQueueIndex(BATTLEGROUND_QUEUE_AO) == PLAYER_MAX_BATTLEGROUND_QUEUES)
     {
         player->AddBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);
-        UpdatePlayersCount(player->GetTeamFromDB(), false);
+		UpdatePlayersCount(player->IsDeserter() ? TEAM_NEUTRAL : player->GetTeamFromDB(), false);
         sBattleAOMgr->ScheduleQueueUpdate();
     }
     player->SetInviteForBattlegroundQueueType(BATTLEGROUND_QUEUE_AO, true);
@@ -287,7 +287,7 @@ void BattleAO::HandlePlayerEnterZone(Player* player, uint32 /*zoneid*/)
 // Called when a player leave the zone
 void BattleAO::HandlePlayerLeaveZone(Player* player, uint32 /*zoneid*/)
 {
-	RemovePlayer(player->GetGUID(), false);
+    RemovePlayer(player->GetGUID(), false);
 }
 
 void BattleAO::EventPlayerLoggedIn(Player* player)
@@ -314,7 +314,7 @@ void BattleAO::EventPlayerLoggedIn(Player* player)
 void BattleAO::EventPlayerLoggedOut(Player* player)
 {
     m_OfflineQueue.push_back(player->GetGUID());
-	m_Players[player->GetGUID()].OfflineRemoveTime = sWorld->GetGameTime() + MAX_OFFLINE_TIME;
+    m_Players[player->GetGUID()].OfflineRemoveTime = sWorld->GetGameTime() + MAX_OFFLINE_TIME;
 }
 
 bool BattleAO::Update(uint32 diff)
@@ -510,7 +510,11 @@ bool BattleAO::AddOrSetPlayerToCorrectBAOGroup(Player* player)
         return false;
 
     if (Group* group = player->GetGroup())
+    {
+        if (group->isBAOGroup())
+            return false;
         group->RemoveMember(player->GetGUID());
+    }
 
     Group* group = GetFreeBAORaid(player->GetTeamId());
     if (!group)
@@ -1007,7 +1011,7 @@ void BattleAO::RemoveAurasFromPlayer(Player* player)
 
 uint32 BattleAO::GetFreeSlotsForTeam(Team Team) const
 {
-    if (!balancetag)
+    if (!m_balancetag)
         return true;
 
     int32 otherTeam;

@@ -66,27 +66,25 @@ bool BattleAOQueue::SelectionPool::AddGroup(BAOGroupQueueInfo* ginfo, uint32 des
 
 BAOGroupQueueInfo* BattleAOQueue::AddGroup(Player* leader, Group* grp, bool isPremade)
 {
-    BAOGroupQueueInfo* ginfo	= new BAOGroupQueueInfo;
-    ginfo->RemoveInviteTime		= 0;
-    ginfo->JoinTime				= getMSTime();
-    ginfo->Team					= leader->GetTeam();
-    ginfo->IsInvitedToBAO		= 0;
+    BAOGroupQueueInfo* ginfo    = new BAOGroupQueueInfo;
+    ginfo->RemoveInviteTime     = 0;
+    ginfo->JoinTime             = getMSTime();
+    ginfo->Team                 = leader->IsDeserter() ? TEAM_NEUTRAL : leader->GetTeamFromDB(); // no team_neutral id
+    ginfo->IsInvitedToBAO       = false;
     ginfo->Players.clear();
 
-    uint32 index = 0;
+    uint32 index = sBattleAOMgr->GetBattleAO()->GetTeamIndexByTeamId(ginfo->Team);
     if (!isPremade)
-        index += BG_TEAMS_COUNT;
-    if (ginfo->Team == HORDE)
-        index++;
-	
-	if (grp)
+        index += 3;
+
+    if (grp)
     {
         for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player* member = itr->GetSource();
             if (!member)
                 continue;
-			BAOPlayerQueueInfo&	pl_info = m_QueuedPlayers[member->GetGUID()];
+            BAOPlayerQueueInfo&	pl_info = m_QueuedPlayers[member->GetGUID()];
             pl_info.LastOnlineTime = ginfo->JoinTime;
             pl_info.GroupInfo = ginfo;
             ginfo->Players[member->GetGUID()] = &pl_info;
@@ -94,14 +92,14 @@ BAOGroupQueueInfo* BattleAOQueue::AddGroup(Player* leader, Group* grp, bool isPr
     }
     else
     {
-		BAOPlayerQueueInfo& pl_info = m_QueuedPlayers[leader->GetGUID()];
+        BAOPlayerQueueInfo& pl_info = m_QueuedPlayers[leader->GetGUID()];
         pl_info.LastOnlineTime   = ginfo->JoinTime;
         pl_info.GroupInfo = ginfo;
         ginfo->Players[leader->GetGUID()]  = &pl_info;
     }
-	
-	m_QueuedGroups[index].push_back(ginfo);
-	return ginfo;
+
+    m_QueuedGroups[index].push_back(ginfo);
+    return ginfo;
 }
 
 void BattleAOQueue::RemovePlayer(uint64 guid, bool decreasePlayersCount)
@@ -117,7 +115,7 @@ void BattleAOQueue::RemovePlayer(uint64 guid, bool decreasePlayersCount)
 
     uint32 index = (group->Team == HORDE) ? BAO_QUEUE_PREMADE_HORDE : BAO_QUEUE_PREMADE_ALLIANCE;
 
-        for (uint32 j = index; j < BAO_QUEUE_GROUP_TYPES_COUNT; j += BG_TEAMS_COUNT)
+        for (uint32 j = index; j < BAO_QUEUE_GROUP_TYPES_COUNT; j += BAO_TEAMS_COUNT)
         {
             BAOGroupsQueueType::iterator k = m_QueuedGroups[j].begin();
             for (; k != m_QueuedGroups[j].end(); ++k)
@@ -142,7 +140,7 @@ void BattleAOQueue::RemovePlayer(uint64 guid, bool decreasePlayersCount)
     }
 
     m_QueuedPlayers.erase(itr);
-	
+
     if (group->Players.empty())
     {
         m_QueuedGroups[index].erase(group_itr);
@@ -226,6 +224,11 @@ void BattleAOQueue::FillPlayersToBAO()
     uint32 hordeIndex = 0;
     for (; hordeIndex < hordeCount && m_SelectionPools[TEAM_HORDE].AddGroup((*Horde_itr), hordeFree); hordeIndex++)
         ++Horde_itr;
+    BAOGroupsQueueType::const_iterator Neutre_itr = m_QueuedGroups[BAO_QUEUE_NORMAL_NEUTRAL].begin();
+    uint32 neutreCount = m_QueuedGroups[BAO_QUEUE_NORMAL_NEUTRAL].size();
+    uint32 neutreIndex = 0;
+    for (; neutreIndex < neutreCount && m_SelectionPools[TEAM_NEUTRAL].AddGroup((*Neutre_itr), true); neutreIndex++)
+        ++Neutre_itr;
 
     int32 diffAli   = aliFree   - int32(m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount());
     int32 diffHorde = hordeFree - int32(m_SelectionPools[TEAM_HORDE].GetPlayerCount());
@@ -271,15 +274,17 @@ void BattleAOQueue::UpdateEvents(uint32 diff)
 
 void BattleAOQueue::BattleAOQueueUpdate()
 {
-    TC_LOG_ERROR(LOG_FILTER_GENERAL, "coucou update queue");
     if (m_QueuedGroups[BAO_QUEUE_PREMADE_ALLIANCE].empty() &&
         m_QueuedGroups[BAO_QUEUE_PREMADE_HORDE].empty() &&
+        m_QueuedGroups[BAO_QUEUE_PREMADE_NEUTRAL].empty() &&
         m_QueuedGroups[BAO_QUEUE_NORMAL_ALLIANCE].empty() &&
-        m_QueuedGroups[BAO_QUEUE_NORMAL_HORDE].empty())
+        m_QueuedGroups[BAO_QUEUE_NORMAL_HORDE].empty() &&
+        m_QueuedGroups[BAO_QUEUE_NORMAL_NEUTRAL].empty())
         return;
 
     m_SelectionPools[TEAM_ALLIANCE].Init();
     m_SelectionPools[TEAM_HORDE].Init();
+    m_SelectionPools[TEAM_NEUTRAL].Init();
 
     FillPlayersToBAO();
 
@@ -289,8 +294,12 @@ void BattleAOQueue::BattleAOQueueUpdate()
     for (BAOGroupsQueueType::const_iterator citr = m_SelectionPools[TEAM_HORDE].SelectedGroups.begin(); citr != m_SelectionPools[TEAM_HORDE].SelectedGroups.end(); ++citr)
         InviteGroupToBAO((*citr), (*citr)->Team);
 
+    for (BAOGroupsQueueType::const_iterator citr = m_SelectionPools[TEAM_NEUTRAL].SelectedGroups.begin(); citr != m_SelectionPools[TEAM_NEUTRAL].SelectedGroups.end(); ++citr)
+        InviteGroupToBAO((*citr), (*citr)->Team);
+
     m_SelectionPools[TEAM_ALLIANCE].Init();
     m_SelectionPools[TEAM_HORDE].Init();
+    m_SelectionPools[TEAM_NEUTRAL].Init();
 }
 
 bool BAOQueueInviteEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)

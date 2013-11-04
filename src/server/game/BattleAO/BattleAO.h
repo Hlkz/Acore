@@ -19,13 +19,15 @@ enum BattleAOIds
     BAO_CREATURE_ENTRY_A_SPIRITGUIDE = 100017,
     BAO_CREATURE_ENTRY_H_SPIRITGUIDE = 100018,
 };
+#define BAO_TEAMS_COUNT 3
+#define BAO_MIN_PLAYERS_FOR_BALANCE 8
 
 enum BAO_Nodes
 {
     BAO_NODE_NORD           = 0,
     BAO_NODE_SUD            = 1,
     BAO_NODE_RUINES         = 2,
-    BAO_NODE_FIRST_SPIRIT         = 3, // spirithealers from BAO_NODE_FIRST_SPIRIT to BAO_ALL_NODES_COUNT
+    BAO_NODE_FIRST_SPIRIT         = 3,
     BAO_NODE_PUITS          = 3,
     BAO_NODE_TOUR_A2        = 4,
     BAO_NODE_TOUR_H2        = 5,
@@ -33,7 +35,7 @@ enum BAO_Nodes
     BAO_SPIRIT_A2           = 6,
     BAO_SPIRIT_H2           = 7,
     BAO_ALL_NODES_COUNT           = 8, // all nodes (dynamic and static)
-    BAO_SPIRIT_MAX                = 5, // BAO_ALL_NODES_COUNT-BAO_NODE_FIRST_SPIRIT
+    BAO_SPIRIT_MAX                = 5, // spirithealers from BAO_NODE_FIRST_SPIRIT to BAO_ALL_NODES_COUNT
     BAO_CREATURE_MAX              = 5  // spirithealers tofix:guards
 };
 
@@ -111,7 +113,7 @@ struct BattleAOScore
     uint32 BonusHonor; uint32 DamageDone; uint32 HealingDone;
 };
 
-const uint32 BAO_GraveyardIds[BAO_ALL_NODES_COUNT-BAO_NODE_FIRST_SPIRIT+1] = {1761, 1762, 1763, 1764, 1765, 1760};
+const uint32 BAO_GraveyardIds[BAO_SPIRIT_MAX+2] = {1761, 1762, 1763, 1764, 1765, 1760, 1766};
 
 const float BAO_NodePositions[BAO_DYNAMIC_NODES_COUNT][4] = // banners
 {
@@ -220,15 +222,15 @@ public:
     void SpawnAOObject(uint32 type, uint32 respawntime);
     bool DelObject(uint32 type);
 
-    static TeamId GetTeamIndexByTeamId(uint32 Team) { return Team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
+    static TeamId GetTeamIndexByTeamId(uint32 Team) { return Team == ALLIANCE ? TEAM_ALLIANCE : Team == HORDE ? TEAM_HORDE : TEAM_NEUTRAL; }
     uint32 GetOtherTeam(Team team) { return (team == HORDE ? ALLIANCE : HORDE); }
     void UpdatePlayersCount(uint32 Team, bool remove) { m_PlayersCount[GetTeamIndexByTeamId(Team)] = m_PlayersCount[GetTeamIndexByTeamId(Team)]+1-2*remove; }
     int32 GetPlayersCount(uint32 team) const { return m_PlayersCount[GetTeamIndexByTeamId(team)]; }
     uint32 GetFreeSlotsForTeam(Team Team) const;
     void RemoveFromBAOFreeSlotQueue();
-    bool CanPlayersTag() { return playerscantag; }
-    void SetPlayersCanTag(bool cantag) { playerscantag = cantag; }
-    void SetBalanceTag(bool balance) { balancetag = balance; }
+    bool CanPlayersTag() { return m_playerscantag; }
+    void SetPlayersCanTag(bool playerscantag) { m_playerscantag = playerscantag; }
+    void SetBalanceTag(bool balancetag) { m_balancetag = balancetag; }
 
     void RemoveAurasFromPlayer(Player* player);
     void TeamCastSpell(TeamId team, int32 spellId);
@@ -237,12 +239,12 @@ private:
 
     Map* m_Map;
     BattleAOPlayerMap m_Players;
-    int32 m_PlayersCount[BG_TEAMS_COUNT];
+    int32 m_PlayersCount[BAO_TEAMS_COUNT];
     GuidSet m_Groups[BG_TEAMS_COUNT];
     std::deque<uint64> m_OfflineQueue;
     BattleAOScoreMap PlayerScores;
-    bool playerscantag;
-    bool balancetag;
+    bool m_playerscantag;
+    bool m_balancetag;
 	
     uint8           m_Nodes[BAO_ALL_NODES_COUNT];
     uint8           m_prevNodes[BAO_DYNAMIC_NODES_COUNT];

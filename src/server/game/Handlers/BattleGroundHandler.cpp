@@ -485,7 +485,6 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
         }
         else // leave queue
         {
-            TC_LOG_ERROR(LOG_FILTER_GENERAL, "coucou leaveQopcode");
             _player->RemoveBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);
             sBattleAOMgr->BuildBattleAOStatusPacket(&data,queueSlot, STATUS_NONE, 0, 0);
             baoQueue.RemovePlayer(_player->GetGUID(), true);

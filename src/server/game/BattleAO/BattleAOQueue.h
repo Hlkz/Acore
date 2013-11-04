@@ -31,10 +31,12 @@ enum BattleAOQueueGroupTypes
 {
     BAO_QUEUE_PREMADE_ALLIANCE   = 0,
     BAO_QUEUE_PREMADE_HORDE      = 1,
-    BAO_QUEUE_NORMAL_ALLIANCE    = 2,
-    BAO_QUEUE_NORMAL_HORDE       = 3
+    BAO_QUEUE_PREMADE_NEUTRAL    = 2,
+    BAO_QUEUE_NORMAL_ALLIANCE    = 3,
+    BAO_QUEUE_NORMAL_HORDE       = 4,
+    BAO_QUEUE_NORMAL_NEUTRAL     = 5,
+    BAO_QUEUE_GROUP_TYPES_COUNT  = 6
 };
-#define BAO_QUEUE_GROUP_TYPES_COUNT 4
 
 class BattleAO;
 class BattleAOQueue
@@ -71,7 +73,7 @@ public:
         uint32 PlayerCount;
     };
 
-    SelectionPool m_SelectionPools[BG_TEAMS_COUNT];
+    SelectionPool m_SelectionPools[BAO_TEAMS_COUNT];
     uint32 GetPlayersInQueue(TeamId id);
 private:
     bool InviteGroupToBAO(BAOGroupQueueInfo* ginfo, uint32 side);
