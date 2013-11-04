@@ -1792,8 +1792,9 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         // offline member? don't let join
         if (!member)
             return ERR_BATTLEGROUND_JOIN_FAILED;
-        // don't allow cross-faction join as group
-        if (((bgQueueTypeId==BATTLEGROUND_QUEUE_AO && member->IsDeserter()) ? TEAM_NEUTRAL :member->GetTeamFromDB()) != team)
+        // cross-faction in arena if allowed
+        if ((!bgOrTemplate->isArena() || bgOrTemplate->isArena() && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_ARENA))
+            && (((bgQueueTypeId==BATTLEGROUND_QUEUE_AO && member->IsDeserter()) ? TEAM_NEUTRAL :member->GetTeamFromDB()) != team))
             return ERR_BATTLEGROUND_JOIN_TIMED_OUT;
         // not in the same battleground level braket, don't let join
         PvPDifficultyEntry const* memberBracketEntry = GetBattlegroundBracketByLevel(bracketEntry->mapId, member->getLevel());
