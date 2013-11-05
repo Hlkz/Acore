@@ -749,31 +749,12 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
         if (victim->GetTypeId() != TYPEID_PLAYER)
             victim->AddThreat(this, float(damage), damageSchoolMask, spellProto);
-        else                                                // victim is a player
-        {
-            // random durability for items (HIT TAKEN)
-            if (roll_chance_f(sWorld->getRate(RATE_DURABILITY_LOSS_DAMAGE)))
-            {
-                EquipmentSlots slot = EquipmentSlots(urand(0, EQUIPMENT_SLOT_END-1));
-                victim->ToPlayer()->DurabilityPointLossForEquipSlot(slot);
-            }
-        }
 
         // Rage from damage received
         if (this != victim && victim->getPowerType() == POWER_RAGE)
         {
             uint32 rage_damage = damage + (cleanDamage ? cleanDamage->absorbed_damage : 0);
             victim->RewardRage(rage_damage, 0, false);
-        }
-
-        if (GetTypeId() == TYPEID_PLAYER)
-        {
-            // random durability for items (HIT DONE)
-            if (roll_chance_f(sWorld->getRate(RATE_DURABILITY_LOSS_DAMAGE)))
-            {
-                EquipmentSlots slot = EquipmentSlots(urand(0, EQUIPMENT_SLOT_END-1));
-                ToPlayer()->DurabilityPointLossForEquipSlot(slot);
-            }
         }
 
         if (damagetype != NODAMAGE && damage)

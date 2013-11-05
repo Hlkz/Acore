@@ -1612,8 +1612,7 @@ class Player : public Unit, public GridObject<Player>
         std::string const& GetGuildName();
         uint32 GetFreeTalentPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS1); }
         void SetFreeTalentPoints(uint32 points);
-        bool resetTalents(bool no_cost = false);
-        uint32 resetTalentsCost() const;
+        bool resetTalents();
         void InitTalentForLevel();
         void BuildPlayerTalentsInfoData(WorldPacket* data);
         void BuildPetTalentsInfoData(WorldPacket* data);
@@ -2219,7 +2218,6 @@ class Player : public Unit, public GridObject<Player>
         static void ConvertInstancesToGroup(Player* player, Group* group, bool switchLeader);
         bool Satisfy(AccessRequirement const* ar, uint32 target_map, bool report = false);
         bool CheckInstanceLoginValid();
-        bool CheckInstanceCount(uint32 instanceId) const;
         void AddInstanceEnterTime(uint32 instanceId, time_t enterTime);
 
         // last used pet number (for BG's)
@@ -2589,7 +2587,6 @@ class Player : public Unit, public GridObject<Player>
         float m_rest_bonus;
         RestType rest_type;
         ////////////////////Rest System/////////////////////
-        uint32 m_resetTalentsCost;
         time_t m_resetTalentsTime;
         uint32 m_usedTalentCount;
         uint32 m_questRewardTalentCount;

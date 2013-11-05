@@ -659,12 +659,9 @@ public:
                 return false;
 
         if (target->IsAlive())
-        {
-            if (sWorld->getBoolConfig(CONFIG_DIE_COMMAND_MODE))
-                handler->GetSession()->GetPlayer()->Kill(target);
-            else
-                handler->GetSession()->GetPlayer()->DealDamage(target, target->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-        }
+            // if (sWorld->getBoolConfig(CONFIG_DIE_COMMAND_MODE))
+            //    handler->GetSession()->GetPlayer()->Kill(target);
+            handler->GetSession()->GetPlayer()->DealDamage(target, target->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 
         return true;
     }
@@ -921,10 +918,7 @@ public:
         if (handler->HasLowerSecurity(target, 0))
             return false;
 
-        if (sWorld->getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD))
-            sWorld->SendWorldText(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
-        else
-            handler->PSendSysMessage(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
+        handler->PSendSysMessage(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
 
         target->GetSession()->KickPlayer();
 

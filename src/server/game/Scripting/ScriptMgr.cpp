@@ -1172,9 +1172,9 @@ void ScriptMgr::OnPlayerFreeTalentPointsChanged(Player* player, uint32 points)
     FOREACH_SCRIPT(PlayerScript)->OnFreeTalentPointsChanged(player, points);
 }
 
-void ScriptMgr::OnPlayerTalentsReset(Player* player, bool noCost)
+void ScriptMgr::OnPlayerTalentsReset(Player* player)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnTalentsReset(player, noCost);
+    FOREACH_SCRIPT(PlayerScript)->OnTalentsReset(player);
 }
 
 void ScriptMgr::OnPlayerMoneyChanged(Player* player, int32& amount)

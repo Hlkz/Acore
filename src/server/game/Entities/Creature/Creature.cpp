@@ -1081,21 +1081,7 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
 
 float Creature::_GetHealthMod(int32 Rank)
 {
-    switch (Rank)                                           // define rates for each elite rank
-    {
-        case CREATURE_ELITE_NORMAL:
-            return sWorld->getRate(RATE_CREATURE_NORMAL_HP);
-        case CREATURE_ELITE_ELITE:
-            return sWorld->getRate(RATE_CREATURE_ELITE_ELITE_HP);
-        case CREATURE_ELITE_RAREELITE:
-            return sWorld->getRate(RATE_CREATURE_ELITE_RAREELITE_HP);
-        case CREATURE_ELITE_WORLDBOSS:
-            return sWorld->getRate(RATE_CREATURE_ELITE_WORLDBOSS_HP);
-        case CREATURE_ELITE_RARE:
-            return sWorld->getRate(RATE_CREATURE_ELITE_RARE_HP);
-        default:
-            return sWorld->getRate(RATE_CREATURE_ELITE_ELITE_HP);
-    }
+    return sWorld->getRate(RATE_CREATURE_HP);
 }
 
 void Creature::LowerPlayerDamageReq(uint32 unDamage)
@@ -1106,40 +1092,12 @@ void Creature::LowerPlayerDamageReq(uint32 unDamage)
 
 float Creature::_GetDamageMod(int32 Rank)
 {
-    switch (Rank)                                           // define rates for each elite rank
-    {
-        case CREATURE_ELITE_NORMAL:
-            return sWorld->getRate(RATE_CREATURE_NORMAL_DAMAGE);
-        case CREATURE_ELITE_ELITE:
-            return sWorld->getRate(RATE_CREATURE_ELITE_ELITE_DAMAGE);
-        case CREATURE_ELITE_RAREELITE:
-            return sWorld->getRate(RATE_CREATURE_ELITE_RAREELITE_DAMAGE);
-        case CREATURE_ELITE_WORLDBOSS:
-            return sWorld->getRate(RATE_CREATURE_ELITE_WORLDBOSS_DAMAGE);
-        case CREATURE_ELITE_RARE:
-            return sWorld->getRate(RATE_CREATURE_ELITE_RARE_DAMAGE);
-        default:
-            return sWorld->getRate(RATE_CREATURE_ELITE_ELITE_DAMAGE);
-    }
+    return sWorld->getRate(RATE_CREATURE_DAMAGE);
 }
 
 float Creature::GetSpellDamageMod(int32 Rank) const
 {
-    switch (Rank)                                           // define rates for each elite rank
-    {
-        case CREATURE_ELITE_NORMAL:
-            return sWorld->getRate(RATE_CREATURE_NORMAL_SPELLDAMAGE);
-        case CREATURE_ELITE_ELITE:
-            return sWorld->getRate(RATE_CREATURE_ELITE_ELITE_SPELLDAMAGE);
-        case CREATURE_ELITE_RAREELITE:
-            return sWorld->getRate(RATE_CREATURE_ELITE_RAREELITE_SPELLDAMAGE);
-        case CREATURE_ELITE_WORLDBOSS:
-            return sWorld->getRate(RATE_CREATURE_ELITE_WORLDBOSS_SPELLDAMAGE);
-        case CREATURE_ELITE_RARE:
-            return sWorld->getRate(RATE_CREATURE_ELITE_RARE_SPELLDAMAGE);
-        default:
-            return sWorld->getRate(RATE_CREATURE_ELITE_ELITE_SPELLDAMAGE);
-    }
+    return sWorld->getRate(RATE_CREATURE_SPELLDAMAGE);
 }
 
 bool Creature::CreateFromProto(uint32 guidlow, uint32 Entry, uint32 vehId, uint32 team, const CreatureData* data)

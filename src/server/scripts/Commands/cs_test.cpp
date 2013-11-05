@@ -1,6 +1,6 @@
 #include "ScriptPCH.h"
 #include "Chat.h"
-//#include "Object.h"
+#include "BattleAOMgr.h"
 
 class test_commandscript : public CommandScript
 {

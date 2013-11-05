@@ -701,7 +701,7 @@ class PlayerScript : public UnitScript
         virtual void OnFreeTalentPointsChanged(Player* /*player*/, uint32 /*points*/) { }
 
         // Called when a player's talent points are reset (right before the reset is done)
-        virtual void OnTalentsReset(Player* /*player*/, bool /*noCost*/) { }
+        virtual void OnTalentsReset(Player* /*player*/) { }
 
         // Called when a player's money is modified (before the modification is done)
         virtual void OnMoneyChanged(Player* /*player*/, int32& /*amount*/) { }
@@ -1016,7 +1016,7 @@ class ScriptMgr
         void OnPlayerKilledByCreature(Creature* killer, Player* killed);
         void OnPlayerLevelChanged(Player* player, uint8 oldLevel);
         void OnPlayerFreeTalentPointsChanged(Player* player, uint32 newPoints);
-        void OnPlayerTalentsReset(Player* player, bool noCost);
+        void OnPlayerTalentsReset(Player* player);
         void OnPlayerMoneyChanged(Player* player, int32& amount);
         void OnGivePlayerXP(Player* player, uint32& amount, Unit* victim);
         void OnPlayerReputationChange(Player* player, uint32 factionID, int32& standing, bool incremental);

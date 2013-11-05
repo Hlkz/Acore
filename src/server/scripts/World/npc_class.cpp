@@ -71,8 +71,8 @@ public:
 
         case 4:
             MainMenu(player, creature);
-            player->resetTalents(true);
-             player->SendTalentsInfoData(false);
+            player->resetTalents();
+            player->SendTalentsInfoData(false);
             break;
         }
         return true;

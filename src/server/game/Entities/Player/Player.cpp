@@ -778,7 +778,6 @@ Player::Player(WorldSession* session): Unit(true)
     unReadMails = 0;
     m_nextMailDelivereTime = 0;
 
-    m_resetTalentsCost = 0;
     m_resetTalentsTime = 0;
     m_itemUpdateQueueBlocked = false;
 
@@ -1044,49 +1043,6 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
             SetFlag(PLAYER_EXPLORED_ZONES_1+i, 0xFFFFFFFF);
     }
 
-    //Reputations if "StartAllReputation" is enabled, -- @todo Fix this in a better way
-    if (sWorld->getBoolConfig(CONFIG_START_ALL_REP))
-    {
-        GetReputationMgr().SetReputation(sFactionStore.LookupEntry(942), 42999);
-        GetReputationMgr().SetReputation(sFactionStore.LookupEntry(935), 42999);
-        GetReputationMgr().SetReputation(sFactionStore.LookupEntry(936), 42999);
-        GetReputationMgr().SetReputation(sFactionStore.LookupEntry(1011), 42999);
-        GetReputationMgr().SetReputation(sFactionStore.LookupEntry(970), 42999);
-        GetReputationMgr().SetReputation(sFactionStore.LookupEntry(967), 42999);
-        GetReputationMgr().SetReputation(sFactionStore.LookupEntry(989), 42999);
-        GetReputationMgr().SetReputation(sFactionStore.LookupEntry(932), 42999);
-        GetReputationMgr().SetReputation(sFactionStore.LookupEntry(934), 42999);
-        GetReputationMgr().SetReputation(sFactionStore.LookupEntry(1038), 42999);
-        GetReputationMgr().SetReputation(sFactionStore.LookupEntry(1077), 42999);
-
-        // Factions depending on team, like cities and some more stuff
-        switch (GetTeam())
-        {
-        case ALLIANCE:
-            GetReputationMgr().SetReputation(sFactionStore.LookupEntry(72), 42999);
-            GetReputationMgr().SetReputation(sFactionStore.LookupEntry(47), 42999);
-            GetReputationMgr().SetReputation(sFactionStore.LookupEntry(69), 42999);
-            GetReputationMgr().SetReputation(sFactionStore.LookupEntry(930), 42999);
-            GetReputationMgr().SetReputation(sFactionStore.LookupEntry(730), 42999);
-            GetReputationMgr().SetReputation(sFactionStore.LookupEntry(978), 42999);
-            GetReputationMgr().SetReputation(sFactionStore.LookupEntry(54), 42999);
-            GetReputationMgr().SetReputation(sFactionStore.LookupEntry(946), 42999);
-            break;
-        case HORDE:
-            GetReputationMgr().SetReputation(sFactionStore.LookupEntry(76), 42999);
-            GetReputationMgr().SetReputation(sFactionStore.LookupEntry(68), 42999);
-            GetReputationMgr().SetReputation(sFactionStore.LookupEntry(81), 42999);
-            GetReputationMgr().SetReputation(sFactionStore.LookupEntry(911), 42999);
-            GetReputationMgr().SetReputation(sFactionStore.LookupEntry(729), 42999);
-            GetReputationMgr().SetReputation(sFactionStore.LookupEntry(941), 42999);
-            GetReputationMgr().SetReputation(sFactionStore.LookupEntry(530), 42999);
-            GetReputationMgr().SetReputation(sFactionStore.LookupEntry(947), 42999);
-            break;
-        default:
-            break;
-        }
-    }
-
     // Played time
     m_Last_tick = time(NULL);
     m_Played_time[PLAYED_TIME_TOTAL] = 0;
@@ -1296,18 +1252,7 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
     uint32 final_damage = DealDamage(this, damage, NULL, SELF_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 
     if (!IsAlive())
-    {
-        if (type == DAMAGE_FALL)                               // DealDamage not apply item durability loss at self damage
-        {
-            TC_LOG_DEBUG(LOG_FILTER_PLAYER, "We are fall to death, loosing 10 percents durability");
-            DurabilityLossAll(0.10f, false);
-            // durability lost message
-            WorldPacket data2(SMSG_DURABILITY_DAMAGE_DEATH, 0);
-            GetSession()->SendPacket(&data2);
-        }
-
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DEATHS_FROM, 1, type);
-    }
 
     return final_damage;
 }
@@ -3086,9 +3031,8 @@ void Player::GiveLevel(uint8 level)
     InitGlyphsForLevel();
 
     UpdateAllStats();
-
-    if (sWorld->getBoolConfig(CONFIG_ALWAYS_MAXSKILL)) // Max weapon skill when leveling up
-        UpdateSkillsToMaxSkillsForLevel();
+    // if (sWorld->getBoolConfig(CONFIG_ALWAYS_MAXSKILL)) // Max weapon skill when leveling up
+    UpdateSkillsToMaxSkillsForLevel();
 
     // set current level health and mana/energy to maximum after applying all mods.
     SetFullHealth();
@@ -3138,7 +3082,7 @@ void Player::InitTalentForLevel()
         // Remove all talent points
         if (m_usedTalentCount > 0)                           // Free any used talents
         {
-            resetTalents(true); /// @todo: Has to (collectively) be renamed to ResetTalents
+            resetTalents(); /// @todo: Has to (collectively) be renamed to ResetTalents
             SetFreeTalentPoints(0);
         }
     }
@@ -3156,7 +3100,7 @@ void Player::InitTalentForLevel()
         if (m_usedTalentCount > talentPointsForLevel)
         {
             if (!AccountMgr::IsAdminAccount(GetSession()->GetSecurity()))
-                resetTalents(true);
+                resetTalents();
             else
                 SetFreeTalentPoints(0);
         }
@@ -4394,42 +4338,9 @@ void Player::_SaveSpellCooldowns(SQLTransaction& trans)
         trans->Append(ss.str().c_str());
 }
 
-uint32 Player::resetTalentsCost() const
+bool Player::resetTalents()
 {
-    // The first time reset costs 1 gold
-    if (m_resetTalentsCost < 1*GOLD)
-        return 1*GOLD;
-    // then 5 gold
-    else if (m_resetTalentsCost < 5*GOLD)
-        return 5*GOLD;
-    // After that it increases in increments of 5 gold
-    else if (m_resetTalentsCost < 10*GOLD)
-        return 10*GOLD;
-    else
-    {
-        uint64 months = (sWorld->GetGameTime() - m_resetTalentsTime)/MONTH;
-        if (months > 0)
-        {
-            // This cost will be reduced by a rate of 5 gold per month
-            int32 new_cost = int32(m_resetTalentsCost - 5*GOLD*months);
-            // to a minimum of 10 gold.
-            return (new_cost < 10*GOLD ? 10*GOLD : new_cost);
-        }
-        else
-        {
-            // After that it increases in increments of 5 gold
-            int32 new_cost = m_resetTalentsCost + 5*GOLD;
-            // until it hits a cap of 50 gold.
-            if (new_cost > 50*GOLD)
-                new_cost = 50*GOLD;
-            return new_cost;
-        }
-    }
-}
-
-bool Player::resetTalents(bool no_cost)
-{
-    sScriptMgr->OnPlayerTalentsReset(this, no_cost);
+    sScriptMgr->OnPlayerTalentsReset(this);
 
     // not need after this call
     if (HasAtLoginFlag(AT_LOGIN_RESET_TALENTS))
@@ -4441,19 +4352,6 @@ bool Player::resetTalents(bool no_cost)
     {
         SetFreeTalentPoints(talentPointsForLevel);
         return false;
-    }
-
-    uint32 cost = 0;
-
-    if (!no_cost && !sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST))
-    {
-        cost = resetTalentsCost();
-
-        if (!HasEnoughMoney(cost))
-        {
-            SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
-            return false;
-        }
     }
 
     RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
@@ -4505,15 +4403,8 @@ bool Player::resetTalents(bool no_cost)
 
     SetFreeTalentPoints(talentPointsForLevel);
 
-    if (!no_cost)
-    {
-        ModifyMoney(-(int32)cost);
-        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS, cost);
-        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS, 1);
-
-        m_resetTalentsCost = cost;
-        m_resetTalentsTime = time(NULL);
-    }
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS, 1);
+    m_resetTalentsTime = time(NULL);
 
     /* when prev line will dropped use next line
     if (Pet* pet = GetPet())
@@ -4720,13 +4611,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
             TC_LOG_ERROR(LOG_FILTER_PLAYER, "Cannot find CharacterNameData entry for player %u from account %u. Could not delete character.", GUID_LOPART(playerguid), accountId);
             return;
         }
-        // Define the required variables
-        uint32 charDelete_minLvl = sWorld->getIntConfig(CONFIG_CHARDELETE_MIN_LEVEL);
-
-        // if we want to finalize the character removal or the character does not meet the level requirement of either heroic or non-heroic settings,
-        // we set it to mode CHAR_DELETE_REMOVE
-        if (nameData->m_level < charDelete_minLvl)
-            charDelete_method = CHAR_DELETE_REMOVE;
+        charDelete_method = CHAR_DELETE_REMOVE;
     }
 
     uint32 guid = GUID_LOPART(playerguid);
@@ -5758,7 +5643,7 @@ void Player::LeaveLFGChannel()
 
 void Player::UpdateDefense()
 {
-    if (UpdateSkill(SKILL_DEFENSE, sWorld->getIntConfig(CONFIG_SKILL_GAIN_DEFENSE)))
+    if (UpdateSkill(SKILL_DEFENSE, 1 /*sWorld->getIntConfig(CONFIG_SKILL_GAIN_DEFENSE)*/))
         UpdateDefenseBonusesMod(); // update dependent from defense skill part
 }
 
@@ -6329,7 +6214,7 @@ void Player::UpdateWeaponSkill(WeaponAttackType attType)
     if (victim && victim->GetTypeId() == TYPEID_UNIT && (victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_SKILLGAIN))
         return;
 
-    uint32 weapon_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_WEAPON);
+    uint32 weapon_skill_gain = 1; // sWorld->getIntConfig(CONFIG_SKILL_GAIN_WEAPON);
 
     Item* tmpitem = GetWeaponForAttack(attType, true);
     if (!tmpitem && attType == BASE_ATTACK)
@@ -7764,8 +7649,8 @@ void Player::DuelComplete(DuelCompleteType type)
         duel->opponent->ClearComboPoints();
 
     // Honor points after duel (the winner) - ImpConfig
-    if (uint32 amount = sWorld->getIntConfig(CONFIG_HONOR_AFTER_DUEL))
-        duel->opponent->RewardHonor(NULL, 1, amount);
+    //if (uint32 amount = sWorld->getIntConfig(CONFIG_HONOR_AFTER_DUEL))
+    //    duel->opponent->RewardHonor(NULL, 1, amount);
 
     //cleanups
     SetUInt64Value(PLAYER_DUEL_ARBITER, 0);
@@ -9747,8 +9632,7 @@ void Player::SendTalentWipeConfirm(uint64 guid)
 {
     WorldPacket data(MSG_TALENT_WIPE_CONFIRM, (8+4));
     data << uint64(guid);
-    uint32 cost = sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : resetTalentsCost();
-    data << cost;
+    data << 0; // cost
     GetSession()->SendPacket(&data);
 }
 
@@ -17386,7 +17270,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     m_Played_time[PLAYED_TIME_TOTAL]= fields[19].GetUInt32();
     m_Played_time[PLAYED_TIME_LEVEL]= fields[20].GetUInt32();
 
-    m_resetTalentsCost = fields[24].GetUInt32();
     m_resetTalentsTime = time_t(fields[25].GetUInt32());
 
     m_taxi.LoadTaxiMask(fields[17].GetString());                // must be before InitTaxiNodesForLevel
@@ -18843,13 +18726,6 @@ bool Player::CheckInstanceLoginValid()
     return sMapMgr->CanPlayerEnter(GetMap()->GetId(), this, true);
 }
 
-bool Player::CheckInstanceCount(uint32 instanceId) const
-{
-    if (_instanceResetTimes.size() < sWorld->getIntConfig(CONFIG_MAX_INSTANCES_PER_HOUR))
-        return true;
-    return _instanceResetTimes.find(instanceId) != _instanceResetTimes.end();
-}
-
 void Player::AddInstanceEnterTime(uint32 instanceId, time_t enterTime)
 {
     if (_instanceResetTimes.find(instanceId) == _instanceResetTimes.end())
@@ -18977,7 +18853,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt8(index++,  (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) ? 1 : 0));
         //save, far from tavern/city
         //save, but in tavern/city
-        stmt->setUInt32(index++, m_resetTalentsCost);
+        stmt->setUInt32(index++, 0); // m_resetTalentsCost, unused
         stmt->setUInt32(index++, uint32(m_resetTalentsTime));
         stmt->setUInt16(index++, (uint16)m_ExtraFlags);
         stmt->setUInt8(index++,  m_stableSlots);
@@ -19088,7 +18964,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt8(index++,  (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) ? 1 : 0));
         //save, far from tavern/city
         //save, but in tavern/city
-        stmt->setUInt32(index++, m_resetTalentsCost);
+        stmt->setUInt32(index++, 0); // m_resetTalentsCost, unused
         stmt->setUInt32(index++, uint32(m_resetTalentsTime));
         stmt->setUInt16(index++, (uint16)m_ExtraFlags);
         stmt->setUInt8(index++,  m_stableSlots);
