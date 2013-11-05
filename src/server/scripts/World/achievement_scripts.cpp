@@ -344,7 +344,7 @@ class achievement_killed_exp_or_honor_target : public AchievementCriteriaScript
     public:
         achievement_killed_exp_or_honor_target() : AchievementCriteriaScript("achievement_killed_exp_or_honor_target") { }
 
-        bool OnCheck(Player* player, Unit* target) OVERRIDE
+        bool OnCheck(Player* player, Unit* target)
         {
             return target && player->isHonorOrXPTarget(target);
         }
