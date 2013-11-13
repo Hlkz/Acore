@@ -50,8 +50,6 @@ public:
         {
             { "channel",        SEC_ADMINISTRATOR,  true,   NULL,                               "", channelCommandTable  },
             { "announce",       SEC_ANIMATOR,       true,   &HandleAnnounceCommand,             "", NULL },
-            { "notify",         SEC_ANIMATOR,       true,   &HandleNotifyCommand,               "", NULL },
-            { "gmnotify",       SEC_ANIMATOR,       true,   &HandleGMNotifyCommand,             "", NULL },
             { "whispers",       SEC_ANIMATOR,       false,  &HandleWhispersCommand,             "", NULL },
             { NULL,             0,                  false,  NULL,                               "", NULL }
         };
@@ -125,36 +123,6 @@ public:
         return true;
     }
 
-    // notification player at the screen
-    static bool HandleNotifyCommand(ChatHandler* handler, char const* args)
-    {
-        if (!*args)
-            return false;
-
-        std::string str = handler->GetTrinityString(LANG_GLOBAL_NOTIFY);
-        str += args;
-
-        WorldPacket data(SMSG_NOTIFICATION, (str.size()+1));
-        data << str;
-        sWorld->SendGlobalMessage(&data);
-
-        return true;
-    }
-    // notification GM at the screen
-    static bool HandleGMNotifyCommand(ChatHandler* handler, char const* args)
-    {
-        if (!*args)
-            return false;
-
-        std::string str = handler->GetTrinityString(LANG_GM_NOTIFY);
-        str += args;
-
-        WorldPacket data(SMSG_NOTIFICATION, (str.size()+1));
-        data << str;
-        sWorld->SendGlobalGMMessage(&data);
-
-        return true;
-    }
     // Enable\Dissable accept whispers (for GM)
     static bool HandleWhispersCommand(ChatHandler* handler, char const* args)
     {

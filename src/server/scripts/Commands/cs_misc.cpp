@@ -78,37 +78,37 @@ public:
             { "summon",             SEC_ANIMATOR,           false, &HandleSummonCommand,                "", NULL },
             { "groupsummon",        SEC_ANIMATOR,           false, &HandleGroupSummonCommand,           "", NULL },
             { "commands",           SEC_PLAYER,             true,  &HandleCommandsCommand,              "", NULL },
-            { "die",                SEC_ADMINISTRATOR,      false, &HandleDieCommand,                   "", NULL },
+            { "die",                SEC_GAMEMASTER,         false, &HandleDieCommand,                   "", NULL },
             { "revive",             SEC_ADMINISTRATOR,      true,  &HandleReviveCommand,                "", NULL },
             { "dismount",           SEC_PLAYER,             false, &HandleDismountCommand,              "", NULL },
-            { "guid",               SEC_GAMEMASTER,         false, &HandleGUIDCommand,                  "", NULL },
+            { "guid",               SEC_ANIMATOR,           false, &HandleGUIDCommand,                  "", NULL },
             { "help",               SEC_PLAYER,             true,  &HandleHelpCommand,                  "", NULL },
             { "itemmove",           SEC_GAMEMASTER,         false, &HandleItemMoveCommand,              "", NULL },
-            { "cooldown",           SEC_ADMINISTRATOR,      false, &HandleCooldownCommand,              "", NULL },
-            { "distance",           SEC_ADMINISTRATOR,      false, &HandleGetDistanceCommand,           "", NULL },
-            { "recall",             SEC_ANIMATOR,          false, &HandleRecallCommand,                "", NULL },
+            { "cooldown",           SEC_GAMEMASTER,         false, &HandleCooldownCommand,              "", NULL },
+            { "distance",           SEC_ANIMATOR,           false, &HandleGetDistanceCommand,           "", NULL },
+            { "recall",             SEC_ANIMATOR,           false, &HandleRecallCommand,                "", NULL },
             { "save",               SEC_PLAYER,             false, &HandleSaveCommand,                  "", NULL },
-            { "saveall",            SEC_ANIMATOR,          true,  &HandleSaveAllCommand,               "", NULL },
+            { "saveall",            SEC_ANIMATOR,           true,  &HandleSaveAllCommand,               "", NULL },
             { "kick",               SEC_GAMEMASTER,         true,  &HandleKickPlayerCommand,            "", NULL },
             { "unstuck",            SEC_PLAYER,             true,  &HandleUnstuckCommand,               "", NULL },
             { "linkgrave",          SEC_ADMINISTRATOR,      false, &HandleLinkGraveCommand,             "", NULL },
             { "neargrave",          SEC_ADMINISTRATOR,      false, &HandleNearGraveCommand,             "", NULL },
-            { "showarea",           SEC_ADMINISTRATOR,      false, &HandleShowAreaCommand,              "", NULL },
-            { "hidearea",           SEC_ADMINISTRATOR,      false, &HandleHideAreaCommand,              "", NULL },
+            { "showarea",           SEC_GAMEMASTER,         false, &HandleShowAreaCommand,              "", NULL },
+            { "hidearea",           SEC_GAMEMASTER,         false, &HandleHideAreaCommand,              "", NULL },
             { "additem",            SEC_GAMEMASTER,         false, &HandleAddItemCommand,               "", NULL },
             { "additemset",         SEC_GAMEMASTER,         false, &HandleAddItemSetCommand,            "", NULL },
-            { "bank",               SEC_GAMEMASTER,         false, &HandleBankCommand,                  "", NULL },
+            { "bank",               SEC_ANIMATOR,           false, &HandleBankCommand,                  "", NULL },
             { "wchange",            SEC_ADMINISTRATOR,      false, &HandleChangeWeather,                "", NULL },
             { "maxskill",           SEC_ADMINISTRATOR,      false, &HandleMaxSkillCommand,              "", NULL },
             { "setskill",           SEC_GAMEMASTER,         false, &HandleSetSkillCommand,              "", NULL },
             { "pinfo",              SEC_GAMEMASTER,         true,  &HandlePInfoCommand,                 "", NULL },
-            { "respawn",            SEC_ADMINISTRATOR,      false, &HandleRespawnCommand,               "", NULL },
+            { "respawn",            SEC_GAMEMASTER,         false, &HandleRespawnCommand,               "", NULL },
             { "send",               SEC_ANIMATOR,           true,  NULL,                                "", sendCommandTable },
             { "pet",                SEC_GAMEMASTER,         false, NULL,                                "", petCommandTable },
             { "mute",               SEC_ANIMATOR,           true,  &HandleMuteCommand,                  "", NULL },
             { "unmute",             SEC_ANIMATOR,           true,  &HandleUnmuteCommand,                "", NULL },
             { "movegens",           SEC_ADMINISTRATOR,      false, &HandleMovegensCommand,              "", NULL },
-            { "cometome",           SEC_ADMINISTRATOR,      false, &HandleComeToMeCommand,              "", NULL },
+            { "cometome",           SEC_ANIMATOR,           false, &HandleComeToMeCommand,              "", NULL },
             { "damage",             SEC_GAMEMASTER,         false, &HandleDamageCommand,                "", NULL },
             { "combatstop",         SEC_ANIMATOR,           true,  &HandleCombatStopCommand,            "", NULL },
             { "repairitems",        SEC_GAMEMASTER,         true,  &HandleRepairitemsCommand,           "", NULL },
@@ -118,8 +118,9 @@ public:
             { "group",              SEC_ADMINISTRATOR,      false, NULL,                                "", groupCommandTable },
             { "possess",            SEC_ADMINISTRATOR,      false, HandlePossessCommand,                "", NULL },
             { "unpossess",          SEC_ADMINISTRATOR,      false, HandleUnPossessCommand,              "", NULL },
-            { "bindsight",          SEC_ADMINISTRATOR,      false, HandleBindSightCommand,              "", NULL },
-            { "unbindsight",        SEC_ADMINISTRATOR,      false, HandleUnbindSightCommand,            "", NULL },
+            { "bindsight",          SEC_ANIMATOR,           false, HandleBindSightCommand,              "", NULL },
+            { "unbindsight",        SEC_ANIMATOR,           false, HandleUnbindSightCommand,            "", NULL },
+            { "clothes",            SEC_ANIMATOR,           false, HandleClothesCommand,                "", NULL },
             { "playall",            SEC_ANIMATOR,           false, HandlePlayAllCommand,                "", NULL },
             { NULL,                 0,                      false, NULL,                                "", NULL }
         };
@@ -2747,7 +2748,7 @@ public:
                 }
             }
 
-            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(9454))
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(22856))
                 Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
 
             // save player
@@ -2785,7 +2786,7 @@ public:
             player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
             // Remove Freeze spell (allowing movement and spells)
-            player->RemoveAurasDueToSpell(9454);
+            player->RemoveAurasDueToSpell(22856);
 
             // Save player
             player->SaveToDB();
@@ -3084,6 +3085,18 @@ public:
             return false;
 
         player->StopCastingBindSight();
+        return true;
+    }
+
+    static bool HandleClothesCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        Player* player = handler->GetSession()->GetPlayer();
+        Unit* unit = handler->getSelectedUnit();
+        if (!unit)
+            unit = player;
+
+        player->AddAura(26659, unit);
+        player->RemoveAura(26659);
         return true;
     }
 };

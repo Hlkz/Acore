@@ -68,7 +68,7 @@ public:
         static ChatCommand commandTable[] =
         {
             { "learn",          SEC_GAMEMASTER,     false, NULL,                                "", learnCommandTable },
-            { "unlearn",        SEC_ADMINISTRATOR,  false, &HandleUnLearnCommand,               "", NULL },
+            { "unlearn",        SEC_GAMEMASTER,     false, &HandleUnLearnCommand,               "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
         return commandTable;
@@ -77,6 +77,9 @@ public:
     static bool HandleLearnCommand(ChatHandler* handler, char const* args)
     {
         Player* targetPlayer = handler->getSelectedPlayer();
+
+        if (handler->GetSession()->GetSecurity() < SEC_ADMINISTRATOR)
+            targetPlayer = handler->GetSession()->GetPlayer();
 
         if (!targetPlayer)
         {
@@ -485,6 +488,8 @@ public:
         bool allRanks = allStr ? (strncmp(allStr, "all", strlen(allStr)) == 0) : false;
 
         Player* target = handler->getSelectedPlayer();
+        if (handler->GetSession()->GetSecurity() < SEC_ADMINISTRATOR)
+            target = handler->GetSession()->GetPlayer();
         if (!target)
         {
             handler->SendSysMessage(LANG_NO_CHAR_SELECTED);

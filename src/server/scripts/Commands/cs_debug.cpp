@@ -96,7 +96,7 @@ public:
         };
         static ChatCommand commandTable[] =
         {
-            { "debug",          SEC_ANIMATOR,       true,  NULL,                  "", debugCommandTable },
+            { "debug",          SEC_GAMEMASTER,     true,  NULL,                  "", debugCommandTable },
             { "wpgps",          SEC_ADMINISTRATOR,  false, &HandleWPGPSCommand,                "", NULL },
             { NULL,             SEC_PLAYER,         false, NULL,                  "",              NULL }
         };
