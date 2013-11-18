@@ -17101,9 +17101,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
             }
             else
             {
-                TC_LOG_ERROR("entities.player", "Player (guidlow %d) have problems with transport guid (%u). Teleport to bind location.",
-                    guid, transGUID);
-
+                TC_LOG_ERROR("entities.player", "Player (guidlow %u) have problems with transport guid (%u). Teleport to bind location.",guid, transGUID);
                 RelocateToHomebind();
             }
         }
