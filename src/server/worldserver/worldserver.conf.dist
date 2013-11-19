@@ -48,9 +48,9 @@ LogsDir = "./log/"
 #    LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;auth"       - (LoginDatabaseInfo)
 #    WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;world"      - (WorldDatabaseInfo)
 #    CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters" - (CharacterDatabaseInfo)
-LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;auth"
-WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;world"
-CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters"
+LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;a39a"
+WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;a39w"
+CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;a39c"
 
 #    WorkerThreads : The amount of worker threads spawned to handle asynchronous (delayed) MySQL
 #                    statements. Each worker thread is mirrored with its own connection to the
@@ -274,7 +274,7 @@ CharacterCreating.Disabled.RaceMask = 0
 #    CharacterCreating.Disabled.ClassMask
 #        Default: 0 Enabled, 1+ Disabled, 1 Warrior, 2 Paladin, 4 Hunter, 8 Rogue, 16 Undead
 #                            32 Death Knight, 64 Shaman, 128 Mage, 256 Warlock, 1024 Druid
-CharacterCreating.Disabled.ClassMask = 0
+CharacterCreating.Disabled.ClassMask = 32
 
 #    CharactersPerRealm : 1-10
 #    CharactersPerAccount : Must be >= CharactersPerRealm
@@ -496,10 +496,10 @@ Rate.Corpse.Decay.Looted = 0.5
 #    Rate.Creature.Damage : Mulitplier for creature melee damage.
 #    Rate.Creature.SpellDamage : Mulitplier for creature spell damage.
 #    Rate.Creature.Aggro : Multiplier for creature aggro radius.
-Rate.Creature.Normal.HP          = 1
-Rate.Creature.Damage          = 1
-Rate.Creature.SpellDamage = 1
-Rate.Creature.Aggro = 1
+Rate.Creature.Normal.HP    = 1
+Rate.Creature.Damage       = 1
+Rate.Creature.SpellDamage  = 1
+Rate.Creature.Aggro        = 1
 
 #    ThreatRadius : Distance for creatures to evade after being pulled away from the combat
 #                   starting point. If ThreatRadius is less than creature aggro radius then aggro
@@ -1074,13 +1074,13 @@ PacketSpoof.BanDuration = 86400
 ###################################################################################################
 # CUSTOM
 
-u_t = 0
-u_t_s = "FFA"
-u_t_m = 0
-u_t_x = 0
-u_t_y = 0
-u_t_z = 0
-u_t_o = 0
+NpcTeleportAdd = 0
+NpcTeleportString = "FFA"
+NpcTeleportMap = 0
+NpcTeleportX = 0
+NpcTeleportY = 0
+NpcTeleportZ = 0
+NpcTeleportO = 0
 
 #
 ###################################################################################################

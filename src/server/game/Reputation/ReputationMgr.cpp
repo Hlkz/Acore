@@ -20,6 +20,7 @@
 #include "ReputationMgr.h"
 #include "DBCStores.h"
 #include "Player.h"
+#include "Chat.h"
 #include "WorldPacket.h"
 #include "World.h"
 #include "ObjectMgr.h"
@@ -403,6 +404,7 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
 
             draft.SendMailTo(trans, _player, MailSender(MAIL_CREATURE, newteam==ALLIANCE?29611:4949));
             CharacterDatabase.CommitTransaction(trans);
+            ChatHandler(_player->GetSession()).PSendSysMessage(17938);
         }
 
         return true;

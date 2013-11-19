@@ -1,5 +1,13 @@
 #include "ScriptPCH.h"
 
+enum NpcClass
+{
+    LANG_NPC_CLASS_UPGRADE     = 12070,
+    LANG_NPC_CLASS_DUALSPEC    = 12071,
+    LANG_NPC_CLASS_GLYPHS      = 12072,
+    LANG_NPC_CLASS_TALENTS     = 12073
+};
+
 class npc_class : public CreatureScript
 {
 public:
@@ -8,17 +16,13 @@ public:
     bool OnGossipHello(Player* player, Creature* creature)
     {
         creature->SetControlled(true, UNIT_STATE_STUNNED);
-        MainMenu(player, creature);
+        WorldSession* session = player->GetSession();
+        player->ADD_GOSSIP_ITEM(3, session->GetTrinityString(LANG_NPC_CLASS_UPGRADE)  , GOSSIP_SENDER_MAIN, 1);
+        player->ADD_GOSSIP_ITEM(2, session->GetTrinityString(LANG_NPC_CLASS_DUALSPEC) , GOSSIP_SENDER_MAIN, 2);
+        player->ADD_GOSSIP_ITEM(1, session->GetTrinityString(LANG_NPC_CLASS_GLYPHS)   , GOSSIP_SENDER_MAIN, 3);
+        player->ADD_GOSSIP_ITEM(2, session->GetTrinityString(LANG_NPC_CLASS_TALENTS)  , GOSSIP_SENDER_MAIN, 4);
+        player->SEND_GOSSIP_MENU(player->GetDefaultGossipMenuForSource(creature), creature->GetGUID());
         return true;
-    }
-
-    void MainMenu(Player *player, Creature *creature)
-    {
-        player->ADD_GOSSIP_ITEM( 3, "Mise a niveau des sorts, stats et compétences" , GOSSIP_SENDER_MAIN, 1);
-        player->ADD_GOSSIP_ITEM( 2, "Apprentissage de la double spécalisation" , GOSSIP_SENDER_MAIN, 2);
-        player->ADD_GOSSIP_ITEM( 1, "Vendeur de glyphes." , GOSSIP_SENDER_MAIN, 3);
-        player->ADD_GOSSIP_ITEM( 2, "Réinitialisation des talents" , GOSSIP_SENDER_MAIN, 4);
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
     }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
@@ -29,7 +33,7 @@ public:
         {
 
         case 1:
-            MainMenu(player, creature);
+            OnGossipHello(player, creature);
             player->UpdateSkillsToMaxSkillsForLevel();
             if (player->HasSpell(17877)) {
                 player->learnSpell(18867, false);
@@ -57,7 +61,7 @@ public:
             break;
 
         case 2:
-            MainMenu(player, creature);
+            OnGossipHello(player, creature);
             if (player->GetSpecsCount() == 1) {
                 player->CastSpell(player, 63680, true, NULL, NULL, player->GetGUID());
                 player->CastSpell(player, 63624, true, NULL, NULL, player->GetGUID()); }
@@ -70,7 +74,7 @@ public:
             break;
 
         case 4:
-            MainMenu(player, creature);
+            OnGossipHello(player, creature);
             player->resetTalents();
             player->SendTalentsInfoData(false);
             break;

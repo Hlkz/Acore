@@ -47,7 +47,7 @@ public:
         player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12052), GOSSIP_SENDER_MAIN, 500);
         player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12053), GOSSIP_SENDER_MAIN, 600);
         player->ADD_GOSSIP_ITEM(6, session->GetTrinityString(12054), GOSSIP_SENDER_MAIN, 200);
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetDefaultGossipMenuForSource(creature), creature->GetGUID());
         return true;
     }
 

@@ -1,7 +1,13 @@
 #include "ScriptPCH.h"
 
-enum NpcJobSpells
+enum NpcJob
 {
+    LANG_NPC_JOB_SKINNING       = 12080,
+    LANG_NPC_JOB_HERBALISM      = 12081,
+    LANG_NPC_JOB_MINING         = 12082,
+    LANG_NPC_JOB_ENGINEERING    = 12083,
+    LANG_NPC_JOB_ERR          = 12090,
+
     SPELL_FORGE    = 9785,        SKILL_FORGE    = 164,
     SPELL_JOA    = 28895,    SKILL_JOA    = 755,
     SPELL_EN    = 13920,    SKILL_EN    = 333,
@@ -22,19 +28,20 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
+        WorldSession* session = player->GetSession();
         creature->HasQuestForPlayer(player);
-        player->ADD_GOSSIP_ITEM( 3, "Dépecage (collecte)" , GOSSIP_SENDER_MAIN, 1009);
-        player->ADD_GOSSIP_ITEM( 3, "Herborisme" , GOSSIP_SENDER_MAIN, 1004);
-        player->ADD_GOSSIP_ITEM( 3, "Minage" , GOSSIP_SENDER_MAIN, 1008);
-        //player->ADD_GOSSIP_ITEM( 3, "Alchimie (artisanat)" , GOSSIP_SENDER_MAIN, 1000);
-        //player->ADD_GOSSIP_ITEM( 3, "Calligraphie" , GOSSIP_SENDER_MAIN, 1005);
-        //player->ADD_GOSSIP_ITEM( 3, "Couture" , GOSSIP_SENDER_MAIN, 1010);
-        //player->ADD_GOSSIP_ITEM( 3, "Enchantement" , GOSSIP_SENDER_MAIN, 1002);
-        //player->ADD_GOSSIP_ITEM( 3, "Forge" , GOSSIP_SENDER_MAIN, 1001);
-        player->ADD_GOSSIP_ITEM( 3, "Ingénierie" , GOSSIP_SENDER_MAIN, 1003);
-        //player->ADD_GOSSIP_ITEM( 3, "Joaillerie" , GOSSIP_SENDER_MAIN, 1006);
-        //player->ADD_GOSSIP_ITEM( 3, "Travail du cuir" , GOSSIP_SENDER_MAIN, 1007);
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+        player->ADD_GOSSIP_ITEM(3, session->GetTrinityString(LANG_NPC_JOB_SKINNING) , GOSSIP_SENDER_MAIN, 1009);
+        player->ADD_GOSSIP_ITEM(3, session->GetTrinityString(LANG_NPC_JOB_HERBALISM) , GOSSIP_SENDER_MAIN, 1004);
+        player->ADD_GOSSIP_ITEM(3, session->GetTrinityString(LANG_NPC_JOB_MINING) , GOSSIP_SENDER_MAIN, 1008);
+        //player->ADD_GOSSIP_ITEM(3, "Alchimie (artisanat)" , GOSSIP_SENDER_MAIN, 1000);
+        //player->ADD_GOSSIP_ITEM(3, "Calligraphie" , GOSSIP_SENDER_MAIN, 1005);
+        //player->ADD_GOSSIP_ITEM(3, "Couture" , GOSSIP_SENDER_MAIN, 1010);
+        //player->ADD_GOSSIP_ITEM(3, "Enchantement" , GOSSIP_SENDER_MAIN, 1002);
+        //player->ADD_GOSSIP_ITEM(3, "Forge" , GOSSIP_SENDER_MAIN, 1001);
+        player->ADD_GOSSIP_ITEM(3, session->GetTrinityString(LANG_NPC_JOB_ENGINEERING) , GOSSIP_SENDER_MAIN, 1003);
+        //player->ADD_GOSSIP_ITEM(3, "Joaillerie" , GOSSIP_SENDER_MAIN, 1006);
+        //player->ADD_GOSSIP_ITEM(3, "Travail du cuir" , GOSSIP_SENDER_MAIN, 1007);
+        player->SEND_GOSSIP_MENU(player->GetDefaultGossipMenuForSource(creature), creature->GetGUID());
         return true;
     }
 
@@ -107,7 +114,7 @@ public:
         else
         {
             player->CLOSE_GOSSIP_MENU();
-            creature->MonsterWhisper("Vous avez déjà deux métiers !", player->GetGUID(), false);
+            creature->MonsterWhisper(player->GetSession()->GetTrinityString(LANG_NPC_JOB_ERR), player->GetGUID(), false);
         }
 
         return true; 

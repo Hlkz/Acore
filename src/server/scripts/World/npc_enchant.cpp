@@ -1,29 +1,43 @@
 #include "ScriptPCH.h"
 
+enum NpcEnchant {
+    LANG_NPCENCH_BACK       = 12100,
+    LANG_NPCENCH_CHEST,
+    LANG_NPCENCH_WRISTS,
+    LANG_NPCENCH_HANDS,
+    LANG_NPCENCH_LEGS,
+    LANG_NPCENCH_FOOTS,
+    LANG_NPCENCH_MH,
+    LANG_NPCENCH_SHIELD,
+    LANG_NPCENCH_OH,
+    LANG_NPCENCH_RANGED,
+};
+
 class npc_enchant : public CreatureScript
 {
 public:
     npc_enchant() : CreatureScript("npc_enchant") { }
 
-    bool OnGossipHello(Player *player, Creature *creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         player->SetClmSlty(0);
+        WorldSession* session = player->GetSession();
         creature->HasQuestForPlayer(player);
-        player->ADD_GOSSIP_ITEM(0, "Dos", GOSSIP_SENDER_MAIN, 14);
-        player->ADD_GOSSIP_ITEM(0, "Torse", GOSSIP_SENDER_MAIN, 4);
-        player->ADD_GOSSIP_ITEM(0, "Poignets", GOSSIP_SENDER_MAIN, 8);
-        player->ADD_GOSSIP_ITEM(0, "Mains", GOSSIP_SENDER_MAIN, 9);
+        player->ADD_GOSSIP_ITEM(0, session->GetTrinityString(LANG_NPCENCH_BACK), GOSSIP_SENDER_MAIN, 14);
+        player->ADD_GOSSIP_ITEM(0, session->GetTrinityString(LANG_NPCENCH_CHEST), GOSSIP_SENDER_MAIN, 4);
+        player->ADD_GOSSIP_ITEM(0, session->GetTrinityString(LANG_NPCENCH_WRISTS), GOSSIP_SENDER_MAIN, 8);
+        player->ADD_GOSSIP_ITEM(0, session->GetTrinityString(LANG_NPCENCH_HANDS), GOSSIP_SENDER_MAIN, 9);
         Item *item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, 6); if(item)
-        player->ADD_GOSSIP_ITEM(0, "Jambes : Renfort d'armure épais", GOSSIP_SENDER_MAIN, 6);
-        player->ADD_GOSSIP_ITEM(0, "Pieds", GOSSIP_SENDER_MAIN, 7);
-        player->ADD_GOSSIP_ITEM(0, "Main droite", GOSSIP_SENDER_MAIN, 15);        
+        player->ADD_GOSSIP_ITEM(0, session->GetTrinityString(LANG_NPCENCH_LEGS), GOSSIP_SENDER_MAIN, 6);
+        player->ADD_GOSSIP_ITEM(0, session->GetTrinityString(LANG_NPCENCH_FOOTS), GOSSIP_SENDER_MAIN, 7);
+        player->ADD_GOSSIP_ITEM(0, session->GetTrinityString(LANG_NPCENCH_MH), GOSSIP_SENDER_MAIN, 15);
         item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, 16); if(item) {
-        if(item->GetTemplate()->SubClass == 6)    player->ADD_GOSSIP_ITEM(0, "Bouclier", GOSSIP_SENDER_MAIN, 18);
-        else { if(item->GetTemplate()->Class != 4) player->ADD_GOSSIP_ITEM(0, "Main gauche", GOSSIP_SENDER_MAIN, 16); } }
+        if(item->GetTemplate()->SubClass == 6)    player->ADD_GOSSIP_ITEM(0, session->GetTrinityString(LANG_NPCENCH_SHIELD), GOSSIP_SENDER_MAIN, 18);
+        else { if(item->GetTemplate()->Class != 4) player->ADD_GOSSIP_ITEM(0, session->GetTrinityString(LANG_NPCENCH_OH), GOSSIP_SENDER_MAIN, 16); } }
         item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, 17); if(item) {
         if((item->GetTemplate()->SubClass == 2) || (item->GetTemplate()->SubClass == 3) || (item->GetTemplate()->SubClass == 18))
-            player->ADD_GOSSIP_ITEM(0, "A distance : lunette mortelle", GOSSIP_SENDER_MAIN, 17); }
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+            player->ADD_GOSSIP_ITEM(0, session->GetTrinityString(LANG_NPCENCH_RANGED), GOSSIP_SENDER_MAIN, 17); }
+        player->SEND_GOSSIP_MENU(player->GetDefaultGossipMenuForSource(creature), creature->GetGUID());
         return true;
     }
 

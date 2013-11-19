@@ -12,7 +12,7 @@ public:
         player->ADD_GOSSIP_ITEM( 4, "Changement d'apparence" , GOSSIP_SENDER_MAIN, 2);
         player->ADD_GOSSIP_ITEM( 8, "Changement de race" , GOSSIP_SENDER_MAIN, 3);
         //player->ADD_GOSSIP_ITEM( 9, "Changement de faction" , GOSSIP_SENDER_MAIN, 5);
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+        player->SEND_GOSSIP_MENU(player->GetDefaultGossipMenuForSource(creature), creature->GetGUID());
         return true;
     }
 
