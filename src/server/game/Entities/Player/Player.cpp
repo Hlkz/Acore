@@ -26480,7 +26480,7 @@ bool Player::IsDeserter(uint32 team)
         return false;
     else
     {
-        TC_LOG_ERROR(LOG_FILTER_PLAYER, "Player %u has wrong team id %u", GetGUID(), team);
+        TC_LOG_ERROR(LOG_FILTER_PLAYER, "Player %u has wrong team id %u", GUID_LOPART(GetGUID()), team);
         return true;
     }
 }
