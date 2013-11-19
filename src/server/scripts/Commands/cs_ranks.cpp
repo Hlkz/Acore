@@ -166,7 +166,7 @@ public:
         };
         static ChatCommand ranksCommandTable[] =
         {
-            { "set",            SEC_ADMINISTRATOR,  true,  NULL,   "", ranksSetTable },
+            { "set",            SEC_ADMINISTRATOR,  true,  NULL,                     "", ranksSetTable },
             { "distribute",     SEC_ADMINISTRATOR,  false, &HandleRanksDistributeCommand,     "", NULL },
             { "text",           SEC_GAMEMASTER,     false, &HandleRanksUpdateTextCommand,     "", NULL },
             { "",               SEC_PLAYER,         false, &HandleRanksDisplayCommand,        "", NULL },
@@ -240,7 +240,7 @@ public:
         uint32 rank = result->Fetch()[1].GetUInt32();
         uint32 total = result->Fetch()[2].GetUInt32();
         uint32 last = result->Fetch()[3].GetUInt32();
-		uint32 points = floor(10*sqrt((float)total/10)+last);
+        uint32 points = floor(10*sqrt((float)total/10)+last);
         handler->PSendSysMessage(LANG_RANKS_INFO_COMMAND, session->GetTrinityString(LANG_RANKS_NAME+rank+6*(team==67)));
         handler->PSendSysMessage(LANG_RANKS_INFO_COMMAND+1, last, total);
         if (rank != 6)
@@ -255,4 +255,3 @@ void AddSC_ranks_commandscript()
 {
     new ranks_commandscript();
 }
-

@@ -2832,6 +2832,20 @@ void Player::SetGMVisible(bool on)
     }
 }
 
+void Player::UpdateGroup()
+{
+    if (Group* group = GetGroup())
+        group->SendUpdateToPlayer(GetGUID());
+    else
+    {
+        WorldPacket data;
+        data.Initialize(SMSG_GROUP_LIST, 1+1+1+1+8+4+4+8);
+        data << uint8(0x10) << uint8(0) << uint8(0) << uint8(0);
+        data << uint64(0) << uint32(0) << uint32(0) << uint64(0);
+        GetSession()->SendPacket(&data);
+    }
+}
+
 bool Player::IsGroupVisibleFor(Player const* p) const
 {
     switch (sWorld->getIntConfig(CONFIG_GROUP_VISIBILITY))

@@ -46,12 +46,13 @@ public:
     {
         static ChatCommand groupCommandTable[] =
         {
-            { "leader",         SEC_ADMINISTRATOR,          false,  &HandleGroupLeaderCommand,          "", NULL },
-            { "disband",        SEC_ADMINISTRATOR,          false,  &HandleGroupDisbandCommand,         "", NULL },
-            { "remove",         SEC_ADMINISTRATOR,          false,  &HandleGroupRemoveCommand,          "", NULL },
-            { "join",           SEC_ADMINISTRATOR,          false,  &HandleGroupJoinCommand,            "", NULL },
-            { "list",           SEC_ADMINISTRATOR,          false,  &HandleGroupListCommand,            "", NULL },
-            { NULL,             0,                          false,  NULL,                               "", NULL }
+            { "leader",             SEC_ADMINISTRATOR,      false, &HandleGroupLeaderCommand,           "", NULL },
+            { "disband",            SEC_ADMINISTRATOR,      false, &HandleGroupDisbandCommand,          "", NULL },
+            { "remove",             SEC_ADMINISTRATOR,      false, &HandleGroupRemoveCommand,           "", NULL },
+            { "join",               SEC_ADMINISTRATOR,      false, &HandleGroupJoinCommand,             "", NULL },
+            { "list",               SEC_ADMINISTRATOR,      false, &HandleGroupListCommand,             "", NULL },
+            { "",                   SEC_PLAYER,             false, &HandleGroupCommand,                 "", NULL },
+            { NULL,                 0,                      false, NULL,                                "", NULL }
         };
         static ChatCommand petCommandTable[] =
         {
@@ -63,7 +64,7 @@ public:
         static ChatCommand sendCommandTable[] =
         {
             { "items",              SEC_ADMINISTRATOR,      true,  &HandleSendItemsCommand,             "", NULL },
-            { "mail",               SEC_ANIMATOR,          true,  &HandleSendMailCommand,              "", NULL },
+            { "mail",               SEC_ANIMATOR,           true,  &HandleSendMailCommand,              "", NULL },
             { "message",            SEC_ADMINISTRATOR,      true,  &HandleSendMessageCommand,           "", NULL },
             { "money",              SEC_ADMINISTRATOR,      true,  &HandleSendMoneyCommand,             "", NULL },
             { NULL,                 0,                      false, NULL,                                "", NULL }
@@ -115,7 +116,7 @@ public:
             { "freeze",             SEC_ANIMATOR,           false, &HandleFreezeCommand,                "", NULL },
             { "unfreeze",           SEC_ANIMATOR,           false, &HandleUnFreezeCommand,              "", NULL },
             { "listfreeze",         SEC_ANIMATOR,           false, &HandleListFreezeCommand,            "", NULL },
-            { "group",              SEC_ADMINISTRATOR,      false, NULL,                                "", groupCommandTable },
+            { "group",              SEC_PLAYER,             false, NULL,                                "", groupCommandTable },
             { "possess",            SEC_ADMINISTRATOR,      false, HandlePossessCommand,                "", NULL },
             { "unpossess",          SEC_ADMINISTRATOR,      false, HandleUnPossessCommand,              "", NULL },
             { "bindsight",          SEC_ANIMATOR,           false, HandleBindSightCommand,              "", NULL },
@@ -2850,6 +2851,13 @@ public:
         }
         while (result->NextRow());
 
+        return true;
+    }
+
+    // Update group
+    static bool HandleGroupCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        handler->GetSession()->GetPlayer()->UpdateGroup();
         return true;
     }
 

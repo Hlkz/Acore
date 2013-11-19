@@ -346,7 +346,7 @@ bool BattleAO::Update(uint32 diff)
                 PlaySoundToAll(BAO_SOUND_NODE_CLAIMED);
                 _SendNodeUpdate(node);
                 _NodeOccupied(node, TEAM_OTHER);
-                SendMessage2ToAll(LANG_BAO_NODE_NEUTRALTAKEN, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL, _GetNodeNameId(node), NULL);
+                SendMessage2ToAll(LANG_BAO_NODE_NEUTRALTAKEN, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL, _GetNodeNameId(node, true), NULL);
                 PlaySoundToAll(BAO_SOUND_NODE_CLAIMED);
             }
             else // (cont V oqp)
@@ -512,7 +512,10 @@ bool BattleAO::AddOrSetPlayerToCorrectBAOGroup(Player* player)
     if (Group* group = player->GetGroup())
     {
         if (group->isBAOGroup())
+        {
+            group->SendUpdateToPlayer(player->GetGUID());
             return false;
+         }
         group->RemoveMember(player->GetGUID());
     }
 
@@ -882,22 +885,23 @@ void BattleAO::_NodeDeOccupied(uint8 node)
         DelCreature(node-BAO_NODE_FIRST_SPIRIT);
 }
 
-int32 BattleAO::_GetNodeNameId(uint8 node)
+int32 BattleAO::_GetNodeNameId(uint8 node, bool maj)
 {
+    int32 name = 20 * maj;
     switch (node)
     {
-        case 0:	return LANG_BAO_NODE_NORD;
-        case 1:	return LANG_BAO_NODE_SUD;
-        case 2:	return LANG_BAO_NODE_RUINES;
-        case 3:	return LANG_BAO_NODE_PUITS;
-        case 4:	return LANG_BAO_NODE_TOUR_A2;
-        case 5:	return LANG_BAO_NODE_TOUR_H2;
-        case 6:	return LANG_BAO_NODE_A2;
-        case 7:	return LANG_BAO_NODE_H2;
+        case 0: return name += LANG_BAO_NODE_NORD;
+        case 1: return name += LANG_BAO_NODE_SUD;
+        case 2: return name += LANG_BAO_NODE_RUINES;
+        case 3: return name += LANG_BAO_NODE_PUITS;
+        case 4: return name += LANG_BAO_NODE_TOUR_A2;
+        case 5: return name += LANG_BAO_NODE_TOUR_H2;
+        case 6: return name += LANG_BAO_NODE_A2;
+        case 7: return name += LANG_BAO_NODE_H2;
         default:
             ASSERT(false);
     }
-    return NULL;
+    return name;
 }
 
 void BattleAO::EventPlayerClickedOnFlag(Player* source, GameObject* target_obj)
@@ -927,7 +931,7 @@ void BattleAO::EventPlayerClickedOnFlag(Player* source, GameObject* target_obj)
             _CreateBanner(node, BAO_NODE_TYPE_NEUTRAL, TEAM_NEUTRAL, true);
             _SendNodeUpdate(node);
             m_NodeTimers[node] = 0;
-            SendMessage2ToAll(LANG_BAO_NODE_NEUTRALTAKEN, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL, _GetNodeNameId(node), NULL);
+            SendMessage2ToAll(LANG_BAO_NODE_NEUTRALTAKEN, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL, _GetNodeNameId(node, true), NULL);
             sound = BAO_SOUND_NODE_CLAIMED;
         }
         else // attaque neutre (oqp 2 cont V neutre)
@@ -937,7 +941,7 @@ void BattleAO::EventPlayerClickedOnFlag(Player* source, GameObject* target_obj)
             _CreateBanner(node, m_Nodes[node], TEAM_NEUTRAL, true); // ici le type est le status, pas de recup du teamindex
             _NodeDeOccupied(node);
             m_NodeTimers[node] = BAO_FLAG_CAPTURING_TIME;
-            SendMessage2ToAll(LANG_BAO_NODE_NEUTRALASSAULTED, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL, _GetNodeNameId(node), NULL);
+            SendMessage2ToAll(LANG_BAO_NODE_NEUTRALASSAULTED, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL, _GetNodeNameId(node, true), NULL);
             sound = BAO_SOUND_NODE_CLAIMED;
         }
     }

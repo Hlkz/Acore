@@ -255,7 +255,7 @@ private:
     void _CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay = false);
     void _DelBanner(uint8 node, uint8 status);
     void _SendNodeUpdate(uint8 node);
-    int32 _GetNodeNameId(uint8 node);
+    int32 _GetNodeNameId(uint8 node, bool maj = false);
     void _NodeOccupied(uint8 node, Team team); // tofix:guards
     void _NodeDeOccupied(uint8 node);
 
