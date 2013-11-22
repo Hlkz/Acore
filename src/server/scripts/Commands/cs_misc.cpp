@@ -121,7 +121,7 @@ public:
             { "unpossess",          SEC_ADMINISTRATOR,      false, HandleUnPossessCommand,              "", NULL },
             { "bindsight",          SEC_ANIMATOR,           false, HandleBindSightCommand,              "", NULL },
             { "unbindsight",        SEC_ANIMATOR,           false, HandleUnbindSightCommand,            "", NULL },
-            { "clothes",            SEC_ANIMATOR,           false, HandleClothesCommand,                "", NULL },
+            { "clothes",            SEC_PLAYER,             false, HandleClothesCommand,                "", NULL },
             { "playall",            SEC_ANIMATOR,           false, HandlePlayAllCommand,                "", NULL },
             { NULL,                 0,                      false, NULL,                                "", NULL }
         };
@@ -3099,12 +3099,14 @@ public:
     static bool HandleClothesCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* player = handler->GetSession()->GetPlayer();
+        if (!player)
+            return true;
         Unit* unit = handler->getSelectedUnit();
         if (!unit)
             unit = player;
 
-        player->AddAura(26659, unit);
-        player->RemoveAura(26659);
+        player->CastSpell(unit, 26659);
+        unit->RemoveAura(26659);
         return true;
     }
 };

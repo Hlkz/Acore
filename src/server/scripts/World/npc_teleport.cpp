@@ -57,7 +57,7 @@ public:
         case 14: player->CLOSE_GOSSIP_MENU(); // BAO
             sBattleAOMgr->SendToBattleAO(player); break;
 
-        case 16: player->CLOSE_GOSSIP_MENU(); // Ahn Qiraj
+        case 12: player->CLOSE_GOSSIP_MENU(); // Ahn Qiraj
             TeleportTo(player, 531, -8512.5f, 2016.02f, 104.6f, 3.6f);   break;
         case 20: player->CLOSE_GOSSIP_MENU(); // FFA
             TeleportTo(player, u_t_m, u_t_x, u_t_y, u_t_z, u_t_o);       break;

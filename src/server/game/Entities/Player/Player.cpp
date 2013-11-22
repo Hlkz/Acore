@@ -24017,6 +24017,8 @@ bool Player::CanCaptureTowerPoint()
 
 uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin)
 {
+    return 0; // client show wrong values
+
     uint8 level = getLevel();
 
     if (level > GT_MAX_LEVEL)
