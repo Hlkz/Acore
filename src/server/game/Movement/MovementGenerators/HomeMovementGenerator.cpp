@@ -31,8 +31,6 @@ void HomeMovementGenerator<Creature>::DoInitialize(Creature* owner)
 
 void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner)
 {
-    owner->ClearUnitState(UNIT_STATE_EVADE);  // TODO: Try to not interrupt HomeMovemetGenerator due its work and get ride of this little hack.
-
     if (arrived)
     {
         owner->ClearUnitState(UNIT_STATE_EVADE);
@@ -64,8 +62,6 @@ void HomeMovementGenerator<Creature>::_setTargetLocation(Creature* owner)
     arrived = false;
 
     owner->ClearUnitState(uint32(UNIT_STATE_ALL_STATE & ~UNIT_STATE_EVADE));
-
-
 }
 
 bool HomeMovementGenerator<Creature>::DoUpdate(Creature* owner, const uint32 /*time_diff*/)
