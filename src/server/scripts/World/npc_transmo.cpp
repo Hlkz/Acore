@@ -109,9 +109,9 @@ public:
                     if (newItem->DeleteFakeEntry() && !removed)
                         removed = true; } }
             if (removed) {
-                session->SendAreaTriggerMessage(session->GetTrinityString(LANG_REM_TRANSMOGRIFICATIONS_ITEMS));
+                session->SendAreaTriggerMessage("%s", session->GetTrinityString(LANG_REM_TRANSMOGRIFICATIONS_ITEMS));
                 player->PlayDirectSound(3337); }
-            else session->SendNotification(session->GetTrinityString(LANG_ERR_NO_TRANSMOGRIFICATIONS));
+            else session->SendNotification("%s", session->GetTrinityString(LANG_ERR_NO_TRANSMOGRIFICATIONS));
             OnGossipHello(player, creature); }
             break;
 
@@ -139,9 +139,9 @@ public:
 //                        player->DestroyItemCount(newItem->GetTemplate()->ItemId, 1, true, false);
                         player->PlayDirectSound(3337);
                         session->SendAreaTriggerMessage(session->GetTrinityString(LANG_ITEM_TRANSMOGRIFIED), GetSlotName(sender, session)); }
-                    else session->SendNotification(session->GetTrinityString(LANG_ERR_NO_ITEM_SUITABLE)); }
-//                else session->SendNotification(session->GetTrinityString(LANG_ERR_NO_ITEM_EXISTS));
-            } else session->SendNotification(session->GetTrinityString(LANG_ERR_EQUIP_SLOT_EMPTY));
+                    else session->SendNotification("%s", session->GetTrinityString(LANG_ERR_NO_ITEM_SUITABLE)); }
+//                else session->SendNotification("%s", session->GetTrinityString(LANG_ERR_NO_ITEM_EXISTS));
+            } else session->SendNotification("%s", session->GetTrinityString(LANG_ERR_EQUIP_SLOT_EMPTY));
             _items[lowGUID].clear();
             OnGossipHello(player, creature); } break;
                 }
