@@ -720,7 +720,7 @@ void World::LoadConfigSettings(bool reload)
 
     m_bool_configs[CONFIG_ALL_TAXI_PATHS] = sConfigMgr->GetBoolDefault("AllFlightPaths", false);
     m_bool_configs[CONFIG_INSTANT_TAXI] = sConfigMgr->GetBoolDefault("InstantFlightPaths", false);
-	
+
     m_bool_configs[CONFIG_INSTANT_LOGOUT] = sConfigMgr->GetBoolDefault("InstantLogout", true);
 
     m_bool_configs[CONFIG_INSTANCE_IGNORE_LEVEL] = sConfigMgr->GetBoolDefault("Instance.IgnoreLevel", false);
@@ -1065,7 +1065,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_PDUMP_NO_OVERWRITE] = sConfigMgr->GetBoolDefault("PlayerDump.DisallowOverwrite", true);
 
     m_bool_configs[CONFIG_ARENA_SPECTATORS_ENABLE] = sConfigMgr->GetBoolDefault("Arena.Spectators.Enable", false);
-    
+
     // Stats limits
     m_bool_configs[CONFIG_STATS_LIMITS_ENABLE] = sConfigMgr->GetBoolDefault("Stats.Limits.Enable", false);
     m_float_configs[CONFIG_STATS_LIMITS_DODGE] = sConfigMgr->GetFloatDefault("Stats.Limits.Dodge", 95.0f);
@@ -1082,7 +1082,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_PACKET_SPOOF_BANDURATION] = sConfigMgr->GetIntDefault("PacketSpoof.BanDuration", 86400);
 
     // call ScriptMgr if we're reloading the configuration
-    
+
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
 }
@@ -1252,7 +1252,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadItemSetNames();
 
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Transmogrifications...");
- 	sObjectMgr->LoadTransmogrifications();
+     sObjectMgr->LoadTransmogrifications();
 
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Creature Model Based Info Data...");
     sObjectMgr->LoadCreatureModelInfo();
@@ -1984,7 +1984,7 @@ void World::SendGlobalGMMessage(WorldPacket* packet, WorldSession* self, uint32 
     {
         // check if session and can receive global GM Messages and its not self
         WorldSession* session = itr->second;
-	    if (!session || session == self || !AccountMgr::IsAnimAccount(session->GetSecurity()))
+        if (!session || session == self || !AccountMgr::IsAnimAccount(session->GetSecurity()))
             continue;
 
         // Player should be in world
@@ -2868,7 +2868,7 @@ void World::ResetGuildCap()
 void World::DistribRanks()
 {
     TC_LOG_INFO(LOG_FILTER_GENERAL, "Ranks distrib !");
-	DistributeRanks();
+    DistributeRanks();
 
     m_NextRanksDistrib = time_t(m_NextRanksDistrib + DAY * 3);
     sWorld->setWorldState(WS_RANKS_DISTRIB_TIME, uint64(m_NextRanksDistrib));

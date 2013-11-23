@@ -879,17 +879,17 @@ public:
     {
         Player* player = handler->GetSession()->GetPlayer();
 
-		if (AccountMgr::IsAnimAccount(handler->GetSession()->GetSecurity()))
-		{
-			if (Player* target = handler->getSelectedPlayer())
-				target->SaveToDB();
-			else
-				player->SaveToDB();
-			handler->SendSysMessage(LANG_PLAYER_SAVED);
-			return true;
-		}
+        if (AccountMgr::IsAnimAccount(handler->GetSession()->GetSecurity()))
+        {
+            if (Player* target = handler->getSelectedPlayer())
+                target->SaveToDB();
+            else
+                player->SaveToDB();
+            handler->SendSysMessage(LANG_PLAYER_SAVED);
+            return true;
+        }
 
-		player->SaveToDB();
+        player->SaveToDB();
         return true;
     }
 
@@ -930,7 +930,7 @@ public:
     static bool HandleUnstuckCommand(ChatHandler* handler, char const* args)
     {
         // No args required for players
-		if (handler->GetSession() && AccountMgr::IsPlayerAccount(handler->GetSession()->GetSecurity()))
+        if (handler->GetSession() && AccountMgr::IsPlayerAccount(handler->GetSession()->GetSecurity()))
         {
             // 7355: "Stuck"
             if (Player* player = handler->GetSession()->GetPlayer())

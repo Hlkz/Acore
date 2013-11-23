@@ -144,7 +144,7 @@ void BattleAOMgr::BuildPvpLogDataPacket(WorldPacket* data)
         *data << uint32(0);
         //*data << uint32(itr2->second->BasesAssaulted);      // bases assaulted
         //*data << uint32(itr2->second->BasesDefended);       // bases defended
-	    scoreCount++;
+        scoreCount++;
     }
     data->put(wpos, scoreCount);
 }

@@ -43,7 +43,7 @@ public:
             { "class",          SEC_ADMINISTRATOR,  false, &HandleLearnAllMyClassCommand,       "", NULL },
             { "pettalents",     SEC_ADMINISTRATOR,  false, &HandleLearnAllMyPetTalentsCommand,  "", NULL },
             { "spells",         SEC_ADMINISTRATOR,  false, &HandleLearnAllMySpellsCommand,      "", NULL },
-            { "talents",        SEC_GAMEMASTER,	    false, &HandleLearnAllMyTalentsCommand,     "", NULL },
+            { "talents",        SEC_GAMEMASTER,        false, &HandleLearnAllMyTalentsCommand,     "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
 

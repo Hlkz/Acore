@@ -319,7 +319,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
 
     /* If spiritguide, no need for gossip menu, just put player into resurrect queue
     if (unit->IsSpiritGuide())
-	    sWorld->SendAreaSpiritHealerQueryOpcode(_player, guid);*/
+        sWorld->SendAreaSpiritHealerQueryOpcode(_player, guid);*/
 
     if (!sScriptMgr->OnGossipHello(_player, unit))
     {

@@ -235,7 +235,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
 
     AuctionEntry* AH = new AuctionEntry();
 
-		AH->auctioneer = 23442;
+        AH->auctioneer = 23442;
 
     // Required stack size of auction matches to current item stack size, just move item to auctionhouse
     if (itemsCount == 1 && item->GetCount() == count[0])

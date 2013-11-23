@@ -1125,11 +1125,11 @@ bool BattlegroundMgr::IsAnyAOBattleOn()
         {
             itrDelete = itr++;
             Battleground* bg = itrDelete->second;
-			if(bg->GetTypeID()==BATTLEGROUND_AO)
-				return true;
+            if(bg->GetTypeID()==BATTLEGROUND_AO)
+                return true;
         }
     }
-	return false;
+    return false;
 }
 
 HolidayIds BattlegroundMgr::BGTypeToWeekendHolidayId(BattlegroundTypeId bgTypeId)

@@ -122,7 +122,7 @@ const char *ChatHandler::GetTrinityString(int32 entry) const
 
 bool ChatHandler::isAvailable(ChatCommand const& cmd) const
 {
-	return m_session->GetSecurity() >= AccountTypes(cmd.SecurityLevel);
+    return m_session->GetSecurity() >= AccountTypes(cmd.SecurityLevel);
 }
 
 bool ChatHandler::HasLowerSecurity(Player* target, uint64 guid, bool strong)

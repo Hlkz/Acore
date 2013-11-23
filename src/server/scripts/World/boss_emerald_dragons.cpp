@@ -23,8 +23,8 @@ enum EmerissTexts
 {
     SAY_EMERISS_AGGRO               = 0,
     SAY_EMERISS_CAST_CORRUPTION     = 1,
-    SAY_EMERISS_DIE					= 2,
-    SAY_EMERISS_FOG					= 3
+    SAY_EMERISS_DIE                    = 2,
+    SAY_EMERISS_FOG                    = 3
 };
 
 enum Events
@@ -182,7 +182,7 @@ class boss_emeriss : public CreatureScript
                             }
 
                 if (!UpdateVictim())
-	        		return;
+                    return;
 
                 events.Update(diff);
 
@@ -203,15 +203,15 @@ class boss_emeriss : public CreatureScript
             }
 
             void EnterCombat(Unit* who)
-			{
+            {
                 WorldBossAI::EnterCombat(who);
             }
 
-			void JustDied(Unit* /*killer*/)
-			{
-				Talk(SAY_EMERISS_DIE);
-				ini = false;
-			}
+            void JustDied(Unit* /*killer*/)
+            {
+                Talk(SAY_EMERISS_DIE);
+                ini = false;
+            }
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
             {
@@ -243,7 +243,7 @@ class boss_emeriss : public CreatureScript
                         break;
                 }
             }
-	
+
 
         private:
             uint8 _stage;

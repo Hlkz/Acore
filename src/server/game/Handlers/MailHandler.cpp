@@ -168,7 +168,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         }
     }
 
-	if (!accountBound && player->GetTeam() != receiverTeam && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_MAIL))
+    if (!accountBound && player->GetTeam() != receiverTeam && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_MAIL))
     {
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_NOT_YOUR_TEAM);
         return;

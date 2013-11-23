@@ -532,8 +532,8 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
             if (Battleground* bg = _player->GetBattleground())
                 if (bg->GetTypeID() == BATTLEGROUND_AV)
                     ((BattlegroundAV*)bg)->HandleQuestComplete(questId, _player);
-		if (sBattleAOMgr->GetBattleAO()->HasPlayer(_player))
-			sBattleAOMgr->GetBattleAO()->HandleQuestComplete(questId, _player);
+        if (sBattleAOMgr->GetBattleAO()->HasPlayer(_player))
+            sBattleAOMgr->GetBattleAO()->HandleQuestComplete(questId, _player);
 
         if (_player->GetQuestStatus(questId) != QUEST_STATUS_COMPLETE)
         {

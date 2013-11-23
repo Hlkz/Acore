@@ -26,6 +26,7 @@
 #include "Pet.h"
 #include "Player.h"
 #include "SocialMgr.h"
+#include "BattleAOMgr.h"
 #include "SpellAuras.h"
 #include "Util.h"
 #include "Vehicle.h"
@@ -394,7 +395,7 @@ void WorldSession::HandleGroupDisbandOpcode(WorldPacket & /*recvData*/)
     if (!grp)
         return;
 
-	if (_player->InBattleground() && _player->GetMapId() != 782)
+    if (_player->InBattleground() && _player->GetMapId() != BATTLEAO_MAP)
         return;
 
     /** error handling **/
@@ -548,7 +549,7 @@ void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket & /*recvData*/)
     if (!group)
         return;
 
-	if (_player->InBattleground() && _player->GetMapId() != 782)
+    if (_player->InBattleground() && _player->GetMapId() != BATTLEAO_MAP)
         return;
 
     /** error handling **/

@@ -16,7 +16,7 @@ public:
         {
             { "tag",            SEC_ADMINISTRATOR,     true,  &HandleBaoTagCommand,              "", NULL },
             { "balance",        SEC_ADMINISTRATOR,     true,  &HandleBaoBalanceCommand,          "", NULL },
-            { NULL,             0,					   false, NULL,                              "", NULL }
+            { NULL,             0,                       false, NULL,                              "", NULL }
         };
         static ChatCommand commandTable[] =
         {
@@ -25,7 +25,7 @@ public:
         };
         return commandTable;
     }
-	
+
     static bool HandleBaoTagCommand(ChatHandler* handler, char const* args)
     {
         if (WorldSession* session = handler->GetSession())

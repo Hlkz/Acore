@@ -28,7 +28,7 @@ ChannelMgr::~ChannelMgr()
 
 ChannelMgr* ChannelMgr::forTeam(uint32 team)
 {
-	return ACE_Singleton<NeutralChannelMgr, ACE_Null_Mutex>::instance();        // cross-faction
+    return ACE_Singleton<NeutralChannelMgr, ACE_Null_Mutex>::instance();        // cross-faction
 }
 
 Channel* ChannelMgr::GetJoinChannel(std::string const& name, uint32 channelId)

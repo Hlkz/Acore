@@ -41,7 +41,7 @@ public:
             { "start",          SEC_ADMINISTRATOR,     true,  &HandleEventStartCommand,          "", NULL },
             { "stop",           SEC_ADMINISTRATOR,     true,  &HandleEventStopCommand,           "", NULL },
             { "",               SEC_ADMINISTRATOR,     true,  &HandleEventInfoCommand,           "", NULL },
-            { NULL,             0,					   false, NULL,                              "", NULL }
+            { NULL,             0,                       false, NULL,                              "", NULL }
         };
         static ChatCommand commandTable[] =
         {

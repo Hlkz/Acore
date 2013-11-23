@@ -597,13 +597,13 @@ public:
 
         return true;
     }
-	
+
     static bool HandleCharacterSetTeamCommand(ChatHandler* handler, char const* args)
     {
         Player* target = handler->getSelectedPlayer();
         if (!target)
-			target = handler->GetSession()->GetPlayer();
-		
+            target = handler->GetSession()->GetPlayer();
+
         if (!*args)
             return false;
 

@@ -37,12 +37,12 @@ public:
     {
         static ChatCommand castCommandTable[] =
         {
-            { "back",           SEC_GAMEMASTER,		false, &HandleCastBackCommand,              "", NULL },
-            { "dist",           SEC_GAMEMASTER,		false, &HandleCastDistCommand,              "", NULL },
-            { "self",           SEC_GAMEMASTER,		false, &HandleCastSelfCommand,              "", NULL },
-            { "target",         SEC_GAMEMASTER,		false, &HandleCastTargetCommad,             "", NULL },
-            { "dest",           SEC_GAMEMASTER,		false, &HandleCastDestCommand,              "", NULL },
-            { "",               SEC_GAMEMASTER,		false, &HandleCastCommand,                  "", NULL },
+            { "back",           SEC_GAMEMASTER,        false, &HandleCastBackCommand,              "", NULL },
+            { "dist",           SEC_GAMEMASTER,        false, &HandleCastDistCommand,              "", NULL },
+            { "self",           SEC_GAMEMASTER,        false, &HandleCastSelfCommand,              "", NULL },
+            { "target",         SEC_GAMEMASTER,        false, &HandleCastTargetCommad,             "", NULL },
+            { "dest",           SEC_GAMEMASTER,        false, &HandleCastDestCommand,              "", NULL },
+            { "",               SEC_GAMEMASTER,        false, &HandleCastCommand,                  "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
         static ChatCommand commandTable[] =

@@ -1671,7 +1671,7 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
 
     if (obj->IsAlwaysVisibleFor(this) || CanAlwaysSee(obj))
         return true;
-	
+
     if (ToPlayer())
         if (ToPlayer()->IsSpectator() && GetMap()->IsBattleArena() && ToPlayer()->HasAura(8326)) // Prevent exploits
             return true;
@@ -2271,7 +2271,7 @@ void WorldObject::SetZoneScript()
             if (GetMapId() == BATTLEAO_MAP)
             {
                 if(BattleAO* bao = sBattleAOMgr->GetBattleAO())
-                	m_zoneScript = bao;
+                    m_zoneScript = bao;
             }
             else
                 m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId());

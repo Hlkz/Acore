@@ -1896,7 +1896,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                     if (Guild* guild = sGuildMgr->GetGuildById((result->Fetch()[0]).GetUInt32()))
                         guild->DeleteMember(MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER), false, false, true);
             }
-			
+
             // Leave Arena Teams
             Player::LeaveAllArenaTeams(guid);
 
@@ -1907,12 +1907,12 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_HOMEBIND);
             stmt->setUInt32(0, lowGuid);
-			stmt->setUInt16(1, 532);
-			stmt->setUInt16(2, 3457);
-			stmt->setFloat (3, -10860.8f);
-			stmt->setFloat (4, -2093.85f);
-			stmt->setFloat (5, 90.4964f);
-			Player::SavePositionInDB(532, -10860.8f, -2093.85f, 90.4964f, 2.55169f, 3457, lowGuid);
+            stmt->setUInt16(1, 532);
+            stmt->setUInt16(2, 3457);
+            stmt->setFloat (3, -10860.8f);
+            stmt->setFloat (4, -2093.85f);
+            stmt->setFloat (5, 90.4964f);
+            Player::SavePositionInDB(532, -10860.8f, -2093.85f, 90.4964f, 2.55169f, 3457, lowGuid);
             trans->Append(stmt);
 
             // Achievement conversion

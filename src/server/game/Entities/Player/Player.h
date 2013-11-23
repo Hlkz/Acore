@@ -698,12 +698,12 @@ enum TradeSlots
 
 const uint32 PvpRankTitle[6][2] =
 {
-	{1, 16}, // rank 1 Soldat Grunt
-	{2, 17}, // rank 2 Caporal Sergent
-	{6, 24}, // rank 3 Chevalier Champion
-	{11, 94}, // rank 4 Commandant Porteguerre
-	{12, 26}, // rank 5 Maréchal Général
-	{14, 27}, // rank 6 Connétable Warlord
+    {1, 16}, // rank 1 Soldat Grunt
+    {2, 17}, // rank 2 Caporal Sergent
+    {6, 24}, // rank 3 Chevalier Champion
+    {11, 94}, // rank 4 Commandant Porteguerre
+    {12, 26}, // rank 5 Maréchal Général
+    {14, 27}, // rank 6 Connétable Warlord
 };
 
 enum TransferAbortReason
@@ -1006,7 +1006,7 @@ struct rezData
 
     uint32 rezTime;
     uint64 shguid;
-	bool ready;
+    bool ready;
 };
 
 class TradeData
@@ -1153,7 +1153,7 @@ class Player : public Unit, public GridObject<Player>
         PlayerSocial *GetSocial() { return m_social; }
 
         PlayerTaxi m_taxi;
-		void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(GetTeamFromDB(), getRace(), getClass(), getLevel()); }
+        void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(GetTeamFromDB(), getRace(), getClass(), getLevel()); }
         bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = NULL, uint32 spellid = 0);
         bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0);
         void CleanupAfterTaxiFlight();
@@ -1331,7 +1331,7 @@ class Player : public Unit, public GridObject<Player>
         void SendNewItem(Item* item, uint32 count, bool received, bool created, bool broadcast = false);
         bool BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot);
         bool _StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int32 price, ItemTemplate const* pProto, uint64 vguid, VendorItem const* crItem, bool bStore);
-		
+
         float GetReputationPriceDiscount(Creature const* creature) const;
 
         Player* GetTrader() const { return m_trade ? m_trade->GetTrader() : NULL; }
@@ -1920,7 +1920,7 @@ class Player : public Unit, public GridObject<Player>
 
         static uint32 TeamForRace(uint8 race);
         uint32 GetTeam() const { return m_team; }
-		void SetTeam(uint32 team);
+        void SetTeam(uint32 team);
         uint32 GetTeamFromDB();
         TeamId GetTeamId() const { return m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
         void setFactionForRace(uint8 race);
@@ -2323,23 +2323,23 @@ class Player : public Unit, public GridObject<Player>
 
         //! Return collision height sent to client
         float GetCollisionHeight(bool mounted) const;
-		
-		uint32 SuitableForTransmogrification(Item* oldItem, Item* newItem); // custom transmo
+
+        uint32 SuitableForTransmogrification(Item* oldItem, Item* newItem); // custom transmo
 
         uint8 GetClmSlotid() const { return m_ClmSlotid; }
         void SetClmSlotid(uint8 slotid) { m_ClmSlotid = slotid; }
         uint32 GetClmSlty() const { return m_ClmSlty; }
         void SetClmSlty(uint32 slty) { m_ClmSlty = slty; }
-		
+
         int* GetRandRie() const { return m_RandRie; }
         void SetRandRie(int* rie) { m_RandRie = rie; }
-		std::string* GetRandRis() const { return m_RandRis; }
+        std::string* GetRandRis() const { return m_RandRis; }
         void SetRandRis(std::string* ris) { m_RandRis = ris; }
         uint32 GetRandRetour() const { return m_RandRetour; }
         void SetRandRetour(uint32 retour) { m_RandRetour = retour; }
         uint32 GetRandItId() const { return m_RandItId; }
         void SetRandItId(uint32 itemid) { m_RandItId = itemid; }
-		
+
         uint32 GetVendorEntry() const { return m_VendorEntry; }
         void SetVendorEntry(uint32 entry) { m_VendorEntry = entry; }
 
@@ -2384,7 +2384,7 @@ class Player : public Unit, public GridObject<Player>
 
         BgBattlegroundQueueID_Rec m_bgBattlegroundQueueID[PLAYER_MAX_BATTLEGROUND_QUEUES];
         BGData                    m_bgData;
-		rezData                   m_rezData;
+        rezData                   m_rezData;
 
         bool m_IsBGRandomWinner;
 
@@ -2689,26 +2689,26 @@ class Player : public Unit, public GridObject<Player>
         uint32 _pendingBindTimer;
 
         uint32 _activeCheats;
-		
-		//custom
-		
+
+        //custom
+
         uint8 m_ClmSlotid;
         uint32 m_ClmSlty;
-		
+
         int* m_RandRie;
         std::string* m_RandRis;
         uint32 m_RandRetour;
         uint32 m_RandItId;
-		
+
         uint32 m_VendorEntry;
 
-		bool m_spectator; // sets to true when player uses '.spectate' command
-		
-		//Ranks
-		uint32 m_PvpRank;
-		uint32 m_PvpLast;
-		uint32 m_BgWin;
-		uint32 m_ArenaWin;
+        bool m_spectator; // sets to true when player uses '.spectate' command
+
+        //Ranks
+        uint32 m_PvpRank;
+        uint32 m_PvpLast;
+        uint32 m_BgWin;
+        uint32 m_ArenaWin;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

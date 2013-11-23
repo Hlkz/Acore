@@ -48,7 +48,7 @@ AuctionHouseMgr::~AuctionHouseMgr()
 AuctionHouseObject* AuctionHouseMgr::GetAuctionsMap(uint32 factionTemplateId)
 {
     return &mNeutralAuctions;
-	// were a2/h2 auctions
+    // were a2/h2 auctions
 }
 
 uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item* pItem, uint32 count)

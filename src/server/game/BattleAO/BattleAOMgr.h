@@ -36,26 +36,26 @@ class BattleAOMgr
     void HandleDropFlag(Player* player, uint32 spellId);
 
     BattleAO* GetBattleAO();
-	void Update(uint32 diff);
+    void Update(uint32 diff);
 
-	void SendToBattleAO(Player* player);
+    void SendToBattleAO(Player* player);
 
     BattleAOQueue& GetBattleAOQueue() { return m_BattleAOQueues; }
-	void RemoveFromBAOFreeSlotQueue();
-	BAOFreeSlotQueueContainer& GetBAOFreeSlotQueueStore();
-	void BuildBattleAOStatusPacket(WorldPacket* data, uint8 QueueSlot, uint8 StatusID, uint32 Time1, uint32 Time2);
-	void BuildPvpLogDataPacket(WorldPacket* data);
+    void RemoveFromBAOFreeSlotQueue();
+    BAOFreeSlotQueueContainer& GetBAOFreeSlotQueueStore();
+    void BuildBattleAOStatusPacket(WorldPacket* data, uint8 QueueSlot, uint8 StatusID, uint32 Time1, uint32 Time2);
+    void BuildPvpLogDataPacket(WorldPacket* data);
     void ScheduleQueueUpdate();
 
     typedef std::vector < BattleAO * >BattleAOSet;
   private:
-	BattleAOSet m_BattleAOSet; // BAO list (used for sBattleAOMgr->GetBattleAO())
+    BattleAOSet m_BattleAOSet; // BAO list (used for sBattleAOMgr->GetBattleAO())
     uint32 m_UpdateTimer; // update interval
 
-	std::vector<uint64> m_QueueUpdateScheduler;
-	BattleAOQueue m_BattleAOQueues;
-	typedef std::map<BattlegroundTypeId, BattleAOData> BattleAODataContainer;
-	BattleAODataContainer baoDataStore;
+    std::vector<uint64> m_QueueUpdateScheduler;
+    BattleAOQueue m_BattleAOQueues;
+    typedef std::map<BattlegroundTypeId, BattleAOData> BattleAODataContainer;
+    BattleAODataContainer baoDataStore;
 };
 
 #define sBattleAOMgr ACE_Singleton<BattleAOMgr, ACE_Null_Mutex>::instance()

@@ -391,8 +391,8 @@ void AddCommandScripts()
     AddSC_ticket_commandscript();
     AddSC_titles_commandscript();
     AddSC_wp_commandscript();
-	AddSC_spectate_commandscript();
-	
+    AddSC_spectate_commandscript();
+
     AddSC_arena_commandscript();
     AddSC_bao_commandscript();
     AddSC_bg_commandscript();
@@ -654,7 +654,7 @@ void AddOutdoorPvPScripts()
 void AddBattlegroundScripts()
 {
 #ifdef SCRIPTS
-	AddSC_go_arena_player_ready();
+    AddSC_go_arena_player_ready();
 #endif
 }
 
@@ -691,7 +691,7 @@ void AddCustomScripts()
     AddSC_npc_transmo();
     AddSC_npc_ba();
 
-	AddSC_kahz();
+    AddSC_kahz();
     AddSC_zone_AO();
 
 #endif

@@ -64,7 +64,7 @@ enum Events
 
     // Horde Boss
     EVENT_SUMMON_WOLFS  = 4,
-    
+
     // Alliance Boss
     EVENT_FROSTBOLT     = 5,
     EVENT_NOVA          = 6,

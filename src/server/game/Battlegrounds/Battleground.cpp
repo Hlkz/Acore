@@ -362,10 +362,10 @@ inline void Battleground::_ProcessProgress(uint32 diff)
     // *********************************************************
     // if less then minimum players are in on one side, then start premature finish timer
 
-	if(GetTypeID()==33)
-		return;
+    if(GetTypeID()==33)
+        return;
 
-	if (!m_PrematureCountDown)
+    if (!m_PrematureCountDown)
     {
         m_PrematureCountDown = true;
         m_PrematureCountDownTimer = sBattlegroundMgr->GetPrematureFinishTime();
@@ -510,26 +510,26 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                 }
             // Announce BG starting
             if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE)) {
-				if (GetTypeID() == 2) sWorld->SendWorldText(694);
-				else {
-					if (GetTypeID() == 3) sWorld->SendWorldText(693);
-					else {
-						if (GetTypeID() == 12) sWorld->SendWorldText(692);
-						else  sWorld->SendWorldText(LANG_BG_STARTED_ANNOUNCE_WORLD, GetName());
-					}
-				}
-			}
+                if (GetTypeID() == 2) sWorld->SendWorldText(694);
+                else {
+                    if (GetTypeID() == 3) sWorld->SendWorldText(693);
+                    else {
+                        if (GetTypeID() == 12) sWorld->SendWorldText(692);
+                        else  sWorld->SendWorldText(LANG_BG_STARTED_ANNOUNCE_WORLD, GetName());
+                    }
+                }
+            }
         }
-	}
+    }
   }
   else { //if BG_AO
 
-	ModifyStartDelayTime(diff);
+    ModifyStartDelayTime(diff);
 
     for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
         if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-			player->ResetAllPowers();
-    
+            player->ResetAllPowers();
+
     if (!(m_Events & BG_STARTING_EVENT_1))
     {
         if (!FindBgMap())
@@ -555,12 +555,12 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         SetStartDelayTime(StartDelayTimes[BG_STARTING_EVENT_FOURTH]);
 
         for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-			if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-		    {
-	            player->RemoveAurasDueToSpell(SPELL_PREPARATION);
+            if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+            {
+                player->RemoveAurasDueToSpell(SPELL_PREPARATION);
                 player->ResetAllPowers();
-			}
-	}
+            }
+    }
   }
 }
 
@@ -899,16 +899,16 @@ void Battleground::EndBattleground(uint32 winner)
                 if (!player->GetRandomWinner())
                     player->SetRandomWinner(true);
             }
-			
-			if (!isArena())
-			{
-				uint32 bw = player->GetBgWin();
-				if (bw<=2)
-					player->SetPvpLast(player->GetPvpLast()+PvpPointByBW[bw]);
-				else
-					player->SetPvpLast(player->GetPvpLast()+5);
-				player->SetBgWin(bw+1);
-			}
+
+            if (!isArena())
+            {
+                uint32 bw = player->GetBgWin();
+                if (bw<=2)
+                    player->SetPvpLast(player->GetPvpLast()+PvpPointByBW[bw]);
+                else
+                    player->SetPvpLast(player->GetPvpLast()+5);
+                player->SetBgWin(bw+1);
+            }
 
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
         }
@@ -947,7 +947,7 @@ void Battleground::EndBattleground(uint32 winner)
 
     // teleport spectators to recall position and remove spectator state
     Map::PlayerList const &PlList = m_Map->GetPlayers();
-	
+
     if (!PlList.isEmpty())
         for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
             if (Player* pPlayer = i->GetSource())
@@ -1006,7 +1006,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
             player->ResurrectPlayer(1.0f);
             player->SpawnCorpseBones();
         }
-		RemovePlayer(player, guid, team);                           // BG subclass specific code
+        RemovePlayer(player, guid, team);                           // BG subclass specific code
     }
 
     RemovePlayer(player, guid, team);                           // BG subclass specific code
@@ -1155,7 +1155,7 @@ void Battleground::AddPlayer(Player* player)
     BattlegroundPlayer bp;
     bp.OfflineRemoveTime = 0;
     bp.Team = team;
-	bp.Ready = 0;
+    bp.Ready = 0;
 
     // Add to list/maps
     m_Players[guid] = bp;
@@ -1936,29 +1936,29 @@ void Battleground::HandleAreaTrigger(Player* player, uint32 trigger)
 
 void Battleground::SetPlayerReady(uint64 guid)
 {
-	if (Player* player = ObjectAccessor::FindPlayer(guid))
-	{
-		if (m_Players[guid].Ready == 1 || GetStartDelayTime() < 0)
-			return;
+    if (Player* player = ObjectAccessor::FindPlayer(guid))
+    {
+        if (m_Players[guid].Ready == 1 || GetStartDelayTime() < 0)
+            return;
 
-		m_Players[guid].Ready = 1;
-		uint8 check = 0;
-		for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-			if (m_Players[itr->first].Ready == 1)
-				check++;
-			else
-				return;
-		
-		if (!sBattlegroundMgr->isArenaTesting() && check != GetArenaType() * 2)
-			return;
-		if (sBattlegroundMgr->isArenaTesting() && check != 2)
-			return;
-		
+        m_Players[guid].Ready = 1;
+        uint8 check = 0;
+        for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+            if (m_Players[itr->first].Ready == 1)
+                check++;
+            else
+                return;
+
+        if (!sBattlegroundMgr->isArenaTesting() && check != GetArenaType() * 2)
+            return;
+        if (sBattlegroundMgr->isArenaTesting() && check != 2)
+            return;
+
         m_Events |= BG_STARTING_EVENT_2;
         m_Events |= BG_STARTING_EVENT_3;
-		SetStartDelayTime(3000);
-		SendMessageToAll(LANG_BG_ALL_READY, CHAT_MSG_BG_SYSTEM_NEUTRAL);
-	}
+        SetStartDelayTime(3000);
+        SendMessageToAll(LANG_BG_ALL_READY, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+    }
 }
 
 class go_arena_player_ready : public GameObjectScript
@@ -1967,9 +1967,9 @@ class go_arena_player_ready : public GameObjectScript
 
         bool OnGossipHello(Player* player, GameObject* /*go*/)
         {
-			if (Battleground* bg = player->GetBattleground())
-				bg->SetPlayerReady(player->GetGUID());
-			return true;
+            if (Battleground* bg = player->GetBattleground())
+                bg->SetPlayerReady(player->GetGUID());
+            return true;
         }
 };
 

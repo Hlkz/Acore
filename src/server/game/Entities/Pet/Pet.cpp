@@ -673,7 +673,7 @@ void Creature::Regenerate(Powers power)
 
 void Pet::LoseHappiness()
 {
-	return;
+    return;
     uint32 curValue = GetPower(POWER_HAPPINESS);
     if (curValue <= 0)
         return;

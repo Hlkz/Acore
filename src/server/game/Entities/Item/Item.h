@@ -351,7 +351,7 @@ class Item : public Object
         bool CheckSoulboundTradeExpire();
 
         void BuildUpdate(UpdateDataMapType&);
-		
+
         // custom transmo
         uint32 GetFakeEntry();
         bool DeleteFakeEntry();

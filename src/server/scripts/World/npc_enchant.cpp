@@ -81,13 +81,13 @@ public:
         creature->CastSpell(creature,60888,false);
         OnGossipHello(player, creature);
     }
-    
+
     bool OnGossipSelect(Player *player, Creature * creature, uint32 sender, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
         {
-    
+
         case 100:    OnGossipHello(player, creature);    break;
 
     // Dos

@@ -66,22 +66,22 @@ struct BattlegroundData
 enum eRanks
 {
   /* Alliance */
-	PRIVATE = 1,
-	CORPORAL = 2,
-	SERGEANT = 3,
-	KNIGHT = 6,
-	COMMANDER = 11,
-	MARSHAL = 12,
-	FIELD_MARSHAL = 13,
-	GRAND_MARSHAL = 14,
-	OF_THE_ALLIANCE = 126,
+    PRIVATE = 1,
+    CORPORAL = 2,
+    SERGEANT = 3,
+    KNIGHT = 6,
+    COMMANDER = 11,
+    MARSHAL = 12,
+    FIELD_MARSHAL = 13,
+    GRAND_MARSHAL = 14,
+    OF_THE_ALLIANCE = 126,
   /* Horde */
     SCOUT = 15,
-	GRUNT = 16,
-	SERGEANT_H = 17,
-	CHAMPION = 24,
-	GENERAL = 26,
-	WARLORD = 27,
+    GRUNT = 16,
+    SERGEANT_H = 17,
+    CHAMPION = 24,
+    GENERAL = 26,
+    WARLORD = 27,
 };
 
 class BattlegroundMgr
@@ -155,7 +155,7 @@ class BattlegroundMgr
             return BATTLEGROUND_WS;
         }
 
-		bool IsAnyAOBattleOn();
+        bool IsAnyAOBattleOn();
 
     private:
         bool CreateBattleground(CreateBattlegroundData& data);

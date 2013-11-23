@@ -566,7 +566,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
     if (IsAIEnabled)
         GetAI()->DamageDealt(victim, damage, damagetype);
-	
+
     // Hook for OnDamage Event
     sScriptMgr->OnDamage(this, victim, damage);
 
@@ -706,8 +706,8 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         if (victim->GetTypeId() == TYPEID_PLAYER)
             if (Battleground* bg = killer->GetBattleground())
                 bg->UpdatePlayerScore(killer, SCORE_DAMAGE_DONE, damage);
-			else if (sBattleAOMgr->GetBattleAO()->HasPlayer(killer))
-				sBattleAOMgr->GetBattleAO()->UpdatePlayerScore(killer, SCORE_DAMAGE_DONE, damage);
+            else if (sBattleAOMgr->GetBattleAO()->HasPlayer(killer))
+                sBattleAOMgr->GetBattleAO()->UpdatePlayerScore(killer, SCORE_DAMAGE_DONE, damage);
 
         killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE, damage, 0, victim);
         killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_DEALT, damage);
@@ -9584,8 +9584,8 @@ int32 Unit::DealHeal(Unit* victim, uint32 addhealth)
     {
         if (Battleground* bg = player->GetBattleground())
             bg->UpdatePlayerScore(player, SCORE_HEALING_DONE, gain);
-		else if (sBattleAOMgr->GetBattleAO()->HasPlayer(player))
-			sBattleAOMgr->GetBattleAO()->UpdatePlayerScore(player, SCORE_HEALING_DONE, gain);
+        else if (sBattleAOMgr->GetBattleAO()->HasPlayer(player))
+            sBattleAOMgr->GetBattleAO()->UpdatePlayerScore(player, SCORE_HEALING_DONE, gain);
 
         // use the actual gain, as the overheal shall not be counted, skip gain 0 (it ignored anyway in to criteria)
         if (gain)
@@ -15263,7 +15263,7 @@ void Unit::Kill(Unit* victim)
         // durability lost message
         WorldPacket data(SMSG_DURABILITY_DAMAGE_DEATH, 0);
         plrVictim->GetSession()->SendPacket(&data);
-        
+
         // Call KilledUnit for creatures
         if (GetTypeId() == TYPEID_UNIT && IsAIEnabled)
             ToCreature()->AI()->KilledUnit(victim);
@@ -15350,9 +15350,9 @@ void Unit::Kill(Unit* victim)
                 bg->HandleKillUnit(victim->ToCreature(), player);
         }
     }
-	
-	if (player && sBattleAOMgr->GetBattleAO()->HasPlayer(player))
-		if (victim->GetTypeId() == TYPEID_PLAYER)
+
+    if (player && sBattleAOMgr->GetBattleAO()->HasPlayer(player))
+        if (victim->GetTypeId() == TYPEID_PLAYER)
                 sBattleAOMgr->GetBattleAO()->HandleKill(player, (Player*)victim);
 
     // achievement stuff
@@ -15708,7 +15708,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     if (GetTypeId() == TYPEID_UNIT)
     {
         ToCreature()->AI()->OnCharmed(true);
-		GetMotionMaster()->Clear(false);
+        GetMotionMaster()->Clear(false);
         //StopMoving();
         GetMotionMaster()->MoveIdle();
     }

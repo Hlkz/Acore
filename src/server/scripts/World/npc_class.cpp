@@ -66,7 +66,7 @@ public:
                 player->CastSpell(player, 63680, true, NULL, NULL, player->GetGUID());
                 player->CastSpell(player, 63624, true, NULL, NULL, player->GetGUID()); }
             break;
-    
+
         case 3:
             if (player->getClass()==1 || player->getClass()==2 || player->getClass()==7)
                 player->GetSession()->SendVendor(1000008);

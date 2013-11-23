@@ -45,7 +45,7 @@ BattlegroundRL::~BattlegroundRL()
 
 void BattlegroundRL::StartingEventCloseDoors()
 {
-	for (uint32 i = BG_RL_OBJECT_DOOR_1; i <= BG_RL_OBJECT_READY_2; ++i)
+    for (uint32 i = BG_RL_OBJECT_DOOR_1; i <= BG_RL_OBJECT_READY_2; ++i)
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
 }
 
@@ -53,8 +53,8 @@ void BattlegroundRL::StartingEventOpenDoors()
 {
     for (uint32 i = BG_RL_OBJECT_DOOR_1; i <= BG_RL_OBJECT_DOOR_2; ++i)
         DoorOpen(i);
-	
-	for (uint32 i = BG_RL_OBJECT_READY_1; i <= BG_RL_OBJECT_READY_2; ++i)
+
+    for (uint32 i = BG_RL_OBJECT_READY_1; i <= BG_RL_OBJECT_READY_2; ++i)
         DelObject(i);
 
     for (uint32 i = BG_RL_OBJECT_BUFF_1; i <= BG_RL_OBJECT_BUFF_2; ++i)
@@ -130,7 +130,7 @@ bool BattlegroundRL::SetupBattleground()
     // ready
         || !AddObject(BG_RL_OBJECT_READY_1, BG_OBJECT_ENTRY_ARENA_PLAYER_READY, 1282.265747f, 1736.018311f, 31.602907f, 2.168877f, 0, 0, 0, 0, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_RL_OBJECT_READY_2, BG_OBJECT_ENTRY_ARENA_PLAYER_READY, 1290.796875f, 1598.260986f, 31.614971f, 5.735759f, 0, 0, 0, 0, RESPAWN_IMMEDIATELY)
-	// buffs
+    // buffs
         || !AddObject(BG_RL_OBJECT_BUFF_1, BG_RL_OBJECT_TYPE_BUFF_1, 1328.719971f, 1632.719971f, 36.730400f, -1.448624f, 0, 0, 0.6626201f, -0.7489557f, 120)
         || !AddObject(BG_RL_OBJECT_BUFF_2, BG_RL_OBJECT_TYPE_BUFF_2, 1243.300049f, 1699.170044f, 34.872601f, -0.06981307f, 0, 0, 0.03489945f, -0.9993908f, 120))
     {

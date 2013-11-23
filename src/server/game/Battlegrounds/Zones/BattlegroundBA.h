@@ -47,39 +47,39 @@ enum BG_BA_ObjectTypes
 
 enum BG_BA_ItemIds
 {
-	BG_BA_ITEMID_COLLECT = 60500,
-	BG_BA_ITEMID_SHARD = 60501,
+    BG_BA_ITEMID_COLLECT = 60500,
+    BG_BA_ITEMID_SHARD = 60501,
 };
 
 enum BG_BA_ObjectIds
 {
-	// bush?
+    // bush?
 };
 
 const uint32 BG_BA_GraveyardIds[BG_TEAMS_COUNT] = { 1950, 1951 };
 
 enum BG_BA_CreatureEntry
 {
-	BA_TOWER_A_ENTRY = 1000344,
-	BA_TOWER_H_ENTRY = 1000345,
-	BA_NEXUS_A_ENTRY = 1000346,
-	BA_NEXUS_H_ENTRY = 1000347,
-	BA_VENDOR_A_ENTRY = 1000342,
-	BA_VENDOR_H_ENTRY = 1000343,
-	BA_CREEP_A = 1000340,
-	BA_CREEP_H = 1000341,
+    BA_TOWER_A_ENTRY = 1000344,
+    BA_TOWER_H_ENTRY = 1000345,
+    BA_NEXUS_A_ENTRY = 1000346,
+    BA_NEXUS_H_ENTRY = 1000347,
+    BA_VENDOR_A_ENTRY = 1000342,
+    BA_VENDOR_H_ENTRY = 1000343,
+    BA_CREEP_A = 1000340,
+    BA_CREEP_H = 1000341,
 };
 
 enum BG_BA_CreatureType
 {
-	BA_CTYPE_TOWER_A_1 = 0,
-	BA_CTYPE_TOWER_A_TOP = 0, BA_CTYPE_TOWER_A_MID = 3, BA_CTYPE_TOWER_A_BOT = 6,
-	BA_CTYPE_TOWER_H_1 = 9,
-	BA_CTYPE_TOWER_H_TOP = 9, BA_CTYPE_TOWER_H_MID = 12, BA_CTYPE_TOWER_H_BOT = 15,
-	BA_CTYPE_TOWER_MAX  = 18,
-	BA_CTYPE_NEXUS_A = 18, BA_CTYPE_NEXUS_H,
-	BA_CTYPE_VENDOR_A,
-	BA_CTYPE_VENDOR_H,
+    BA_CTYPE_TOWER_A_1 = 0,
+    BA_CTYPE_TOWER_A_TOP = 0, BA_CTYPE_TOWER_A_MID = 3, BA_CTYPE_TOWER_A_BOT = 6,
+    BA_CTYPE_TOWER_H_1 = 9,
+    BA_CTYPE_TOWER_H_TOP = 9, BA_CTYPE_TOWER_H_MID = 12, BA_CTYPE_TOWER_H_BOT = 15,
+    BA_CTYPE_TOWER_MAX  = 18,
+    BA_CTYPE_NEXUS_A = 18, BA_CTYPE_NEXUS_H,
+    BA_CTYPE_VENDOR_A,
+    BA_CTYPE_VENDOR_H,
     BA_CTYPE_MAX,
 };
 
@@ -104,26 +104,26 @@ const float BG_BA_CreaturePos[BA_CTYPE_MAX][4] =
     {-5568.236328f, -0.496658f, 0.000397f, 4.581978f},
     {-5657.486328f, 1.578186f, 0.031662f, 2.296466f},
     {-5702.780762f, 373.572784f, 6.457244f, 5.473417f}, //nexus
-    {-5350.832031f, 31.342957f, 4.812562f,	2.272907f},
+    {-5350.832031f, 31.342957f, 4.812562f,    2.272907f},
     {-4902.000488f, 389.285583f, 4.927508f, 3.015102f}, //vendors
     {-5707.783203f, -395.708099f, 0.000146f, 1.452193f}
 };
 
 const uint32 BG_BA_NextPoint[18] =
 {
-	BA_CTYPE_NEXUS_A, BA_CTYPE_TOWER_A_TOP, BA_CTYPE_TOWER_A_1+1,
-	BA_CTYPE_NEXUS_A, BA_CTYPE_TOWER_A_MID, BA_CTYPE_TOWER_A_1+4,
-	BA_CTYPE_NEXUS_A, BA_CTYPE_TOWER_A_BOT, BA_CTYPE_TOWER_A_1+7,
-	BA_CTYPE_NEXUS_H, BA_CTYPE_TOWER_H_TOP, BA_CTYPE_TOWER_H_1+1,
-	BA_CTYPE_NEXUS_H, BA_CTYPE_TOWER_H_MID, BA_CTYPE_TOWER_H_1+4,
-	BA_CTYPE_NEXUS_H, BA_CTYPE_TOWER_H_BOT, BA_CTYPE_TOWER_H_1+7,
+    BA_CTYPE_NEXUS_A, BA_CTYPE_TOWER_A_TOP, BA_CTYPE_TOWER_A_1+1,
+    BA_CTYPE_NEXUS_A, BA_CTYPE_TOWER_A_MID, BA_CTYPE_TOWER_A_1+4,
+    BA_CTYPE_NEXUS_A, BA_CTYPE_TOWER_A_BOT, BA_CTYPE_TOWER_A_1+7,
+    BA_CTYPE_NEXUS_H, BA_CTYPE_TOWER_H_TOP, BA_CTYPE_TOWER_H_1+1,
+    BA_CTYPE_NEXUS_H, BA_CTYPE_TOWER_H_MID, BA_CTYPE_TOWER_H_1+4,
+    BA_CTYPE_NEXUS_H, BA_CTYPE_TOWER_H_BOT, BA_CTYPE_TOWER_H_1+7,
 };
 
 enum BG_BA_WorldStates
 {
     BA_WS_A_TOWERCOUNT      = 22100,
-    BA_WS_H_TOWERCOUNT		= 22101,
-	BA_WS_CREEPKILLED		= 22103,
+    BA_WS_H_TOWERCOUNT        = 22101,
+    BA_WS_CREEPKILLED        = 22103,
 };
 
 //alliance_control alliance_assault h_control h_assault
@@ -182,26 +182,26 @@ class BattlegroundBA : public Battleground
         void HandleKillPlayer(Player* player, Player* killer);
         void HandleKillUnit(Creature* unit, Player* killer);
 
-		void EventPlayerDestroyedPoint(BG_BA_Nodes node);
+        void EventPlayerDestroyedPoint(BG_BA_Nodes node);
         void EndBattleground(uint32 winner);
-		
+
         uint32 GetPrematureWinner();
-		
-		bool IsNexusAttackable[BG_TEAMS_COUNT];
+
+        bool IsNexusAttackable[BG_TEAMS_COUNT];
 
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
     private:
         void PostUpdateImpl(uint32 diff);
-		void SpawnCreeps(uint32 count);
+        void SpawnCreeps(uint32 count);
 
         /*worldstates*/
         void FillInitialWorldStates(WorldPacket& data);
 
         /*variables */
         int32 m_Team_TowerCount[BG_TEAMS_COUNT];
-		int32 m_WavesTimer;
-		int32 m_WavesCount;
+        int32 m_WavesTimer;
+        int32 m_WavesCount;
 };
 
 #endif

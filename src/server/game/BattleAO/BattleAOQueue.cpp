@@ -13,11 +13,11 @@ BattleAOQueue::~BattleAOQueue()
 {
     m_events.KillAllEvents(false);
 
-	for (uint32 j = 0; j < BAO_QUEUE_GROUP_TYPES_COUNT; ++j)
+    for (uint32 j = 0; j < BAO_QUEUE_GROUP_TYPES_COUNT; ++j)
     {
-		for (BAOGroupsQueueType::iterator itr = m_QueuedGroups[j].begin(); itr!= m_QueuedGroups[j].end(); ++itr)
-			delete (*itr);
-	}
+        for (BAOGroupsQueueType::iterator itr = m_QueuedGroups[j].begin(); itr!= m_QueuedGroups[j].end(); ++itr)
+            delete (*itr);
+    }
 }
 
 void BattleAOQueue::SelectionPool::Init()
@@ -84,7 +84,7 @@ BAOGroupQueueInfo* BattleAOQueue::AddGroup(Player* leader, Group* grp, bool isPr
             Player* member = itr->GetSource();
             if (!member)
                 continue;
-            BAOPlayerQueueInfo&	pl_info = m_QueuedPlayers[member->GetGUID()];
+            BAOPlayerQueueInfo&    pl_info = m_QueuedPlayers[member->GetGUID()];
             pl_info.LastOnlineTime = ginfo->JoinTime;
             pl_info.GroupInfo = ginfo;
             ginfo->Players[member->GetGUID()] = &pl_info;
@@ -132,7 +132,7 @@ void BattleAOQueue::RemovePlayer(uint64 guid, bool decreasePlayersCount)
     std::map<uint64, BAOPlayerQueueInfo*>::iterator pitr = group->Players.find(guid);
     if (pitr != group->Players.end())
         group->Players.erase(pitr);
-	
+
     if (decreasePlayersCount && group->IsInvitedToBAO)
     {
         sBattleAOMgr->GetBattleAO()->UpdatePlayersCount(group->Team, true);
@@ -185,9 +185,9 @@ bool BattleAOQueue::InviteGroupToBAO(BAOGroupQueueInfo* ginfo, uint32 side)
             Player* player = ObjectAccessor::FindPlayer(itr->first);
             if (!player)
                 continue;
-			
-			BattleAO* BAO = sBattleAOMgr->GetBattleAO();
-			BAO->UpdatePlayersCount(ginfo->Team, false);
+
+            BattleAO* BAO = sBattleAOMgr->GetBattleAO();
+            BAO->UpdatePlayersCount(ginfo->Team, false);
 
             player->SetInviteForBattlegroundQueueType(BATTLEGROUND_QUEUE_AO, ginfo->IsInvitedToBAO);
 
@@ -199,7 +199,7 @@ bool BattleAOQueue::InviteGroupToBAO(BAOGroupQueueInfo* ginfo, uint32 side)
             WorldPacket data;
 
             uint32 queueSlot = player->GetBattlegroundQueueIndex(BATTLEGROUND_QUEUE_AO);
-			sBattleAOMgr->BuildBattleAOStatusPacket(&data, queueSlot, STATUS_WAIT_JOIN, INVITE_ACCEPT_WAIT_TIME, 0);
+            sBattleAOMgr->BuildBattleAOStatusPacket(&data, queueSlot, STATUS_WAIT_JOIN, INVITE_ACCEPT_WAIT_TIME, 0);
             player->GetSession()->SendPacket(&data);
         }
         return true;
@@ -317,8 +317,8 @@ bool BAOQueueInviteEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
         if (BAOQueue.IsPlayerInvited(m_PlayerGuid, m_RemoveTime))
         {
             WorldPacket data;
-			sBattleAOMgr->BuildBattleAOStatusPacket(&data, queueSlot, STATUS_WAIT_JOIN, INVITE_ACCEPT_WAIT_TIME - INVITATION_REMIND_TIME, 0);
-            
+            sBattleAOMgr->BuildBattleAOStatusPacket(&data, queueSlot, STATUS_WAIT_JOIN, INVITE_ACCEPT_WAIT_TIME - INVITATION_REMIND_TIME, 0);
+
             player->GetSession()->SendPacket(&data);
         }
     }
@@ -347,7 +347,7 @@ bool BAOQueueRemoveEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 
             WorldPacket data;
             sBattleAOMgr->BuildBattleAOStatusPacket(&data, queueSlot, STATUS_NONE, 0, 0);
-            
+
             player->GetSession()->SendPacket(&data);
         }
     }

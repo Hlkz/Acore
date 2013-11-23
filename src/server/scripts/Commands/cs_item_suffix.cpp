@@ -12,10 +12,10 @@ int32 ItemSuffixChoix(int32 item_id, int choix)
     uint32 randomPropId = choix;
     ItemRandomSuffixEntry const* random_id = sItemRandomSuffixStore.LookupEntry(randomPropId);
     if (!random_id)
-        return NULL;  
+        return NULL;
     return -int32(random_id->ID);
 }
-	
+
 void ItemSuffixAddChoix(Player *player, uint32 item_id, int choix)
 {
     uint32 noSpaceForCount = 0;
@@ -54,7 +54,7 @@ public:
     {
         if (!*args)
         return false;
-	
+
         char* item = strtok((char*)args, " ");
         char* ench = strtok(NULL, " ");
         int32 item_id = (int32)atof(item);

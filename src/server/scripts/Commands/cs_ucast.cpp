@@ -30,7 +30,7 @@ public:
         uint32 VictimEntry = (uint64)atof(victimentry);
         uint64 CasterGUID = (uint64)atof(casterguid);
         uint32 CasterEntry = (uint64)atof(casterentry);
-	    if (!SpellId)
+        if (!SpellId)
             return false;
         Player* player = handler->GetSession()->GetPlayer();
         Unit* Victim = NULL;

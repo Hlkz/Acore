@@ -2049,7 +2049,7 @@ uint32 ObjectMgr::GetPlayerTeamByGUID(uint64 guid) const
     // prevent DB access for online player
     if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
-		return player->GetTeamFromDB();
+        return player->GetTeamFromDB();
     }
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_TEAM);
@@ -2108,23 +2108,23 @@ uint32 ObjectMgr::GetPlayerAccountIdByPlayerName(const std::string& name) const
 }
 
 void ObjectMgr::LoadTransmogrifications() { // custom transmo
-	TC_LOG_ERROR(LOG_FILTER_GENERAL, "Deleting non-existing transmogrification entries...");
-	CharacterDatabase.Execute("DELETE FROM custom_transmogrification WHERE NOT EXISTS (SELECT 1 FROM item_instance WHERE item_instance.guid = custom_transmogrification.GUID)");
-	
- 	uint32 oldMSTime = getMSTime();
- 	_itemFakeEntryStore.clear();
- 	QueryResult result = CharacterDatabase.Query("SELECT GUID, FakeEntry FROM custom_transmogrification WHERE EXISTS (SELECT 1 FROM item_instance WHERE item_instance.guid = custom_transmogrification.GUID)");
- 	if (result)
- 	    do {
- 	        uint32 lowGUID = (*result)[0].GetUInt32();
- 	        uint32 entry = (*result)[1].GetUInt32();
- 	        if (GetItemTemplate(entry))
- 	            _itemFakeEntryStore[lowGUID] = entry;
- 	        else {
-				TC_LOG_ERROR(LOG_FILTER_SQL, "Item entry (Entry: %u, GUID: %u) does not exist, deleting.", entry, lowGUID);
- 	            CharacterDatabase.PExecute("DELETE FROM custom_transmogrification WHERE GUID = %u", lowGUID); }
- 	   } while (result->NextRow());
-	TC_LOG_ERROR(LOG_FILTER_GENERAL, ">> Loaded %lu Item fake entries in %u ms", (unsigned long)_itemFakeEntryStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_ERROR(LOG_FILTER_GENERAL, "Deleting non-existing transmogrification entries...");
+    CharacterDatabase.Execute("DELETE FROM custom_transmogrification WHERE NOT EXISTS (SELECT 1 FROM item_instance WHERE item_instance.guid = custom_transmogrification.GUID)");
+
+     uint32 oldMSTime = getMSTime();
+     _itemFakeEntryStore.clear();
+     QueryResult result = CharacterDatabase.Query("SELECT GUID, FakeEntry FROM custom_transmogrification WHERE EXISTS (SELECT 1 FROM item_instance WHERE item_instance.guid = custom_transmogrification.GUID)");
+     if (result)
+         do {
+             uint32 lowGUID = (*result)[0].GetUInt32();
+             uint32 entry = (*result)[1].GetUInt32();
+             if (GetItemTemplate(entry))
+                 _itemFakeEntryStore[lowGUID] = entry;
+             else {
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Item entry (Entry: %u, GUID: %u) does not exist, deleting.", entry, lowGUID);
+                 CharacterDatabase.PExecute("DELETE FROM custom_transmogrification WHERE GUID = %u", lowGUID); }
+        } while (result->NextRow());
+    TC_LOG_ERROR(LOG_FILTER_GENERAL, ">> Loaded %lu Item fake entries in %u ms", (unsigned long)_itemFakeEntryStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadItemLocales()

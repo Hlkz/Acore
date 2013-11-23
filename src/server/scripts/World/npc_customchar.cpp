@@ -4,7 +4,7 @@ class npc_customchar : public CreatureScript
 {
 public:
     npc_customchar() : CreatureScript("npc_customchar") { }
-    
+
     bool OnGossipHello(Player* player, Creature* creature)
     {
         creature->HasQuestForPlayer(player);
@@ -24,13 +24,13 @@ public:
         {
 
         case 9: OnGossipHello(player, creature); break;
-    
+
         case 5:
             player->ADD_GOSSIP_ITEM( 4, "Confirmation" , GOSSIP_SENDER_MAIN, 4);
             player->ADD_GOSSIP_ITEM( 0, "<Retour>" , GOSSIP_SENDER_MAIN, 9);
             player->SEND_GOSSIP_MENU(1000013, creature->GetGUID());
             break;
-        
+
         case 1:
             player->CLOSE_GOSSIP_MENU();
             player->SetAtLoginFlag(AT_LOGIN_RENAME);

@@ -363,7 +363,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
         DoLootRelease(lguid);
 
     bool instantLogout = (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) && !GetPlayer()->IsInCombat()) ||
-		GetPlayer()->IsInFlight() || sWorld->getBoolConfig(CONFIG_INSTANT_LOGOUT);
+        GetPlayer()->IsInFlight() || sWorld->getBoolConfig(CONFIG_INSTANT_LOGOUT);
 
     bool canLogoutInCombat = GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
 
@@ -1226,7 +1226,7 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)
 
     TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "CMSG_WORLD_TELEPORT: Player = %s, Time = %u, map = %u, x = %f, y = %f, z = %f, o = %f",
         GetPlayer()->GetName().c_str(), time, mapid, PositionX, PositionY, PositionZ, Orientation);
-	
+
     if (AccountMgr::IsAdminAccount(GetSecurity()))
         GetPlayer()->TeleportTo(mapid, PositionX, PositionY, PositionZ, Orientation);
     else
@@ -1238,7 +1238,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recvData)
     TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "Received opcode CMSG_WHOIS");
     std::string charname;
     recvData >> charname;
-	
+
     if (!AccountMgr::IsAdminAccount(GetSecurity()))
     {
         SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);

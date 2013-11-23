@@ -97,9 +97,9 @@ public:
 
         uint64 targetGuid = sObjectMgr->GetPlayerGUIDByName(target);
         uint32 accountId = sObjectMgr->GetPlayerAccountIdByGUID(targetGuid);
-		uint32 targetGmLevel = AccountMgr::GetSecurity(accountId, realmID);
+        uint32 targetGmLevel = AccountMgr::GetSecurity(accountId, realmID);
         // Target must exist and have administrative rights
-		if (!targetGuid || AccountMgr::IsPlayerAccount(targetGmLevel))
+        if (!targetGuid || AccountMgr::IsPlayerAccount(targetGmLevel))
         {
             handler->SendSysMessage(LANG_COMMAND_TICKETASSIGNERROR_A);
             return true;

@@ -57,11 +57,11 @@ public:
         WorldSession* session = player->GetSession();
 
         switch (action) {
-    
+
     case 100: OnGossipHello(player, creature); break;
 
     case 101: player->CLOSE_GOSSIP_MENU(); break;
-        
+
     case 200:
         player->SetRandRetour(action);
         player->ADD_GOSSIP_ITEM(6, "Chevalière d'aigue marine (Ring)", GOSSIP_SENDER_MAIN, 156);
@@ -117,7 +117,7 @@ public:
         case 311: player->SetRandItId(51968); goto l276276; break;
         case 312: player->SetRandItId(51964); goto l276276; break;
         case 313: player->SetRandItId(51978); goto l276276; break;
-        
+
     case 400: // Tissu
         player->SetRandRetour(action);
         player->ADD_GOSSIP_ITEM(6, "Chapeau de Sombrebrume (Head)", GOSSIP_SENDER_MAIN, 401);
@@ -141,7 +141,7 @@ public:
         case 407: player->SetRandItId(7469); goto l276276; break;
         case 408: player->SetRandItId(9907); goto l276276; break;
         case 409: player->SetRandItId(9390); goto l276276; break;
-    
+
     case 500: // Cuir
         player->SetRandRetour(action);
         player->ADD_GOSSIP_ITEM(6, "Chapeau de noctambule (Head)", GOSSIP_SENDER_MAIN, 501);
@@ -165,7 +165,7 @@ public:
         case 507: player->SetRandItId(15374); goto l276276; break;
         case 508: player->SetRandItId(15370); goto l276276; break;
         case 509: player->SetRandItId(9428); goto l276276; break;
-        
+
     case 600: // Maille
         player->SetRandRetour(action);
         player->ADD_GOSSIP_ITEM(6, "Diademe de la brigade (Head)", GOSSIP_SENDER_MAIN, 601);
@@ -191,7 +191,7 @@ public:
         case 608: player->SetRandItId(15599); goto l276276; break;
         case 609: player->SetRandItId(9388); goto l276276; break;
         case 610: player->SetRandItId(9409); goto l276276; break;
-        
+
 l276276:
         case 9999:
             lmenu:

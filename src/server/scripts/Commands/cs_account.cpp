@@ -515,7 +515,7 @@ public:
 
         // Check for invalid specified GM level.
         gm = (isAccountNameGiven) ? atoi(arg2) : atoi(arg1);
-        
+
         // handler->getSession() == NULL only for console
         targetAccountId = (isAccountNameGiven) ? AccountMgr::GetId(targetAccountName) : handler->getSelectedPlayer()->GetSession()->GetAccountId();
         int32 gmRealmID = (isAccountNameGiven) ? atoi(arg3) : atoi(arg2);

@@ -179,7 +179,7 @@ namespace Trinity
                     else
                         gain *= 2;
                 }
-				// xp rates here
+                // xp rates here
             }
 
             sScriptMgr->OnGainCalculation(gain, player, u);

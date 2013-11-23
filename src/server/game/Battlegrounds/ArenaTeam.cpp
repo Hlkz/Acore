@@ -798,9 +798,9 @@ void ArenaTeam::MemberWon(Player* player, uint32 againstMatchmakerRating, int32 
             itr->SeasonGames +=1;
             itr->SeasonWins += 1;
             itr->WeekWins += 1;
-			
-		    // Update arena points
-			uint32 pointsToAdd;
+
+            // Update arena points
+            uint32 pointsToAdd;
             pointsToAdd = (itr->PersonalRating / 100) + itr->WeekGames;
             if (pointsToAdd >= 30) {
                 pointsToAdd = 30; }
@@ -808,12 +808,12 @@ void ArenaTeam::MemberWon(Player* player, uint32 againstMatchmakerRating, int32 
             player->ModifyArenaPoints(pointsToAdd, &trans);
             CharacterDatabase.CommitTransaction(trans);
             SaveToDB();
-			uint32 aw = player->GetArenaWin();
-			if (aw<=2)
-				player->SetPvpLast(player->GetPvpLast()+PvpPointByAW[aw]);
-			else
-				player->SetPvpLast(player->GetPvpLast()+2);
-			player->SetArenaWin(aw+1);
+            uint32 aw = player->GetArenaWin();
+            if (aw<=2)
+                player->SetPvpLast(player->GetPvpLast()+PvpPointByAW[aw]);
+            else
+                player->SetPvpLast(player->GetPvpLast()+2);
+            player->SetArenaWin(aw+1);
 
             // update unit fields
             player->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_WEEK, itr->WeekGames);

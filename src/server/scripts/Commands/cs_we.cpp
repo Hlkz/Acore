@@ -13,7 +13,7 @@ public:
             { "we",             SEC_ADMINISTRATOR,  false, &HandleComWE,        "", NULL },
             { NULL,             0,                  false, NULL,                "", NULL }
         };
-	    return commandTable;
+        return commandTable;
     }
 
     static bool HandleComWE(ChatHandler* handler, const char* args)

@@ -152,7 +152,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             {
                 // logging
                 TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "partner storing: %u", myItems[i]->GetGUIDLow());
-                
+
                 // adjust time (depends on /played)
                 if (myItems[i]->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE))
                     myItems[i]->SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, trader->GetTotalPlayedTime()-(_player->GetTotalPlayedTime()-myItems[i]->GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME)));
@@ -163,7 +163,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             {
                 // logging
                 TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "player storing: %u", hisItems[i]->GetGUIDLow());
-                
+
                 // adjust time (depends on /played)
                 if (hisItems[i]->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE))
                     hisItems[i]->SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, _player->GetTotalPlayedTime()-(trader->GetTotalPlayedTime()-hisItems[i]->GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME)));

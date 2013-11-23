@@ -670,7 +670,7 @@ void Map::Update(const uint32 t_diff)
 
     sScriptMgr->OnMapUpdate(this, t_diff);
     if (m_data)
-		m_data->Update(t_diff);
+        m_data->Update(t_diff);
 }
 
 struct ResetNotifier
@@ -2586,7 +2586,7 @@ void Map::CreateMapData()
 
     if (m_data != NULL)
         return;
-	
+
     m_script_id = mTemplate->ScriptId;
     m_data = sScriptMgr->CreateMapData(this);
 

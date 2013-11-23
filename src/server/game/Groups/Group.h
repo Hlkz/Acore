@@ -327,7 +327,7 @@ class Group
         Difficulty          m_dungeonDifficulty;
         Difficulty          m_raidDifficulty;
         Battleground*       m_bgGroup;
-        BattleAO*			m_baoGroup;
+        BattleAO*           m_baoGroup;
         uint64              m_targetIcons[TARGETICONCOUNT];
         LootMethod          m_lootMethod;
         ItemQualities       m_lootThreshold;

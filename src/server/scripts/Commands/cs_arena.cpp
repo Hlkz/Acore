@@ -15,10 +15,10 @@ public:
            };
            return commandTable;
        }
-	   
+
        static bool HandleArenaCommand(ChatHandler* handler, const char* /*args*/)
        {
-		    BattlegroundTypeId bgTypeId = BATTLEGROUND_AA;
+            BattlegroundTypeId bgTypeId = BATTLEGROUND_AA;
             handler->GetSession()->SendBattleGroundList(handler->GetSession()->GetPlayer()->GetGUID(), bgTypeId);
             return true;
        }

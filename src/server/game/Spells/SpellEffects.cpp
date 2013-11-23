@@ -2025,12 +2025,12 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
                 bg->EventPlayerClickedOnFlag(player, gameObjTarget);
                 return;
             }
-			if (player->GetMapId() == BATTLEAO_MAP)
-				if (BattleAO* bao = sBattleAOMgr->GetBattleAO())
-				{
-					bao->EventPlayerClickedOnFlag(player, gameObjTarget);
-					return;
-				}
+            if (player->GetMapId() == BATTLEAO_MAP)
+                if (BattleAO* bao = sBattleAOMgr->GetBattleAO())
+                {
+                    bao->EventPlayerClickedOnFlag(player, gameObjTarget);
+                    return;
+                }
         }
         else if (goInfo->type == GAMEOBJECT_TYPE_FLAGSTAND)
         {

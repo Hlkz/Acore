@@ -67,7 +67,7 @@ public:
                 uint32 lowGUID = player->GetGUIDLow();
                 _items[lowGUID].clear();
                 uint32 limit = 0;
-                
+
                 for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; i++) {
                     if (limit > 30) break;
                     if (Item* newItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i)) {
@@ -99,9 +99,9 @@ public:
                 player->SEND_GOSSIP_MENU(player->GetDefaultGossipMenuForSource(creature), creature->GetGUID()); }
             else OnGossipHello(player, creature); }
             break;
-   
+
         case EQUIPMENT_SLOT_END+1: { OnGossipHello(player, creature); } break;
-        
+
         case EQUIPMENT_SLOT_END+2: { // Remove Transmogrifications
             bool removed = false;
             for (uint8 Slot = EQUIPMENT_SLOT_START; Slot < EQUIPMENT_SLOT_END; Slot++) {
@@ -150,8 +150,8 @@ public:
 
 private: std::map<uint64, std::map<uint32, Item*> > _items; // _items[lowGUID][DISPLAY] = item
 
-    const char * GetSlotName(uint8 slot, WorldSession* session) 
-	{
+    const char * GetSlotName(uint8 slot, WorldSession* session)
+    {
         switch(slot) {
         case EQUIPMENT_SLOT_HEAD      : return session->GetTrinityString(LANG_SLOT_NAME_HEAD);
         case EQUIPMENT_SLOT_SHOULDERS : return session->GetTrinityString(LANG_SLOT_NAME_SHOULDERS);

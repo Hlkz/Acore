@@ -139,7 +139,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
             for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
             {
                 Player* member = itr->GetSource();
-	                if (!member)
+                    if (!member)
                         continue;   // this should never happen
 
                 WorldPacket data;
@@ -152,7 +152,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
                 }
 
                 uint32 queueSlot = member->AddBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);
-                sBattleAOMgr->BuildBattleAOStatusPacket(&data, queueSlot, STATUS_WAIT_QUEUE, avgTime, 0);            
+                sBattleAOMgr->BuildBattleAOStatusPacket(&data, queueSlot, STATUS_WAIT_QUEUE, avgTime, 0);
                 member->GetSession()->SendPacket(&data);
                 sBattlegroundMgr->BuildGroupJoinedBattlegroundPacket(&data, err);
                 member->GetSession()->SendPacket(&data);
@@ -379,16 +379,16 @@ void WorldSession::HandlePVPLogDataOpcode(WorldPacket & /*recvData*/)
 {
     TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: Recvd MSG_PVP_LOG_DATA Message");
 
-	if (sBattleAOMgr->GetBattleAO()->HasPlayer(_player))
-	{
-	    WorldPacket data;
-	    sBattleAOMgr->BuildPvpLogDataPacket(&data);
-	    SendPacket(&data);
-	}
+    if (sBattleAOMgr->GetBattleAO()->HasPlayer(_player))
+    {
+        WorldPacket data;
+        sBattleAOMgr->BuildPvpLogDataPacket(&data);
+        SendPacket(&data);
+    }
 
     Battleground* bg = _player->GetBattleground();
     if (!bg)
-		return;
+        return;
 
     // Prevent players from sending BuildPvpLogDataPacket in an arena except for when sent in BattleGround::EndBattleGround.
     if (bg->isArena())

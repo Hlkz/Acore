@@ -53,8 +53,8 @@ void BattlegroundNA::StartingEventOpenDoors()
 {
     for (uint32 i = BG_NA_OBJECT_DOOR_1; i <= BG_NA_OBJECT_DOOR_2; ++i)
         DoorOpen(i);
-	
-	for (uint32 i = BG_NA_OBJECT_READY_1; i <= BG_NA_OBJECT_READY_2; ++i)
+
+    for (uint32 i = BG_NA_OBJECT_READY_1; i <= BG_NA_OBJECT_READY_2; ++i)
         DelObject(i);
 
     for (uint32 i = BG_NA_OBJECT_BUFF_1; i <= BG_NA_OBJECT_BUFF_2; ++i)
@@ -132,7 +132,7 @@ bool BattlegroundNA::SetupBattleground()
     // ready
         || !AddObject(BG_NA_OBJECT_READY_1, BG_OBJECT_ENTRY_ARENA_PLAYER_READY, 4023.767090f, 2967.020020f, 12.169412f, 1.087384f, 0, 0, 0, 0, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_NA_OBJECT_READY_2, BG_OBJECT_ENTRY_ARENA_PLAYER_READY, 4089.371826f, 2874.479248f, 12.151477f, 4.336554f, 0, 0, 0, 0, RESPAWN_IMMEDIATELY)
-	// buffs
+    // buffs
         || !AddObject(BG_NA_OBJECT_BUFF_1, BG_NA_OBJECT_TYPE_BUFF_1, 4009.189941f, 2895.250000f, 13.052700f, -1.448624f, 0, 0, 0.6626201f, -0.7489557f, 120)
         || !AddObject(BG_NA_OBJECT_BUFF_2, BG_NA_OBJECT_TYPE_BUFF_2, 4103.330078f, 2946.350098f, 13.051300f, -0.06981307f, 0, 0, 0.03489945f, -0.9993908f, 120))
     {

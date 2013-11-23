@@ -135,7 +135,7 @@ Map* MapManager::CreateMap(uint32 id, Player* player)
 
     if (m && m->Instanceable())
         m = ((MapInstanced*)m)->CreateInstanceForPlayer(id, player);
-	else
+    else
         m->CreateMapData();
 
     return m;

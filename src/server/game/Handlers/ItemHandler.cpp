@@ -494,17 +494,17 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
     if (!itemguid)
         return;
 
-	Creature* creature;
-	if(GetPlayer()->GetGUID()!=vendorguid)
-	{
-		creature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
-		if (!creature)
-		{
+    Creature* creature;
+    if(GetPlayer()->GetGUID()!=vendorguid)
+    {
+        creature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
+        if (!creature)
+        {
                     TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "WORLD: HandleSellItemOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(vendorguid)));
-		    _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, NULL, itemguid, 0);
-		    return;
-		}
-	}
+            _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, NULL, itemguid, 0);
+            return;
+        }
+    }
 
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
@@ -602,7 +602,7 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
 
     recvData >> vendorguid >> slot;
 
-	/*
+    /*
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
     if (!creature)
     {
@@ -610,7 +610,7 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
         _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, NULL, 0, 0);
         return;
     }
-	*/
+    */
 
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
@@ -815,7 +815,7 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
 }
 
 void WorldSession::SendVendor(uint32 entry) {
-	GetPlayer()->SetVendorEntry(entry);
+    GetPlayer()->SetVendorEntry(entry);
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_LIST_INVENTORY");
     VendorItemData const* items = sObjectMgr->GetNpcVendorItemList(entry);
     if (!items) {
@@ -828,7 +828,7 @@ void WorldSession::SendVendor(uint32 entry) {
     uint8 itemCount = items->GetItemCount();
     uint8 count = 0;
     WorldPacket data(SMSG_LIST_INVENTORY, 8 + 1 + itemCount * 8 * 4);
-	data << uint64(GetPlayer()->GetGUID());
+    data << uint64(GetPlayer()->GetGUID());
     size_t countPos = data.wpos();
     data << uint8(count);
     for (uint8 slot = 0; slot < itemCount; ++slot) {

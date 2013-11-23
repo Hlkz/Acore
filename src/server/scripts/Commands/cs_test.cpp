@@ -20,6 +20,20 @@ public:
     static bool HandleTestCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* player = handler->GetSession()->GetPlayer();
+        Map* map = player->GetMap();
+        BattleAO* BAO = sBattleAOMgr->GetBattleAO();
+        player->UpdateTriggerVisibility();
+        /*
+        for (uint8 i = 0; i < BAO_DYNAMIC_NODES_COUNT; ++i)
+        {
+            UpdateData udata;
+            WorldPacket packet;
+            GameObject* gob = BAO->GetAOObject(BAO->m_NodesBanners[i]);
+            TC_LOG_ERROR(LOG_FILTER_GENERAL, "coucou nodesbanners : %u", BAO->m_NodesBanners[i]);
+            gob->BuildValuesUpdate BuildValuesUpdateBlockForPlayer(&udata, player);
+            udata.BuildPacket(&packet);
+            player->GetSession()->SendPacket(&packet);
+        }*/
         return true;
     }
 };

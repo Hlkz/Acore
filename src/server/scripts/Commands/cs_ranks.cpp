@@ -41,7 +41,7 @@ void World::UpdateRanksText()
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_TOP_RANK);//0 name 1 rankid
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
- 
+
     if (!result)
         return;
 
@@ -206,7 +206,7 @@ public:
             return false;
         char* rank = strtok((char*)args, " ");
         int pvprank = atoi(rank);
-		handler->GetSession()->GetPlayer()->SetPvpRank(pvprank);
+        handler->GetSession()->GetPlayer()->SetPvpRank(pvprank);
         return true;
     }
 

@@ -81,7 +81,7 @@ enum BattlegroundCreatures
 {
     BG_CREATURE_ENTRY_A_SPIRITGUIDE      = 13116,           // alliance
     BG_CREATURE_ENTRY_H_SPIRITGUIDE      = 13117,           // horde
-	BG_OBJECT_ENTRY_ARENA_PLAYER_READY	 = 987654			// gob starting arena quicker
+    BG_OBJECT_ENTRY_ARENA_PLAYER_READY     = 987654            // gob starting arena quicker
 };
 
 enum BattlegroundSpells
@@ -197,9 +197,9 @@ enum ScoreType
     //SOTA
     SCORE_DESTROYED_DEMOLISHER  = 18,
     SCORE_DESTROYED_WALL        = 19,
-	//MOBA
-	SCORE_CREEPS_KILLED			= 20,
-	SCORE_ARCANE_FRAG			= 21,
+    //MOBA
+    SCORE_CREEPS_KILLED            = 20,
+    SCORE_ARCANE_FRAG            = 21,
 };
 
 enum ArenaType
@@ -532,7 +532,7 @@ class Battleground
         uint32 GetTeamScore(uint32 TeamID) const;
 
         virtual uint32 GetPrematureWinner();
-		
+
         void SetPlayerReady(uint64 guid);
 
     protected:

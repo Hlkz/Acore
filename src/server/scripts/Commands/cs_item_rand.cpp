@@ -47,7 +47,7 @@ public:
         static ChatCommand commandTable[] =
         {
             { "rand",           SEC_GAMEMASTER,      false, &HandleItemRandCommand,      "", NULL },
-            { NULL,             0,                   false, NULL,                        "", NULL } 
+            { NULL,             0,                   false, NULL,                        "", NULL }
         };
         return commandTable;
     }

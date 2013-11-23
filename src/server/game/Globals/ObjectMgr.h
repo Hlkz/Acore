@@ -914,7 +914,7 @@ class ObjectMgr
         void LoadItemLocales();
         void LoadItemSetNames();
         void LoadItemSetNameLocales();
-		void LoadTransmogrifications(); // custom transmo
+        void LoadTransmogrifications(); // custom transmo
         void LoadQuestLocales();
         void LoadNpcTextLocales();
         void LoadPageTextLocales();
@@ -1229,8 +1229,8 @@ class ObjectMgr
         void LoadFactionChangeReputations();
         void LoadFactionChangeSpells();
         void LoadFactionChangeTitles();
-		
-		ItemFakeEntryContainer _itemFakeEntryStore; // custom transmo
+
+        ItemFakeEntryContainer _itemFakeEntryStore; // custom transmo
 
     private:
         // first free id for selected id type

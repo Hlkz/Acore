@@ -190,8 +190,8 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
     }
 
     player->JoinedChannel(this);
-	
-	if (_announce && !AccountMgr::IsAdminAccount(player->GetSession()->GetSecurity()))
+
+    if (_announce && !AccountMgr::IsAdminAccount(player->GetSession()->GetSecurity()))
     {
         WorldPacket data;
         MakeJoined(&data, guid);
@@ -251,8 +251,8 @@ void Channel::LeaveChannel(Player* player, bool send)
     bool changeowner = playersStore[guid].IsOwner();
 
     playersStore.erase(guid);
-	
-	if (_announce && !AccountMgr::IsAdminAccount(player->GetSession()->GetSecurity()))
+
+    if (_announce && !AccountMgr::IsAdminAccount(player->GetSession()->GetSecurity()))
     {
         WorldPacket data;
         MakeLeft(&data, guid);
@@ -278,7 +278,7 @@ void Channel::LeaveChannel(Player* player, bool send)
 
 void Channel::KickOrBan(Player const* player, std::string const& badname, bool ban)
 {
-	AccountTypes sec = player->GetSession()->GetSecurity();
+    AccountTypes sec = player->GetSession()->GetSecurity();
     uint64 good = player->GetGUID();
 
     if (!IsOn(good))
@@ -420,7 +420,7 @@ void Channel::Password(Player const* player, std::string const& pass)
 void Channel::SetMode(Player const* player, std::string const& p2n, bool mod, bool set)
 {
     uint64 guid = player->GetGUID();
-	uint32 sec = player->GetSession()->GetSecurity();
+    uint32 sec = player->GetSession()->GetSecurity();
 
     if (!IsOn(guid))
     {
@@ -443,7 +443,7 @@ void Channel::SetMode(Player const* player, std::string const& p2n, bool mod, bo
 
     Player* newp = sObjectAccessor->FindPlayerByName(p2n);
     uint64 victim = newp ? newp->GetGUID() : 0;
-	
+
      if (!victim || !IsOn(victim))
      {
         WorldPacket data;
@@ -469,7 +469,7 @@ void Channel::SetMode(Player const* player, std::string const& p2n, bool mod, bo
 void Channel::SetOwner(Player const* player, std::string const& newname)
 {
     uint64 guid = player->GetGUID();
-	uint32 sec = player->GetSession()->GetSecurity();
+    uint32 sec = player->GetSession()->GetSecurity();
 
     if (!IsOn(guid))
     {

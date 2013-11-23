@@ -49,8 +49,8 @@ public:
     {
         if (player->GetFreePrimaryProfessionPoints() >= 1)
         {
-            switch (action) {    
-        
+            switch (action) {
+
             case 1000:
                 player->CLOSE_GOSSIP_MENU();
                 player->learnSpell(SPELL_AL, false);
@@ -117,7 +117,7 @@ public:
             creature->MonsterWhisper(player->GetSession()->GetTrinityString(LANG_NPC_JOB_ERR), player->GetGUID(), false);
         }
 
-        return true; 
+        return true;
     }
 };
 
