@@ -361,8 +361,9 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
     {
         int32 BaseRep = GetBaseReputation(factionEntry);
 
+        int32 before = itr->second.Standing + BaseRep;
         if (incremental)
-            standing += itr->second.Standing + BaseRep;
+            standing += before;
 
         if (standing > Reputation_Cap)
             standing = Reputation_Cap;
@@ -393,18 +394,21 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
         _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_REVERED_REPUTATION, factionEntry->ID);
         _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_HONORED_REPUTATION, factionEntry->ID);
 
-        // switch faction !
-        if (uint32 newteam = _player->CanSwitchTeam())
+        if ((factionEntry->ID == FACTION_STORMWIND || factionEntry->ID == FACTION_ORGRIMMAR) && (before?before/abs(before):1) != (standing?standing/abs(standing):1))
         {
-            std::string subject = _player->GetSession()->GetTrinityString(17927+2*(newteam==HORDE));
-            std::string text = _player->GetSession()->GetTrinityString(17928+2*(newteam==HORDE));
-            MailDraft draft(subject, text);
+            _player->UpdateTriggerVisibility();
+            if (uint32 newteam = _player->CanSwitchTeam()) // switch faction !
+            {
+                std::string subject = _player->GetSession()->GetTrinityString(17927+2*(newteam==HORDE));
+                std::string text = _player->GetSession()->GetTrinityString(17928+2*(newteam==HORDE));
+                MailDraft draft(subject, text);
 
-            SQLTransaction trans = CharacterDatabase.BeginTransaction();
+                SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-            draft.SendMailTo(trans, _player, MailSender(MAIL_CREATURE, newteam==ALLIANCE?29611:4949));
-            CharacterDatabase.CommitTransaction(trans);
-            ChatHandler(_player->GetSession()).PSendSysMessage(17938);
+                draft.SendMailTo(trans, _player, MailSender(MAIL_CREATURE, newteam==ALLIANCE?29611:4949));
+                CharacterDatabase.CommitTransaction(trans);
+                ChatHandler(_player->GetSession()).PSendSysMessage(17938);
+            }
         }
 
         return true;

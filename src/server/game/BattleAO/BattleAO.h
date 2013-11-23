@@ -39,6 +39,14 @@ enum BAO_Nodes
     BAO_CREATURE_MAX              = 5  // spirithealers tofix:guards
 };
 
+const int8 BAO_DepNodes[BAO_DYNAMIC_NODES_COUNT][5] =
+{
+    {0, 4,2,-1,-1},{1, 5,2,-1,-1}, // ruines : tour proche, syltania
+    {2, 0,1,-1,-1}, //              syltania : ruine
+    {3, 4,5,-1,-1}, //                 puits : tour
+    {4, 5,0,3,6},{5, 4,1,3,7} //       tours : autre tour, ruine proche, puits, mall
+};
+
 enum BAO_NodeStatus
 {
     BAO_NODE_TYPE_NEUTRAL             = 0,
@@ -146,6 +154,15 @@ struct AO_BannerTimer
     uint8 teamIndex;
 };
 
+struct AO_Node
+{
+    uint32 status;
+    uint32 prev;
+    uint8 banner;               // type de la bannière active
+    AO_BannerTimer bannertimer; // for animation (burn + new banner)
+    uint32 timer;               // when clicked
+};
+
 class Player;
 class GameObject;
 class WorldPacket;
@@ -223,7 +240,7 @@ public:
     bool DelObject(uint32 type);
 
     static TeamId GetTeamIndexByTeamId(uint32 Team) { return Team == ALLIANCE ? TEAM_ALLIANCE : Team == HORDE ? TEAM_HORDE : TEAM_NEUTRAL; }
-    uint32 GetOtherTeam(Team team) { return (team == HORDE ? ALLIANCE : HORDE); }
+    uint32 GetOtherTeam(uint32 team) { return (team == HORDE ? ALLIANCE : HORDE); }
     void UpdatePlayersCount(uint32 Team, bool remove) { m_PlayersCount[GetTeamIndexByTeamId(Team)] = m_PlayersCount[GetTeamIndexByTeamId(Team)]+1-2*remove; }
     int32 GetPlayersCount(uint32 team) const { return m_PlayersCount[GetTeamIndexByTeamId(team)]; }
     uint32 GetFreeSlotsForTeam(Team Team) const;
@@ -235,6 +252,9 @@ public:
     void RemoveAurasFromPlayer(Player* player);
     void TeamCastSpell(TeamId team, int32 spellId);
 
+    bool TeamHasDepForNode(uint32 team, uint8 node);
+    void UpdateBannersFlag(uint8 node, uint32 teambefore, uint32 teamafter = 0);
+
 private:
 
     Map* m_Map;
@@ -245,12 +265,9 @@ private:
     BattleAOScoreMap PlayerScores;
     bool m_playerscantag;
     bool m_balancetag;
-	
-    uint8           m_Nodes[BAO_ALL_NODES_COUNT];
-    uint8           m_prevNodes[BAO_DYNAMIC_NODES_COUNT];
-    AO_BannerTimer  m_BannerTimers[BAO_DYNAMIC_NODES_COUNT];
-    uint32          m_NodeTimers[BAO_DYNAMIC_NODES_COUNT];
-    uint32          m_lastTick[BG_TEAMS_COUNT];
+
+    AO_Node m_Nodes[BAO_DYNAMIC_NODES_COUNT];
+    uint32 m_lastTick[BG_TEAMS_COUNT];
 
     void _CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay = false);
     void _DelBanner(uint8 node, uint8 status);
