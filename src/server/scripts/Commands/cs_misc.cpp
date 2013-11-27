@@ -112,7 +112,7 @@ public:
             { "cometome",           SEC_ANIMATOR,           false, &HandleComeToMeCommand,              "", NULL },
             { "damage",             SEC_GAMEMASTER,         false, &HandleDamageCommand,                "", NULL },
             { "combatstop",         SEC_ANIMATOR,           true,  &HandleCombatStopCommand,            "", NULL },
-            { "repairitems",        SEC_GAMEMASTER,         true,  &HandleRepairitemsCommand,           "", NULL },
+            { "repairitems",        SEC_PLAYER,             true,  &HandleRepairitemsCommand,           "", NULL },
             { "freeze",             SEC_ANIMATOR,           false, &HandleFreezeCommand,                "", NULL },
             { "unfreeze",           SEC_ANIMATOR,           false, &HandleUnFreezeCommand,              "", NULL },
             { "listfreeze",         SEC_ANIMATOR,           false, &HandleListFreezeCommand,            "", NULL },
@@ -2300,9 +2300,10 @@ public:
 
     static bool HandleRepairitemsCommand(ChatHandler* handler, char const* args)
     {
-        Player* target;
-        if (!handler->extractPlayerTarget((char*)args, &target))
-            return false;
+        Player* target = handler->GetSession()->GetPlayer();
+        if (handler->GetSession()->GetSecurity() > SEC_PLAYER)
+            if (!handler->extractPlayerTarget((char*)args, &target))
+                return false;
 
         // check online security
         if (handler->HasLowerSecurity(target, 0))
@@ -3099,14 +3100,11 @@ public:
     static bool HandleClothesCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* player = handler->GetSession()->GetPlayer();
-        if (!player)
-            return true;
-        Unit* unit = handler->getSelectedUnit();
-        if (!unit)
-            unit = player;
-
-        player->CastSpell(unit, 26659);
-        unit->RemoveAura(26659);
+        if (handler->GetSession()->GetSecurity() > SEC_PLAYER)
+            if (Player* selected = handler->getSelectedUnit()->ToPlayer())
+                player = selected;
+        player->CastSpell(player, 26659);
+        player->RemoveAura(26659);
         return true;
     }
 };
