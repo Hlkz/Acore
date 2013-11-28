@@ -540,8 +540,8 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_INS_CHAR_SKILLS, "INSERT INTO character_skills (guid, skill, value, max) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UDP_CHAR_SKILLS, "UPDATE character_skills SET value = ?, max = ? WHERE guid = ? AND skill = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_CHAR_SPELL, "INSERT INTO character_spell (guid, spell, active, disabled) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_DEL_CHAR_STATS, "DELETE FROM character_stats WHERE guid = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_INS_CHAR_STATS, "INSERT INTO character_stats (guid, maxhealth, maxpower1, maxpower2, maxpower3, maxpower4, maxpower5, maxpower6, maxpower7, strength, agility, stamina, intellect, spirit, "
+    PrepareStatement(CHAR_DEL_CHAR_SAVE_STATS, "DELETE FROM character_save_stats WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_CHAR_SAVE_STATS, "INSERT INTO character_save_stats (guid, maxhealth, maxpower1, maxpower2, maxpower3, maxpower4, maxpower5, maxpower6, maxpower7, strength, agility, stamina, intellect, spirit, "
                      "armor, resHoly, resFire, resNature, resFrost, resShadow, resArcane, blockPct, dodgePct, parryPct, critPct, rangedCritPct, spellCritPct, attackPower, rangedAttackPower, "
                      "spellPower, resilience) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_PETITION_BY_OWNER, "DELETE FROM petition WHERE ownerguid = ?", CONNECTION_ASYNC);
@@ -620,4 +620,36 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_SEL_TOP_RANK, "SELECT name, pvprank, team FROM characters WHERE pvprank > 0 ORDER BY pvptotal DESC LIMIT 10", CONNECTION_SYNCH);
     PrepareStatement(CHAR_SEL_RANKS_INFO, "SELECT team, pvprank, pvptotal, pvplast FROM characters WHERE guid = ?", CONNECTION_SYNCH);
 
+    //stats
+    PrepareStatement(CHAR_SEL_CHAR_STATS, "SELECT * FROM character_stats WHERE guid = ? AND type = ?", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_DEL_CHAR_STATS, "DELETE FROM character_stats WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_CHAR_STATS, "INSERT INTO character_stats (guid, type, strength, agility, stamina, intellect, spirit, health, mana, rage, focus, energy, happiness, rune, runicPower, "
+        "armor, resHoly, resFire, resNature, resFrost, resShadow, resArcane, attackPower, rangedAttackPower, mainhand, offhand, ranged) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_CHAR_STATS_INIT, "INSERT INTO character_stats (guid, type) VALUES (?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_STRENGTH, "UPDATE character_stats SET strength = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_AGILITY, "UPDATE character_stats SET agility = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_STAMINA, "UPDATE character_stats SET stamina = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_INTELLECT, "UPDATE character_stats SET intellect = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_SPIRIT, "UPDATE character_stats SET spirit = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_HEALTH, "UPDATE character_stats SET health = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_MANA, "UPDATE character_stats SET mana = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_RAGE, "UPDATE character_stats SET rage = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_FOCUS, "UPDATE character_stats SET focus = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_ENERGY, "UPDATE character_stats SET energy = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_HAPPINESS, "UPDATE character_stats SET happiness = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_RUNE, "UPDATE character_stats SET rune = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_RUNIC_POWER, "UPDATE character_stats SET runicPower = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_ARMOR, "UPDATE character_stats SET armor = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_RESISTANCE_HOLY, "UPDATE character_stats SET resHoly = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_RESISTANCE_FIRE, "UPDATE character_stats SET resFire = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_RESISTANCE_NATURE, "UPDATE character_stats SET resNature = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_RESISTANCE_FROST, "UPDATE character_stats SET resFrost = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_RESISTANCE_SHADOW, "UPDATE character_stats SET resShadow = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_RESISTANCE_ARCANE, "UPDATE character_stats SET resArcane = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_ATTACK_POWER, "UPDATE character_stats SET attackPower = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_ATTACK_POWER_RANGED, "UPDATE character_stats SET rangedAttackPower = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_DAMAGE_MAINHAND, "UPDATE character_stats SET stamina = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_DAMAGE_OFFHAND, "UPDATE character_stats SET stamina = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_STAT_DAMAGE_RANGED, "UPDATE character_stats SET stamina = ? WHERE guid = ? AND type = ?", CONNECTION_ASYNC);
 }

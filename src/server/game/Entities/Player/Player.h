@@ -122,6 +122,16 @@ struct PlayerTalent
     uint8 spec             : 8;
 };
 
+enum StatsModType
+{
+    STAT_MOD_TYPE_NONE      = 0,
+    STAT_MOD_TYPE_WORLD     = 1,
+    STAT_MOD_TYPE_BAO       = 2,
+    STAT_MOD_TYPE_BG_BA     = 3,
+    STAT_MOD_TYPE_SAO       = 4,
+    STAT_MOD_TYPE_END       = 5
+};
+
 // Spell modifier (used for modify other spells)
 struct SpellModifier
 {
@@ -1774,6 +1784,12 @@ class Player : public Unit, public GridObject<Player>
 
         bool UpdateStats(Stats stat);
         bool UpdateAllStats();
+        void UpdateStatsMod(uint32 type, bool force = false, bool fromdb = true);
+        void InitStatsMod(uint32 type);
+        void UpdateStatMod(uint32 type, uint16 unitMod, uint32 value);
+        uint32 GetStatMod(uint32 type, uint16 unitMod) { return m_statsModGroup[type][unitMod]; }
+        uint32 GetStatsModType() { return m_statsModType; }
+        StatsModType GetStatsModTypeForMap(uint32 mapid);
         void ApplySpellPenetrationBonus(int32 amount, bool apply);
         void UpdateResistances(uint32 school);
         void UpdateArmor();
@@ -2709,6 +2725,9 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_PvpLast;
         uint32 m_BgWin;
         uint32 m_ArenaWin;
+
+        uint32 m_statsModType;
+        float m_statsModGroup[STAT_MOD_TYPE_END][UNIT_MOD_END];
 };
 
 void AddItemsSetItem(Player*player, Item* item);

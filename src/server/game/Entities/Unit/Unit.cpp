@@ -13062,7 +13062,7 @@ bool Unit::IsInDisallowedMountForm() const
 ########                         ########
 #######################################*/
 
-bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, float amount, bool apply)
+bool Unit::HandleStatModifier(uint16 unitMod, UnitModifierType modifierType, float amount, bool apply)
 {
     if (unitMod >= UNIT_MOD_END || modifierType >= MODIFIER_TYPE_END)
     {
@@ -13176,7 +13176,7 @@ float Unit::GetTotalAuraModValue(UnitMods unitMod) const
     return value;
 }
 
-SpellSchools Unit::GetSpellSchoolByAuraGroup(UnitMods unitMod) const
+SpellSchools Unit::GetSpellSchoolByAuraGroup(uint16 unitMod) const
 {
     SpellSchools school = SPELL_SCHOOL_NORMAL;
 
@@ -13196,7 +13196,7 @@ SpellSchools Unit::GetSpellSchoolByAuraGroup(UnitMods unitMod) const
     return school;
 }
 
-Stats Unit::GetStatByAuraGroup(UnitMods unitMod) const
+Stats Unit::GetStatByAuraGroup(uint16 unitMod) const
 {
     Stats stat = STAT_STRENGTH;
 
@@ -13215,7 +13215,7 @@ Stats Unit::GetStatByAuraGroup(UnitMods unitMod) const
     return stat;
 }
 
-Powers Unit::GetPowerTypeByAuraGroup(UnitMods unitMod) const
+Powers Unit::GetPowerTypeByAuraGroup(uint16 unitMod) const
 {
     switch (unitMod)
     {

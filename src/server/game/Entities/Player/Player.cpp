@@ -887,6 +887,8 @@ Player::Player(WorldSession* session): Unit(true)
     m_PvpLast = 0;
     m_BgWin = 0;
     m_ArenaWin = 0;
+
+    m_statsModType = STAT_MOD_TYPE_NONE;
 }
 
 Player::~Player()
@@ -7507,6 +7509,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     UpdateLocalChannels(newZone);
 
     UpdateZoneDependentAuras(newZone);
+    UpdateStatsMod(GetStatsModTypeForMap(m_mapId));
 }
 
 //If players are too far away from the duel flag... they lose the duel
@@ -19651,6 +19654,100 @@ void Player::_SaveSpells(SQLTransaction& trans)
     }
 }
 
+void Player::UpdateStatsMod(uint32 type, bool force, bool fromdb)
+{
+    if (m_statsModType == type && !force)
+        return;
+
+    if (m_statsModType)
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_STATS);
+        stmt->setUInt32(0, GetGUIDLow());
+        stmt->setUInt32(1, m_statsModType);
+        CharacterDatabase.Execute(stmt);
+
+        uint8 index = 0; bool add = false;
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_STATS);
+        stmt->setUInt32(index++, GetGUIDLow());
+        stmt->setUInt32(index++, m_statsModType);
+        for (uint8 i = 0; i < UNIT_MOD_END; ++i)
+        {
+            stmt->setUInt32(index++, m_statsModGroup[m_statsModType][i]);
+            if (m_statsModGroup[m_statsModType][i])
+                add = true;
+        }
+        if (add)
+            CharacterDatabase.Execute(stmt);
+
+        for (uint16 i = 0; i < UNIT_MOD_END; i++)
+            if (m_statsModGroup[m_statsModType][i])
+                HandleStatModifier(i, TOTAL_VALUE, m_statsModGroup[m_statsModType][i], false);
+    }
+
+    m_statsModType = type;
+    if (type && fromdb)
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_STATS);
+        stmt->setUInt32(0, GUID_LOPART(GetGUID()));
+        stmt->setUInt32(1, type);
+        if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+        {
+            Field* fields = result->Fetch();
+            for (uint16 i = UNIT_MOD_STAT_START; i < UNIT_MOD_END; i++)
+            {
+                m_statsModGroup[type][i] = fields[2+i].GetUInt32();
+                if (m_statsModGroup[type][i])
+                    HandleStatModifier(i, TOTAL_VALUE, m_statsModGroup[type][i], true);
+            }
+        }
+        else
+            for (uint16 i = 0; i < UNIT_MOD_END; i++)
+                m_statsModGroup[type][i] = 0;
+    }
+}
+
+void Player::InitStatsMod(uint32 type)
+{
+    for (uint16 i = UNIT_MOD_STAT_START; i < UNIT_MOD_END; i++)
+        m_statsModGroup[type][i] = 0;
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_STATS);
+    stmt->setUInt32(0, GetGUIDLow());
+    stmt->setUInt32(1, type);
+    CharacterDatabase.Execute(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_STATS_INIT);
+    stmt->setUInt32(0, GetGUIDLow());
+    stmt->setUInt32(1, type);
+    CharacterDatabase.Execute(stmt);
+}
+
+void Player::UpdateStatMod(uint32 type, uint16 unitMod, uint32 value)
+{
+    HandleStatModifier(unitMod, TOTAL_VALUE, value-m_statsModGroup[type][unitMod], true);
+    m_statsModGroup[type][unitMod] = value;
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_STAT_STRENGTH+unitMod);
+
+    stmt->setUInt32(0, value);
+    stmt->setUInt32(1, GetGUIDLow());
+    stmt->setUInt32(2, type);
+
+    CharacterDatabase.Execute(stmt);
+}
+
+StatsModType Player::GetStatsModTypeForMap(uint32 mapid)
+{
+    switch (mapid)
+    {
+        case BATTLEAO_MAP:    return STAT_MOD_TYPE_BAO;     break;
+        case 784:             return STAT_MOD_TYPE_BG_BA;   break;
+        default:              return STAT_MOD_TYPE_WORLD;   break;
+    }
+    return STAT_MOD_TYPE_WORLD;
+}
+
 // save player stats -- only for external usage
 // real stats will be recalculated on player login
 void Player::_SaveStats(SQLTransaction& trans)
@@ -19661,13 +19758,13 @@ void Player::_SaveStats(SQLTransaction& trans)
 
     PreparedStatement* stmt = NULL;
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_STATS);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SAVE_STATS);
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
 
     uint8 index = 0;
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_STATS);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SAVE_STATS);
     stmt->setUInt32(index++, GetGUIDLow());
     stmt->setUInt32(index++, GetMaxHealth());
 
