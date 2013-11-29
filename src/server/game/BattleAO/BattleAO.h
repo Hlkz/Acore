@@ -15,7 +15,7 @@ enum BattleAOIds
 {
     BATTLEAO_MAP = 782,
     BATTLEAO_AREA = 5810,
-    AO_SPELL_CHARGE = 39089,
+    BAO_SPELL_CHARGE = 39089,
     BAO_CREATURE_ENTRY_A_SPIRITGUIDE = 100017,
     BAO_CREATURE_ENTRY_H_SPIRITGUIDE = 100018,
 };
@@ -27,24 +27,27 @@ enum BAO_Nodes
     BAO_NODE_NORD           = 0,
     BAO_NODE_SUD            = 1,
     BAO_NODE_RUINES         = 2,
-    BAO_NODE_FIRST_SPIRIT         = 3,
+    BAO_NODE_FIRST_SPIRIT     = 3,
     BAO_NODE_PUITS          = 3,
     BAO_NODE_TOUR_A2        = 4,
     BAO_NODE_TOUR_H2        = 5,
-    BAO_DYNAMIC_NODES_COUNT       = 6, // dynamic nodes that can be captured
-    BAO_SPIRIT_A2           = 6,
-    BAO_SPIRIT_H2           = 7,
-    BAO_ALL_NODES_COUNT           = 8, // all nodes (dynamic and static)
-    BAO_SPIRIT_MAX                = 5, // spirithealers from BAO_NODE_FIRST_SPIRIT to BAO_ALL_NODES_COUNT
-    BAO_CREATURE_MAX              = 5  // spirithealers tofix:guards
+    BAO_NODE_A2             = 6,
+    BAO_NODE_H2             = 7,
+    BAO_SPIRIT_A2             = 6,
+    BAO_SPIRIT_H2             = 7,
+    BAO_NODES_COUNT         = 8,
+    BAO_NODE_MAX_SPIRIT       = 8,
+    BAO_SPIRIT_MAX            = 5, // spirithealers from BAO_NODE_FIRST_SPIRIT to BAO_NODE_MAX_SPIRIT
+    BAO_CREATURE_MAX        = 5  // spirithealers tofix:guards
 };
 
-const int8 BAO_DepNodes[BAO_DYNAMIC_NODES_COUNT][5] =
+const uint8 BAO_DepNodes[BAO_NODES_COUNT][5] =
 {
-    {0, 4,2,-1,-1},{1, 5,2,-1,-1}, // ruines : tour proche, syltania
-    {2, 0,1,-1,-1}, //              syltania : ruine
-    {3, 4,5,-1,-1}, //                 puits : tour
-    {4, 5,0,3,6},{5, 4,1,3,7} //       tours : autre tour, ruine proche, puits, mall
+    {0, 4,2,9,9},{1, 5,2,9,9}, // ruines : tour proche, syltania
+    {2, 0,1,9,9}, //            syltania : ruine
+    {3, 4,5,9,9}, //               puits : tour
+    {4, 5,0,3,6},{5, 4,1,3,7}, //     a2 : tour a2
+    {6, 4,9,9,9},{7, 5,9,9,9} //      h2 : tour h2
 };
 
 enum BAO_NodeStatus
@@ -67,9 +70,9 @@ enum BAO_WorldState
     BAO_WS_CANPLAYERSTAG           = 22005,
 };
 
-const uint32 BAO_OP_NODESTATES[BAO_DYNAMIC_NODES_COUNT]       =  { 3001, 3011, 3021, 3031, 3041, 3051 };
-const uint32 BAO_OP_NODEICONS[BAO_DYNAMIC_NODES_COUNT]        =  { 3000, 3010, 3020, 3030, 3040, 3050 };
-const uint32 BAO_SAVENODEWORLDSTATE[BAO_DYNAMIC_NODES_COUNT]  =  { 22200, 22201, 22202, 22203, 22204, 22205 };
+const uint32 BAO_OP_NODESTATES[BAO_NODES_COUNT]       =  { 3001, 3011, 3021, 3031, 3041, 3051, 3061, 3071 };
+const uint32 BAO_OP_NODEICONS[BAO_NODES_COUNT]        =  { 3000, 3010, 3020, 3030, 3040, 3050, 3060, 3070 };
+const uint32 BAO_SAVENODEWORLDSTATE[BAO_NODES_COUNT]  =  { 22200, 22201, 22202, 22203, 22204, 22205, 22206, 22207 };
 
 enum BAO_ObjectId
 {
@@ -94,7 +97,7 @@ enum BAO_ObjectType
     BAO_OBJECT_AURA_HORDE              = 6,
     BAO_OBJECT_AURA_CONTESTED          = 7,
     BAO_BANNER_MAX = 8,
-    BAO_OBJECT_MAX = BAO_BANNER_MAX * BAO_ALL_NODES_COUNT
+    BAO_OBJECT_MAX = BAO_BANNER_MAX * BAO_NODES_COUNT
 };
 
 enum BAO_Sounds
@@ -123,14 +126,16 @@ struct BattleAOScore
 
 const uint32 BAO_GraveyardIds[BAO_SPIRIT_MAX+2] = {1761, 1762, 1763, 1764, 1765, 1760, 1766};
 
-const float BAO_NodePositions[BAO_DYNAMIC_NODES_COUNT][4] = // banners
+const float BAO_NodePositions[BAO_NODES_COUNT][4] = // banners
 {
     {-5510.409180f, -299.316681f, 4.405378f, 3.009199f},    // nord
     {-5831.860840f, -383.221375f, 4.101608f, 3.615526f},    // sud
     {-5638.83f, -288.73f, 35.434f, 3.14f},                  // ruines
     {-5623.449219f, 33.006149f, 7.052403f, 3.120155f},      // puits
     {-5498.252441f, -113.755493f, -0.4025003f, 3.616046f},  // tour a2
-    {-5773.827637f, -123.747971f, -10.509393f, 3.352937f}   // tour h2
+    {-5773.827637f, -123.747971f, -10.509393f, 3.352937f},  // tour h2
+    {0.0f, 0.0f, 0.0f, 0.0f},                               // a2
+    {0.0f, 0.0f, 0.0f, 0.0f}                                // h2
 };
 const float BAO_SpiritGuidePos[BAO_SPIRIT_MAX][4] =         // npcs
 {
@@ -266,7 +271,7 @@ private:
     bool m_playerscantag;
     bool m_balancetag;
 
-    AO_Node m_Nodes[BAO_DYNAMIC_NODES_COUNT];
+    AO_Node m_Nodes[BAO_NODES_COUNT];
     uint32 m_lastTick[BG_TEAMS_COUNT];
 
     void _CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay = false);

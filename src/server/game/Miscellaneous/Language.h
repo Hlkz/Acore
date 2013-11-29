@@ -1208,6 +1208,15 @@ enum TrinityStrings
     LANG_GM_FACTION_INIT                = 17936,
     LANG_GM_SET_TEAM                    = 17937,
 
+    LANG_BG_BA_START_TWO_MINUTES        = 18000,
+    LANG_BG_BA_START_ONE_MINUTE         = 18001,
+    LANG_BG_BA_START_HALF_MINUTE        = 18002,
+    LANG_BG_BA_HAS_BEGUN                = 18003,
+    LANG_BG_BA_TOWER_DEAD_A             = 18004,
+    LANG_BG_BA_TOWER_DEAD_H             = 18005,
+    LANG_BG_BA_NEXUS_VULN_A             = 18006,
+    LANG_BG_BA_NEXUS_VULN_H             = 18007,
+
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
     // For other tables maybe             2000010000-2147483647 (max index)

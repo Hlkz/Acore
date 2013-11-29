@@ -8893,7 +8893,7 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
 {
     if (!victim || victim == this)
         return false;
-	
+
     if (Creature* creature = ToCreature())
         if (creature->IsInEvadeMode())
             return false;
