@@ -26,7 +26,6 @@ EndScriptData */
 #include "AchievementMgr.h"
 #include "AuctionHouseMgr.h"
 #include "Chat.h"
-#include "CreatureEventAIMgr.h"
 #include "CreatureTextMgr.h"
 #include "DisableMgr.h"
 #include "Language.h"
@@ -53,7 +52,6 @@ public:
         {
             { "achievement", SEC_GAMEMASTER,     true,  &HandleReloadAllAchievementCommand, "", NULL },
             { "area",       SEC_GAMEMASTER,     true,  &HandleReloadAllAreaCommand,       "", NULL },
-            { "eventai",    SEC_GAMEMASTER,     true,  &HandleReloadAllEventAICommand,    "", NULL },
             { "gossips",    SEC_GAMEMASTER,     true,  &HandleReloadAllGossipsCommand,    "", NULL },
             { "item",       SEC_GAMEMASTER,     true,  &HandleReloadAllItemCommand,       "", NULL },
             { "locales",    SEC_GAMEMASTER,     true,  &HandleReloadAllLocalesCommand,    "", NULL },
@@ -80,8 +78,6 @@ public:
             { "conditions",                   SEC_GAMEMASTER,    true,  &HandleReloadConditions,                        "", NULL },
             { "config",                       SEC_GAMEMASTER,    true,  &HandleReloadConfigCommand,                     "", NULL },
             { "creature_text",                SEC_GAMEMASTER,    true,  &HandleReloadCreatureText,                      "", NULL },
-            { "creature_ai_scripts",          SEC_GAMEMASTER,    true,  &HandleReloadEventAIScriptsCommand,             "", NULL },
-            { "creature_ai_texts",            SEC_GAMEMASTER,    true,  &HandleReloadEventAITextsCommand,               "", NULL },
             { "creature_questender",          SEC_ADMINISTRATOR, true,  &HandleReloadCreatureQuestEnderCommand,  "", NULL },
             { "creature_linked_respawn",      SEC_GAMEMASTER,    true,  &HandleReloadLinkedRespawnCommand,              "", NULL },
             { "creature_loot_template",       SEC_GAMEMASTER,    true,  &HandleReloadLootTemplatesCreatureCommand,      "", NULL },
@@ -182,7 +178,6 @@ public:
 
         HandleReloadAllAchievementCommand(handler, "");
         HandleReloadAllAreaCommand(handler, "");
-        HandleReloadAllEventAICommand(handler, "");
         HandleReloadAllLootCommand(handler, "");
         HandleReloadAllNpcCommand(handler, "");
         HandleReloadAllQuestCommand(handler, "");
@@ -270,13 +265,6 @@ public:
         HandleReloadDbScriptStringCommand(handler, "a");
         HandleReloadWpScriptsCommand(handler, "a");
         HandleReloadWpCommand(handler, "a");
-        return true;
-    }
-
-    static bool HandleReloadAllEventAICommand(ChatHandler* handler, const char* /*args*/)
-    {
-        HandleReloadEventAITextsCommand(handler, "a");
-        HandleReloadEventAIScriptsCommand(handler, "a");
         return true;
     }
 
@@ -1019,23 +1007,6 @@ public:
         if (*args != 'a')
             handler->SendGlobalGMSysMessage("DB Table 'waypoint_data' reloaded.");
 
-        return true;
-    }
-
-    static bool HandleReloadEventAITextsCommand(ChatHandler* handler, const char* /*args*/)
-    {
-
-        TC_LOG_INFO("misc", "Re-Loading Texts from `creature_ai_texts`...");
-        sEventAIMgr->LoadCreatureEventAI_Texts();
-        handler->SendGlobalGMSysMessage("DB table `creature_ai_texts` reloaded.");
-        return true;
-    }
-
-    static bool HandleReloadEventAIScriptsCommand(ChatHandler* handler, const char* /*args*/)
-    {
-        TC_LOG_INFO("misc", "Re-Loading Scripts from `creature_ai_scripts`...");
-        sEventAIMgr->LoadCreatureEventAI_Scripts();
-        handler->SendGlobalGMSysMessage("DB table `creature_ai_scripts` reloaded.");
         return true;
     }
 
