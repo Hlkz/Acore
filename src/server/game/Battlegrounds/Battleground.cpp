@@ -1152,12 +1152,11 @@ void Battleground::AddPlayer(Player* player)
     uint64 guid = player->GetGUID();
     uint32 team = player->GetBGTeam();
 
+    // Add to list/maps
     BattlegroundPlayer bp;
     bp.OfflineRemoveTime = 0;
     bp.Team = team;
     bp.Ready = 0;
-
-    // Add to list/maps
     m_Players[guid] = bp;
 
     UpdatePlayersCountByTeam(team, false);                  // +1 player

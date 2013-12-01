@@ -1776,7 +1776,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         return ERR_BATTLEGROUND_JOIN_FAILED;
 
     uint32 arenaTeamId = reference->GetArenaTeamId(arenaSlot);
-    uint32 team = (bgQueueTypeId==BATTLEGROUND_QUEUE_AO && reference->IsDeserter()) ? TEAM_NEUTRAL : reference->GetTeamFromDB();
+    uint32 team = (bgQueueTypeId==BATTLEGROUND_QUEUE_AO && reference->IsDeserter()) ? TEAM_NEUTRAL : reference->GetTeam(true);
 
     BattlegroundQueueTypeId bgQueueTypeIdRandom = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_RB, 0);
 
@@ -1790,7 +1790,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
             return ERR_BATTLEGROUND_JOIN_FAILED;
         // cross-faction in arena if allowed
         if ((!bgOrTemplate->isArena() || bgOrTemplate->isArena() && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_ARENA))
-            && (((bgQueueTypeId==BATTLEGROUND_QUEUE_AO && member->IsDeserter()) ? TEAM_NEUTRAL :member->GetTeamFromDB()) != team))
+            && (((bgQueueTypeId==BATTLEGROUND_QUEUE_AO && member->IsDeserter()) ? TEAM_NEUTRAL : member->GetTeam(true)) != team))
             return ERR_BATTLEGROUND_JOIN_TIMED_OUT;
         // not in the same battleground level braket, don't let join
         PvPDifficultyEntry const* memberBracketEntry = GetBattlegroundBracketByLevel(bracketEntry->mapId, member->getLevel());

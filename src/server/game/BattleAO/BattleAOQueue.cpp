@@ -69,7 +69,7 @@ BAOGroupQueueInfo* BattleAOQueue::AddGroup(Player* leader, Group* grp, bool isPr
     BAOGroupQueueInfo* ginfo    = new BAOGroupQueueInfo;
     ginfo->RemoveInviteTime     = 0;
     ginfo->JoinTime             = getMSTime();
-    ginfo->Team                 = leader->IsDeserter() ? TEAM_NEUTRAL : leader->GetTeamFromDB(); // no team_neutral id
+    ginfo->Team                 = leader->IsDeserter() ? TEAM_NEUTRAL : leader->GetTeam(true); // no team_neutral id
     ginfo->IsInvitedToBAO       = false;
     ginfo->Players.clear();
 

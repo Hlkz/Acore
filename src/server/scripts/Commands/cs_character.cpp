@@ -611,14 +611,14 @@ public:
 
         if (param == "469" || param == "alliance")
         {
-            target->SetTeam(ALLIANCE);
+            target->SetTeam(ALLIANCE, true);
             handler->PSendSysMessage(LANG_GM_SET_TEAM, target->GetName().c_str(), target->GetGUID());
             return true;
         }
 
         if (param == "67" || param == "horde")
         {
-            target->SetTeam(HORDE);
+            target->SetTeam(HORDE, true);
             handler->PSendSysMessage(LANG_GM_SET_TEAM, target->GetName().c_str(), target->GetGUID());
             return true;
         }
@@ -631,7 +631,7 @@ public:
         if (!target)
             return false;
 
-        uint32 team = target->GetTeamFromDB();
+        uint32 team = target->GetTeam(true);
         target->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(team==ALLIANCE?FACTION_SENTINEL:FACTION_THUNDERLORD), 3000);
         target->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(team==ALLIANCE?FACTION_THUNDERLORD:FACTION_SENTINEL), -6000);
         target->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(team==ALLIANCE?ALLIANCE:HORDE), 3000);

@@ -24,21 +24,22 @@ enum BattleAOIds
 
 enum BAO_Nodes
 {
-    BAO_NODE_NORD           = 0,
-    BAO_NODE_SUD            = 1,
-    BAO_NODE_RUINES         = 2,
-    BAO_NODE_FIRST_SPIRIT     = 3,
-    BAO_NODE_PUITS          = 3,
-    BAO_NODE_TOUR_A2        = 4,
-    BAO_NODE_TOUR_H2        = 5,
-    BAO_NODE_A2             = 6,
-    BAO_NODE_H2             = 7,
-    BAO_SPIRIT_A2             = 6,
-    BAO_SPIRIT_H2             = 7,
-    BAO_NODES_COUNT         = 8,
-    BAO_NODE_MAX_SPIRIT       = 8,
-    BAO_SPIRIT_MAX            = 5, // spirithealers from BAO_NODE_FIRST_SPIRIT to BAO_NODE_MAX_SPIRIT
-    BAO_CREATURE_MAX        = 5  // spirithealers tofix:guards
+    BAO_NODE_NORD                       = 0,
+    BAO_NODE_SUD                        = 1,
+    BAO_NODE_RUINES                     = 2,
+    BAO_NODE_SPIRIT_FIRST               = 3,
+    BAO_NODE_PUITS                      = 3,
+    BAO_NODE_TOUR_A2                    = 4,
+    BAO_NODE_TOUR_H2                    = 5,
+    BAO_NODE_A2                         = 6,
+    BAO_NODE_H2                         = 7,
+    BAO_SPIRIT_A2                       = 6,
+    BAO_SPIRIT_H2                       = 7,
+    BAO_NODES_COUNT                     = 8,
+    BAO_NODE_SPIRIT_MAX                 = 8,
+    BAO_SPIRIT_NEUTRAL_COUNT            = 2,
+    BAO_SPIRIT_COUNT                    = (BAO_NODE_SPIRIT_MAX - BAO_NODE_SPIRIT_FIRST) + BAO_SPIRIT_NEUTRAL_COUNT,
+    BAO_CREATURE_MAX                    = BAO_SPIRIT_COUNT  // spirithealers tofix:guards
 };
 
 const uint8 BAO_DepNodes[BAO_NODES_COUNT][5] =
@@ -52,22 +53,22 @@ const uint8 BAO_DepNodes[BAO_NODES_COUNT][5] =
 
 enum BAO_NodeStatus
 {
-    BAO_NODE_TYPE_NEUTRAL             = 0,
-    BAO_NODE_TYPE_CONTESTED           = 1,
-    BAO_NODE_STATUS_ALLY_CONTESTED    = 1,
-    BAO_NODE_STATUS_HORDE_CONTESTED   = 2,
-    BAO_NODE_TYPE_OCCUPIED            = 3,
-    BAO_NODE_STATUS_ALLY_OCCUPIED     = 3,
-    BAO_NODE_STATUS_HORDE_OCCUPIED    = 4
+    BAO_NODE_TYPE_NEUTRAL               = 0,
+    BAO_NODE_TYPE_CONTESTED             = 1,
+    BAO_NODE_STATUS_ALLY_CONTESTED      = 1,
+    BAO_NODE_STATUS_HORDE_CONTESTED     = 2,
+    BAO_NODE_TYPE_OCCUPIED              = 3,
+    BAO_NODE_STATUS_ALLY_OCCUPIED       = 3,
+    BAO_NODE_STATUS_HORDE_OCCUPIED      = 4
 };
 
 enum BAO_WorldState
 {
-    BAO_WS_RESOURCES_ALLY          = 22001,
-    BAO_WS_RESOURCES_HORDE         = 22002,
-    BAO_WS_OCCUPIED_BASES_ALLY     = 22003,
-    BAO_WS_OCCUPIED_BASES_HORDE    = 22004,
-    BAO_WS_CANPLAYERSTAG           = 22005,
+    BAO_WS_RESOURCES_ALLY               = 22001,
+    BAO_WS_RESOURCES_HORDE              = 22002,
+    BAO_WS_OCCUPIED_BASES_ALLY          = 22003,
+    BAO_WS_OCCUPIED_BASES_HORDE         = 22004,
+    BAO_WS_CANPLAYERSTAG                = 22005,
 };
 
 const uint32 BAO_OP_NODESTATES[BAO_NODES_COUNT]       =  { 3001, 3011, 3021, 3031, 3041, 3051, 3061, 3071 };
@@ -76,14 +77,14 @@ const uint32 BAO_SAVENODEWORLDSTATE[BAO_NODES_COUNT]  =  { 22200, 22201, 22202, 
 
 enum BAO_ObjectId
 {
-    BAO_OBJECTID_BANNER               = 180114,
-    BAO_OBJECTID_BANNER_A             = 180115,
-    BAO_OBJECTID_BANNER_CONT_A        = 180116,
-    BAO_OBJECTID_BANNER_H             = 180117,
-    BAO_OBJECTID_BANNER_CONT_H        = 180118,
-    BAO_OBJECTID_AURA_A               = 180100,
-    BAO_OBJECTID_AURA_H               = 180101,
-    BAO_OBJECTID_AURA_C               = 180102,
+    BAO_OBJECTID_BANNER                 = 180114,
+    BAO_OBJECTID_BANNER_A               = 180115,
+    BAO_OBJECTID_BANNER_CONT_A          = 180116,
+    BAO_OBJECTID_BANNER_H               = 180117,
+    BAO_OBJECTID_BANNER_CONT_H          = 180118,
+    BAO_OBJECTID_AURA_A                 = 180100,
+    BAO_OBJECTID_AURA_H                 = 180101,
+    BAO_OBJECTID_AURA_C                 = 180102,
 };
 
 enum BAO_ObjectType
@@ -124,7 +125,7 @@ struct BattleAOScore
     uint32 BonusHonor; uint32 DamageDone; uint32 HealingDone;
 };
 
-const uint32 BAO_GraveyardIds[BAO_SPIRIT_MAX+2] = {1761, 1762, 1763, 1764, 1765, 1760, 1766};
+const uint32 BAO_GraveyardIds[BAO_SPIRIT_COUNT] = {1761, 1762, 1763, 1764, 1765, 1760, 1766};
 
 const float BAO_NodePositions[BAO_NODES_COUNT][4] = // banners
 {
@@ -137,7 +138,7 @@ const float BAO_NodePositions[BAO_NODES_COUNT][4] = // banners
     {0.0f, 0.0f, 0.0f, 0.0f},                               // a2
     {0.0f, 0.0f, 0.0f, 0.0f}                                // h2
 };
-const float BAO_SpiritGuidePos[BAO_SPIRIT_MAX][4] =         // npcs
+const float BAO_SpiritGuidePos[BAO_SPIRIT_COUNT-BAO_SPIRIT_NEUTRAL_COUNT][4] = // npcs
 {
     {-5645.717773f, 118.826782f, 9.399622f, 3.350337f},     // puits
     {-5459.024414f, -90.056808f, -14.164452f, 3.785068f},   // tour a2

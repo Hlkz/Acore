@@ -192,7 +192,7 @@ public:
                 break;
             case GOSSIP_ACTION_INFO_DEF+8:
                 player->CLOSE_GOSSIP_MENU();
-                player->SetTeam(HORDE);
+                player->SetTeam(HORDE, true);
                 if (AchievementEntry const* achievementEntry = sAchievementMgr->GetAchievement(7000))
                     player->CompletedAchievement(achievementEntry);
                 player->SetUInt32Value(UNIT_FIELD_LEVEL, player->getLevel());

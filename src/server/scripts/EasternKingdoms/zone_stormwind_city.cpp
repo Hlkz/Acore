@@ -653,7 +653,7 @@ public:
         {
             case GOSSIP_ACTION_INFO_DEF:
                 player->CLOSE_GOSSIP_MENU();
-                player->SetTeam(ALLIANCE);
+                player->SetTeam(ALLIANCE, true);
                 if (AchievementEntry const* achievementEntry = sAchievementMgr->GetAchievement(7000))
                     player->CompletedAchievement(achievementEntry);
                 player->SetUInt32Value(UNIT_FIELD_LEVEL, player->getLevel());

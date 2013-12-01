@@ -6841,18 +6841,6 @@ void Player::CheckAreaExploreAndOutdoor()
     }
 }
 
-uint32 Player::GetTeamFromDB()
-{
-    uint32 team = 0;
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_TEAM);
-    stmt->setUInt32(0, GUID_LOPART(GetGUID()));
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-    if (!result)
-        return team;
-    team = result->Fetch()[0].GetUInt32();
-    return team;
-}
-
 uint32 Player::TeamForRace(uint8 race)
 {
     if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(race))
@@ -6870,18 +6858,34 @@ uint32 Player::TeamForRace(uint8 race)
     return ALLIANCE;
 }
 
-void Player::SetTeam(uint32 team)
+void Player::SetTeam(uint32 team, bool todb)
 {
     ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry((team==HORDE)+1);
     setFaction(rEntry ? rEntry->FactionID : 0);
-
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TEAM);
-    stmt->setUInt32(0, team);
-    stmt->setUInt32(1, GUID_LOPART(GetGUID()));
-    trans->Append(stmt);
-    CharacterDatabase.CommitTransaction(trans);
+    if (todb)
+    {
+        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TEAM);
+        stmt->setUInt32(0, team);
+        stmt->setUInt32(1, GUID_LOPART(GetGUID()));
+        trans->Append(stmt);
+        CharacterDatabase.CommitTransaction(trans);
+    }
     m_team = team;
+}
+
+uint32 Player::GetTeam(bool fromdb) const
+{
+    if (!fromdb)
+        return m_team;
+    uint32 team = 0;
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_TEAM);
+    stmt->setUInt32(0, GUID_LOPART(GetGUID()));
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+    if (!result)
+        return team;
+    team = result->Fetch()[0].GetUInt32();
+    return team;
 }
 
 void Player::setFactionForRace(uint8 race)
@@ -7147,10 +7151,10 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             // reputation
             if (!plrVictim->IsDeserter())
             {
-                GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(plrVictim->GetTeamFromDB()==ALLIANCE?HORDE:ALLIANCE),3+plrVictim->GetPvpRank());
-                GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(plrVictim->GetTeamFromDB()),-5-plrVictim->GetPvpRank());
-                GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(plrVictim->GetTeamFromDB()==ALLIANCE?FACTION_THUNDERLORD:FACTION_SENTINEL),3+plrVictim->GetPvpRank());
-                GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(plrVictim->GetTeamFromDB()==ALLIANCE?FACTION_SENTINEL:FACTION_THUNDERLORD),-5-plrVictim->GetPvpRank());
+                GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(plrVictim->GetTeam(true)==ALLIANCE?HORDE:ALLIANCE),3+plrVictim->GetPvpRank());
+                GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(plrVictim->GetTeam(true)),-5-plrVictim->GetPvpRank());
+                GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(plrVictim->GetTeam(true)==ALLIANCE?FACTION_THUNDERLORD:FACTION_SENTINEL),3+plrVictim->GetPvpRank());
+                GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(plrVictim->GetTeam(true)==ALLIANCE?FACTION_SENTINEL:FACTION_THUNDERLORD),-5-plrVictim->GetPvpRank());
             }
 
             // count the number of playerkills in one day
@@ -7509,7 +7513,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     UpdateLocalChannels(newZone);
 
     UpdateZoneDependentAuras(newZone);
-    UpdateStatsMod(GetStatsModTypeForMap(m_mapId));
+    UpdateStatsMod(GetStatsModTypeForMap());
 }
 
 //If players are too far away from the duel flag... they lose the duel
@@ -16934,7 +16938,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     outDebugValues();
 
     //Initiate team if new char
-    uint32 team = GetTeamFromDB();
+    uint32 team = GetTeam(true);
     if (team != ALLIANCE && team != HORDE)
     {
         setFactionForRace(getRace());
@@ -19737,14 +19741,16 @@ void Player::UpdateStatMod(uint32 type, uint16 unitMod, uint32 value)
     CharacterDatabase.Execute(stmt);
 }
 
-StatsModType Player::GetStatsModTypeForMap(uint32 mapid)
+StatsModType Player::GetStatsModTypeForMap()
 {
-    switch (mapid)
+    if (InBattleground())
     {
-        case BATTLEAO_MAP:    return STAT_MOD_TYPE_BAO;     break;
-        case 784:             return STAT_MOD_TYPE_BG_BA;   break;
-        default:              return STAT_MOD_TYPE_WORLD;   break;
+        if (m_mapId == 784)
+            return STAT_MOD_TYPE_BG_BA;
+        return STAT_MOD_TYPE_BG;
     }
+    if (m_mapId == BATTLEAO_MAP)
+        return STAT_MOD_TYPE_BAO;
     return STAT_MOD_TYPE_WORLD;
 }
 
@@ -21470,9 +21476,9 @@ else {
     }
 
     if (pProto->RequiredPvpRank)
-        if ((GetTeamFromDB() == ALLIANCE && 6 >= pProto->RequiredPvpRank && pProto->RequiredPvpRank >= 1) || (GetTeamFromDB() == HORDE && 12 >= pProto->RequiredPvpRank && pProto->RequiredPvpRank >= 7))
+        if ((GetTeam(true) == ALLIANCE && 6 >= pProto->RequiredPvpRank && pProto->RequiredPvpRank >= 1) || (GetTeam(true) == HORDE && 12 >= pProto->RequiredPvpRank && pProto->RequiredPvpRank >= 7))
         {
-            if (m_PvpRank+(GetTeamFromDB()==HORDE)*6 < pProto->RequiredPvpRank)
+            if (m_PvpRank+(GetTeam(true)==HORDE)*6 < pProto->RequiredPvpRank)
             {
                 GetSession()->SendAreaTriggerMessage("%s", GetSession()->GetTrinityString(LANG_BUY_ERROR_RANK));
                 return false;
@@ -26576,7 +26582,7 @@ void Player::SetArenaWin(uint32 arenawin)
 
 uint32 Player::CanSwitchTeam()
 {
-    uint32 team = GetTeamFromDB();
+    uint32 team = GetTeam(true);
     if ((int)GetReputation(team==ALLIANCE?FACTION_STORMWIND:FACTION_ORGRIMMAR)<0
      && (int)GetReputation(team==ALLIANCE?FACTION_ORGRIMMAR:FACTION_STORMWIND)>=0)
         return team==ALLIANCE?HORDE:ALLIANCE;
@@ -26586,7 +26592,7 @@ uint32 Player::CanSwitchTeam()
 bool Player::IsDeserter(uint32 team)
 {
     if (!team)
-        team = GetTeamFromDB();
+        team = GetTeam(true);
     if((int)GetReputation(team==ALLIANCE?FACTION_STORMWIND:FACTION_ORGRIMMAR)<0)
         return true;
     else if (team == ALLIANCE || team == HORDE)

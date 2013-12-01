@@ -597,7 +597,7 @@ uint32 BattlegroundBA::GetPrematureWinner()
 WorldSafeLocsEntry const* BattlegroundBA::GetClosestGraveYard(Player* player)
 {
     player->SetRezTime(getMSTime() + 12*IN_MILLISECONDS);
-    TeamId teamIndex = GetTeamIndexByTeamId(player->GetTeamFromDB());
+    TeamId teamIndex = GetTeamIndexByTeamId(player->GetTeam(true));
     std::vector<uint8> graveyards;
     WorldSafeLocsEntry const*entry = sWorldSafeLocsStore.LookupEntry(BG_BA_GraveyardIds[teamIndex]);
     return entry;

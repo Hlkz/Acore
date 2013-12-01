@@ -185,7 +185,7 @@ void BattleAO::AddPlayer(Player* player)
         player->ToggleAFK();
 
     uint64 guid = player->GetGUID();
-    uint32 team = player->IsDeserter() ? TEAM_NEUTRAL : player->GetTeamFromDB();
+    uint32 team = player->IsDeserter() ? TEAM_NEUTRAL : player->GetTeam(true);
 
     BattleAOPlayer bp;
     bp.OfflineRemoveTime = 0;
@@ -282,7 +282,7 @@ void BattleAO::HandlePlayerEnterZone(Player* player, uint32 /*zoneid*/)
     if (player->GetBattlegroundQueueIndex(BATTLEGROUND_QUEUE_AO) == PLAYER_MAX_BATTLEGROUND_QUEUES)
     {
         player->AddBattlegroundQueueId(BATTLEGROUND_QUEUE_AO);
-        UpdatePlayersCount(player->IsDeserter() ? TEAM_NEUTRAL : player->GetTeamFromDB(), false);
+        UpdatePlayersCount(player->IsDeserter() ? TEAM_NEUTRAL : player->GetTeam(true), false);
         sBattleAOMgr->ScheduleQueueUpdate();
     }
     player->SetInviteForBattlegroundQueueType(BATTLEGROUND_QUEUE_AO, true);
@@ -543,15 +543,15 @@ bool BattleAO::AddOrSetPlayerToCorrectBAOGroup(Player* player)
 WorldSafeLocsEntry const* BattleAO::GetClosestGraveYard(Player* player)
 {
     //player->SetRezTime(20000);
-    TeamId teamIndex = GetTeamIndexByTeamId(player->GetTeamFromDB());
+    TeamId teamIndex = GetTeamIndexByTeamId(player->GetTeam(true));
     std::vector<uint8> graveyards;
     if (player->IsDeserter())
         graveyards.push_back(6); // neutral gy
     else
     {
-        for (uint8 i = BAO_NODE_FIRST_SPIRIT; i < BAO_NODE_MAX_SPIRIT; ++i)
+        for (uint8 i = BAO_NODE_SPIRIT_FIRST; i < BAO_NODE_SPIRIT_MAX; ++i)
             if (m_Nodes[i].status == teamIndex + BAO_NODE_TYPE_OCCUPIED)
-                graveyards.push_back(i-BAO_NODE_FIRST_SPIRIT);
+                graveyards.push_back(i-BAO_NODE_SPIRIT_FIRST);
         if (m_Nodes[BAO_NODE_NORD].status == teamIndex + BAO_NODE_TYPE_OCCUPIED && m_Nodes[BAO_NODE_RUINES].status == teamIndex + BAO_NODE_TYPE_OCCUPIED && m_Nodes[BAO_NODE_SUD].status == teamIndex + BAO_NODE_TYPE_OCCUPIED)
             graveyards.push_back(5); // syltania gy
     }
@@ -852,9 +852,9 @@ void BattleAO::_NodeOccupied(uint8 node, Team team) // spawning creatures
     if (node < BAO_NODES_COUNT)
         sWorld->setWorldState(BAO_SAVENODEWORLDSTATE[node], uint64(team));
 
-    if (node >= BAO_NODE_FIRST_SPIRIT && node < BAO_NODE_A2 && team != TEAM_OTHER)
-        if (!AddSpiritGuide(node-BAO_NODE_FIRST_SPIRIT, BAO_SpiritGuidePos[node-BAO_NODE_FIRST_SPIRIT][0], BAO_SpiritGuidePos[node-BAO_NODE_FIRST_SPIRIT][1],
-                                                        BAO_SpiritGuidePos[node-BAO_NODE_FIRST_SPIRIT][2], BAO_SpiritGuidePos[node-BAO_NODE_FIRST_SPIRIT][3], team))
+    if (node >= BAO_NODE_SPIRIT_FIRST && node < BAO_NODE_A2 && team != TEAM_OTHER)
+        if (!AddSpiritGuide(node-BAO_NODE_SPIRIT_FIRST, BAO_SpiritGuidePos[node-BAO_NODE_SPIRIT_FIRST][0], BAO_SpiritGuidePos[node-BAO_NODE_SPIRIT_FIRST][1],
+                                                        BAO_SpiritGuidePos[node-BAO_NODE_SPIRIT_FIRST][2], BAO_SpiritGuidePos[node-BAO_NODE_SPIRIT_FIRST][3], team))
             TC_LOG_ERROR(LOG_FILTER_BAO, "Failed to spawn spirit guide! point: %u, team: %u, ", node, team);
 
     uint8 capturedNodes = 0;
@@ -867,10 +867,10 @@ void BattleAO::_NodeOccupied(uint8 node, Team team) // spawning creatures
 
 void BattleAO::_NodeDeOccupied(uint8 node)
 {
-    if (node < BAO_NODE_FIRST_SPIRIT || BAO_NODE_A2 <= node)
+    if (node < BAO_NODE_SPIRIT_FIRST || BAO_NODE_A2 <= node)
         return;
 
-    std::vector<uint64> ghost_list = sWorld->GetShReviveQueue(GetAOCreature(node-BAO_NODE_FIRST_SPIRIT)->GetGUID());
+    std::vector<uint64> ghost_list = sWorld->GetShReviveQueue(GetAOCreature(node-BAO_NODE_SPIRIT_FIRST)->GetGUID());
     if (!ghost_list.empty())
     {
         WorldSafeLocsEntry const* ClosestGrave = NULL;
@@ -883,8 +883,8 @@ void BattleAO::_NodeDeOccupied(uint8 node)
                 player->TeleportTo(BATTLEAO_MAP, ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, player->GetOrientation());
          }
     }
-    if (GetAOCreature(node-BAO_NODE_FIRST_SPIRIT))
-        DelCreature(node-BAO_NODE_FIRST_SPIRIT);
+    if (GetAOCreature(node-BAO_NODE_SPIRIT_FIRST))
+        DelCreature(node-BAO_NODE_SPIRIT_FIRST);
 }
 
 int32 BattleAO::_GetNodeNameId(uint8 node, bool maj)
@@ -992,7 +992,7 @@ void BattleAO::EventPlayerClickedOnFlag(Player* source, GameObject* target_obj)
             UpdateBannersFlag(node, 0, team); // gain base
             _NodeDeOccupied(node);
             m_Nodes[node].timer = 0;
-            if (node >= BAO_NODE_FIRST_SPIRIT)
+            if (node >= BAO_NODE_SPIRIT_FIRST)
                 _NodeOccupied(node, (teamIndex == TEAM_ALLIANCE) ? ALLIANCE:HORDE);
             if (teamIndex == TEAM_ALLIANCE)
                 SendMessage2ToAll(LANG_BAO_NODE_DEFENDED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node), 0);
@@ -1075,7 +1075,6 @@ uint32 BattleAO::GetFreeSlotsForTeam(Team Team) const
 
 void BattleAO::HandleQuestComplete(uint32 questid, Player* player)
 {
-    uint8 team = GetTeamIndexByTeamId(player->GetTeam());
     sLog->outDebug(LOG_FILTER_BAO, "BAO Quest %i completed", questid);
     switch (questid)
     {

@@ -30,7 +30,7 @@ void BattleAOMgr::InitBattleAO()
 
 void BattleAOMgr::SendToBattleAO(Player* player)
 {
-    uint32 team = player->GetTeamFromDB();
+    uint32 team = player->GetTeam(true);
     if (player->IsDeserter(team))
         player->TeleportTo(BATTLEAO_MAP, -5610.104980f, -592.819092f, -20.958515f, 1.135133f);
     else if (team == ALLIANCE)

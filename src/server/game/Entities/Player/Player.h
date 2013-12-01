@@ -126,10 +126,11 @@ enum StatsModType
 {
     STAT_MOD_TYPE_NONE      = 0,
     STAT_MOD_TYPE_WORLD     = 1,
-    STAT_MOD_TYPE_BAO       = 2,
-    STAT_MOD_TYPE_BG_BA     = 3,
+    STAT_MOD_TYPE_BG        = 2,
+    STAT_MOD_TYPE_BAO       = 3,
     STAT_MOD_TYPE_SAO       = 4,
-    STAT_MOD_TYPE_END       = 5
+    STAT_MOD_TYPE_BG_BA     = 5,
+    STAT_MOD_TYPE_END       = 6
 };
 
 // Spell modifier (used for modify other spells)
@@ -1163,7 +1164,7 @@ class Player : public Unit, public GridObject<Player>
         PlayerSocial *GetSocial() { return m_social; }
 
         PlayerTaxi m_taxi;
-        void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(GetTeamFromDB(), getRace(), getClass(), getLevel()); }
+        void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(GetTeam(true), getRace(), getClass(), getLevel()); }
         bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = NULL, uint32 spellid = 0);
         bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0);
         void CleanupAfterTaxiFlight();
@@ -1789,7 +1790,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateStatMod(uint32 type, uint16 unitMod, uint32 value);
         uint32 GetStatMod(uint32 type, uint16 unitMod) { return m_statsModGroup[type][unitMod]; }
         uint32 GetStatsModType() { return m_statsModType; }
-        StatsModType GetStatsModTypeForMap(uint32 mapid);
+        StatsModType GetStatsModTypeForMap();
         void ApplySpellPenetrationBonus(int32 amount, bool apply);
         void UpdateResistances(uint32 school);
         void UpdateArmor();
@@ -1935,9 +1936,8 @@ class Player : public Unit, public GridObject<Player>
         void CheckAreaExploreAndOutdoor(void);
 
         static uint32 TeamForRace(uint8 race);
-        uint32 GetTeam() const { return m_team; }
-        void SetTeam(uint32 team);
-        uint32 GetTeamFromDB();
+        void SetTeam(uint32 team, bool todb = false);
+        uint32 GetTeam(bool fromdb = false) const;
         TeamId GetTeamId() const { return m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
         void setFactionForRace(uint8 race);
 
