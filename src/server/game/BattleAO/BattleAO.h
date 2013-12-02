@@ -10,6 +10,7 @@
 #include "ObjectAccessor.h"
 #include "ScriptPCH.h"
 #include "ScriptedCreature.h"
+#include "Language.h"
 
 enum BattleAOIds
 {
@@ -185,116 +186,124 @@ class BattleAO : public ZoneScript
 {
     friend class BattleAOMgr;
 
-public:
+    public:
 
-    BattleAO();
-    virtual ~BattleAO();
+        BattleAO();
+        virtual ~BattleAO();
 
-    template<class Do>
-    void BroadcastWorker(Do& _do);
-    void PlaySoundToAll(uint32 SoundID);
-    void SendMessage2ToAll(int32 entry, ChatMsg type, Player const* source, int32 arg1, int32 arg2);
+        template<class Do>
+        void BroadcastWorker(Do& _do);
+        void PlaySoundToAll(uint32 SoundID);
+        void SendMessage2ToAll(int32 entry, ChatMsg type, Player const* source, int32 arg1, int32 arg2);
 
-    bool SetupBattleAO();
-    bool Update(uint32 diff);
+        bool SetupBattleAO();
+        bool Update(uint32 diff);
 
-    typedef std::map<uint64, BattleAOPlayer> BattleAOPlayerMap;
-    BattleAOPlayerMap const& GetPlayers() const { return m_Players; }
-    bool HasPlayer(Player* player) const { return m_Players.find(player->GetGUID()) != m_Players.end(); }
-    bool HasPlayerByGuid(uint64 guid) const { return m_Players.find(guid) != m_Players.end(); }
+        typedef std::map<uint64, BattleAOPlayer> BattleAOPlayerMap;
+        BattleAOPlayerMap const& GetPlayers() const { return m_Players; }
+        bool HasPlayer(Player* player) const { return m_Players.find(player->GetGUID()) != m_Players.end(); }
+        bool HasPlayerByGuid(uint64 guid) const { return m_Players.find(guid) != m_Players.end(); }
 
-    typedef std::map<uint64, BattleAOScore*> BattleAOScoreMap;
-    BattleAOScoreMap::const_iterator GetPlayerScoresBegin() const { return PlayerScores.begin(); }
-    BattleAOScoreMap::const_iterator GetPlayerScoresEnd() const { return PlayerScores.end(); }
-    uint32 GetPlayerScoresSize() const { return PlayerScores.size(); }
+        typedef std::map<uint64, BattleAOScore*> BattleAOScoreMap;
+        BattleAOScoreMap::const_iterator GetPlayerScoresBegin() const { return PlayerScores.begin(); }
+        BattleAOScoreMap::const_iterator GetPlayerScoresEnd() const { return PlayerScores.end(); }
+        uint32 GetPlayerScoresSize() const { return PlayerScores.size(); }
 
-    void AddPlayer(Player* player);
-    void RemovePlayer(uint64 guid, bool teleport=true);
-    void HandlePlayerEnterZone(Player* player, uint32 zoneid);
-    void HandlePlayerLeaveZone(Player* player, uint32 zoneid);
-    void HandleKill(Player* killer, Player* victim);
-    void HandleQuestComplete(uint32 questid, Player* player);
-    void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj);
-    void EventPlayerLoggedIn(Player* player);
-    void EventPlayerLoggedOut(Player* player);
+        // Players
+        static TeamId GetTeamIndexByTeamId(uint32 Team) { return Team == ALLIANCE ? TEAM_ALLIANCE : Team == HORDE ? TEAM_HORDE : TEAM_NEUTRAL; }
+        uint32 GetOtherTeam(uint32 team) const { return (team == HORDE ? ALLIANCE : HORDE); }
+        void UpdatePlayersCount(uint32 Team, bool remove) { m_PlayersCount[GetTeamIndexByTeamId(Team)] = m_PlayersCount[GetTeamIndexByTeamId(Team)]+1-2*remove; }
+        int32 GetPlayersCount(uint32 team) const { return m_PlayersCount[GetTeamIndexByTeamId(team)]; }
+        uint32 GetFreeSlotsForTeam(uint32 team) const;
+        void RemoveFromBAOFreeSlotQueue();
+        bool CanPlayersTag() { return m_playerscantag; }
+        void SetPlayersCanTag(bool playerscantag) { m_playerscantag = playerscantag; }
+        void SetBalanceTag(bool balancetag) { m_balancetag = balancetag; }
 
-    Group* GetFreeBAORaid(TeamId TeamId);
-    Group* GetGroupPlayer(uint64 guid, TeamId TeamId);
-    bool AddOrSetPlayerToCorrectBAOGroup(Player* player);
-    WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
+        void AddPlayer(Player* player);
+        void RemovePlayer(uint64 guid, bool teleport=true);
+        Group* GetFreeBAORaid(TeamId TeamId);
+        Group* GetGroupPlayer(uint64 guid, TeamId TeamId);
+        bool AddOrSetPlayerToCorrectBAOGroup(Player* player);
 
-    void UpdatePlayerScore(Player* Source, uint32 type, uint32 value);
-    void SendUpdateWorldState(uint32 Field, uint32 value);
-    void SendAllNodeUpdate(Player* player);
-    void FillInitialWorldStates(WorldPacket& data);
-    void FillInitialWorldStatesForKZ(WorldPacket& data);
-    void SendPacketToAll(WorldPacket* packet);
-    void SendPacketToTeam(uint32 TeamID, WorldPacket* packet, Player* sender = NULL, bool self = true);
+        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value);
+        void SendUpdateWorldState(uint32 Field, uint32 value);
+        void SendAllNodeUpdate(Player* player);
+        void FillInitialWorldStates(WorldPacket& data);
+        void FillInitialWorldStatesForKZ(WorldPacket& data);
+        void SendPacketToAll(WorldPacket* packet);
+        void SendPacketToTeam(uint32 TeamID, WorldPacket* packet, Player* sender = NULL, bool self = true);
 
-    typedef std::vector<uint64> AOCreatures;
-    AOCreatures AoCreatures;
-    Creature* GetAOCreature(uint32 type);
-    Creature* AddCreature(uint32 entry, uint32 type, uint32 teamval, float x, float y, float z, float o, uint32 respawntime = 0);
-    bool AddSpiritGuide(uint32 type, float x, float y, float z, float o, uint32 team); // tofix:guard
-    bool DelCreature(uint32 type);
+        void RemoveAurasFromPlayer(Player* player);
+        void TeamCastSpell(TeamId team, int32 spellId);
 
-    typedef std::vector<uint64> AOObjects;
-    AOObjects AoObjects;
-    GameObject* GetAOObject(uint32 type);
-    bool AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime = 0);
-    void SpawnAOObject(uint32 type, uint32 respawntime);
-    bool DelObject(uint32 type);
+        // Extern
+        void HandlePlayerEnterZone(Player* player, uint32 zoneid);
+        void HandlePlayerLeaveZone(Player* player, uint32 zoneid);
+        void HandleKill(Player* killer, Player* victim);
+        void HandleQuestComplete(uint32 questid, Player* player);
+        void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj);
+        void EventPlayerLoggedIn(Player* player);
+        void EventPlayerLoggedOut(Player* player);
 
-    static TeamId GetTeamIndexByTeamId(uint32 Team) { return Team == ALLIANCE ? TEAM_ALLIANCE : Team == HORDE ? TEAM_HORDE : TEAM_NEUTRAL; }
-    uint32 GetOtherTeam(uint32 team) { return (team == HORDE ? ALLIANCE : HORDE); }
-    void UpdatePlayersCount(uint32 Team, bool remove) { m_PlayersCount[GetTeamIndexByTeamId(Team)] = m_PlayersCount[GetTeamIndexByTeamId(Team)]+1-2*remove; }
-    int32 GetPlayersCount(uint32 team) const { return m_PlayersCount[GetTeamIndexByTeamId(team)]; }
-    uint32 GetFreeSlotsForTeam(Team Team) const;
-    void RemoveFromBAOFreeSlotQueue();
-    bool CanPlayersTag() { return m_playerscantag; }
-    void SetPlayersCanTag(bool playerscantag) { m_playerscantag = playerscantag; }
-    void SetBalanceTag(bool balancetag) { m_balancetag = balancetag; }
+        // Objects
+        typedef std::vector<uint64> AOCreatures;
+        AOCreatures AoCreatures;
+        Creature* GetAOCreature(uint32 type);
+        Creature* AddCreature(uint32 entry, uint32 type, uint32 teamval, float x, float y, float z, float o, uint32 respawntime = 0);
+        bool AddSpiritGuide(uint32 type, float x, float y, float z, float o, uint32 team); // tofix:guard
+        bool DelCreature(uint32 type);
 
-    void RemoveAurasFromPlayer(Player* player);
-    void TeamCastSpell(TeamId team, int32 spellId);
+        typedef std::vector<uint64> AOObjects;
+        AOObjects AoObjects;
+        GameObject* GetAOObject(uint32 type);
+        bool AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime = 0);
+        void SpawnAOObject(uint32 type, uint32 respawntime);
+        bool DelObject(uint32 type);
 
-    bool TeamHasDepForNode(uint32 team, uint8 node);
-    void UpdateBannersFlag(uint8 node, uint32 teambefore, uint32 teamafter = 0);
+        // Nodes
+        void TeamAttack(uint8 node, uint32 team);
+        void TeamDefense(uint8 node, uint32 team);
+        void TeamTaken(uint8 node, uint32 team);
+        void NeutralAttack(uint8 node);
+        void NeutralTaken(uint8 node);
+        bool TeamHasDepForNode(uint32 team, uint8 node);
+        void UpdateBannersFlag(uint8 node, uint32 teambefore, uint32 teamafter = 0);
+        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
+        void CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay = false);
+        void DelBanner(uint8 node, uint8 status);
+        void SendNodeUpdate(uint8 node);
+        int32 GetNodeNameId(uint8 node, bool maj = false) { return node < LANG_BAO_NODE_MAX ? (LANG_BAO_NODE_FIRST + node + 20 * maj) : LANG_BAO_NODE_FIRST; }
+        void PopulateNode(uint8 node, uint32 team);
+        void DepopulateNode(uint8 node);
 
-private:
+    private:
 
-    Map* m_Map;
-    BattleAOPlayerMap m_Players;
-    int32 m_PlayersCount[BAO_TEAMS_COUNT];
-    GuidSet m_Groups[BG_TEAMS_COUNT];
-    std::deque<uint64> m_OfflineQueue;
-    BattleAOScoreMap PlayerScores;
-    bool m_playerscantag;
-    bool m_balancetag;
+        Map* m_Map;
+        BattleAOPlayerMap m_Players;
+        int32 m_PlayersCount[BAO_TEAMS_COUNT];
+        GuidSet m_Groups[BG_TEAMS_COUNT];
+        std::deque<uint64> m_OfflineQueue;
+        BattleAOScoreMap PlayerScores;
+        bool m_playerscantag;
+        bool m_balancetag;
 
-    AO_Node m_Nodes[BAO_NODES_COUNT];
-    uint32 m_lastTick[BG_TEAMS_COUNT];
+        AO_Node m_Nodes[BAO_NODES_COUNT];
+        uint32 m_lastTick[BG_TEAMS_COUNT];
 
-    void _CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay = false);
-    void _DelBanner(uint8 node, uint8 status);
-    void _SendNodeUpdate(uint8 node);
-    int32 _GetNodeNameId(uint8 node, bool maj = false);
-    void _NodeOccupied(uint8 node, Team team); // tofix:guards
-    void _NodeDeOccupied(uint8 node);
-
-    Player* _GetPlayer(uint64 guid, bool offlineRemove, char const* context) const {
-        Player* player = NULL;
-        if (!offlineRemove)
-            player = ObjectAccessor::FindPlayer(guid);
-        return player; }
-    Player* _GetPlayer(BattleAOPlayerMap::iterator itr, char const* context) { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime, context); }
-    Player* _GetPlayer(BattleAOPlayerMap::const_iterator itr, char const* context) const { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime, context); }
-    Player* _GetPlayerForTeam(uint32 teamId, BattleAOPlayerMap::const_iterator itr, char const* context) const {
-    Player* player = _GetPlayer(itr, context);
-        if (player) {
-            uint32 team = itr->second.Team;
-            if (!team)
-                team = player->GetTeam();
+        Player* _GetPlayer(uint64 guid, bool offlineRemove, char const* context) const {
+            Player* player = NULL;
+            if (!offlineRemove)
+                player = ObjectAccessor::FindPlayer(guid);
+            return player; }
+        Player* _GetPlayer(BattleAOPlayerMap::iterator itr, char const* context) { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime, context); }
+        Player* _GetPlayer(BattleAOPlayerMap::const_iterator itr, char const* context) const { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime, context); }
+        Player* _GetPlayerForTeam(uint32 teamId, BattleAOPlayerMap::const_iterator itr, char const* context) const {
+            Player* player = _GetPlayer(itr, context);
+            if (player) {
+                uint32 team = itr->second.Team;
+                if (!team)
+                    team = player->GetTeam();
                 if (team != teamId)
                     player = NULL; }
             return player; }

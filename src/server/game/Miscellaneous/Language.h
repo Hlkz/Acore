@@ -1178,6 +1178,7 @@ enum TrinityStrings
 
     LANG_BAO_ALLY                     = 17810,
     LANG_BAO_HORDE                    = 17811,
+    LANG_BAO_NODE_FIRST               = 17812,
     LANG_BAO_NODE_NORD                  = 17812,
     LANG_BAO_NODE_SUD                   = 17813,
     LANG_BAO_NODE_RUINES                = 17814,
@@ -1186,6 +1187,7 @@ enum TrinityStrings
     LANG_BAO_NODE_TOUR_H2               = 17817,
     LANG_BAO_NODE_A2                  = 17818,
     LANG_BAO_NODE_H2                  = 17819,
+    LANG_BAO_NODE_MAX                 = 17820,
     LANG_BAO_NODE_TAKEN                 = 17820,
     LANG_BAO_NODE_DEFENDED              = 17821,
     LANG_BAO_NODE_ASSAULTED             = 17822,
