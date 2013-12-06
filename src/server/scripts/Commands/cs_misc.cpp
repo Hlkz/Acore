@@ -99,6 +99,7 @@ public:
             { "additem",            SEC_GAMEMASTER,         false, &HandleAddItemCommand,               "", NULL },
             { "additemset",         SEC_GAMEMASTER,         false, &HandleAddItemSetCommand,            "", NULL },
             { "bank",               SEC_ANIMATOR,           false, &HandleBankCommand,                  "", NULL },
+            { "mailbox",            SEC_GAMEMASTER,         false, &HandleMailBoxCommand,               "", NULL },
             { "wchange",            SEC_ADMINISTRATOR,      false, &HandleChangeWeather,                "", NULL },
             { "maxskill",           SEC_ADMINISTRATOR,      false, &HandleMaxSkillCommand,              "", NULL },
             { "setskill",           SEC_GAMEMASTER,         false, &HandleSetSkillCommand,              "", NULL },
@@ -3094,6 +3095,14 @@ public:
             return false;
 
         player->StopCastingBindSight();
+        return true;
+    }
+
+    static bool HandleMailBoxCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        Player* player = handler->GetSession()->GetPlayer();
+
+        handler->GetSession()->SendShowMailBox(player->GetGUID());
         return true;
     }
 
