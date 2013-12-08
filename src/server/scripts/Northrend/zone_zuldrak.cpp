@@ -1431,6 +1431,8 @@ public:
 
             void Reset()
             {
+                _playerGUID = 0;
+                _getingredienttry = 0;
                 _events.ScheduleEvent(EVENT_TURN_TO_POT, urand(15000, 26000));
             }
 
