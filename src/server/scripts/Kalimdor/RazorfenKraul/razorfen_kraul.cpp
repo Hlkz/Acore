@@ -176,6 +176,7 @@ public:
         void Reset()
         {
             IsMovementActive = false;
+            TargetTubberGUID = 0;
         }
 
         void MovementInform(uint32 type, uint32 id)
