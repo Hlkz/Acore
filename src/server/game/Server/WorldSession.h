@@ -266,7 +266,7 @@ class WorldSession
         void SendListInventory(uint64 guid);
         void SendVendor(uint32 entry);
         void SendShowBank(uint64 guid);
-        bool CheckMailBox(uint64 guid);
+        bool CanOpenMailBox(uint64 guid);
         void SendShowMailBox(uint64 guid);
         void SendTabardVendorActivate(uint64 guid);
         void SendSpiritResurrect();
