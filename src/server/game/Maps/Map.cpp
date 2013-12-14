@@ -1364,6 +1364,7 @@ GridMap::GridMap()
     // Height level data
     _gridHeight = INVALID_HEIGHT;
     _gridGetHeight = &GridMap::getHeightFromFlat;
+    _gridIntHeightMultiplier = 0;
     m_V9 = NULL;
     m_V8 = NULL;
     // Liquid data

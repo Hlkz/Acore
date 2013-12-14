@@ -101,6 +101,7 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8
     m_muteTime(mute_time),
     m_timeOutTime(0),
     AntiDOS(this),
+    m_GUIDLow(0),
     _player(NULL),
     m_Socket(sock),
     _security(sec),
@@ -121,6 +122,8 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8
     recruiterId(recruiter),
     isRecruiter(isARecruiter)
 {
+    memset(m_Tutorials, 0, sizeof(m_Tutorials));
+
     if (sock)
     {
         m_Address = sock->GetRemoteAddress();
