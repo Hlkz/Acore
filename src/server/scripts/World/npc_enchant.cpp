@@ -46,33 +46,33 @@ public:
         Item *item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slotid);
 
         if(!item) {
-            creature->MonsterWhisper("Vous devez vous équiper de l'objet.", player->GetGUID());
+            creature->MonsterWhisper("Vous devez vous équiper de l'objet.", player);
             OnGossipHello(player, creature);
             return; }
         if (requil == 1 && item->GetTemplate()->ItemLevel <= 34) {
-            creature->MonsterWhisper("L'objet n'est pas d'un niveau suffisant.", player->GetGUID());
+            creature->MonsterWhisper("L'objet n'est pas d'un niveau suffisant.", player);
             OnGossipHello(player, creature);
             return; }
         if (twoha == 1 && item->GetTemplate()->InventoryType != 17) {
-            creature->MonsterWhisper("Cette enchantement requiert une arme à deux mains.", player->GetGUID());
+            creature->MonsterWhisper("Cette enchantement requiert une arme à deux mains.", player);
             OnGossipHello(player, creature);
             return; }
         if (slotid == 16) {
         if ((item->GetTemplate()->Class == 4) && (item->GetTemplate()->SubClass != 6)) {
-            creature->MonsterWhisper("Je n'enchante pas ce genre d'objets.", player->GetGUID());
+            creature->MonsterWhisper("Je n'enchante pas ce genre d'objets.", player);
             player->CLOSE_GOSSIP_MENU();
             return; }
         if(item->GetTemplate()->SubClass == 6 && slty == 1) {
-            creature->MonsterWhisper("Un enchantement d'arme ne va pas sur un bouclier.", player->GetGUID());
+            creature->MonsterWhisper("Un enchantement d'arme ne va pas sur un bouclier.", player);
             player->CLOSE_GOSSIP_MENU();
             return; }
         if(item->GetTemplate()->SubClass != 6 && slty == 0) {
-            creature->MonsterWhisper("Un enchantement de bouclier ne va pas sur ce type d'arme.", player->GetGUID());
+            creature->MonsterWhisper("Un enchantement de bouclier ne va pas sur ce type d'arme.", player);
             player->CLOSE_GOSSIP_MENU();
             return; } }
         SpellItemEnchantmentEntry const* enchant_id = sSpellItemEnchantmentStore.LookupEntry(enchid);
         if (!enchant_id) {
-            creature->MonsterWhisper("L'enchantement sélectionné n'est pas un enchantement, prévenez un administrateur.", player->GetGUID());
+            creature->MonsterWhisper("L'enchantement sélectionné n'est pas un enchantement, prévenez un administrateur.", player);
             player->CLOSE_GOSSIP_MENU();
             return; }
         player->ApplyEnchantment(item, PERM_ENCHANTMENT_SLOT, false);

@@ -1137,9 +1137,9 @@ public:
             // player must cast kill credit and do emote text, according to sniff
             if (Player* target = GetTarget()->ToPlayer())
             {
-                target->MonsterWhisper(SAY_1, target->GetGUID(), true);
+                target->MonsterWhisper(SAY_1, target, true);
                 target->KilledMonsterCredit(NPC_KILLCREDIT, 0);
-                target->MonsterWhisper(SAY_2, target->GetGUID(), true);
+                target->MonsterWhisper(SAY_2, target, true);
             }
         }
 

@@ -102,7 +102,7 @@ class example_escort : public CreatureScript
                             //pTmpPlayer is the target of the text
                             Talk(SAY_WP_3, player);
                             //pTmpPlayer is the source of the text
-                            sCreatureTextMgr->SendChat(me, SAY_WP_4, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
+                            sCreatureTextMgr->SendChat(me, SAY_WP_4, NULL, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
                         }
                         break;
                 }

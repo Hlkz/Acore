@@ -512,7 +512,7 @@ public:
                     return 2000;
                 case 9:
                     me->GetMotionMaster()->MoveTargetedHome();
-                     Spark->GetMotionMaster()->MovePoint(0, SparkPos);
+                    Spark->GetMotionMaster()->MovePoint(0, SparkPos);
                     CompleteQuest();
                     return 9000;
                 case 10:

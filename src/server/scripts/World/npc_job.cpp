@@ -114,7 +114,7 @@ public:
         else
         {
             player->CLOSE_GOSSIP_MENU();
-            creature->MonsterWhisper(player->GetSession()->GetTrinityString(LANG_NPC_JOB_ERR), player->GetGUID(), false);
+            creature->MonsterWhisper(player->GetSession()->GetTrinityString(LANG_NPC_JOB_ERR), player);
         }
 
         return true;

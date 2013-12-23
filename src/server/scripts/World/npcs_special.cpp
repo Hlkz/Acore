@@ -1071,17 +1071,9 @@ public:
                         switch (me->GetEntry())
                         {
                             case ENTRY_SHAYA:
-                                Talk(SAY_GOODBYE, unit);
-                                break;
                             case ENTRY_ROBERTS:
-                                Talk(SAY_GOODBYE, unit);
-                                break;
                             case ENTRY_DOLF:
-                                Talk(SAY_GOODBYE, unit);
-                                break;
                             case ENTRY_KORJA:
-                                Talk(SAY_GOODBYE, unit);
-                                break;
                             case ENTRY_DG_KEL:
                                 Talk(SAY_GOODBYE, unit);
                                 break;
