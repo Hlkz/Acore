@@ -31,7 +31,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_gelihastAI (creature);
+        return GetInstanceAI<boss_gelihastAI>(creature);
     }
 
     struct boss_gelihastAI : public ScriptedAI

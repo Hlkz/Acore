@@ -206,7 +206,7 @@ class boss_archaedas : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_archaedasAI(creature);
+            return GetInstanceAI<boss_archaedasAI>(creature);
         }
 };
 
@@ -303,7 +303,7 @@ class npc_archaedas_minions : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_archaedas_minionsAI(creature);
+            return GetInstanceAI<npc_archaedas_minionsAI>(creature);
         }
 };
 
@@ -366,7 +366,7 @@ class npc_stonekeepers : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_stonekeepersAI(creature);
+            return GetInstanceAI<npc_stonekeepersAI>(creature);
         }
 };
 

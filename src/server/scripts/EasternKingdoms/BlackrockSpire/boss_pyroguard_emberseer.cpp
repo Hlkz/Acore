@@ -316,7 +316,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_pyroguard_emberseerAI(creature);
+        return GetInstanceAI<boss_pyroguard_emberseerAI>(creature);
     }
 };
 

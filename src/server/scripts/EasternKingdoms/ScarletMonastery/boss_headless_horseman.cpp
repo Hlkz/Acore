@@ -373,7 +373,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_headless_horsemanAI (creature);
+        return GetInstanceAI<boss_headless_horsemanAI>(creature);
     }
 
     struct boss_headless_horsemanAI : public ScriptedAI
