@@ -381,6 +381,7 @@ public:
         boss_headless_horsemanAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
+            headGUID = 0;
         }
 
         InstanceScript* instance;
