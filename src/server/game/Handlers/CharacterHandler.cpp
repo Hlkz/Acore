@@ -1895,10 +1895,10 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                 if (result)
                     if (Guild* guild = sGuildMgr->GetGuildById((result->Fetch()[0]).GetUInt32()))
                         guild->DeleteMember(MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER), false, false, true);
+
+                Player::LeaveAllArenaTeams(guid);
             }
 
-            // Leave Arena Teams
-            Player::LeaveAllArenaTeams(guid);
 
             // Reset homebind and position
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_HOMEBIND);
