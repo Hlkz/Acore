@@ -113,7 +113,6 @@ public:
     {
         //basic support, not blizzlike data is missing...
         InstanceScript* instance = go->GetInstanceScript();
-            spawnerCount = 0;
 
         if (instance)
         {
