@@ -361,7 +361,6 @@ class spell_pal_divine_sacrifice : public SpellScriptLoader
 
             bool Load()
             {
-
                 if (Unit* caster = GetCaster())
                 {
                     if (caster->GetTypeId() == TYPEID_PLAYER)
