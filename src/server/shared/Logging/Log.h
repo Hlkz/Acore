@@ -131,4 +131,7 @@ inline bool Log::ShouldLog(LogFilterType type, LogLevel level) const
 #define TC_LOG_FATAL(filterType__, ...) \
     TC_LOG_MESSAGE_BODY(LOG_LEVEL_FATAL, outFatal, filterType__, __VA_ARGS__)
 
+#define TCLC(...) \
+    TC_LOG_MESSAGE_BODY(LOG_LEVEL_ERROR, outError, LOG_FILTER_GENERAL, __VA_ARGS__)
+
 #endif
