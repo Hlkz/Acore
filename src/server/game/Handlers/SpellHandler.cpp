@@ -265,6 +265,8 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)
 {
+	TCLC("coucou useop");
+
     uint64 guid;
 
     recvData >> guid;

@@ -1423,7 +1423,12 @@ void AuraEffect::HandleModStealth(AuraApplication const* aurApp, uint8 mode, boo
 
         target->SetStandFlags(UNIT_STAND_FLAGS_CREEP);
         if (target->GetTypeId() == TYPEID_PLAYER)
+        {
             target->SetByteFlag(PLAYER_FIELD_BYTES2, 3, PLAYER_FIELD_BYTE2_STEALTH);
+            if (target->GetMapId() == BATTLEAO_MAP)
+                if (BattleAO* bao = sBattleAOMgr->GetBattleAO())
+                    bao->HandleStealth(target->ToPlayer());
+        }
     }
     else
     {
@@ -1435,7 +1440,12 @@ void AuraEffect::HandleModStealth(AuraApplication const* aurApp, uint8 mode, boo
 
             target->RemoveStandFlags(UNIT_STAND_FLAGS_CREEP);
             if (target->GetTypeId() == TYPEID_PLAYER)
+            {
                 target->RemoveByteFlag(PLAYER_FIELD_BYTES2, 3, PLAYER_FIELD_BYTE2_STEALTH);
+                if (target->GetMapId() == BATTLEAO_MAP)
+                    if (BattleAO* bao = sBattleAOMgr->GetBattleAO())
+                        bao->HandleStealth(target->ToPlayer());
+            }
         }
     }
 

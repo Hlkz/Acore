@@ -1065,3 +1065,12 @@ void BattleAO::HandleQuestComplete(uint32 questid, Player* player)
             break;
     }
 }
+
+
+
+void BattleAO::HandleStealth(Player* player)
+{
+    BattleAOPlayerMap::iterator itr = m_Players.find(player->GetGUID());
+    if (itr != m_Players.end())
+        itr->second.CantClickTime = sWorld->GetGameTime();    
+}

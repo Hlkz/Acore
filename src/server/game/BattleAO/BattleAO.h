@@ -152,6 +152,7 @@ struct BattleAOPlayer
 {
     time_t  OfflineRemoveTime;
     uint32  Team;
+    time_t  CantClickTime;
 };
 
 struct AO_BannerTimer
@@ -242,6 +243,7 @@ class BattleAO : public ZoneScript
         void HandlePlayerLeaveZone(Player* player, uint32 zoneid);
         void HandleKill(Player* killer, Player* victim);
         void HandleQuestComplete(uint32 questid, Player* player);
+        void HandleStealth(Player* player);
         void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj);
         void EventPlayerLoggedIn(Player* player);
         void EventPlayerLoggedOut(Player* player);

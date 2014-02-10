@@ -18,6 +18,7 @@
 
 #include <G3D/Quat.h>
 #include "GameObjectAI.h"
+#include "BattleAOMgr.h"
 #include "BattlegroundAV.h"
 #include "CellImpl.h"
 #include "CreatureAISelector.h"
@@ -1137,9 +1138,22 @@ void GameObject::Use(Unit* user)
     {
         case GAMEOBJECT_TYPE_DOOR:                          //0
         case GAMEOBJECT_TYPE_BUTTON:                        //1
-            //doors/buttons never really despawn, only reset to default state/flags
+        {
+            if (m_mapId == BATTLEAO_MAP)
+                if (Player* player = user->ToPlayer())
+                {
+                    GameObjectTemplate const* goInfo = GetGOInfo();
+                    if (goInfo->button.losOK && goInfo->button.noDamageImmune)
+                        if (BattleAO* bao = sBattleAOMgr->GetBattleAO())
+                        {
+                            bao->EventPlayerClickedOnFlag(user->ToPlayer(), this);
+                            UseDoorOrButton(6000, false, user);
+                            return;
+                        }
+                }
             UseDoorOrButton(0, false, user);
             return;
+        }
         case GAMEOBJECT_TYPE_QUESTGIVER:                    //2
         {
             if (user->GetTypeId() != TYPEID_PLAYER)
