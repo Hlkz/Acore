@@ -3319,6 +3319,7 @@ enum BattlegroundTypeId
     BATTLEGROUND_DS             = 10, // Dalaran Sewers
     BATTLEGROUND_RV             = 11, // Ring of Valor
     BATTLEGROUND_BA             = 12, // MOBA
+    BATTLEGROUND_IWP            = 13, // IWP
     BATTLEGROUND_IC             = 30, // Isle of Conquest
     BATTLEGROUND_RB             = 32, // Random Battleground
     BATTLEGROUND_AO             = 33, // AObg

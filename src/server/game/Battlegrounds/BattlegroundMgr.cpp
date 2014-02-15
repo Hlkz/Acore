@@ -36,6 +36,7 @@
 #include "BattlegroundRV.h"
 #include "BattlegroundIC.h"
 #include "BattlegroundBA.h"
+#include "BattlegroundIWP.h"
 #include "Chat.h"
 #include "Map.h"
 #include "MapInstanced.h"
@@ -325,11 +326,12 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                         *data << uint32(0x00000002);            // count of next fields
                         *data << uint32(((BattlegroundICScore*)score)->BasesAssaulted);       // bases asssulted
                         *data << uint32(((BattlegroundICScore*)score)->BasesDefended);        // bases defended
-                    case 784:                                   // BA
-                        *data << uint32(0x00000002);            // count of next fields
-                        *data << uint32(((BattlegroundBAScore*)itr2->second)->CreepsKilled);
-                        *data << uint32(((BattlegroundBAScore*)itr2->second)->ArcaneFrag);
-                    case 782:
+					case 784:                                   // BA
+						*data << uint32(0x00000002);            // count of next fields
+						*data << uint32(((BattlegroundBAScore*)itr2->second)->CreepsKilled);
+						*data << uint32(((BattlegroundBAScore*)itr2->second)->ArcaneFrag);
+					case 782:                                   // BAO
+					case 789:                                   // IWP
                     default:
                         *data << uint32(0);
                         break;
@@ -372,6 +374,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                 *data << uint32(((BattlegroundBAScore*)itr2->second)->CreepsKilled);
                 *data << uint32(((BattlegroundBAScore*)itr2->second)->ArcaneFrag);
                 break;
+			case BATTLEGROUND_IWP:
             case BATTLEGROUND_AO:
             case BATTLEGROUND_NA:
             case BATTLEGROUND_BE:
@@ -676,6 +679,9 @@ bool BattlegroundMgr::CreateBattleground(CreateBattlegroundData& data)
             break;
         case BATTLEGROUND_BA:
             bg = new BattlegroundBA;
+            break;
+        case BATTLEGROUND_IWP:
+            bg = new BattlegroundIWP;
             break;
         case BATTLEGROUND_AO:
         case BATTLEGROUND_AA:
