@@ -861,13 +861,13 @@ public:
         uint32 count = 0;
         uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
-        // Search in Spell.dbc
+        // Search in Spell db
         for (uint32 id = 0; id < sSpellMgr->GetSpellInfoStoreSize(); id++)
         {
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(id);
             if (spellInfo)
             {
-                int locale = handler->GetSessionDbcLocale();
+                int locale = 0;//handler->GetSessionDbcLocale();
                 std::string name = spellInfo->SpellName[locale];
                 if (name.empty())
                     continue;
@@ -877,7 +877,7 @@ public:
                     locale = 0;
                     for (; locale < TOTAL_LOCALES; ++locale)
                     {
-                        if (locale == handler->GetSessionDbcLocale())
+                        if (locale == 0)//handler->GetSessionDbcLocale())
                             continue;
 
                         name = spellInfo->SpellName[locale];

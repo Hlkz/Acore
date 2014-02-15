@@ -439,12 +439,12 @@ public:
 
             AuraApplication const* aurApp = itr->second;
             Aura const* aura = aurApp->GetBase();
-            char const* name = aura->GetSpellInfo()->SpellName[handler->GetSessionDbcLocale()];
+            std::string name = aura->GetSpellInfo()->SpellName[0];//handler->GetSessionDbcLocale()];
 
             std::ostringstream ss_name;
             ss_name << "|cffffffff|Hspell:" << aura->GetId() << "|h[" << name << "]|h|r";
 
-            handler->PSendSysMessage(LANG_COMMAND_TARGET_AURADETAIL, aura->GetId(), (handler->GetSession() ? ss_name.str().c_str() : name),
+            handler->PSendSysMessage(LANG_COMMAND_TARGET_AURADETAIL, aura->GetId(), (handler->GetSession() ? ss_name.str().c_str() : name.c_str()),
                 aurApp->GetEffectMask(), aura->GetCharges(), aura->GetStackAmount(), aurApp->GetSlot(),
                 aura->GetDuration(), aura->GetMaxDuration(), (aura->IsPassive() ? passiveStr : ""),
                 (talent ? talentStr : ""), IS_PLAYER_GUID(aura->GetCasterGUID()) ? "player" : "creature",

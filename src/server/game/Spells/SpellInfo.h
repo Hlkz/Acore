@@ -251,7 +251,7 @@ public:
     std::list<Condition*>* ImplicitTargetConditions;
 
     SpellEffectInfo() { }
-    SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex);
+    SpellEffectInfo(SpellInfo const* spellInfo, uint8 effIndex, Field* fields);
 
     bool IsEffect() const;
     bool IsEffect(SpellEffects effectName) const;
@@ -351,8 +351,8 @@ public:
     uint32 SpellVisual[2];
     uint32 SpellIconID;
     uint32 ActiveIconID;
-    char* SpellName[16];
-    char* Rank[16];
+    std::string SpellName[16];
+    std::string Rank[16];
     uint32 MaxTargetLevel;
     uint32 MaxAffectedTargets;
     uint32 SpellFamilyName;
@@ -365,7 +365,7 @@ public:
     uint32 ExplicitTargetMask;
     SpellChainNode const* ChainEntry;
 
-    SpellInfo(SpellEntry const* spellEntry);
+    SpellInfo(Field* fields);
     ~SpellInfo();
 
     uint32 GetCategory() const;

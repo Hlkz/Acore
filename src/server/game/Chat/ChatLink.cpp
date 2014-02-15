@@ -320,7 +320,7 @@ bool SpellChatLink::ValidateName(char* buffer, const char* context)
     }
 
     for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
-        if (*_spell->SpellName[i] && strcmp(_spell->SpellName[i], buffer) == 0)
+        if (*_spell->SpellName[i].c_str() && strcmp(_spell->SpellName[i].c_str(), buffer) == 0)
             return true;
 
     TC_LOG_TRACE(LOG_FILTER_CHATSYS, "ChatHandler::isValidChatMessage('%s'): linked spell (id: %u) name wasn't found in any localization", context, _spell->Id);

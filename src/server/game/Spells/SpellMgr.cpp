@@ -2645,13 +2645,17 @@ void SpellMgr::LoadSpellAreas()
 void SpellMgr::LoadSpellInfoStore()
 {
     uint32 oldMSTime = getMSTime();
-
     UnloadSpellInfoStore();
-    mSpellInfoMap.resize(sSpellStore.GetNumRows(), NULL);
 
-    for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
-        if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(i))
-            mSpellInfoMap[i] = new SpellInfo(spellEntry);
+    PreparedStatement* stmt;
+    stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SPELLS_SIZE);
+    PreparedQueryResult sizeresult = WorldDatabase.Query(stmt);
+    mSpellInfoMap.resize(sizeresult->Fetch()[0].GetUInt32()+1, NULL);
+
+    stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SPELLS);
+    PreparedQueryResult result = WorldDatabase.Query(stmt);
+    do mSpellInfoMap[result->Fetch()[0].GetUInt32()] = new SpellInfo(result->Fetch());
+    while (result->NextRow());
 
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded SpellInfo store in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }

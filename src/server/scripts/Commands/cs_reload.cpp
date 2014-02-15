@@ -152,6 +152,7 @@ public:
             { "spell_target_position",        SEC_GAMEMASTER,    true,  &HandleReloadSpellTargetPositionCommand,        "", NULL },
             { "spell_threats",                SEC_GAMEMASTER,    true,  &HandleReloadSpellThreatsCommand,               "", NULL },
             { "spell_group_stack_rules",      SEC_GAMEMASTER,    true,  &HandleReloadSpellGroupStackRulesCommand,       "", NULL },
+            { "spells",                       SEC_ADMINISTRATOR, true,  &HandleReloadSpellsCommand,                     "", NULL },
             { "trinity_string",               SEC_GAMEMASTER,    true,  &HandleReloadTrinityStringCommand,              "", NULL },
             { "warden_action",                SEC_GAMEMASTER,    true,  &HandleReloadWardenactionCommand,               "", NULL },
             { "waypoint_scripts",             SEC_GAMEMASTER,    true,  &HandleReloadWpScriptsCommand,                  "", NULL },
@@ -925,6 +926,14 @@ public:
         TC_LOG_INFO(LOG_FILTER_GENERAL, "Re-Loading Spell Group Stack Rules...");
         sSpellMgr->LoadSpellGroupStackRules();
         handler->SendGlobalGMSysMessage("DB table `spell_group_stack_rules` (spell stacking definitions) reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadSpellsCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "Re-Loading Spells...");
+        sSpellMgr->LoadSpellInfoStore();
+        handler->SendGlobalGMSysMessage("DB table `spells` reloaded.");
         return true;
     }
 
