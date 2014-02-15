@@ -558,7 +558,7 @@ struct _ItemStat
 };
 struct _Spell
 {
-    int32 SpellId;                                         // id from Spell.dbc
+    int32 SpellId;                                         // id from `spells` table
     uint32 SpellTrigger;
     int32  SpellCharges;
     float  SpellPPMRate;
@@ -606,7 +606,7 @@ struct ItemTemplate
     uint32 RequiredLevel;
     uint32 RequiredSkill;                                   // id from SkillLine.dbc
     uint32 RequiredSkillRank;
-    uint32 RequiredSpell;                                   // id from Spell.dbc
+    uint32 RequiredSpell;                                   // id from `spells` table
     uint32 RequiredHonorRank;
     uint32 RequiredCityRank;
     uint32 RequiredPvpRank;                                 // custom pvp rank 0-12

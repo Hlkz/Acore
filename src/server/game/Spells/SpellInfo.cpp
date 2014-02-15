@@ -845,10 +845,10 @@ SpellInfo::SpellInfo(Field* fields)
     ActiveIconID                    = fields[125].GetUInt32();
 
     for (uint8 i = 0; i < 16; ++i)
-        SpellName[i] = (char*)fields[126+i].GetString().c_str();
+        SpellName[i] = fields[126+i].GetString();
 
     for (uint8 i = 0; i < 16; ++i)
-        Rank[i] = (char*)fields[142+i].GetString().c_str();
+        Rank[i] = fields[142+i].GetString();
 
     ManaCostPercentage      = fields[158].GetUInt32();
     StartRecoveryCategory   = fields[159].GetUInt32();

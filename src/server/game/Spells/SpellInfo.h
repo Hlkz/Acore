@@ -35,7 +35,6 @@ struct SpellDurationEntry;
 struct SpellModifier;
 struct SpellRangeEntry;
 struct SpellRadiusEntry;
-struct SpellEntry;
 struct SpellCastTimesEntry;
 struct Condition;
 

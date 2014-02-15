@@ -1149,11 +1149,14 @@ void World::SetInitialWorldSettings()
     stmt->setUInt32(0, 3 * DAY);
     CharacterDatabase.Execute(stmt);
 
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "PreLoading SpellInfo store..."); //tofix
+    sSpellMgr->LoadSpellInfoStore();
+
     ///- Load the DBC files
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Initialize data stores...");
     LoadDBCStores(m_dataPath);
     DetectDBCLang();
-
+    
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading SpellInfo store...");
     sSpellMgr->LoadSpellInfoStore();
 

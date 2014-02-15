@@ -1508,7 +1508,7 @@ void SpellMgr::LoadSpellLearnSpells()
                 {
                     if (itr->second.spell == dbc_node.spell)
                     {
-                        TC_LOG_ERROR(LOG_FILTER_SQL, "Spell %u auto-learn spell %u in spell.dbc then the record in `spell_learn_spell` is redundant, please fix DB.",
+                        TC_LOG_ERROR(LOG_FILTER_SQL, "Spell %u auto-learn spell %u in `spells` table then the record in `spell_learn_spell` is redundant, please fix DB.",
                             spell, dbc_node.spell);
                         found = true;
                         break;
@@ -2417,15 +2417,15 @@ void SpellMgr::LoadPetDefaultSpells()
     // different summon spells
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
-        SpellInfo const* spellEntry = GetSpellInfo(i);
-        if (!spellEntry)
+        SpellInfo const* spellInfo = GetSpellInfo(i);
+        if (!spellInfo)
             continue;
 
         for (uint8 k = 0; k < MAX_SPELL_EFFECTS; ++k)
         {
-            if (spellEntry->Effects[k].Effect == SPELL_EFFECT_SUMMON || spellEntry->Effects[k].Effect == SPELL_EFFECT_SUMMON_PET)
+            if (spellInfo->Effects[k].Effect == SPELL_EFFECT_SUMMON || spellInfo->Effects[k].Effect == SPELL_EFFECT_SUMMON_PET)
             {
-                uint32 creature_id = spellEntry->Effects[k].MiscValue;
+                uint32 creature_id = spellInfo->Effects[k].MiscValue;
                 CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(creature_id);
                 if (!cInfo)
                     continue;
@@ -2649,12 +2649,19 @@ void SpellMgr::LoadSpellInfoStore()
 
     PreparedStatement* stmt;
     stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SPELLS_SIZE);
-    PreparedQueryResult sizeresult = WorldDatabase.Query(stmt);
-    mSpellInfoMap.resize(sizeresult->Fetch()[0].GetUInt32()+1, NULL);
+    uint32 spellInfoMapSize = WorldDatabase.Query(stmt)->Fetch()[0].GetUInt32()+1;
+    mSpellInfoMap.resize(spellInfoMapSize, NULL);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SPELLS);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
-    do mSpellInfoMap[result->Fetch()[0].GetUInt32()] = new SpellInfo(result->Fetch());
+
+    do
+    {
+        Field* fields = result->Fetch();
+        if (fields[1].GetUInt32())
+            sSpellsByCategoryStore[fields[1].GetUInt32()].insert(fields[0].GetUInt32());
+        mSpellInfoMap[fields[0].GetUInt32()] = new SpellInfo(fields);
+    }
     while (result->NextRow());
 
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded SpellInfo store in %u ms", GetMSTimeDiffToNow(oldMSTime));
