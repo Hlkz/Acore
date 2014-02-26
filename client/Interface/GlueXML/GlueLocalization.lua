@@ -9,10 +9,6 @@ end
 function LocalizeFrames()
 	-- Put all locale specific UI adjustments here
 	RealmWizardSuggest:SetWidth(235);
-	WorldOfWarcraftRating:SetTexture("Interface\\Glues\\Login\\Glues-FrenchRating");
-	WorldOfWarcraftRating:ClearAllPoints();
-	WorldOfWarcraftRating:SetPoint("BOTTOMLEFT", "AccountLoginUI", "BOTTOMLEFT", 20, 45);
-	WorldOfWarcraftRating:Show();
 	RealmCharactersSort:SetWidth(RealmCharactersSort:GetWidth() + 8);
 	RealmLoadSort:SetWidth(RealmLoadSort:GetWidth() - 8);
 end

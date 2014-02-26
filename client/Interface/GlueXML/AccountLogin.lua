@@ -3,8 +3,6 @@ DEFAULT_TOOLTIP_COLOR = {0.8, 0.8, 0.8, 0.09, 0.09, 0.09};
 MAX_PIN_LENGTH = 10;
 
 function AccountLogin_OnLoad(self)
-	TOSFrame.noticeType = "EULA";
-
 	self:RegisterEvent("SHOW_SERVER_ALERT");
 	self:RegisterEvent("SHOW_SURVEY_NOTIFICATION");
 	self:RegisterEvent("CLIENT_ACCOUNT_MISMATCH");
@@ -29,29 +27,17 @@ function AccountLogin_OnLoad(self)
 	self:SetCamera(0);
 	self:SetSequence(0);
 	
-	if (IsStreamingTrial()) then
-		AccountLoginCinematicsButton:Disable();
-		AccountLogin:SetModel("Interface\\Glues\\Models\\UI_MainMenu\\UI_MainMenu.m2");
-	else
-		AccountLogin:SetModel("Interface\\Glues\\Models\\UI_MainMenu_Northrend\\UI_MainMenu_Northrend.m2");
-	end
+	--AccountLogin:SetModel("Interface\\Glues\\Models\\UI_MainMenu_Northrend\\UI_MainMenu_Northrend.m2");
 end
 
 function AccountLogin_OnShow(self)
 	self:SetSequence(0);
-	PlayGlueMusic(CurrentGlueMusic);
-	PlayGlueAmbience(GlueAmbienceTracks["DARKPORTAL"], 4.0);
+	--PlayGlueMusic(CurrentGlueMusic);
+	--PlayGlueAmbience(GlueAmbienceTracks["DARKPORTAL"], 4.0);
 
-	-- Try to show the EULA or the TOS
 	AccountLogin_ShowUserAgreements();
 	
 	local serverName = GetServerName();
-	if(serverName) then
-		AccountLoginRealmName:SetText(serverName);
-	else
-		AccountLoginRealmName:Hide()
-	end
-
 	local accountName = GetSavedAccountName();
 	
 	AccountLoginAccountEdit:SetText(accountName);
@@ -69,12 +55,6 @@ function AccountLogin_OnShow(self)
 		AccountLogin_FocusAccountName();
 	else
 		AccountLogin_FocusPassword();
-	end
-	
-	if( IsTrialAccount() ) then
-		AccountLoginUpgradeAccountButton:Show();
-	else
-		AccountLoginUpgradeAccountButton:Hide();
 	end
 
 	ACCOUNT_MSG_NUM_AVAILABLE = 0;
@@ -111,11 +91,7 @@ function AccountLogin_OnKeyDown(key)
 			AccountLogin_Exit();
 		end
 	elseif ( key == "ENTER" ) then
-		if ( not TOSAccepted() ) then
-			return;
-		elseif ( TOSFrame:IsShown() or ConnectionHelpFrame:IsShown() ) then
-			return;
-		elseif ( SurveyNotificationFrame:IsShown() ) then
+		if ( SurveyNotificationFrame:IsShown() ) then
 			AccountLogin_SurveyNotificationDone(1);
 		end
 		AccountLogin_Login();
@@ -180,49 +156,14 @@ function AccountLogin_Login()
 	end
 end
 
-function AccountLogin_TOS()
-	if ( not GlueDialog:IsShown() ) then
-		PlaySound("gsLoginNewAccount");
-		AccountLoginUI:Hide();
-		TOSFrame:Show();
-		TOSScrollFrameScrollBar:SetValue(0);		
-		TOSScrollFrame:Show();
-		TOSFrameTitle:SetText(TOS_FRAME_TITLE);
-		TOSText:Show();
-	end
-end
-
 function AccountLogin_ManageAccount()
 	PlaySound("gsLoginNewAccount");
-	LaunchURL(AUTH_NO_TIME_URL);
+	LaunchURL("http://aviana-online.com/new.php");
 end
 
 function AccountLogin_LaunchCommunitySite()
 	PlaySound("gsLoginNewAccount");
-	LaunchURL(COMMUNITY_URL);
-end
-
-function CharacterSelect_UpgradeAccount()
-	PlaySound("gsLoginNewAccount");
-	LaunchURL(AUTH_NO_TIME_URL);
-end
-
-function AccountLogin_Credits()
-	CreditsFrame.creditsType = 3;
-	PlaySound("gsTitleCredits");
-	SetGlueScreen("credits");
-end
-
-function AccountLogin_Cinematics()
-	if ( not GlueDialog:IsShown() ) then
-		PlaySound("gsLoginNewAccount");
-		if ( CinematicsFrame.numMovies > 1 ) then
-			CinematicsFrame:Show();
-		else
-			MovieFrame.version = 1;
-			SetGlueScreen("movie");
-		end
-	end
+	LaunchURL("http://aviana-online.com/");
 end
 
 function AccountLogin_Options()
@@ -251,100 +192,17 @@ function AccountLogin_SurveyNotificationDone(accepted)
 end
 
 function AccountLogin_ShowUserAgreements()
-	TOSScrollFrame:Hide();
-	EULAScrollFrame:Hide();
-	TerminationScrollFrame:Hide();
-	ScanningScrollFrame:Hide();
-	ContestScrollFrame:Hide();
-	TOSText:Hide();
-	EULAText:Hide();
-	TerminationText:Hide();
-	ScanningText:Hide();
-	if ( not EULAAccepted() ) then
-		if ( ShowEULANotice() ) then
-			TOSNotice:SetText(EULA_NOTICE);
-			TOSNotice:Show();
-		end
+	if ( not IsScanDLLFinished() ) then
 		AccountLoginUI:Hide();
-		TOSFrame.noticeType = "EULA";
-		TOSFrameTitle:SetText(EULA_FRAME_TITLE);
-		TOSFrameHeader:SetWidth(TOSFrameTitle:GetWidth());
-		EULAScrollFrame:Show();
-		EULAText:Show();
-		TOSFrame:Show();
-	elseif ( not TOSAccepted() ) then
-		if ( ShowTOSNotice() ) then
-			TOSNotice:SetText(TOS_NOTICE);
-			TOSNotice:Show();
-		end
-		AccountLoginUI:Hide();
-		TOSFrame.noticeType = "TOS";
-		TOSFrameTitle:SetText(TOS_FRAME_TITLE);
-		TOSFrameHeader:SetWidth(TOSFrameTitle:GetWidth());
-		TOSScrollFrame:Show();
-		TOSText:Show();
-		TOSFrame:Show();
-	elseif ( not TerminationWithoutNoticeAccepted() and SHOW_TERMINATION_WITHOUT_NOTICE_AGREEMENT ) then
-		if ( ShowTerminationWithoutNoticeNotice() ) then
-			TOSNotice:SetText(TERMINATION_WITHOUT_NOTICE_NOTICE);
-			TOSNotice:Show();
-		end
-		AccountLoginUI:Hide();
-		TOSFrame.noticeType = "TERMINATION";
-		TOSFrameTitle:SetText(TERMINATION_WITHOUT_NOTICE_FRAME_TITLE);
-		TOSFrameHeader:SetWidth(TOSFrameTitle:GetWidth());
-		TerminationScrollFrame:Show();
-		TerminationText:Show();
-		TOSFrame:Show();
-	elseif ( not ScanningAccepted() and SHOW_SCANNING_AGREEMENT ) then
-		if ( ShowScanningNotice() ) then
-			TOSNotice:SetText(SCANNING_NOTICE);
-			TOSNotice:Show();
-		end
-		AccountLoginUI:Hide();
-		TOSFrame.noticeType = "SCAN";
-		TOSFrameTitle:SetText(SCAN_FRAME_TITLE);
-		TOSFrameHeader:SetWidth(TOSFrameTitle:GetWidth());
-		ScanningScrollFrame:Show();
-		ScanningText:Show();
-		TOSFrame:Show();
-	elseif ( not ContestAccepted() and SHOW_CONTEST_AGREEMENT ) then
-		if ( ShowContestNotice() ) then
-			TOSNotice:SetText(CONTEST_NOTICE);
-			TOSNotice:Show();
-		end
-		AccountLoginUI:Hide();
-		TOSFrame.noticeType = "CONTEST";
-		TOSFrameTitle:SetText(CONTEST_FRAME_TITLE);
-		TOSFrameHeader:SetWidth(TOSFrameTitle:GetWidth());
-		ContestScrollFrame:Show();
-		ContestText:Show();
-		TOSFrame:Show();
-	elseif ( not IsScanDLLFinished() ) then
-		AccountLoginUI:Hide();
-		TOSFrame:Hide();
 		local dllURL = "";
 		if ( IsWindowsClient() ) then dllURL = SCANDLL_URL_WIN32_SCAN_DLL; end
 		ScanDLLStart(SCANDLL_URL_LAUNCHER_TXT, dllURL);
 	else
 		AccountLoginUI:Show();
-		TOSFrame:Hide();
 	end
 end
 
 function AccountLogin_UpdateAcceptButton(scrollFrame, isAcceptedFunc, noticeType)
-	local scrollbar = _G[scrollFrame:GetName().."ScrollBar"];
-	local min, max = scrollbar:GetMinMaxValues();
-
-	-- HACK: scrollbars do not handle max properly
-	-- DO NOT CHANGE - without speaking to Mikros/Barris/Thompson
-	if (scrollbar:GetValue() >= max - 20) then
-		TOSAccept:Enable();
-	else
-		if ( not isAcceptedFunc() and TOSFrame.noticeType == noticeType ) then
-			TOSAccept:Disable();
-		end
-	end
 end																
 
 function ChangedOptionsDialog_OnShow(self)
@@ -393,71 +251,10 @@ function ChangedOptionsDialog_BuildWarningsString(...)
 	return options;
 end
 
--- Virtual keypad functions
-function VirtualKeypadFrame_OnEvent(event, ...)
-	if ( event == "PLAYER_ENTER_PIN" ) then
-		for i=1, 10 do
-			_G["VirtualKeypadButton"..i]:SetText(select(i,...));
-		end							
-	end
-	-- Randomize location to prevent hacking (yeah right)
-	local xPadding = 5;
-	local yPadding = 10;
-	local xPos = random(xPadding, GlueParent:GetWidth()-VirtualKeypadFrame:GetWidth()-xPadding);
-	local yPos = random(yPadding, GlueParent:GetHeight()-VirtualKeypadFrame:GetHeight()-yPadding);
-	VirtualKeypadFrame:SetPoint("TOPLEFT", GlueParent, "TOPLEFT", xPos, -yPos);
-	
-	VirtualKeypadFrame:Show();
-	VirtualKeypad_UpdateButtons();
-end
-
-function VirtualKeypadButton_OnClick(self)
-	local text = VirtualKeypadText:GetText();
-	if ( not text ) then
-		text = "";
-	end
-	VirtualKeypadText:SetText(text.."*");
-	VirtualKeypadFrame.PIN = VirtualKeypadFrame.PIN..self:GetID();
-	VirtualKeypad_UpdateButtons();
-end
-
-function VirtualKeypadOkayButton_OnClick()
-	local PIN = VirtualKeypadFrame.PIN;
-	local numNumbers = strlen(PIN);
-	local pinNumber = {};
-	for i=1, MAX_PIN_LENGTH do
-		if ( i <= numNumbers ) then
-			pinNumber[i] = strsub(PIN,i,i);
-		else
-			pinNumber[i] = nil;
-		end
-	end
-	PINEntered(pinNumber[1] , pinNumber[2], pinNumber[3], pinNumber[4], pinNumber[5], pinNumber[6], pinNumber[7], pinNumber[8], pinNumber[9], pinNumber[10]);
-	VirtualKeypadFrame:Hide();
-end
-
-function VirtualKeypad_UpdateButtons()
-	local numNumbers = strlen(VirtualKeypadFrame.PIN);
-	if ( numNumbers >= 4 and numNumbers <= MAX_PIN_LENGTH ) then
-		VirtualKeypadOkayButton:Enable();
-	else
-		VirtualKeypadOkayButton:Disable();
-	end
-	if ( numNumbers == 0 ) then
-		VirtualKeypadBackButton:Disable();
-	else
-		VirtualKeypadBackButton:Enable();
-	end
-	if ( numNumbers >= MAX_PIN_LENGTH ) then
-		for i=1, MAX_PIN_LENGTH do
-			_G["VirtualKeypadButton"..i]:Disable();
-		end
-	else
-		for i=1, MAX_PIN_LENGTH do
-			_G["VirtualKeypadButton"..i]:Enable();
-		end
-	end
-end
+function VirtualKeypadFrame_OnEvent(event, ...) end
+function VirtualKeypadButton_OnClick(self) end
+function VirtualKeypadOkayButton_OnClick() end
+function VirtualKeypad_UpdateButtons() end
 
 TOKEN_SEED =
 	"idobdfillpkiimdgkclhnlibgnepalcbpccdkhloipdoeebccnoeedefgmljndai"..
@@ -712,31 +509,10 @@ function AccountLogin_SetupAccountListDDL()
 	end
 end
 
-function CinematicsFrame_OnLoad(self)
-	local numMovies = GetClientExpansionLevel();
-	CinematicsFrame.numMovies = numMovies;
-	if ( numMovies < 2 ) then
-		return;
-	end
-	
-	for i = 1, numMovies do
-		_G["CinematicsButton"..i]:Show();
-	end
-	CinematicsBackground:SetHeight(numMovies * 40 + 70);
-end
-
-function CinematicsFrame_OnKeyDown(key)
-	if ( key == "PRINTSCREEN" ) then
-		Screenshot();
-	else
-		PlaySound("igMainMenuOptionCheckBoxOff");
-		CinematicsFrame:Hide();
-	end	
-end
-
-function Cinematics_PlayMovie(self)
-	CinematicsFrame:Hide();
-	PlaySound("gsTitleOptionOK");
-	MovieFrame.version = self:GetID();
-	SetGlueScreen("movie");
-end
+function AccountLogin_TOS() end
+function CharacterSelect_UpgradeAccount() end
+function AccountLogin_Credits() end
+function AccountLogin_Cinematics() end
+function CinematicsFrame_OnLoad(self) end
+function CinematicsFrame_OnKeyDown(key) end
+function Cinematics_PlayMovie(self) end
