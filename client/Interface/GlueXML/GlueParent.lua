@@ -1,5 +1,4 @@
-
-CurrentGlueMusic = "GS_LichKing";
+CurrentGlueMusic = "GS_Retail"; --"GS_LichKing";
 
 GlueCreditsSoundKits = { };
 GlueCreditsSoundKits[1] = "Menu-Credits01";
@@ -144,12 +143,17 @@ function SetGlueScreen(name)
 		SetCurrentScreen(name);
 		SetCurrentGlueScreenName(name);
 		if ( name == "credits" ) then
+			StopLoginMusic();
 			PlayCreditsMusic( GlueCreditsSoundKits[CreditsFrame.creditsType] );
 			StopGlueAmbience();
 		elseif ( name ~= "movie" ) then
-			PlayGlueMusic(CurrentGlueMusic);
+			--StopGlueMusic();
+			--StopLoginMusic();
+			--PlayLoginMusic();
+			--PlayGlueMusic(CurrentGlueMusic);
 			if (name == "login") then
-				PlayGlueAmbience(GlueAmbienceTracks["DARKPORTAL"], 4.0);
+				ShowScene(AccountLogin);
+				--PlayGlueAmbience(GlueAmbienceTracks["DARKPORTAL"], 4.0);
 			end
 		end
 	end
@@ -200,8 +204,9 @@ function GlueParent_OnEvent(event, arg1, arg2, arg3)
 	elseif ( event == "SET_GLUE_SCREEN" ) then
 		GlueScreenExit(GetCurrentGlueScreenName(), arg1);
 	elseif ( event == "START_GLUE_MUSIC" ) then
-		PlayGlueMusic(CurrentGlueMusic);
-		PlayGlueAmbience(GlueAmbienceTracks["DARKPORTAL"], 4.0);
+		PlayLoginMusic();
+		--PlayGlueMusic(CurrentGlueMusic);
+		--PlayGlueAmbience(GlueAmbienceTracks["DARKPORTAL"], 4.0);
 	elseif ( event == "DISCONNECTED_FROM_SERVER" ) then
 		TokenEntry_Cancel(TokenEnterDialog);
 		SetGlueScreen("login");
@@ -264,9 +269,12 @@ function GlueFrameFade(frame, timeToFade, mode, finishedFunction)
 		frame.fadeTimer = 0;
 		frame.timeToFade = timeToFade;
 		frame.mode = mode;
+
 		-- finishedFunction is an optional function that is called when the animation is complete
 		if ( finishedFunction ) then
 			frame.finishedFunction = finishedFunction;
+		else
+			frame.finishedFunction = nil;
 		end
 		tinsert(FADEFRAMES, frame);
 	end
@@ -302,8 +310,13 @@ function GlueFrameFadeUpdate(elapsed)
 			end
 			GlueFrameFadeRemoveFrame(frame);
 			if ( frame.finishedFunction ) then
-				frame.finishedFunction();
-				frame.finishedFunction = nil;
+				if ( frame.finishedFunction == "HIDE" ) then
+					frame:Hide();
+					frame.finishedFunction = nil;
+				else
+					frame.finishedFunction();
+					frame.finishedFunction = nil;
+				end
 			end
 		end
 		index = index + 1;

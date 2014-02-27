@@ -68,7 +68,7 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						self:GetParent():Hide();
+						GlueFrameFadeOut(self:GetParent(), VX_FADE_REFRESH, "HIDE");
 					</OnClick>
 				</Scripts>
 				<NormalTexture inherits="DialogButtonNormalTexture"/>

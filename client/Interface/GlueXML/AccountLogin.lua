@@ -1,17 +1,14 @@
 FADE_IN_TIME = 2;
 DEFAULT_TOOLTIP_COLOR = {0.8, 0.8, 0.8, 0.09, 0.09, 0.09};
-MAX_PIN_LENGTH = 10;
 
 function AccountLogin_OnLoad(self)
-	self:RegisterEvent("SHOW_SERVER_ALERT");
-	self:RegisterEvent("SHOW_SURVEY_NOTIFICATION");
 	self:RegisterEvent("CLIENT_ACCOUNT_MISMATCH");
 	self:RegisterEvent("CLIENT_TRIAL");
 	self:RegisterEvent("SCANDLL_ERROR");
 	self:RegisterEvent("SCANDLL_FINISHED");
 
 	local versionType, buildType, version, internalVersion, date = GetBuildInfo();
-	AccountLoginVersion:SetFormattedText(VERSION_TEMPLATE, versionType, version, internalVersion, buildType, date);
+	--AccountLoginVersion:SetFormattedText(VERSION_TEMPLATE, versionType, version, internalVersion, buildType, date);
 
 	-- Color edit box backdrops
 	local backdropColor = DEFAULT_TOOLTIP_COLOR;
@@ -24,17 +21,23 @@ function AccountLogin_OnLoad(self)
 	TokenEnterDialogBackgroundEdit:SetBackdropBorderColor(backdropColor[1], backdropColor[2], backdropColor[3]);
 	TokenEnterDialogBackgroundEdit:SetBackdropColor(backdropColor[4], backdropColor[5], backdropColor[6]);
 
-	self:SetCamera(0);
-	self:SetSequence(0);
+	--self:SetCamera(0);
+	--self:SetSequence(0);
 	
+	ShowScene(AccountLogin);
 	--AccountLogin:SetModel("Interface\\Glues\\Models\\UI_MainMenu_Northrend\\UI_MainMenu_Northrend.m2");
 end
 
 function AccountLogin_OnShow(self)
-	self:SetSequence(0);
+	--self:SetSequence(0);
 	--PlayGlueMusic(CurrentGlueMusic);
 	--PlayGlueAmbience(GlueAmbienceTracks["DARKPORTAL"], 4.0);
-
+	
+	AcceptTOS();
+	AcceptEULA();
+	AcceptTerminationWithoutNotice();
+	AcceptScanning();
+	AcceptContest();
 	AccountLogin_ShowUserAgreements();
 	
 	local serverName = GetServerName();
@@ -52,9 +55,9 @@ function AccountLogin_OnShow(self)
 	AccountLogin_SetupAccountListDDL();
 	
 	if ( accountName == "" ) then
-		AccountLogin_FocusAccountName();
+		AccountLoginAccountEdit:SetFocus();
 	else
-		AccountLogin_FocusPassword();
+		AccountLoginPasswordEdit:SetFocus();
 	end
 
 	ACCOUNT_MSG_NUM_AVAILABLE = 0;
@@ -72,28 +75,15 @@ function AccountLogin_OnHide(self)
 	end
 end
 
-function AccountLogin_FocusPassword()
-	AccountLoginPasswordEdit:SetFocus();
-end
-
-function AccountLogin_FocusAccountName()
-	AccountLoginAccountEdit:SetFocus();
+function AccountLogin_Exit()
+--	PlaySound("gsTitleQuit");
+	QuitGame();
 end
 
 function AccountLogin_OnKeyDown(key)
 	if ( key == "ESCAPE" ) then
-		if ( ConnectionHelpFrame:IsShown() ) then
-			ConnectionHelpFrame:Hide();
-			AccountLoginUI:Show();
-		elseif ( SurveyNotificationFrame:IsShown() ) then
-			-- do nothing
-		else
-			AccountLogin_Exit();
-		end
+		AccountLogin_Exit();
 	elseif ( key == "ENTER" ) then
-		if ( SurveyNotificationFrame:IsShown() ) then
-			AccountLogin_SurveyNotificationDone(1);
-		end
 		AccountLogin_Login();
 	elseif ( key == "PRINTSCREEN" ) then
 		Screenshot();
@@ -101,12 +91,7 @@ function AccountLogin_OnKeyDown(key)
 end
 
 function AccountLogin_OnEvent(event, arg1, arg2, arg3)
-	if ( event == "SHOW_SERVER_ALERT" ) then
-		ServerAlertText:SetText(arg1);
-		ServerAlertFrame:Show();
-	elseif ( event == "SHOW_SURVEY_NOTIFICATION" ) then
-		AccountLogin_ShowSurveyNotification();
-	elseif ( event == "CLIENT_ACCOUNT_MISMATCH" ) then
+	if ( event == "CLIENT_ACCOUNT_MISMATCH" ) then
 		local accountExpansionLevel = arg1;
 		local installationExpansionLevel = arg2;
 		if ( accountExpansionLevel == 1 ) then
@@ -156,41 +141,6 @@ function AccountLogin_Login()
 	end
 end
 
-function AccountLogin_ManageAccount()
-	PlaySound("gsLoginNewAccount");
-	LaunchURL("http://aviana-online.com/new.php");
-end
-
-function AccountLogin_LaunchCommunitySite()
-	PlaySound("gsLoginNewAccount");
-	LaunchURL("http://aviana-online.com/");
-end
-
-function AccountLogin_Options()
-	PlaySound("gsTitleOptions");
-end
-
-function AccountLogin_Exit()
---	PlaySound("gsTitleQuit");
-	QuitGame();
-end
-
-function AccountLogin_ShowSurveyNotification()
-	GlueDialog:Hide();
-	AccountLoginUI:Hide();
-	SurveyNotificationAccept:Enable();
-	SurveyNotificationDecline:Enable();
-	SurveyNotificationFrame:Show();
-end
-
-function AccountLogin_SurveyNotificationDone(accepted)
-	SurveyNotificationFrame:Hide();
-	SurveyNotificationAccept:Disable();
-	SurveyNotificationDecline:Disable();
-	SurveyNotificationDone(accepted);
-	AccountLoginUI:Show();
-end
-
 function AccountLogin_ShowUserAgreements()
 	if ( not IsScanDLLFinished() ) then
 		AccountLoginUI:Hide();
@@ -200,10 +150,7 @@ function AccountLogin_ShowUserAgreements()
 	else
 		AccountLoginUI:Show();
 	end
-end
-
-function AccountLogin_UpdateAcceptButton(scrollFrame, isAcceptedFunc, noticeType)
-end																
+end									
 
 function ChangedOptionsDialog_OnShow(self)
 	if ( not ShowChangedOptionWarnings() ) then
@@ -508,11 +455,3 @@ function AccountLogin_SetupAccountListDDL()
 		i = i + 1;
 	end
 end
-
-function AccountLogin_TOS() end
-function CharacterSelect_UpgradeAccount() end
-function AccountLogin_Credits() end
-function AccountLogin_Cinematics() end
-function CinematicsFrame_OnLoad(self) end
-function CinematicsFrame_OnKeyDown(key) end
-function Cinematics_PlayMovie(self) end

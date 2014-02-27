@@ -75,12 +75,14 @@ function MovieFrame_PlayMovie(self, index)
 		return;
 	end
 	if (self:StartMovie(MovieList[self.version][index][self.resolution].video, MovieVolumeList[self.version])) then
-		StopGlueMusic();
+		StopLoginMusic();
+		--StopGlueMusic();
 		StopGlueAmbience();
 		return;
 	end
 	if (self:StartMovie(MovieList[self.version][index][1].video, MovieVolumeList[self.version])) then
-		StopGlueMusic();
+		StopLoginMusic();
+		--StopGlueMusic();
 		StopGlueAmbience();
 		return;
 	end

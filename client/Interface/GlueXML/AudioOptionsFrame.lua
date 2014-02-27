@@ -2,9 +2,11 @@
 
 function AudioOptionsFrame_Toggle ()
 	if ( AudioOptionsFrame:IsShown() ) then
+		--GlueFrameFadeOut(AudioOptionsFrame, VX_FADE_REFRESH, "HIDE");
 		AudioOptionsFrame:Hide();
 	else
-		AudioOptionsFrame:Show();
+		GlueFrameFadeIn(AudioOptionsFrame, VX_FADE_REFRESH, AudioOptionsFrame:Show());
+		--AudioOptionsFrame:Show();
 	end
 end
 
@@ -27,6 +29,8 @@ end
 function AudioOptionsFrame_AudioRestart ()
 	AudioOptionsFrame.audioRestart = nil;
 	Sound_GameSystem_RestartSoundSystem();
+	VX_ONMUSIC = nil;
+	PlayLoginMusic();
 end
 
 function AudioOptionsFrame_OnLoad (self)
