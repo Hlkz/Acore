@@ -25,12 +25,11 @@
 
 #include "Common.h"
 #include "Timer.h"
-#include <ace/Singleton.h>
-#include <ace/Atomic_Op.h>
 #include "SharedDefines.h"
 #include "QueryResult.h"
 #include "Callback.h"
 
+#include <atomic>
 #include <map>
 #include <set>
 #include <list>
@@ -146,6 +145,7 @@ enum WorldBoolConfigs
     CONFIG_STATS_LIMITS_ENABLE,
     CONFIG_IP_BASED_ACTION_LOGGING,
     CONFIG_IP_BASED_LOGIN_LOGGING,
+    CONFIG_ALLOW_TRACK_BOTH_RESOURCES,
     BOOL_CONFIG_VALUE_COUNT
 };
 
