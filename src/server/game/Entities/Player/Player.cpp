@@ -18779,6 +18779,9 @@ void Player::SaveToDB(bool create /*=false*/)
     TC_LOG_DEBUG("entities.unit", "The value of player %s at save: ", m_name.c_str());
     outDebugValues();
 
+    if (!create)
+        sScriptMgr->OnPlayerSave(this);
+
     PreparedStatement* stmt = NULL;
     uint8 index = 0;
 
