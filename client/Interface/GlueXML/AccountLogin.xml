@@ -25,7 +25,8 @@
 
 	<Frame name="AccountLogin" toplevel="true" parent="GlueParent" setAllPoints="true" enableKeyboard="true" hidden="true" frameStrata="LOW" frameLevel="2">
 		<Frames>
-			<Frame name="AccountLoginBackgroundFrame" setAllPoints="true" toplevel="true" frameStrata="LOW" frameLevel="3">
+
+			<Frame name="BGAccountLoginFrame" setAllPoints="true" toplevel="true" frameStrata="LOW" frameLevel="3">
 				<Layers>
 					<Layer level="BACKGROUND">
 						<Texture name="VXBGTextureAL" file="Interface\Glues\Login\Background.blp">

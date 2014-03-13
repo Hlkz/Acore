@@ -32,6 +32,7 @@ function AccountLogin_OnShow(self)
 	--self:SetSequence(0);
 	--PlayGlueMusic(CurrentGlueMusic);
 	--PlayGlueAmbience(GlueAmbienceTracks["DARKPORTAL"], 4.0);
+	PlayBackgroundModels();
 	
 	AcceptTOS();
 	AcceptEULA();
