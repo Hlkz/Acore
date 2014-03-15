@@ -3319,7 +3319,8 @@ enum BattlegroundTypeId
     BATTLEGROUND_DS             = 10, // Dalaran Sewers
     BATTLEGROUND_RV             = 11, // Ring of Valor
     BATTLEGROUND_BA             = 12, // MOBA
-    BATTLEGROUND_IWP            = 13, // IWP
+    BATTLEGROUND_BB             = 13, // MOBB
+    BATTLEGROUND_IWP            = 14, // IWP
     BATTLEGROUND_IC             = 30, // Isle of Conquest
     BATTLEGROUND_RB             = 32, // Random Battleground
     BATTLEGROUND_AO             = 33, // AObg
@@ -3461,6 +3462,8 @@ enum BattlegroundQueueTypeId
     BATTLEGROUND_QUEUE_5v5      = 10,
     BATTLEGROUND_QUEUE_AO       = 11,
     BATTLEGROUND_QUEUE_BA       = 12,
+    BATTLEGROUND_QUEUE_BB       = 13,
+    BATTLEGROUND_QUEUE_IWP      = 14,
     MAX_BATTLEGROUND_QUEUE_TYPES
 };
 

@@ -3,36 +3,16 @@
 
 #include "Battleground.h"
 
-enum BG_BA_Sounds
+enum BG_BA_SpellEntry
 {
-    BA_SOUND_NEAR_VICTORY                   = 8456, /// @todo: Not confirmed yet
-    BA_SOUND_ALLIANCE_ASSAULTS              = 8212, //tower, grave + enemy boss if someone tries to attack him
-    BA_SOUND_HORDE_ASSAULTS                 = 8174,
-    BA_SOUND_ALLIANCE_GOOD                  = 8173, //if something good happens for the team:  wins(maybe only through killing the boss), captures mine or grave, destroys tower and defends grave
-    BA_SOUND_HORDE_GOOD                     = 8213,
-    BA_SOUND_BOTH_TOWER_DEFEND              = 8192,
-    BA_SOUND_ALLIANCE_CAPTAIN               = 8232, //gets called when someone attacks them and at the beginning after 3min+rand(x)*10sec (maybe buff)
-    BA_SOUND_HORDE_CAPTAIN                  = 8333,
-    BA_SOUND_CLAIMED            = 8192,
+    BG_BA_SP_FLAG_A = 90001,
+    BG_BA_SP_FLAG_H = 90000,
 };
 
-enum BG_BA_Nodes
+enum BG_BA_ObjectEntry
 {
-    BG_BA_NODES_TOWER_A_T1,
-    BG_BA_NODES_TOWER_A_T2,
-    BG_BA_NODES_TOWER_A_M1,
-    BG_BA_NODES_TOWER_A_M2,
-    BG_BA_NODES_TOWER_A_B1,
-    BG_BA_NODES_TOWER_A_B2,
-    BG_BA_NODES_TOWER_H_T1,
-    BG_BA_NODES_TOWER_H_T2,
-    BG_BA_NODES_TOWER_H_M1,
-    BG_BA_NODES_TOWER_H_M2,
-    BG_BA_NODES_TOWER_H_B1,
-    BG_BA_NODES_TOWER_H_B2,
-    BG_BA_NODES_NEXUS_A,
-    BG_BA_NODES_NEXUS_H,
-    BG_BA_NODES_MAX,
+    BG_BA_GOB_FLAG_A = 179835,
+    BG_BA_GOB_FLAG_H = 179836,
 };
 
 enum BG_BA_ObjectTypes
@@ -40,45 +20,28 @@ enum BG_BA_ObjectTypes
     BG_BA_OBJECT_MAX = 0
 };
 
-enum BG_BA_ItemIds
-{
-    BG_BA_ITEMID_COLLECT = 60086,
-    BG_BA_ITEMID_SHARD = 60087,
-};
-
-enum BG_BA_ObjectIds
-{
-    // bush?
-};
-
-const uint32 BG_BA_GraveyardIds[BG_TEAMS_COUNT] = { 1950, 1951 };
-
 enum BG_BA_CreatureEntry
 {
-    BA_TOWER_A_ENTRY = 1000344,
-    BA_TOWER_H_ENTRY = 1000345,
-    BA_NEXUS_A_ENTRY = 1000346,
-    BA_NEXUS_H_ENTRY = 1000347,
-    BA_VENDOR_A_ENTRY = 1000342,
-    BA_VENDOR_H_ENTRY = 1000343,
-    BA_CREEP_A = 1000340,
-    BA_CREEP_H = 1000341,
+    BG_BA_NPC_NODE_A = 1000360,
+    BG_BA_NPC_NODE_H = 1000361,
+    BG_BA_NPC_COMMANDER_A = 1000362,
+    BG_BA_NPC_COMMANDER_H = 1000363,
 };
 
 enum BG_BA_CreatureType
 {
-    BA_CTYPE_TOWER_A_1 = 0,
-    BA_CTYPE_TOWER_A_T1 = 0, BA_CTYPE_TOWER_A_M1 = 2, BA_CTYPE_TOWER_A_B1 = 4,
-    BA_CTYPE_TOWER_H_1 = 6,
-    BA_CTYPE_TOWER_H_T1 = 6, BA_CTYPE_TOWER_H_M1 = 8, BA_CTYPE_TOWER_H_B1 = 10,
-    BA_CTYPE_TOWER_MAX  = 12,
-    BA_CTYPE_NEXUS_A = 12, BA_CTYPE_NEXUS_H,
-    BA_CTYPE_VENDOR_A,
-    BA_CTYPE_VENDOR_H,
-    BA_CTYPE_MAX,
+    BG_BA_CREA_NODE_A_1 = 0,
+    BG_BA_CREA_NODE_A_T1 = 0, BG_BA_CREA_NODE_A_M1 = 2, BG_BA_CREA_NODE_A_B1 = 4,
+    BG_BA_CREA_NODE_H_1 = 6,
+    BG_BA_CREA_NODE_H_T1 = 6, BG_BA_CREA_NODE_H_M1 = 8, BG_BA_CREA_NODE_H_B1 = 10,
+    BG_BA_CREA_NODE_MAX  = 12,
+    BG_BA_CREA_NEXUS_A = 12, BG_BA_CREA_NEXUS_H,
+    BG_BA_CREA_VENDOR_A,
+    BG_BA_CREA_VENDOR_H,
+    BG_BA_CREA_MAX,
 };
 
-const float BG_BA_CreaturePos[BA_CTYPE_MAX][4] =
+const float BG_BA_CreaturePos[BG_BA_CREA_MAX][4] =
 {
     {-5629.822f, 411.894f, -1.355f, 6.227f}, // A top
     {-5581.089f, 411.481f, -0.831f, 1.254f},
@@ -98,48 +61,41 @@ const float BG_BA_CreaturePos[BA_CTYPE_MAX][4] =
     {-5503.889f, 210.334f, 2.5911f, 3.071f},
 };
 
-const uint32 BG_BA_NextPoint[18] =
-{
-    BA_CTYPE_NEXUS_A, BA_CTYPE_TOWER_A_T1,
-    BA_CTYPE_NEXUS_A, BA_CTYPE_TOWER_A_M1,
-    BA_CTYPE_NEXUS_A, BA_CTYPE_TOWER_A_B1,
-    BA_CTYPE_NEXUS_H, BA_CTYPE_TOWER_H_T1,
-    BA_CTYPE_NEXUS_H, BA_CTYPE_TOWER_H_M1,
-    BA_CTYPE_NEXUS_H, BA_CTYPE_TOWER_H_B1,
-};
+const uint32 BG_BA_GraveyardIds[BG_TEAMS_COUNT] = { 1952, 1953 };
 
-enum BG_BA_WorldStates
+class BANode;
+typedef std::map<uint32, BANode*> BANodeMap;
+typedef std::map<uint64, Creature*> BACommanderMap;
+class BANode
 {
-    BA_WS_A_TOWERCOUNT      = 22100,
-    BA_WS_H_TOWERCOUNT        = 22101,
-    BA_WS_CREEPKILLED        = 22103,
-};
+    public:
+        BANode(uint32 id, uint32 team, Creature* base) { Id = id; m_team = team; m_base = base; }
+        ~BANode() { }
 
-//alliance_control alliance_assault h_control h_assault
-const uint32 BG_BA_NodeWorldStates[20][4] =
-{
-    {1325, 1326, 1327, 1328},
-    {1325, 1326, 1327, 1328},
-    {1325, 1326, 1327, 1328},
-    {1325, 1326, 1327, 1328},
-    {1325, 1326, 1327, 1328},
-    {1325, 1326, 1327, 1328},
-    {1325, 1326, 1327, 1328},
-    {1325, 1326, 1327, 1328},
-    {1325, 1326, 1327, 1328},
-    {1325, 1326, 1327, 1328},
-    {1325, 1326, 1327, 1328},
-    {1325, 1326, 1327, 1328},
-    {1325, 1326, 1327, 1328},
-    {1325, 1326, 1327, 1328},
-    {1325, 1326, 1327, 1328},
-    {1325, 1326, 1327, 1328},
-    {1325, 1326, 1327, 1328},
-    {1325, 1326, 1327, 1328},
-    {1325, 1326, 1327, 1328},
-    {1325, 1326, 1327, 1328},
+        void SetId(uint32 id) { Id = id; }
+        uint32 GetId() { return Id; }
+        void SetTeam(uint32 team) { m_team = team; }
+        uint32 GetTeam() { return m_team; }
+        void SetBase(Creature* base) { m_base = base; }
+        Creature* GetBase() { return m_base; }
+        void AddCommander(Creature* commander) { m_commanders[commander->GetGUID()] = commander; }
+        void RemoveCommander(uint64 guid) { BACommanderMap::iterator itr = m_commanders.find(guid); if (itr != m_commanders.end()) { delete itr->second; m_commanders.erase(itr); } }
+        BACommanderMap GetCommanders() { return m_commanders; }
+        void FlagsP() { m_flags++; } void FlagsM() { m_flags--; }
+        void SetFlags(uint32 flags) { m_flags = flags; }
+        uint32 GetFlags() { return m_flags; }
+        void AddEnemy(BANode* enemy) { m_Enemies[enemy->GetId()] = enemy; }
+        void RemoveEnemy(uint32 id) { BANodeMap::iterator itr = m_Enemies.find(id); if (itr != m_Enemies.end()) { delete itr->second; m_Enemies.erase(itr); } }
+        BANodeMap GetEnemies() { return m_Enemies; }
+
+    private:
+        uint32 Id;
+        uint32 m_team;
+        Creature* m_base;
+        BACommanderMap m_commanders;
+        uint32 m_flags;
+        BANodeMap m_Enemies;
 };
-inline BG_BA_Nodes &operator++(BG_BA_Nodes &i){ return i = BG_BA_Nodes(i + 1); }
 
 struct BattlegroundBAScore : public BattlegroundScore
 {
@@ -171,26 +127,29 @@ class BattlegroundBA : public Battleground
         void HandleKillPlayer(Player* player, Player* killer);
         void HandleKillUnit(Creature* unit, Player* killer);
 
-        void EventPlayerDestroyedPoint(BG_BA_Nodes node);
         void EndBattleground(uint32 winner);
-
         uint32 GetPrematureWinner();
 
-        bool IsNexusAttackable[BG_TEAMS_COUNT];
-
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
+        
+        BANodeMap const& GetNodes() const { return m_Nodes; }
+
+        BANode* AddNode(uint32 id, uint32 team, Creature* base);
+        void RemoveNode(uint32 id);
+        BANode* const GetNode(uint32 id);
+
+        /*variables*/
+        uint32 m_pts[BG_TEAMS_COUNT];
 
     private:
         void PostUpdateImpl(uint32 diff);
-        void SpawnCreeps(uint32 count);
 
         /*worldstates*/
         void FillInitialWorldStates(WorldPacket& data);
 
-        /*variables */
-        int32 m_Team_TowerCount[BG_TEAMS_COUNT];
-        int32 m_WavesTimer;
-        int32 m_WavesCount;
+        /*variables*/
+        int32 m_wavetimer;
+        BANodeMap m_Nodes;
 };
 
 #endif

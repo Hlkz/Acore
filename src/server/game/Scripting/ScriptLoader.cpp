@@ -670,6 +670,8 @@ void AddSC_npc_rand();
 void AddSC_npc_teleport();
 void AddSC_npc_transmo();
 void AddSC_npc_ba();
+void AddSC_npc_bb();
+void AddSC_npc_iwp();
 
 void AddSC_kahz();
 void AddSC_zone_AO();
@@ -690,6 +692,8 @@ void AddCustomScripts()
     AddSC_npc_teleport();
     AddSC_npc_transmo();
     AddSC_npc_ba();
+    AddSC_npc_bb();
+    AddSC_npc_iwp();
 
     AddSC_kahz();
     AddSC_zone_AO();

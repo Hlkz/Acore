@@ -36,6 +36,7 @@
 #include "BattlegroundRV.h"
 #include "BattlegroundIC.h"
 #include "BattlegroundBA.h"
+#include "BattlegroundBB.h"
 #include "BattlegroundIWP.h"
 #include "Chat.h"
 #include "Map.h"
@@ -328,10 +329,14 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                         *data << uint32(((BattlegroundICScore*)score)->BasesDefended);        // bases defended
 					case 784:                                   // BA
 						*data << uint32(0x00000002);            // count of next fields
-						*data << uint32(((BattlegroundBAScore*)itr2->second)->CreepsKilled);
-						*data << uint32(((BattlegroundBAScore*)itr2->second)->ArcaneFrag);
+						*data << uint32(((BattlegroundBAScore*)score)->CreepsKilled);
+						*data << uint32(((BattlegroundBAScore*)score)->ArcaneFrag);
+					case 785:                                   // BB
+						*data << uint32(0x00000002);            // count of next fields
+						*data << uint32(((BattlegroundBBScore*)score)->CreepsKilled);
+						*data << uint32(((BattlegroundBBScore*)score)->ArcaneFrag);
+                    case 786:                                   // IWP
 					case 782:                                   // BAO
-					case 789:                                   // IWP
                     default:
                         *data << uint32(0);
                         break;
@@ -371,8 +376,13 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                 break;
             case BATTLEGROUND_BA:
                 *data << uint32(0x00000002);                // count of next fields
-                *data << uint32(((BattlegroundBAScore*)itr2->second)->CreepsKilled);
-                *data << uint32(((BattlegroundBAScore*)itr2->second)->ArcaneFrag);
+                *data << uint32(((BattlegroundBAScore*)score)->CreepsKilled);
+                *data << uint32(((BattlegroundBAScore*)score)->ArcaneFrag);
+                break;
+            case BATTLEGROUND_BB:
+                *data << uint32(0x00000002);                // count of next fields
+                *data << uint32(((BattlegroundBBScore*)score)->CreepsKilled);
+                *data << uint32(((BattlegroundBBScore*)score)->ArcaneFrag);
                 break;
 			case BATTLEGROUND_IWP:
             case BATTLEGROUND_AO:
@@ -591,6 +601,12 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId original
         case BATTLEGROUND_BA:
             bg = new BattlegroundBA(*(BattlegroundBA*)bg_template);
             break;
+        case BATTLEGROUND_BB:
+            bg = new BattlegroundBB(*(BattlegroundBB*)bg_template);
+            break;
+        case BATTLEGROUND_IWP:
+            bg = new BattlegroundIWP(*(BattlegroundIWP*)bg_template);
+            break;
         case BATTLEGROUND_AO:
             bg = new Battleground(*bg_template);
             break;
@@ -679,6 +695,9 @@ bool BattlegroundMgr::CreateBattleground(CreateBattlegroundData& data)
             break;
         case BATTLEGROUND_BA:
             bg = new BattlegroundBA;
+            break;
+        case BATTLEGROUND_BB:
+            bg = new BattlegroundBB;
             break;
         case BATTLEGROUND_IWP:
             bg = new BattlegroundIWP;
@@ -959,6 +978,10 @@ BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgType
             return BATTLEGROUND_QUEUE_AO;
         case BATTLEGROUND_BA:
             return BATTLEGROUND_QUEUE_BA;
+        case BATTLEGROUND_BB:
+            return BATTLEGROUND_QUEUE_BB;
+        case BATTLEGROUND_IWP:
+            return BATTLEGROUND_QUEUE_IWP;
         case BATTLEGROUND_RB:
             return BATTLEGROUND_QUEUE_RB;
         case BATTLEGROUND_SA:
@@ -1007,6 +1030,10 @@ BattlegroundTypeId BattlegroundMgr::BGTemplateId(BattlegroundQueueTypeId bgQueue
             return BATTLEGROUND_AO;
         case BATTLEGROUND_QUEUE_BA:
             return BATTLEGROUND_BA;
+        case BATTLEGROUND_QUEUE_BB:
+            return BATTLEGROUND_BB;
+        case BATTLEGROUND_QUEUE_IWP:
+            return BATTLEGROUND_IWP;
         case BATTLEGROUND_QUEUE_RB:
             return BATTLEGROUND_RB;
         case BATTLEGROUND_QUEUE_2v2:

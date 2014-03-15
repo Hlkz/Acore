@@ -103,4 +103,5 @@ void WorldDatabaseConnection::DoPrepareStatements()
         "EffectDamageMultiplier1, EffectDamageMultiplier2, EffectDamageMultiplier3, TotemCategory1, TotemCategory2, AreaGroupId, SchoolMask, runeCostID, "
         "EffectBonusMultiplier1, EffectBonusMultiplier2, EffectBonusMultiplier3 FROM spells ORDER BY Entry", CONNECTION_SYNCH);
     PrepareStatement(WORLD_SEL_SPELLS_SIZE, "SELECT Entry FROM spells ORDER BY Entry DESC LIMIT 1", CONNECTION_SYNCH);
+    PrepareStatement(WORLD_SEL_NODE_RELATIONS, "SELECT path FROM node_relations WHERE id = ? AND relation = ?", CONNECTION_SYNCH);
 }

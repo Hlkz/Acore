@@ -20,7 +20,6 @@
 #include "ArenaTeamMgr.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
-#include "BattlegroundBA.h"
 #include "Creature.h"
 #include "Formulas.h"
 #include "GridNotifiersImpl.h"
