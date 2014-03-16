@@ -113,6 +113,8 @@ public:
     {
         //basic support, not blizzlike data is missing...
         InstanceScript* instance = go->GetInstanceScript();
+            channeling = false;
+            eventProgress = 0;
 
         if (instance)
         {
