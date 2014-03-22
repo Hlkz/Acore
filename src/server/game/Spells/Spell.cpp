@@ -7016,7 +7016,7 @@ void Spell::CallScriptDestinationTargetSelectHandlers(SpellDestination& target, 
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_DESTINATION_TARGET_SELECT);
         std::list<SpellScript::DestinationTargetSelectHandler>::iterator hookItrEnd = (*scritr)->OnDestinationTargetSelect.end(), hookItr = (*scritr)->OnDestinationTargetSelect.begin();
         for (; hookItr != hookItrEnd; ++hookItr)
-            if (hookItr->IsEffectAffected(m_spellInfo, effIndex))
+            if (hookItr->IsEffectAffected(m_spellInfo, effIndex) && targetType.GetTarget() == hookItr->GetTarget())
                 hookItr->Call(*scritr, target);
 
         (*scritr)->_FinishScriptCall();
