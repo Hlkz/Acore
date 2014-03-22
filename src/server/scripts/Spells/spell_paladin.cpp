@@ -943,7 +943,7 @@ class spell_pal_judgement : public SpellScriptLoader
         public:
             spell_pal_judgement_SpellScript(uint32 spellId) : SpellScript(), _spellId(spellId) { }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_JUDGEMENT_DAMAGE)
                     || !sSpellMgr->GetSpellInfo(_spellId))
@@ -971,7 +971,7 @@ class spell_pal_judgement : public SpellScriptLoader
                 GetCaster()->CastSpell(GetHitUnit(), spellId2, true);
             }
 
-            void Register() OVERRIDE
+            void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_pal_judgement_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
@@ -980,7 +980,7 @@ class spell_pal_judgement : public SpellScriptLoader
             uint32 const _spellId;
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const
         {
             return new spell_pal_judgement_SpellScript(_spellId);
         }

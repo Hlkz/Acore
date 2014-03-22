@@ -330,7 +330,6 @@ void GameObject::Update(uint32 diff)
 
                             GetMap()->GameObjectRelocation(this, pos.x, pos.y, pos.z, GetOrientation());
                         }
-                        */
                     }
                     break;
                 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -145,15 +145,12 @@ public:
                             break;
                         case 3:
                             me->setFaction(FACTION_HOSTILE);
-                            if (Player* target = Player::GetPlayer(*me, PlayerGUID))
+                            if (Player* target = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                                 AttackStart(target);
 
-                            if (instance)
-                            {
-                                switchFactionIfAlive(instance, ENTRY_RAVEN);
-                                switchFactionIfAlive(instance, ENTRY_ORO);
-                                switchFactionIfAlive(instance, ENTRY_MURTA);
-                            }
+                            switchFactionIfAlive(instance, ENTRY_RAVEN);
+                            switchFactionIfAlive(instance, ENTRY_ORO);
+                            switchFactionIfAlive(instance, ENTRY_MURTA);
                     }
                     postGossipStep++;
                 }
@@ -316,8 +313,7 @@ public:
 
         void Reset()
         {
-            /*if (instance)
-                instance->SetData(0, NOT_STARTED);*/
+            /*instance->SetData(0, NOT_STARTED);*/
         }
 
         void AttackStart(Unit* victim)
@@ -327,8 +323,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            /*if (instance)
-                instance->SetData(0, DONE);*/
+            /*instance->SetData(0, DONE);*/
         }
 
         void UpdateAI(uint32 diff)
@@ -358,22 +353,19 @@ public:
 
         void MovementInform(uint32 /*type*/, uint32 /*id*/)
         {
-            if (instance)
+            if (instance->GetData(EVENT_PYRAMID) == PYRAMID_CAGES_OPEN)
             {
-                if (instance->GetData(EVENT_PYRAMID) == PYRAMID_CAGES_OPEN)
-                {
-                    instance->SetData(EVENT_PYRAMID, PYRAMID_ARRIVED_AT_STAIR);
-                    Talk(SAY_WEEGLI_OHNO);
-                    me->SetHomePosition(1882.69f, 1272.28f, 41.87f, 0);
-                }
-                else
-                    if (destroyingDoor)
-                    {
-                        instance->DoUseDoorOrButton(instance->GetData64(GO_END_DOOR));
-                        /// @todo leave the area...
-                        me->DespawnOrUnsummon();
-                    };
+                instance->SetData(EVENT_PYRAMID, PYRAMID_ARRIVED_AT_STAIR);
+                Talk(SAY_WEEGLI_OHNO);
+                me->SetHomePosition(1882.69f, 1272.28f, 41.87f, 0);
             }
+            else
+                if (destroyingDoor)
+                {
+                    instance->DoUseDoorOrButton(instance->GetData64(GO_END_DOOR));
+                    /// @todo leave the area...
+                    me->DespawnOrUnsummon();
+                };
         }
 
         void DoAction(int32 /*param*/)
