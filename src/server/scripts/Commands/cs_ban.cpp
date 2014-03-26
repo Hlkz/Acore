@@ -372,7 +372,7 @@ public:
         }
         else
         {
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BANNED_BY_USERNAME);
+            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BANNED_BY_LOGIN);
             stmt->setString(0, filter);
             result = LoginDatabase.Query(stmt);
         }
