@@ -130,7 +130,7 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
     return AOR_OK;
 }
 
-AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword)
+AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword) // tofix, this changes account login, not username
 {
     // Check if accounts exists
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BY_ID);
@@ -149,7 +149,7 @@ AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUser
     normalizeString(newUsername);
     normalizeString(newPassword);
 
-    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_USERNAME);
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGIN);
 
     stmt->setString(0, newUsername);
     stmt->setString(1, CalculateShaPassHash(newUsername, newPassword));
@@ -193,7 +193,7 @@ AccountOpResult AccountMgr::ChangePassword(uint32 accountId, std::string newPass
 
 uint32 AccountMgr::GetId(std::string const& username)
 {
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_ACCOUNT_ID_BY_USERNAME);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_ACCOUNT_ID_BY_LOGIN);
     stmt->setString(0, username);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
@@ -221,7 +221,7 @@ uint32 AccountMgr::GetSecurity(uint32 accountId, int32 realmId)
 
 bool AccountMgr::GetName(uint32 accountId, std::string& name)
 {
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_USERNAME_BY_ID);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_LOGIN_BY_ID);
     stmt->setUInt32(0, accountId);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
