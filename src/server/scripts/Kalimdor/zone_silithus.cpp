@@ -578,7 +578,7 @@ public:
                 }
                 hasTarget = true;
                 if (target)
-                    me->AI()->AttackStart(target);
+                    AttackStart(target);
             }
             if (!(me->FindNearestCreature(15379, 60)))
                 DoCast(me, 33652);

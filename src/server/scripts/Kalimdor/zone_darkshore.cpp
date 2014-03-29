@@ -378,7 +378,7 @@ public:
             me->setFaction(FACTION_HOSTILE);
 
             if (Player* pHolder = GetLeaderForFollower())
-                me->AI()->AttackStart(pHolder);
+                AttackStart(pHolder);
 
             SetFollowComplete();
         }
