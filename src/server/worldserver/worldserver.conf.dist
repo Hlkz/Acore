@@ -197,17 +197,6 @@ PidFile = ""
 #             .bin to be parsable with WowPacketParser. (Default: "" Disabled, "World.bin" Enabled)
 PacketLogFile = ""
 
-#    ChatLogs : Log chat. (Default: 0 Disabled)
-ChatLogs.Channel = 1
-ChatLogs.Whisper = 1
-ChatLogs.SysChan = 1
-ChatLogs.Party = 1
-ChatLogs.Raid = 1
-ChatLogs.Guild = 1
-ChatLogs.Public = 1
-ChatLogs.Addon = 1
-ChatLogs.BattleGround = 1
-
 #
 ###################################################################################################
 # SERVER SETTINGS

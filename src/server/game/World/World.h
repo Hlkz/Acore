@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -130,15 +130,6 @@ enum WorldBoolConfigs
     CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN,
     CONFIG_VMAP_INDOOR_CHECK,
     CONFIG_START_ALL_EXPLORED,
-    CONFIG_CHATLOG_CHANNEL,
-    CONFIG_CHATLOG_WHISPER,
-    CONFIG_CHATLOG_SYSCHAN,
-    CONFIG_CHATLOG_PARTY,
-    CONFIG_CHATLOG_RAID,
-    CONFIG_CHATLOG_GUILD,
-    CONFIG_CHATLOG_PUBLIC,
-    CONFIG_CHATLOG_ADDON,
-    CONFIG_CHATLOG_BGROUND,
     CONFIG_AUTOBROADCAST,
     CONFIG_ALLOW_TICKETS,
     CONFIG_DBC_ENFORCE_ITEM_ATTRIBUTES,
