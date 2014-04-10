@@ -48,9 +48,9 @@ LogsDir = "./log/"
 #    LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;auth"       - (LoginDatabaseInfo)
 #    WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;world"      - (WorldDatabaseInfo)
 #    CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters" - (CharacterDatabaseInfo)
-LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;a39a"
-WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;a39w"
-CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;a39c"
+LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;iwpa"
+WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;iwpw"
+CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;iwpc"
 
 #    WorkerThreads : The amount of worker threads spawned to handle asynchronous (delayed) MySQL
 #                    statements. Each worker thread is mirrored with its own connection to the
@@ -286,8 +286,8 @@ CharactersPerAccount = 50
 SkipCinematics = 2
 
 #    PlayerLevel
-StartPlayerLevel = 39
-MaxPlayerLevel = 39
+StartPlayerLevel = 1
+MaxPlayerLevel = 100
 MinDualSpecLevel = 0
 
 #    MaxPoints (Default: 75000, 10000)
@@ -687,9 +687,6 @@ Rate.Auction.Cut     = 1
 
 #    Rate.Honor : Honor gain rate.
 Rate.Honor = 1
-
-#    Rate.Talent : Talent point rate.
-Rate.Talent = 1
 
 #    Rate.MoveSpeed : Movement speed rate.
 Rate.MoveSpeed = 1

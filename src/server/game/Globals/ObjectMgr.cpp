@@ -3554,13 +3554,8 @@ void ObjectMgr::LoadPlayerInfo()
 
                 // fill level gaps
                 for (uint8 level = 1; level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
-                {
                     if (info->levelInfo[level].stats[0] == 0)
-                    {
-                        TC_LOG_ERROR(LOG_FILTER_SQL, "Race %i Class %i Level %i does not have stats data. Using stats data of level %i.", race, class_, level+1, level);
                         info->levelInfo[level] = info->levelInfo[level-1];
-                    }
-                }
             }
         }
 

@@ -3077,38 +3077,26 @@ void Player::GiveLevel(uint8 level)
 void Player::InitTalentForLevel()
 {
     uint8 level = getLevel();
-    // talents base at level diff (talents = level - 9 but some can be used already)
-    if (level < 10)
+
+    if (level < sWorld->getIntConfig(CONFIG_MIN_DUALSPEC_LEVEL) || m_specsCount == 0)
     {
-        // Remove all talent points
-        if (m_usedTalentCount > 0)                           // Free any used talents
-        {
-            resetTalents(); /// @todo: Has to (collectively) be renamed to ResetTalents
-            SetFreeTalentPoints(0);
-        }
+        m_specsCount = 1;
+        m_activeSpec = 0;
     }
-    else
+
+    uint32 talentPointsForLevel = CalculateTalentsPoints();
+
+    // if used more that have then reset
+    if (m_usedTalentCount > talentPointsForLevel)
     {
-        if (level < sWorld->getIntConfig(CONFIG_MIN_DUALSPEC_LEVEL) || m_specsCount == 0)
-        {
-            m_specsCount = 1;
-            m_activeSpec = 0;
-        }
-
-        uint32 talentPointsForLevel = CalculateTalentsPoints();
-
-        // if used more that have then reset
-        if (m_usedTalentCount > talentPointsForLevel)
-        {
-            if (!AccountMgr::IsAdminAccount(GetSession()->GetSecurity()))
-                resetTalents();
-            else
-                SetFreeTalentPoints(0);
-        }
-        // else update amount of free points
+        if (!AccountMgr::IsAdminAccount(GetSession()->GetSecurity()))
+            resetTalents();
         else
-            SetFreeTalentPoints(talentPointsForLevel - m_usedTalentCount);
+            SetFreeTalentPoints(0);
     }
+    // else update amount of free points
+    else
+        SetFreeTalentPoints(talentPointsForLevel - m_usedTalentCount);
 
     if (!GetSession()->PlayerLoading())
         SendTalentsInfoData(false);                         // update at client
@@ -4383,8 +4371,6 @@ bool Player::resetTalents()
             const SpellInfo* _spellInfo = sSpellMgr->GetSpellInfo(talentInfo->RankID[rank]);
             if (!_spellInfo)
                 continue;
-            if (talentInfo->RankID[rank]==20473)
-                continue;
             removeSpell(talentInfo->RankID[rank], true);
             // search for spells that the talent teaches and unlearn them
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -5465,10 +5451,8 @@ void Player::RepopAtGraveyard()
             data << ClosestGrave->z;
             GetSession()->SendPacket(&data);
 
-            // rez/effets à la mort selon la map
-            if (GetZoneId() != 4080 && GetZoneId() != 2266 && !InBattleground() && GetMapId() != 609 && GetMapId() != BATTLEAO_MAP) {
-                ResurrectPlayer(1);
-                SpawnCorpseBones(); }
+            //ResurrectPlayer(1);
+            //SpawnCorpseBones();
 
             if (GetMapId() == 603) {
                 CastSpell(this,13874,false); } //bubul
@@ -24530,18 +24514,10 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
 
 uint32 Player::CalculateTalentsPoints() const
 {
-    uint32 base_talent = getLevel() < 10 ? 0 : getLevel()-9;
-
-    if (getClass() != CLASS_DEATH_KNIGHT || GetMapId() != 609)
-        return uint32(base_talent * sWorld->getRate(RATE_TALENT));
-
-    uint32 talentPointsForLevel = getLevel() < 56 ? 0 : getLevel() - 55;
-    talentPointsForLevel += m_questRewardTalentCount;
-
-    if (talentPointsForLevel > base_talent)
-        talentPointsForLevel = base_talent;
-
-    return uint32(talentPointsForLevel * sWorld->getRate(RATE_TALENT));
+    uint32 base_talent = getLevel() < 11 ? getLevel() : (2*getLevel() - 10);
+    if (base_talent > 30)
+        base_talent = 30;
+    return base_talent > 30 ? 30 : base_talent;
 }
 
 bool Player::IsKnowHowFlyIn(uint32 mapid, uint32 zone) const
