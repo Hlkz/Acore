@@ -1,7 +1,7 @@
 #ifndef __BATTLEGROUNdIWP_H
 #define __BATTLEGROUNdIWP_H
 
-#include "Battleground.h"
+#include "BattlegroundMgr.h"
 
 enum BG_IWP_SpellEntry
 {
@@ -30,6 +30,15 @@ const float BG_IWP_CreaturePos[BG_IWP_CREA_MAX][4] =
     {-5629.822f, 411.894f, -1.355f, 6.227f},
 };
 
+enum BG_IWP_LANES
+{
+    BG_IWP_LANE_TOP,
+    BG_IWP_LANE_BOT,
+    BG_IWP_LANE_MID,
+    BG_IWP_LANE_MAX
+};
+#define BG_IWP_CREEPS_MAX 20
+
 enum BG_IWP_ObjectEntry
 {
     BG_IWP_ENTRY_WALL = 190376,
@@ -44,12 +53,6 @@ enum BG_IWP_ObjectTypes
 const float BG_IWP_ObjectPos[BG_IWP_OB_MAX][4] =
 {
     { -5458.0f, 0.4f, 0.0f, 1.6f},
-};
-
-enum BG_IWP_CommanderStatus
-{
-    BG_IWP_COMMANDER_ENVA,
-    BG_IWP_COMMANDER_RENF
 };
 
 const uint32 BG_IWP_GraveyardIds[BG_TEAMS_COUNT] = { 1954, 1955 };
@@ -88,6 +91,7 @@ class BattlegroundIWP : public Battleground
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
         void CrushWall();
+        void EraseCreep(uint64 guid, uint8 lane, uint8 teamid);
 
         /*variables*/
         uint32 m_pts[BG_TEAMS_COUNT];
@@ -104,6 +108,9 @@ class BattlegroundIWP : public Battleground
         int32 m_WavesTimer;
         int32 m_WavesCount;
         bool m_WallFallen;
+        int32 m_CreepsCount[BG_TEAMS_COUNT];
+        std::map<uint64, Creature*> m_Creeps[BG_IWP_LANE_MAX][BG_TEAMS_COUNT];
+        bool m_LastCreepWasTop[BG_TEAMS_COUNT];
 };
 
 #endif

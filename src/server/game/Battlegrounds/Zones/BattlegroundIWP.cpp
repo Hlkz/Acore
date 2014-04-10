@@ -60,34 +60,49 @@ public:
 
     struct npc_iwp_creepAI : public npc_escortAI
     {
-        npc_iwp_creepAI(Creature* creature) : npc_escortAI(creature)
+        npc_iwp_creep::npc_iwp_creepAI(Creature* creature) : npc_escortAI(creature)
         {
-            go = false;
+            m_go = false;
             SetDespawnAtEnd(false);
+            m_team = me->getFaction() == 3802 ? ALLIANCE : HORDE;
+            if (Battleground* bg = sBattlegroundMgr->GetBattleground(me->GetInstanceId(), BATTLEGROUND_IWP))
+                if (BattlegroundIWP* IWP = static_cast<BattlegroundIWP*>(bg))
+                    iwp = IWP;
         }
-        bool go;
-
         void UpdateAI(uint32 diff)
         {
             npc_escortAI::UpdateAI(diff);
-            if (!go && !me->IsInCombat())
+            if (!m_go && !me->IsInCombat())
             {
-                go = true;
+                m_go = true;
                 Start(false, true);
                 SetDespawnAtEnd(false);
             }
-
+    
             if (!UpdateVictim())
                 return;
-
+    
             DoMeleeAttackIfReady();
+        }
+        
+        void JustDied(Unit *)
+        {
+            if (iwp)
+                iwp->EraseCreep(GetGUID(), m_lane, m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE);
         }
 
         void WaypointReached(uint32 pointId) { }
 
-    };
+        void SetLane(uint32 lane) { m_lane = lane; }
 
-    CreatureAI* GetAI(Creature* creature) const
+        private:
+            bool m_go;
+            uint32 m_team;
+            uint32 m_lane;
+            BattlegroundIWP* iwp;
+    };
+    
+    CreatureAI* npc_iwp_creep::GetAI(Creature* creature) const
     {
         return new npc_iwp_creepAI(creature);
     }
@@ -106,6 +121,10 @@ BattlegroundIWP::BattlegroundIWP()
 	m_WallFallen = false;
     m_pts[0] = 0;
     m_pts[1] = 0;
+    m_CreepsCount[0] = 0;
+    m_CreepsCount[1] = 0;
+    m_LastCreepWasTop[0] = false;
+    m_LastCreepWasTop[1] = false;
 }
 
 BattlegroundIWP::~BattlegroundIWP()
@@ -179,100 +198,132 @@ void BattlegroundIWP::SpawnCreeps(uint32 count)
 
     if (bossa)
     {
-        if (Creature* creeptop = bossa->SummonCreature(BG_IWP_NPC_CREEP_A, -5306.319336f, -0.073182f, 20.547842f, 3.165546f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
-            if (npc_escortAI* creepAI = CAST_AI(npc_escortAI, creeptop->AI()))
-            { // TOP
-                creepAI->AddWaypoint(0, -5323.509277f, -0.411021f, 17.558941f); // avantfontaine A
-                creepAI->AddWaypoint(0, -5333.532227f, -9.937929f, 17.584873f); // droitefontaine A
-                creepAI->AddWaypoint(0, -5359.521484f, 0.490013f, 16.959352f); // aprèsfontaine A
-                creepAI->AddWaypoint(0, -5398.064941f, -0.113028f, 6.890518f); // basrampe A
-                creepAI->AddWaypoint(0, -5396.83056f, 102.146660f, 5.918159f); // haut gauche
-                creepAI->AddWaypoint(0, -5518.325684f, 100.875595f, 6.846214f); // bas gauche
-                creepAI->AddWaypoint(0, -5525.838379f, -0.240710f, 6.970019f); // basrampe H
-                creepAI->AddWaypoint(0, -5563.571289f, 0.337856f, 16.989100f); // aprèsfontaine H
-                creepAI->AddWaypoint(0, -5583.243652f, 9.897322f, 16.889269f); // gauchefontaine H
-                creepAI->AddWaypoint(0, -5593.929199f, -0.301656f, 16.911194f); // avantfontaine H
-                creepAI->AddWaypoint(0, -5613.787109f, -0.336507f, 19.983620f); // Entrée H
-            }
-        if (Creature* creepbot = bossa->SummonCreature(BG_IWP_NPC_CREEP_A, -5306.319336f, -0.073182f, 20.547842f, 3.165546f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
-            if (npc_escortAI* creepAI = CAST_AI(npc_escortAI, creepbot->AI()))
-            { // BOT
-                creepAI->AddWaypoint(0, -5323.509277f, -0.411021f, 17.558941f); // avantfontaine A
-                creepAI->AddWaypoint(0, -5333.461914f, 9.169089f, 17.504997f); // gauchefontaine A
-                creepAI->AddWaypoint(0, -5359.521484f, 0.490013f, 16.959352f); // aprèsfontaine A
-                creepAI->AddWaypoint(0, -5398.064941f, -0.113028f, 6.890518f); // basrampe A
-                creepAI->AddWaypoint(0, -5403.535156f, -107.556732f, 4.863138f); // haut droit
-                creepAI->AddWaypoint(0, -5518.952148f, -105.223404f, 5.334596f); // bas droit
-                creepAI->AddWaypoint(0, -5525.838379f, -0.240710f, 6.970019f); // basrampe H
-                creepAI->AddWaypoint(0, -5563.571289f, 0.337856f, 16.989100f); // aprèsfontaine H
-                creepAI->AddWaypoint(0, -5583.074219f, -9.697697f, 16.914650f); // droitefontaine H
-                creepAI->AddWaypoint(0, -5593.929199f, -0.301656f, 16.911194f); // avantfontaine H
-                creepAI->AddWaypoint(0, -5613.787109f, -0.336507f, 19.983620f); // Entrée H
-            }
-        if (m_WallFallen)
+        if (m_CreepsCount[TEAM_ALLIANCE] < BG_IWP_CREEPS_MAX && m_WallFallen)
             if (Creature* creepmid = bossa->SummonCreature(BG_IWP_NPC_CREEP_A, -5306.319336f, -0.073182f, 20.547842f, 3.165546f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
-                if (npc_escortAI* creepAI = CAST_AI(npc_escortAI, creepmid->AI()))
+                if (npc_iwp_creep::npc_iwp_creepAI* creepAI = CAST_AI(npc_iwp_creep::npc_iwp_creepAI, creepmid->AI()))
                 { // MID
-                creepAI->AddWaypoint(0, -5323.509277f, -0.411021f, 17.558941f); // avantfontaine A
-                creepAI->AddWaypoint(0, -5333.532227f, -9.937929f, 17.584873f); // droitefontaine A
-                creepAI->AddWaypoint(0, -5359.521484f, 0.490013f, 16.959352f); // aprèsfontaine A
-                creepAI->AddWaypoint(0, -5398.064941f, -0.113028f, 6.890518f); // basrampe A
-                creepAI->AddWaypoint(0, -5525.838379f, -0.240710f, 6.970019f); // basrampe H
-                creepAI->AddWaypoint(0, -5563.571289f, 0.337856f, 16.989100f); // aprèsfontaine H
-                creepAI->AddWaypoint(0, -5583.243652f, 9.897322f, 16.889269f); // gauchefontaine H
-                creepAI->AddWaypoint(0, -5593.929199f, -0.301656f, 16.911194f); // avantfontaine H
-                creepAI->AddWaypoint(0, -5613.787109f, -0.336507f, 19.983620f); // Entrée H
+                    m_Creeps[BG_IWP_LANE_MID][TEAM_ALLIANCE][creepmid->GetGUID()] = creepmid;
+                    creepAI->SetLane(2);
+                    creepAI->AddWaypoint(0, -5323.509277f, -0.411021f, 17.558941f); // avantfontaine A
+                    creepAI->AddWaypoint(0, -5333.532227f, -9.937929f, 17.584873f); // droitefontaine A
+                    creepAI->AddWaypoint(0, -5359.521484f, 0.490013f, 16.959352f); // aprèsfontaine A
+                    creepAI->AddWaypoint(0, -5398.064941f, -0.113028f, 6.890518f); // basrampe A
+                    creepAI->AddWaypoint(0, -5525.838379f, -0.240710f, 6.970019f); // basrampe H
+                    creepAI->AddWaypoint(0, -5563.571289f, 0.337856f, 16.989100f); // aprèsfontaine H
+                    creepAI->AddWaypoint(0, -5583.243652f, 9.897322f, 16.889269f); // gauchefontaine H
+                    creepAI->AddWaypoint(0, -5593.929199f, -0.301656f, 16.911194f); // avantfontaine H
+                    creepAI->AddWaypoint(0, -5613.787109f, -0.336507f, 19.983620f); // Entrée H
+                    m_CreepsCount[TEAM_ALLIANCE]++;
+                }
+        if ((1+m_CreepsCount[TEAM_ALLIANCE] < BG_IWP_CREEPS_MAX) || (BG_IWP_CREEPS_MAX-m_CreepsCount[TEAM_ALLIANCE] == 1 && !m_LastCreepWasTop[TEAM_ALLIANCE]))
+            if (Creature* creeptop = bossa->SummonCreature(BG_IWP_NPC_CREEP_A, -5306.319336f, -0.073182f, 20.547842f, 3.165546f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
+                if (npc_iwp_creep::npc_iwp_creepAI* creepAI = CAST_AI(npc_iwp_creep::npc_iwp_creepAI, creeptop->AI()))
+                { // TOP
+                    m_Creeps[BG_IWP_LANE_TOP][TEAM_ALLIANCE][creeptop->GetGUID()] = creeptop;
+                    creepAI->SetLane(0);
+                    creepAI->AddWaypoint(0, -5323.509277f, -0.411021f, 17.558941f); // avantfontaine A
+                    creepAI->AddWaypoint(0, -5333.532227f, -9.937929f, 17.584873f); // droitefontaine A
+                    creepAI->AddWaypoint(0, -5359.521484f, 0.490013f, 16.959352f); // aprèsfontaine A
+                    creepAI->AddWaypoint(0, -5398.064941f, -0.113028f, 6.890518f); // basrampe A
+                    creepAI->AddWaypoint(0, -5396.83056f, 102.146660f, 5.918159f); // haut gauche
+                    creepAI->AddWaypoint(0, -5518.325684f, 100.875595f, 6.846214f); // bas gauche
+                    creepAI->AddWaypoint(0, -5525.838379f, -0.240710f, 6.970019f); // basrampe H
+                    creepAI->AddWaypoint(0, -5563.571289f, 0.337856f, 16.989100f); // aprèsfontaine H
+                    creepAI->AddWaypoint(0, -5583.243652f, 9.897322f, 16.889269f); // gauchefontaine H
+                    creepAI->AddWaypoint(0, -5593.929199f, -0.301656f, 16.911194f); // avantfontaine H
+                    creepAI->AddWaypoint(0, -5613.787109f, -0.336507f, 19.983620f); // Entrée H
+                    m_CreepsCount[TEAM_ALLIANCE]++;
+                    m_LastCreepWasTop[TEAM_ALLIANCE] = true;
+                }
+        if (m_CreepsCount[TEAM_ALLIANCE] < BG_IWP_CREEPS_MAX)
+            if (Creature* creepbot = bossa->SummonCreature(BG_IWP_NPC_CREEP_A, -5306.319336f, -0.073182f, 20.547842f, 3.165546f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
+                if (npc_iwp_creep::npc_iwp_creepAI* creepAI = CAST_AI(npc_iwp_creep::npc_iwp_creepAI, creepbot->AI()))
+                { // BOT
+                    m_Creeps[BG_IWP_LANE_BOT][TEAM_ALLIANCE][creepbot->GetGUID()] = creepbot;
+                    creepAI->SetLane(1);
+                    creepAI->AddWaypoint(0, -5323.509277f, -0.411021f, 17.558941f); // avantfontaine A
+                    creepAI->AddWaypoint(0, -5333.461914f, 9.169089f, 17.504997f); // gauchefontaine A
+                    creepAI->AddWaypoint(0, -5359.521484f, 0.490013f, 16.959352f); // aprèsfontaine A
+                    creepAI->AddWaypoint(0, -5398.064941f, -0.113028f, 6.890518f); // basrampe A
+                    creepAI->AddWaypoint(0, -5403.535156f, -107.556732f, 4.863138f); // haut droit
+                    creepAI->AddWaypoint(0, -5518.952148f, -105.223404f, 5.334596f); // bas droit
+                    creepAI->AddWaypoint(0, -5525.838379f, -0.240710f, 6.970019f); // basrampe H
+                    creepAI->AddWaypoint(0, -5563.571289f, 0.337856f, 16.989100f); // aprèsfontaine H
+                    creepAI->AddWaypoint(0, -5583.074219f, -9.697697f, 16.914650f); // droitefontaine H
+                    creepAI->AddWaypoint(0, -5593.929199f, -0.301656f, 16.911194f); // avantfontaine H
+                    creepAI->AddWaypoint(0, -5613.787109f, -0.336507f, 19.983620f); // Entrée H
+                    m_CreepsCount[TEAM_ALLIANCE]++;
+                    m_LastCreepWasTop[TEAM_ALLIANCE] = false;
                 }
     }
 
     if (bossh)
     {
-        if (Creature* creeptop = bossh->SummonCreature(BG_IWP_NPC_CREEP_H, -5613.787109f, -0.336507f, 19.983620f, 6.273757f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
-            if (npc_escortAI* creepAI = CAST_AI(npc_escortAI, creeptop->AI()))
-            { // TOP
-                creepAI->AddWaypoint(0, -5593.929199f, -0.301656f, 16.911194f); // avantfontaine H
-                creepAI->AddWaypoint(0, -5583.243652f, 9.897322f, 16.889269f); // gauchefontaine H
-                creepAI->AddWaypoint(0, -5563.571289f, 0.337856f, 16.989100f); // aprèsfontaine H
-                creepAI->AddWaypoint(0, -5525.838379f, -0.240710f, 6.970019f); // basrampe H
-                creepAI->AddWaypoint(0, -5518.325684f, 100.875595f, 6.846214f); // bas gauche
-                creepAI->AddWaypoint(0, -5396.83056f, 102.146660f, 5.918159f); // haut gauche
-                creepAI->AddWaypoint(0, -5398.064941f, -0.113028f, 6.890518f); // basrampe A
-                creepAI->AddWaypoint(0, -5359.521484f, 0.490013f, 16.959352f); // aprèsfontaine A
-                creepAI->AddWaypoint(0, -5333.532227f, -9.937929f, 17.584873f); // droitefontaine A
-                creepAI->AddWaypoint(0, -5323.509277f, -0.411021f, 17.558941f); // avantfontaine A
-                creepAI->AddWaypoint(0, -5306.319336f, -0.073182f, 20.547842f); // Entrée A
-                
-            }
-        if (Creature* creepmid = bossh->SummonCreature(BG_IWP_NPC_CREEP_H, -5613.787109f, -0.336507f, 19.983620f, 6.273757f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
-            if (npc_escortAI* creepAI = CAST_AI(npc_escortAI, creepmid->AI()))
-            { // BOT
-                creepAI->AddWaypoint(0, -5593.929199f, -0.301656f, 16.911194f); // avantfontaine H
-                creepAI->AddWaypoint(0, -5583.074219f, -9.697697f, 16.914650f); // droitefontaine H
-                creepAI->AddWaypoint(0, -5563.571289f, 0.337856f, 16.989100f); // aprèsfontaine H
-                creepAI->AddWaypoint(0, -5525.838379f, -0.240710f, 6.970019f); // basrampe H
-                creepAI->AddWaypoint(0, -5518.952148f, -105.223404f, 5.334596f); // bas droit
-                creepAI->AddWaypoint(0, -5403.535156f, -107.556732f, 4.863138f); // haut droit
-                creepAI->AddWaypoint(0, -5398.064941f, -0.113028f, 6.890518f); // basrampe A
-                creepAI->AddWaypoint(0, -5359.521484f, 0.490013f, 16.959352f); // aprèsfontaine A
-                creepAI->AddWaypoint(0, -5333.461914f, 9.169089f, 17.504997f); // gauchefontaine A
-                creepAI->AddWaypoint(0, -5323.509277f, -0.411021f, 17.558941f); // avantfontaine A
-                creepAI->AddWaypoint(0, -5306.319336f, -0.073182f, 20.547842f); // Entrée A
-            }
-        if (m_WallFallen)
-            if (Creature* creepbot = bossh->SummonCreature(BG_IWP_NPC_CREEP_H, -5613.787109f, -0.336507f, 19.983620f, 6.273757f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
-                if (npc_escortAI* creepAI = CAST_AI(npc_escortAI, creepbot->AI()))
+        if (m_CreepsCount[TEAM_HORDE] < BG_IWP_CREEPS_MAX && m_WallFallen)
+            if (Creature* creepmid = bossh->SummonCreature(BG_IWP_NPC_CREEP_H, -5613.787109f, -0.336507f, 19.983620f, 6.273757f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
+                if (npc_iwp_creep::npc_iwp_creepAI* creepAI = CAST_AI(npc_iwp_creep::npc_iwp_creepAI, creepmid->AI()))
                 { // MID
-                creepAI->AddWaypoint(0, -5593.929199f, -0.301656f, 16.911194f); // avantfontaine H
-                creepAI->AddWaypoint(0, -5583.243652f, 9.897322f, 16.889269f); // gauchefontaine H
-                creepAI->AddWaypoint(0, -5563.571289f, 0.337856f, 16.989100f); // aprèsfontaine H
-                creepAI->AddWaypoint(0, -5525.838379f, -0.240710f, 6.970019f); // basrampe H
-                creepAI->AddWaypoint(0, -5398.064941f, -0.113028f, 6.890518f); // basrampe A
-                creepAI->AddWaypoint(0, -5359.521484f, 0.490013f, 16.959352f); // aprèsfontaine A
-                creepAI->AddWaypoint(0, -5333.532227f, -9.937929f, 17.584873f); // droitefontaine A
-                creepAI->AddWaypoint(0, -5323.509277f, -0.411021f, 17.558941f); // avantfontaine A
-                creepAI->AddWaypoint(0, -5306.319336f, -0.073182f, 20.547842f); // Entrée A
+                    m_Creeps[BG_IWP_LANE_MID][TEAM_HORDE][creepmid->GetGUID()] = creepmid;
+                    creepAI->SetLane(2);
+                    creepAI->AddWaypoint(0, -5593.929199f, -0.301656f, 16.911194f); // avantfontaine H
+                    creepAI->AddWaypoint(0, -5583.243652f, 9.897322f, 16.889269f); // gauchefontaine H
+                    creepAI->AddWaypoint(0, -5563.571289f, 0.337856f, 16.989100f); // aprèsfontaine H
+                    creepAI->AddWaypoint(0, -5525.838379f, -0.240710f, 6.970019f); // basrampe H
+                    creepAI->AddWaypoint(0, -5398.064941f, -0.113028f, 6.890518f); // basrampe A
+                    creepAI->AddWaypoint(0, -5359.521484f, 0.490013f, 16.959352f); // aprèsfontaine A
+                    creepAI->AddWaypoint(0, -5333.532227f, -9.937929f, 17.584873f); // droitefontaine A
+                    creepAI->AddWaypoint(0, -5323.509277f, -0.411021f, 17.558941f); // avantfontaine A
+                    creepAI->AddWaypoint(0, -5306.319336f, -0.073182f, 20.547842f); // Entrée A
+                    m_CreepsCount[TEAM_HORDE]++;
+                }
+        if ((1+m_CreepsCount[TEAM_HORDE] < BG_IWP_CREEPS_MAX) || (BG_IWP_CREEPS_MAX-m_CreepsCount[TEAM_HORDE] == 1 && !m_LastCreepWasTop[TEAM_HORDE]))
+            if (Creature* creeptop = bossh->SummonCreature(BG_IWP_NPC_CREEP_H, -5613.787109f, -0.336507f, 19.983620f, 6.273757f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
+                if (npc_iwp_creep::npc_iwp_creepAI* creepAI = CAST_AI(npc_iwp_creep::npc_iwp_creepAI, creeptop->AI()))
+                { // TOP
+                    m_Creeps[BG_IWP_LANE_TOP][TEAM_HORDE][creeptop->GetGUID()] = creeptop;
+                    creepAI->SetLane(0);
+                    creepAI->AddWaypoint(0, -5593.929199f, -0.301656f, 16.911194f); // avantfontaine H
+                    creepAI->AddWaypoint(0, -5583.243652f, 9.897322f, 16.889269f); // gauchefontaine H
+                    creepAI->AddWaypoint(0, -5563.571289f, 0.337856f, 16.989100f); // aprèsfontaine H
+                    creepAI->AddWaypoint(0, -5525.838379f, -0.240710f, 6.970019f); // basrampe H
+                    creepAI->AddWaypoint(0, -5518.325684f, 100.875595f, 6.846214f); // bas gauche
+                    creepAI->AddWaypoint(0, -5396.83056f, 102.146660f, 5.918159f); // haut gauche
+                    creepAI->AddWaypoint(0, -5398.064941f, -0.113028f, 6.890518f); // basrampe A
+                    creepAI->AddWaypoint(0, -5359.521484f, 0.490013f, 16.959352f); // aprèsfontaine A
+                    creepAI->AddWaypoint(0, -5333.532227f, -9.937929f, 17.584873f); // droitefontaine A
+                    creepAI->AddWaypoint(0, -5323.509277f, -0.411021f, 17.558941f); // avantfontaine A
+                    creepAI->AddWaypoint(0, -5306.319336f, -0.073182f, 20.547842f); // Entrée A
+                    m_CreepsCount[TEAM_HORDE]++;
+                    m_LastCreepWasTop[TEAM_HORDE] = true;
+                
+                }
+        if (m_CreepsCount[TEAM_HORDE] < BG_IWP_CREEPS_MAX)
+            if (Creature* creepbot = bossh->SummonCreature(BG_IWP_NPC_CREEP_H, -5613.787109f, -0.336507f, 19.983620f, 6.273757f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
+                if (npc_iwp_creep::npc_iwp_creepAI* creepAI = CAST_AI(npc_iwp_creep::npc_iwp_creepAI, creepbot->AI()))
+                { // BOT
+                    m_Creeps[BG_IWP_LANE_BOT][TEAM_HORDE][creepbot->GetGUID()] = creepbot;
+                    creepAI->SetLane(1);
+                    creepAI->AddWaypoint(0, -5593.929199f, -0.301656f, 16.911194f); // avantfontaine H
+                    creepAI->AddWaypoint(0, -5583.074219f, -9.697697f, 16.914650f); // droitefontaine H
+                    creepAI->AddWaypoint(0, -5563.571289f, 0.337856f, 16.989100f); // aprèsfontaine H
+                    creepAI->AddWaypoint(0, -5525.838379f, -0.240710f, 6.970019f); // basrampe H
+                    creepAI->AddWaypoint(0, -5518.952148f, -105.223404f, 5.334596f); // bas droit
+                    creepAI->AddWaypoint(0, -5403.535156f, -107.556732f, 4.863138f); // haut droit
+                    creepAI->AddWaypoint(0, -5398.064941f, -0.113028f, 6.890518f); // basrampe A
+                    creepAI->AddWaypoint(0, -5359.521484f, 0.490013f, 16.959352f); // aprèsfontaine A
+                    creepAI->AddWaypoint(0, -5333.461914f, 9.169089f, 17.504997f); // gauchefontaine A
+                    creepAI->AddWaypoint(0, -5323.509277f, -0.411021f, 17.558941f); // avantfontaine A
+                    creepAI->AddWaypoint(0, -5306.319336f, -0.073182f, 20.547842f); // Entrée A
+                    m_CreepsCount[TEAM_HORDE]++;
+                    m_LastCreepWasTop[TEAM_HORDE] = false;
                 }
     }
+}
+
+void BattlegroundIWP::EraseCreep(uint64 guid, uint8 lane, uint8 teamid)
+{
+    m_Creeps[lane][teamid].erase(guid);
+    m_CreepsCount[teamid]--;
 }
 
 void BattlegroundIWP::AddPlayer(Player* player)
