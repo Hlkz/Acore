@@ -189,7 +189,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            Talk(SAY_ATTACKED, who->GetGUID());
+            Talk(SAY_ATTACKED, who);
         }
 
         void JustDied(Unit* /*slayer*/)
