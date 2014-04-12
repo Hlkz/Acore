@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,7 +20,7 @@
 #define CONFIG_H
 
 #include <string>
-#include <map>
+#include <list>
 #include <ace/Singleton.h>
 #include <ace/Configuration_Import_Export.h>
 #include <ace/Thread_Mutex.h>
@@ -56,6 +56,7 @@ public:
     float GetFloatDefault(const char* name, float def);
 
     std::string const& GetFilename();
+    std::list<std::string> GetKeysByString(std::string const& name);
 
 private:
     bool GetValueHelper(const char* name, ACE_TString &result);

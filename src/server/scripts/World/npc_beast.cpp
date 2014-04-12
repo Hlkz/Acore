@@ -55,7 +55,7 @@ public:
         pet->GetMap()->AddToMap((Creature*)pet);
         pet->SetUInt32Value(UNIT_FIELD_LEVEL, player->getLevel()); // visual effect for levelup
         if (!pet->InitStatsForLevel(player->getLevel()))
-            TC_LOG_ERROR(LOG_FILTER_PETS, "Pet Create fail: no init stats for entry %u", entry);
+            TC_LOG_ERROR("entities.pet", "Pet Create fail: no init stats for entry %u", entry);
         pet->UpdateAllStats();
         player->SetMinion(pet, true); // caster have pet now
         pet->SavePetToDB(PET_SAVE_AS_CURRENT);

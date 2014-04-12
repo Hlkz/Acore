@@ -299,7 +299,7 @@ bool BattlegroundBB::SetupBattleground()
         }
         else
         {
-            TC_LOG_ERROR(LOG_FILTER_SQL, "BatteGroundBB: Failed to spawn A towers");
+            TC_LOG_ERROR("sql.sql", "BatteGroundBB: Failed to spawn A towers");
             return false;
         }
     }
@@ -314,7 +314,7 @@ bool BattlegroundBB::SetupBattleground()
         }
         else
         {
-            TC_LOG_ERROR(LOG_FILTER_SQL, "BatteGroundBB: Failed to spawn H towers");
+            TC_LOG_ERROR("sql.sql", "BatteGroundBB: Failed to spawn H towers");
             return false;
         }
     }
@@ -322,14 +322,14 @@ bool BattlegroundBB::SetupBattleground()
     if ((!AddCreature(BG_BB_NEXUS_A_ENTRY, BG_BB_CREA_NEXUS_A, ALLIANCE, BG_BB_CreaturePos[BG_BB_CREA_NEXUS_A][0], BG_BB_CreaturePos[BG_BB_CREA_NEXUS_A][1], BG_BB_CreaturePos[BG_BB_CREA_NEXUS_A][2], BG_BB_CreaturePos[BG_BB_CREA_NEXUS_A][3]))
         || (!AddCreature(BG_BB_NEXUS_H_ENTRY, BG_BB_CREA_NEXUS_H, HORDE, BG_BB_CreaturePos[BG_BB_CREA_NEXUS_H][0], BG_BB_CreaturePos[BG_BB_CREA_NEXUS_H][1], BG_BB_CreaturePos[BG_BB_CREA_NEXUS_H][2], BG_BB_CreaturePos[BG_BB_CREA_NEXUS_H][3])))
     {
-        TC_LOG_ERROR(LOG_FILTER_SQL, "BatteGroundBB: Failed to spawn nexus");
+        TC_LOG_ERROR("sql.sql", "BatteGroundBB: Failed to spawn nexus");
         return false;
     }
 
     if ((!AddCreature(BG_BB_VENDOR_A_ENTRY, BG_BB_CREA_VENDOR_A, ALLIANCE, BG_BB_CreaturePos[BG_BB_CREA_VENDOR_A][0], BG_BB_CreaturePos[BG_BB_CREA_VENDOR_A][1], BG_BB_CreaturePos[BG_BB_CREA_VENDOR_A][2], BG_BB_CreaturePos[BG_BB_CREA_VENDOR_A][3]))
         || (!AddCreature(BG_BB_VENDOR_H_ENTRY, BG_BB_CREA_VENDOR_H, HORDE, BG_BB_CreaturePos[BG_BB_CREA_VENDOR_H][0], BG_BB_CreaturePos[BG_BB_CREA_VENDOR_H][1], BG_BB_CreaturePos[BG_BB_CREA_VENDOR_H][2], BG_BB_CreaturePos[BG_BB_CREA_VENDOR_H][3])))
     {
-        TC_LOG_ERROR(LOG_FILTER_SQL, "BatteGroundBB: Failed to spawn vendors");
+        TC_LOG_ERROR("sql.sql", "BatteGroundBB: Failed to spawn vendors");
         return false;
     }
 
@@ -359,7 +359,7 @@ void BattlegroundBB::HandleKillPlayer(Player* player, Player* killer)
 
 void BattlegroundBB::HandleKillUnit(Creature* unit, Player* killer)
 {
-    TC_LOG_DEBUG(LOG_FILTER_BATTLEGROUND, "bg_BA HandleKillUnit %i", unit->GetEntry());
+    TC_LOG_DEBUG("bg.battleground", "bg_BA HandleKillUnit %i", unit->GetEntry());
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
     uint32 entry = unit->GetEntry();
@@ -526,7 +526,7 @@ void BattlegroundBB::RemovePlayer(Player* player, uint64 /*guid*/, uint32 /*team
 {
     if (!player)
     {
-        TC_LOG_ERROR(LOG_FILTER_BATTLEGROUND, "bg_BA no player at remove");
+        TC_LOG_ERROR("bg.battleground", "bg_BA no player at remove");
         return;
     }
 }
@@ -567,7 +567,7 @@ void BattlegroundBB::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
 
 void BattlegroundBB::EventPlayerDestroyedPoint(BG_BB_Nodes node)
 {
-    TC_LOG_DEBUG(LOG_FILTER_BATTLEGROUND, "bg_BA: player destroyed point node %i", node);
+    TC_LOG_DEBUG("bg.battleground", "bg_BA: player destroyed point node %i", node);
     DelCreature(node);
     //tofix annonce
 }

@@ -50,7 +50,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
     if (type >= MAX_CHAT_MSG_TYPE)
     {
-        TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "CHAT: Wrong message type received: %u", type);
+        TC_LOG_ERROR("network", "CHAT: Wrong message type received: %u", type);
         recvData.rfinish();
         return;
     }
@@ -114,7 +114,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                     return;
                 break;
             default:
-                TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "Player %s (GUID: %u) sent a chatmessage with an invalid language/message type combination",
+                TC_LOG_ERROR("network", "Player %s (GUID: %u) sent a chatmessage with an invalid language/message type combination",
                                                      GetPlayer()->GetName().c_str(), GetPlayer()->GetGUIDLow());
 
                 recvData.rfinish();
@@ -204,7 +204,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
             if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY) && !ChatHandler(this).isValidChatMessage(msg.c_str()))
             {
-                TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "Player %s (GUID: %u) sent a chatmessage with an invalid link: %s", GetPlayer()->GetName().c_str(),
+                TC_LOG_ERROR("network", "Player %s (GUID: %u) sent a chatmessage with an invalid link: %s", GetPlayer()->GetName().c_str(),
                     GetPlayer()->GetGUIDLow(), msg.c_str());
 
                 if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
@@ -435,7 +435,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             break;
         }
         default:
-            TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "CHAT: unknown message type %u, lang: %u", type, lang);
+            TC_LOG_ERROR("network", "CHAT: unknown message type %u, lang: %u", type, lang);
             break;
     }
 }
@@ -565,7 +565,7 @@ void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleChannelDeclineInvite(WorldPacket &recvPacket)
 {
-    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
+    TC_LOG_DEBUG("network", "Opcode %u", recvPacket.GetOpcode());
 }
 
 void WorldSession::SendPlayerNotFoundNotice(std::string const& name)

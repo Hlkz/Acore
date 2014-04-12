@@ -136,13 +136,13 @@ bool BattlegroundIWP::SetupBattleground()
     if ((!AddCreature(BG_IWP_NPC_BOSS_A, BG_IWP_CREA_BOSS_A, ALLIANCE, BG_IWP_CreaturePos[BG_IWP_CREA_BOSS_A][0], BG_IWP_CreaturePos[BG_IWP_CREA_BOSS_A][1], BG_IWP_CreaturePos[BG_IWP_CREA_BOSS_A][2], BG_IWP_CreaturePos[BG_IWP_CREA_BOSS_A][3]))
         || (!AddCreature(BG_IWP_NPC_BOSS_H, BG_IWP_CREA_BOSS_H, HORDE, BG_IWP_CreaturePos[BG_IWP_CREA_BOSS_H][0], BG_IWP_CreaturePos[BG_IWP_CREA_BOSS_H][1], BG_IWP_CreaturePos[BG_IWP_CREA_BOSS_H][2], BG_IWP_CreaturePos[BG_IWP_CREA_BOSS_H][3])))
     {
-        TC_LOG_ERROR(LOG_FILTER_SQL, "BatteGroundIWP: Failed to spawn boss");
+        TC_LOG_ERROR("sql.sql", "BatteGroundIWP: Failed to spawn boss");
         return false;
     }
     
     if (!AddObject(BG_IWP_OB_WALL, BG_IWP_ENTRY_WALL, BG_IWP_ObjectPos[BG_IWP_OB_WALL][0], BG_IWP_ObjectPos[BG_IWP_OB_WALL][1], BG_IWP_ObjectPos[BG_IWP_OB_WALL][2], BG_IWP_ObjectPos[BG_IWP_OB_WALL][3],0,0,0,0,0))
     {
-        TC_LOG_ERROR(LOG_FILTER_SQL, "BatteGroundIWP: Failed to spawn wall");
+        TC_LOG_ERROR("sql.sql", "BatteGroundIWP: Failed to spawn wall");
         return false;
     }
 
@@ -166,7 +166,7 @@ void BattlegroundIWP::HandleKillPlayer(Player* player, Player* killer)
 
 void BattlegroundIWP::HandleKillUnit(Creature* unit, Player* killer)
 {
-    TC_LOG_DEBUG(LOG_FILTER_BATTLEGROUND, "IWP HandleKillUnit %i", unit->GetEntry());
+    TC_LOG_DEBUG("bg.battleground", "IWP HandleKillUnit %i", unit->GetEntry());
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 }
@@ -355,7 +355,7 @@ void BattlegroundIWP::RemovePlayer(Player* player, uint64 /*guid*/, uint32 /*tea
 {
     if (!player)
     {
-        TC_LOG_ERROR(LOG_FILTER_BATTLEGROUND, "bg_IWP no player at remove");
+        TC_LOG_ERROR("bg.battleground", "bg_IWP no player at remove");
         return;
     }
 }

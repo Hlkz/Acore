@@ -38,7 +38,7 @@ public:
             sBattleAOMgr->BuildBattleAOStatusPacket(&data, queueSlot, STATUS_NONE, 0, 0);
             player->GetSession()->SendPacket(&data);
             baoQueue.RemovePlayer(player->GetGUID(), true);
-            TC_LOG_DEBUG(LOG_FILTER_BAO, "BAO : detag par .bg");
+            TC_LOG_DEBUG("bao", "BAO : detag par .bg");
             return true;
         }
 
@@ -59,7 +59,7 @@ public:
         sBattleAOMgr->BuildBattleAOStatusPacket(&data, queueSlot, STATUS_WAIT_QUEUE, 10, 0);
         player->GetSession()->SendPacket(&data);
         sBattleAOMgr->ScheduleQueueUpdate();
-        TC_LOG_DEBUG(LOG_FILTER_BAO, "BAO : tag par .bg");
+        TC_LOG_DEBUG("bao", "BAO : tag par .bg");
         return true;
     }
 };

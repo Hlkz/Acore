@@ -117,7 +117,7 @@ void BattlegroundRV::HandleKillPlayer(Player* player, Player* killer)
 
     if (!killer)
     {
-        TC_LOG_ERROR(LOG_FILTER_BATTLEGROUND, "BattlegroundRV: Killer player not found");
+        TC_LOG_ERROR("bg.battleground", "BattlegroundRV: Killer player not found");
         return;
     }
 
@@ -194,7 +194,7 @@ bool BattlegroundRV::SetupBattleground()
 */
 )
     {
-        sLog->outError(LOG_FILTER_SQL, "BatteGroundRV: Failed to spawn some object!");
+        TC_LOG_ERROR("sql.sql", "BatteGroundRV: Failed to spawn some object!");
         return false;
     }
     return true;

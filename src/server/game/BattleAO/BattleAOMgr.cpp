@@ -18,13 +18,13 @@ void BattleAOMgr::InitBattleAO()
     BattleAO* pBAO = new BattleAO;
     if (!pBAO->SetupBattleAO())
     {
-        TC_LOG_ERROR(LOG_FILTER_BAO, "BAO : init failed.");
+        TC_LOG_ERROR("bao", "BAO : init failed.");
         delete pBAO;
     }
     else
     {
         m_BattleAOSet.push_back(pBAO);
-        TC_LOG_ERROR(LOG_FILTER_BAO, "BAO : successfully initiated.");
+        TC_LOG_ERROR("bao", "BAO : successfully initiated.");
     }
 }
 
@@ -131,7 +131,7 @@ void BattleAOMgr::BuildPvpLogDataPacket(WorldPacket* data)
         itr2 = itr++;
         if (!bao->HasPlayerByGuid(itr2->first))
         {
-            TC_LOG_ERROR(LOG_FILTER_BAO, "BAO player %u has scoreboard but is not in bao !", GUID_LOPART(itr->first));
+            TC_LOG_ERROR("bao", "BAO player %u has scoreboard but is not in bao !", GUID_LOPART(itr->first));
             continue;
         }
         *data << uint64(itr2->first);
@@ -171,7 +171,7 @@ void BattleAOMgr::HandlePlayerEnterZone(Player* player, uint32 zoneid)
     if (GetBattleAO()->HasPlayer(player))
         return;
     GetBattleAO()->HandlePlayerEnterZone(player, zoneid);
-    TC_LOG_DEBUG(LOG_FILTER_BAO, "BAO : Player %u entered", player->GetGUIDLow());
+    TC_LOG_DEBUG("bao", "BAO : Player %u entered", player->GetGUIDLow());
 }
 
 void BattleAOMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
@@ -179,5 +179,5 @@ void BattleAOMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
     if (!GetBattleAO()->HasPlayer(player))
         return;
     GetBattleAO()->HandlePlayerLeaveZone(player, zoneid);
-    TC_LOG_DEBUG(LOG_FILTER_BAO, "BAO : Player %u left", player->GetGUIDLow());
+    TC_LOG_DEBUG("bao", "BAO : Player %u left", player->GetGUIDLow());
 }

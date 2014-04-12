@@ -190,14 +190,14 @@ bool BattlegroundBA::SetupBattleground()
         }
         else
         {
-            TC_LOG_ERROR(LOG_FILTER_SQL, "BatteGroundBA: Failed to spawn A Nodes");
+            TC_LOG_ERROR("sql.sql", "BatteGroundBA: Failed to spawn A Nodes");
             return false;
         }
 
     if ((!AddCreature(BG_BA_NPC_NODE_A, BG_BA_CREA_NEXUS_A, ALLIANCE, BG_BA_CreaturePos[BG_BA_CREA_NEXUS_A][0], BG_BA_CreaturePos[BG_BA_CREA_NEXUS_A][1], BG_BA_CreaturePos[BG_BA_CREA_NEXUS_A][2], BG_BA_CreaturePos[BG_BA_CREA_NEXUS_A][3]))
         || (!AddCreature(BG_BA_NPC_NODE_H, BG_BA_CREA_NEXUS_H, HORDE, BG_BA_CreaturePos[BG_BA_CREA_NEXUS_H][0], BG_BA_CreaturePos[BG_BA_CREA_NEXUS_H][1], BG_BA_CreaturePos[BG_BA_CREA_NEXUS_H][2], BG_BA_CreaturePos[BG_BA_CREA_NEXUS_H][3])))
     {
-        TC_LOG_ERROR(LOG_FILTER_SQL, "BatteGroundBA: Failed to spawn nexus");
+        TC_LOG_ERROR("sql.sql", "BatteGroundBA: Failed to spawn nexus");
         return false;
     }
     return true;
@@ -222,7 +222,7 @@ void BattlegroundBA::HandleKillPlayer(Player* player, Player* killer)
 
 void BattlegroundBA::HandleKillUnit(Creature* unit, Player* killer)
 {
-    TC_LOG_DEBUG(LOG_FILTER_BATTLEGROUND, "BA HandleKillUnit %i", unit->GetEntry());
+    TC_LOG_DEBUG("bg.battleground", "BA HandleKillUnit %i", unit->GetEntry());
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 }
@@ -288,7 +288,7 @@ void BattlegroundBA::RemovePlayer(Player* player, uint64 /*guid*/, uint32 /*team
 {
     if (!player)
     {
-        TC_LOG_ERROR(LOG_FILTER_BATTLEGROUND, "bg_BA no player at remove");
+        TC_LOG_ERROR("bg.battleground", "bg_BA no player at remove");
         return;
     }
 }

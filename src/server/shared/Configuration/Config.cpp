@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -116,4 +116,36 @@ std::string const& ConfigMgr::GetFilename()
 {
     GuardType guard(_configLock);
     return _filename;
+}
+
+std::list<std::string> ConfigMgr::GetKeysByString(std::string const& name)
+{
+    GuardType guard(_configLock);
+
+    std::list<std::string> keys;
+    if (_config.get() == 0)
+        return keys;
+
+    ACE_TString section_name;
+    ACE_Configuration_Section_Key section_key;
+    const ACE_Configuration_Section_Key &root_key = _config->root_section();
+
+    int i = 0;
+    while (_config->enumerate_sections(root_key, i++, section_name) == 0)
+    {
+        _config->open_section(root_key, section_name.c_str(), 0, section_key);
+
+        ACE_TString key_name;
+        ACE_Configuration::VALUETYPE type;
+        int j = 0;
+        while (_config->enumerate_values(section_key, j++, key_name, type) == 0)
+        {
+            std::string temp = key_name.c_str();
+
+            if (!temp.find(name))
+                keys.push_back(temp);
+        }
+    }
+
+    return keys;
 }
