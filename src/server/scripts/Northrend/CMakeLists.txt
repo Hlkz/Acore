@@ -11,15 +11,6 @@
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   Northrend/isle_of_conquest.cpp
-  Northrend/zone_storm_peaks.cpp
-  Northrend/zone_crystalsong_forest.cpp
-  Northrend/zone_sholazar_basin.cpp
-  Northrend/zone_dragonblight.cpp
-  Northrend/zone_grizzly_hills.cpp
-  Northrend/zone_zuldrak.cpp
-  Northrend/zone_icecrown.cpp
-  Northrend/zone_borean_tundra.cpp
-  Northrend/zone_howling_fjord.cpp
   Northrend/zone_dalaran.cpp
 )
 

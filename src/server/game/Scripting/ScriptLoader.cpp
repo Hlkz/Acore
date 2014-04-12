@@ -260,28 +260,7 @@ void AddSC_winterspring();
 
 //northrend
 void AddSC_dalaran();
-void AddSC_borean_tundra();
-void AddSC_dragonblight();
-void AddSC_grizzly_hills();
-void AddSC_howling_fjord();
-void AddSC_icecrown();
-void AddSC_sholazar_basin();
-void AddSC_storm_peaks();
-void AddSC_zuldrak();
-void AddSC_crystalsong_forest();
 void AddSC_isle_of_conquest();
-
-//outland
-void AddSC_blades_edge_mountains();
-void AddSC_boss_doomlordkazzak();
-void AddSC_boss_doomwalker();
-void AddSC_hellfire_peninsula();
-void AddSC_nagrand();
-void AddSC_netherstorm();
-void AddSC_shadowmoon_valley();
-void AddSC_shattrath_city();
-void AddSC_terokkar_forest();
-void AddSC_zangarmarsh();
 
 // Events
 void AddSC_event_childrens_week();
@@ -587,35 +566,10 @@ void AddKalimdorScripts()
 #endif
 }
 
-void AddOutlandScripts()
-{
-#ifdef SCRIPTS
-    AddSC_blades_edge_mountains();
-    AddSC_boss_doomlordkazzak();
-    AddSC_boss_doomwalker();
-    AddSC_hellfire_peninsula();
-    AddSC_nagrand();
-    AddSC_netherstorm();
-    AddSC_shadowmoon_valley();
-    AddSC_shattrath_city();
-    AddSC_terokkar_forest();
-    AddSC_zangarmarsh();
-#endif
-}
-
 void AddNorthrendScripts()
 {
 #ifdef SCRIPTS
     AddSC_dalaran();
-    AddSC_borean_tundra();
-    AddSC_dragonblight();
-    AddSC_grizzly_hills();
-    AddSC_howling_fjord();
-    AddSC_icecrown();
-    AddSC_sholazar_basin();
-    AddSC_storm_peaks();
-    AddSC_zuldrak();
-    AddSC_crystalsong_forest();
     AddSC_isle_of_conquest();
 #endif
 }
