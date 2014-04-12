@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,6 +29,7 @@
 
 void UnitAI::AttackStart(Unit* victim)
 {
+
     if (victim && me->Attack(victim, true))
         me->GetMotionMaster()->MoveChase(victim);
 }
@@ -45,14 +46,18 @@ void UnitAI::DoMeleeAttackIfReady()
         return;
 
     Unit* victim = me->GetVictim();
+
+    if (!me->IsWithinMeleeRange(victim))
+        return;
+
     //Make sure our attack is ready and we aren't currently casting before checking distance
-    if (me->isAttackReady() && me->IsWithinMeleeRange(victim))
+    if (me->isAttackReady())
     {
         me->AttackerStateUpdate(victim);
         me->resetAttackTimer();
     }
 
-    if (me->haveOffhandWeapon() && me->isAttackReady(OFF_ATTACK) && me->IsWithinMeleeRange(victim))
+    if (me->haveOffhandWeapon() && me->isAttackReady(OFF_ATTACK))
     {
         me->AttackerStateUpdate(victim, OFF_ATTACK);
         me->resetAttackTimer(OFF_ATTACK);
