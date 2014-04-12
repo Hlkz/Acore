@@ -31,15 +31,7 @@
 
 bool WorldSession::CheckMailBox(uint64 guid)
 {
-    if (guid == GetPlayer()->GetGUID())
-    {
-        if (!HasPermission(rbac::RBAC_PERM_COMMAND_MAILBOX))
-        {
-            TC_LOG_WARN("cheat", "%s attempt open mailbox in cheating way.", GetPlayer()->GetName());
-            return false;
-        }
-    }
-    else if (IS_GAMEOBJECT_GUID(guid))
+    if (IS_GAMEOBJECT_GUID(guid))
     {
         if(!GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_MAILBOX))
             return false;
