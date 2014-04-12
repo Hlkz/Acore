@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -95,7 +95,7 @@ ChatCommand* ChatHandler::getCommandTable()
                 Field* fields = result->Fetch();
                 std::string name = fields[0].GetString();
 
-                SetDataForCommandInTable(commandTableCache, name.c_str(), fields[1].GetString(), name);
+                SetDataForCommandInTable(commandTableCache, name.c_str(), fields[1].GetUInt16(), fields[2].GetString(), name);
             }
             while (result->NextRow());
         }
@@ -210,7 +210,7 @@ void ChatHandler::SendSysMessage(const char *str)
 
     while (char* line = LineFromMessage(pos))
     {
-        FillSystemMessageData(&data, line);
+        BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, line);
         m_session->SendPacket(&data);
     }
 
@@ -228,7 +228,7 @@ void ChatHandler::SendGlobalSysMessage(const char *str)
 
     while (char* line = LineFromMessage(pos))
     {
-        FillSystemMessageData(&data, line);
+        BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, line);
         sWorld->SendGlobalMessage(&data);
     }
 
@@ -246,9 +246,10 @@ void ChatHandler::SendGlobalGMSysMessage(const char *str)
 
     while (char* line = LineFromMessage(pos))
     {
-        FillSystemMessageData(&data, line);
+        BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, line);
         sWorld->SendGlobalGMMessage(&data);
-     }
+    }
+
     free(buf);
 }
 
@@ -304,9 +305,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, st
                 if (!hasStringAbbr(table[j].Name, cmd.c_str()))
                     continue;
 
-                if (strcmp(table[j].Name, cmd.c_str()) != 0)
-                    continue;
-                else
+                if (strcmp(table[j].Name, cmd.c_str()) == 0)
                 {
                     match = true;
                     break;
@@ -340,17 +339,32 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, st
         // table[i].Name == "" is special case: send original command to handler
         if ((table[i].Handler)(this, table[i].Name[0] != '\0' ? text : oldtext))
         {
-            if (!AccountMgr::IsPlayerAccount(table[i].SecurityLevel))
+            if (!m_session) // ignore console
+                return true;
+
+            Player* player = m_session->GetPlayer();
+            if (!AccountMgr::IsPlayerAccount(m_session->GetSecurity()))
             {
-                // chat case
-                if (m_session)
+                uint64 guid = player->GetTarget();
+                uint32 areaId = player->GetAreaId();
+                std::string areaName = "Unknown";
+                std::string zoneName = "Unknown";
+                if (AreaTableEntry const* area = GetAreaEntryByAreaID(areaId))
                 {
-                    Player* p = m_session->GetPlayer();
-                    uint64 sel_guid = p->GetUInt64Value(UNIT_FIELD_TARGET);
-                    sLog->outCommand(m_session->GetAccountId(), "Command: %s [Player: %s (Account: %u) X: %f Y: %f Z: %f Map: %u Selected %s: %s (GUID: %u)]",
-                        fullcmd.c_str(), p->GetName().c_str(), m_session->GetAccountId(), p->GetPositionX(), p->GetPositionY(), p->GetPositionZ(), p->GetMapId(),
-                        GetLogNameForGuid(sel_guid), (p->GetSelectedUnit()) ? p->GetSelectedUnit()->GetName().c_str() : "", GUID_LOPART(sel_guid));
+                    int locale = GetSessionDbcLocale();
+                    areaName = area->area_name[locale];
+                    if (AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone))
+                        zoneName = zone->area_name[locale];
                 }
+
+                sLog->outCommand(m_session->GetAccountId(), "Command: %s [Player: %s (Guid: %u) (Account: %u) X: %f Y: %f Z: %f Map: %u (%s) Area: %u (%s) Zone: %s Selected %s: %s (GUID: %u)]",
+                    fullcmd.c_str(), player->GetName().c_str(), GUID_LOPART(player->GetGUID()),
+                    m_session->GetAccountId(), player->GetPositionX(), player->GetPositionY(),
+                    player->GetPositionZ(), player->GetMapId(),
+                    player->GetMap() ? player->GetMap()->GetMapName() : "Unknown",
+                    areaId, areaName.c_str(), zoneName.c_str(), GetLogNameForGuid(guid),
+                    (player->GetSelectedUnit()) ? player->GetSelectedUnit()->GetName().c_str() : "",
+                    GUID_LOPART(guid));
             }
         }
         // some commands have custom error messages. Don't send the default one in these cases.
@@ -368,7 +382,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, st
     return false;
 }
 
-bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, char const* text, std::string const& help, std::string const& fullcommand)
+bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, char const* text, uint32 SecurityLevel, std::string const& help, std::string const& fullcommand)
 {
     std::string cmd = "";
 
@@ -389,7 +403,7 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, char const* text,
         // select subcommand from child commands list (including "")
         if (table[i].ChildCommands != NULL)
         {
-            if (SetDataForCommandInTable(table[i].ChildCommands, text, help, fullcommand))
+            if (SetDataForCommandInTable(table[i].ChildCommands, text, SecurityLevel, help, fullcommand))
                 return true;
             else if (*text)
                 return false;
@@ -403,6 +417,10 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, char const* text,
             return false;
         }
 
+        if (table[i].SecurityLevel != SecurityLevel)
+            TC_LOG_INFO("misc", "Table `command` overwrite for command '%s' default permission (%u) by %u", fullcommand.c_str(), table[i].SecurityLevel, SecurityLevel);
+
+        table[i].SecurityLevel = SecurityLevel;
         table[i].Help          = help;
         return true;
     }
@@ -425,8 +443,6 @@ bool ChatHandler::ParseCommands(char const* text)
     ASSERT(*text);
 
     std::string fullcmd = text;
-
-    // allowplayercommands here
 
     /// chat case (.command or !command format)
     if (m_session)
@@ -613,84 +629,113 @@ bool ChatHandler::ShowHelpForCommand(ChatCommand* table, const char* cmd)
     return ShowHelpForSubCommands(table, "", cmd);
 }
 
-//Note: target_guid used only in CHAT_MSG_WHISPER_INFORM mode (in this case channelName ignored)
-void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint8 type, uint32 language, const char *channelName, uint64 target_guid, const char *message, Unit* speaker)
+size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, uint64 senderGUID, uint64 receiverGUID, std::string const& message, uint8 chatTag,
+                                  std::string const& senderName /*= ""*/, std::string const& receiverName /*= ""*/,
+                                  uint32 achievementId /*= 0*/, bool gmMessage /*= false*/, std::string const& channelName /*= ""*/)
 {
-    uint32 messageLength = (message ? strlen(message) : 0) + 1;
-
-    data->Initialize(SMSG_MESSAGECHAT, 100);                // guess size
-    *data << uint8(type);
-    if ((type != CHAT_MSG_CHANNEL && type != CHAT_MSG_WHISPER) || language == LANG_ADDON)
-        *data << uint32(language);
-    else
-        *data << uint32(LANG_UNIVERSAL);
-
-    switch (type)
+    size_t receiverGUIDPos = 0;
+    data.Initialize(!gmMessage ? SMSG_MESSAGECHAT : SMSG_GM_MESSAGECHAT);
+    data << uint8(chatType);
+    data << int32(language);
+    data << uint64(senderGUID);
+    data << uint32(0);  // some flags
+    switch (chatType)
     {
-        case CHAT_MSG_SAY:
-        case CHAT_MSG_PARTY:
-        case CHAT_MSG_PARTY_LEADER:
-        case CHAT_MSG_RAID:
-        case CHAT_MSG_GUILD:
-        case CHAT_MSG_OFFICER:
-        case CHAT_MSG_YELL:
-        case CHAT_MSG_WHISPER:
-        case CHAT_MSG_CHANNEL:
-        case CHAT_MSG_RAID_LEADER:
-        case CHAT_MSG_RAID_WARNING:
-        case CHAT_MSG_BG_SYSTEM_NEUTRAL:
-        case CHAT_MSG_BG_SYSTEM_ALLIANCE:
-        case CHAT_MSG_BG_SYSTEM_HORDE:
-        case CHAT_MSG_BATTLEGROUND:
-        case CHAT_MSG_BATTLEGROUND_LEADER:
-            target_guid = session ? session->GetPlayer()->GetGUID() : 0;
-            break;
         case CHAT_MSG_MONSTER_SAY:
         case CHAT_MSG_MONSTER_PARTY:
         case CHAT_MSG_MONSTER_YELL:
         case CHAT_MSG_MONSTER_WHISPER:
         case CHAT_MSG_MONSTER_EMOTE:
-        case CHAT_MSG_RAID_BOSS_WHISPER:
         case CHAT_MSG_RAID_BOSS_EMOTE:
+        case CHAT_MSG_RAID_BOSS_WHISPER:
         case CHAT_MSG_BATTLENET:
-        {
-            *data << uint64(speaker->GetGUID());
-            *data << uint32(0);                             // 2.1.0
-            *data << uint32(speaker->GetName().size() + 1);
-            *data << speaker->GetName();
-            *data << uint64(0); // listener_guid
-            //if (listener_guid && !IS_PLAYER_GUID(listener_guid))
-            //{
-            //    *data << uint32(1);                         // string listener_name_length
-            //    *data << uint8(0);                          // string listener_name
-            //}
-            *data << uint32(messageLength);
-            *data << message;
-            *data << uint8(0);
-            return;
-        }
+            data << uint32(senderName.length() + 1);
+            data << senderName;
+            receiverGUIDPos = data.wpos();
+            data << uint64(receiverGUID);
+            if (receiverGUID && !IS_PLAYER_GUID(receiverGUID) && !IS_PET_GUID(receiverGUID))
+            {
+                data << uint32(receiverName.length() + 1);
+                data << receiverName;
+            }
+            break;
+        case CHAT_MSG_WHISPER_FOREIGN:
+            data << uint32(senderName.length() + 1);
+            data << senderName;
+            receiverGUIDPos = data.wpos();
+            data << uint64(receiverGUID);
+            break;
+        case CHAT_MSG_BG_SYSTEM_NEUTRAL:
+        case CHAT_MSG_BG_SYSTEM_ALLIANCE:
+        case CHAT_MSG_BG_SYSTEM_HORDE:
+            receiverGUIDPos = data.wpos();
+            data << uint64(receiverGUID);
+            if (receiverGUID && !IS_PLAYER_GUID(receiverGUID))
+            {
+                data << uint32(receiverName.length() + 1);
+                data << receiverName;
+            }
+            break;
+        case CHAT_MSG_ACHIEVEMENT:
+        case CHAT_MSG_GUILD_ACHIEVEMENT:
+            receiverGUIDPos = data.wpos();
+            data << uint64(receiverGUID);
+            break;
         default:
-            if (type != CHAT_MSG_WHISPER_INFORM && type != CHAT_MSG_IGNORED && type != CHAT_MSG_DND && type != CHAT_MSG_AFK)
-                target_guid = 0;                            // only for CHAT_MSG_WHISPER_INFORM used original value target_guid
+            if (gmMessage)
+            {
+                data << uint32(senderName.length() + 1);
+                data << senderName;
+            }
+
+            if (chatType == CHAT_MSG_CHANNEL)
+            {
+                ASSERT(channelName.length() > 0);
+                data << channelName;
+            }
+
+            receiverGUIDPos = data.wpos();
+            data << uint64(receiverGUID);
             break;
     }
 
-    *data << uint64(target_guid);                           // there 0 for BG messages
-    *data << uint32(0);                                     // can be chat msg group or something
+    data << uint32(message.length() + 1);
+    data << message;
+    data << uint8(chatTag);
 
-    if (type == CHAT_MSG_CHANNEL)
+    if (chatType == CHAT_MSG_ACHIEVEMENT || chatType == CHAT_MSG_GUILD_ACHIEVEMENT)
+        data << uint32(achievementId);
+
+    return receiverGUIDPos;
+}
+
+size_t ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string const& message,
+                                  uint32 achievementId /*= 0*/, std::string const& channelName /*= ""*/, LocaleConstant locale /*= DEFAULT_LOCALE*/)
+{
+    uint64 senderGUID = 0;
+    std::string senderName = "";
+    uint8 chatTag = 0;
+    bool gmMessage = false;
+    uint64 receiverGUID = 0;
+    std::string receiverName = "";
+    if (sender)
     {
-        ASSERT(channelName);
-        *data << channelName;
+        senderGUID = sender->GetGUID();
+        senderName = sender->GetNameForLocaleIdx(locale);
+        if (Player const* playerSender = sender->ToPlayer())
+        {
+            chatTag = playerSender->GetChatTag();
+            gmMessage = AccountMgr::IsGMAccount(playerSender->GetSession()->GetSecurity());
+        }
     }
 
-    *data << uint64(target_guid);
-    *data << uint32(messageLength);
-    *data << message;
-    if (session != 0 && type != CHAT_MSG_WHISPER_INFORM && type != CHAT_MSG_DND && type != CHAT_MSG_AFK)
-        *data << uint8(session->GetPlayer()->GetChatTag());
-    else
-        *data << uint8(0);
+    if (receiver)
+    {
+        receiverGUID = receiver->GetGUID();
+        receiverName = receiver->GetNameForLocaleIdx(locale);
+    }
+
+    return BuildChatPacket(data, chatType, language, senderGUID, receiverGUID, message, chatTag, senderName, receiverName, achievementId, gmMessage, channelName);
 }
 
 Player* ChatHandler::getSelectedPlayer()
@@ -1135,10 +1180,34 @@ char* ChatHandler::extractQuotedArg(char* args)
         return strtok(args+1, "\"");
     else
     {
-        char* space = strtok(args, "\"");
-        if (!space)
+        // skip spaces
+        while (*args == ' ')
+        {
+            args += 1;
+            continue;
+        }
+
+        // return NULL if we reached the end of the string
+        if (!*args)
             return NULL;
-        return strtok(NULL, "\"");
+
+        // since we skipped all spaces, we expect another token now
+        if (*args == '"')
+        {
+            // return an empty string if there are 2 "" in a row.
+            // strtok doesn't handle this case
+            if (*(args + 1) == '"')
+            {
+                strtok(args, " ");
+                static char arg[1];
+                arg[0] = '\0';
+                return arg;
+            }
+            else
+                return strtok(args + 1, "\"");
+        }
+        else
+            return NULL;
     }
 }
 

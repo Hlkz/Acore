@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -52,17 +52,13 @@ class ChatHandler
         explicit ChatHandler(WorldSession* session) : m_session(session), sentErrorMessage(false) { }
         virtual ~ChatHandler() { }
 
-        static void FillMessageData(WorldPacket* data, WorldSession* session, uint8 type, uint32 language, const char *channelName, uint64 target_guid, const char *message, Unit* speaker);
+        // Builds chat packet and returns receiver guid position in the packet to substitute in whisper builders
+        static size_t BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, uint64 senderGUID, uint64 receiverGUID, std::string const& message, uint8 chatTag,
+                                    std::string const& senderName = "", std::string const& receiverName = "",
+                                    uint32 achievementId = 0, bool gmMessage = false, std::string const& channelName = "");
 
-        void FillMessageData(WorldPacket* data, uint8 type, uint32 language, uint64 target_guid, const char* message)
-        {
-            FillMessageData(data, m_session, type, language, NULL, target_guid, message, NULL);
-        }
-
-        void FillSystemMessageData(WorldPacket* data, const char* message)
-        {
-            FillMessageData(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, 0, message);
-        }
+        // Builds chat packet and returns receiver guid position in the packet to substitute in whisper builders
+        static size_t BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string const& message, uint32 achievementId = 0, std::string const& channelName = "", LocaleConstant locale = DEFAULT_LOCALE);
 
         static char* LineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = NULL; return start; }
 
@@ -128,7 +124,7 @@ class ChatHandler
         bool ShowHelpForCommand(ChatCommand* table, const char* cmd);
     protected:
         explicit ChatHandler() : m_session(NULL), sentErrorMessage(false) { }     // for CLI subclass
-        static bool SetDataForCommandInTable(ChatCommand* table, const char* text, std::string const& help, std::string const& fullcommand);
+        static bool SetDataForCommandInTable(ChatCommand* table, const char* text, uint32 permission, std::string const& help, std::string const& fullcommand);
         bool ExecuteCommandInTable(ChatCommand* table, const char* text, std::string const& fullcmd);
         bool ShowHelpForSubCommands(ChatCommand* table, char const* cmd, char const* subcmd);
 
@@ -149,6 +145,7 @@ class CliHandler : public ChatHandler
         // overwrite functions
         const char *GetTrinityString(int32 entry) const;
         bool isAvailable(ChatCommand const& cmd) const;
+        bool HasPermission(uint32 /*permission*/) const { return true; }
         void SendSysMessage(const char *str);
         std::string GetNameLink() const;
         bool needReportToTarget(Player* chr) const;
