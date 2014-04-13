@@ -111,7 +111,6 @@ World::World()
     m_NextWeeklyQuestReset = 0;
     m_LastResurrectTime = 0;
     m_NextMonthlyQuestReset = 0;
-    m_NextRandomBGReset = 0;
     m_NextGuildReset = 0;
 
     m_defaultDbcLocale = LOCALE_enUS;
