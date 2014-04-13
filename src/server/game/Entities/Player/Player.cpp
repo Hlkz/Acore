@@ -38,6 +38,7 @@
 #include "DisableMgr.h"
 #include "Formulas.h"
 #include "GameEventMgr.h"
+#include "GameObjectAI.h"
 #include "GossipDef.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -14829,7 +14830,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
     StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_QUEST, quest_id);
 
-    UpdateForQuestWorldObjects();
+    SendQuestUpdate(quest_id);
 }
 
 void Player::CompleteQuest(uint32 quest_id)
@@ -14995,7 +14996,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     else if (quest->IsSeasonal())
         SetSeasonalQuestStatus(quest_id);
 
-    RemoveActiveQuest(quest_id);
+    RemoveActiveQuest(quest_id, false);
     m_RewardedQuests.insert(quest_id);
     m_RewardedQuestsSave[quest_id] = true;
 
@@ -15012,7 +15013,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     if (quest->GetRewSpellCast() > 0)
     {
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewSpellCast());
-        if (questGiver->isType(TYPEMASK_UNIT) && !spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL))
+        if (questGiver->isType(TYPEMASK_UNIT) && !spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL) && !spellInfo->HasEffect(SPELL_EFFECT_CREATE_ITEM))
         {
             if (Creature* creature = GetMap()->GetCreature(questGiver->GetGUID()))
                 creature->CastSpell(this, quest->GetRewSpellCast(), true);
@@ -15023,7 +15024,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     else if (quest->GetRewSpell() > 0)
     {
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewSpell());
-        if (questGiver->isType(TYPEMASK_UNIT) && !spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL))
+        if (questGiver->isType(TYPEMASK_UNIT) && !spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL) && !spellInfo->HasEffect(SPELL_EFFECT_CREATE_ITEM))
         {
             if (Creature* creature = GetMap()->GetCreature(questGiver->GetGUID()))
                 creature->CastSpell(this, quest->GetRewSpell(), true);
@@ -15042,6 +15043,8 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         pvpInfo.IsHostile = pvpInfo.IsInHostileArea || HasPvPForcingQuest();
         UpdatePvPState();
     }
+
+    SendQuestUpdate(quest_id);
 
     //lets remove flag for delayed teleports
     SetCanDelayTeleport(false);
@@ -15636,17 +15639,49 @@ bool Player::CanShareQuest(uint32 quest_id) const
     return false;
 }
 
-void Player::SetQuestStatus(uint32 quest_id, QuestStatus status)
+void Player::SetQuestStatus(uint32 questId, QuestStatus status, bool update /*= true*/)
 {
-    if (sObjectMgr->GetQuestTemplate(quest_id))
+    if (sObjectMgr->GetQuestTemplate(questId))
     {
-        m_QuestStatus[quest_id].Status = status;
-        m_QuestStatusSave[quest_id] = true;
+        m_QuestStatus[questId].Status = status;
+        m_QuestStatusSave[questId] = true;
     }
 
+    if (update)
+        SendQuestUpdate(questId);
+}
+
+void Player::RemoveActiveQuest(uint32 questId, bool update /*= true*/)
+{
+    QuestStatusMap::iterator itr = m_QuestStatus.find(questId);
+    if (itr != m_QuestStatus.end())
+    {
+        m_QuestStatus.erase(itr);
+        m_QuestStatusSave[questId] = false;
+    }
+
+    if (update)
+        SendQuestUpdate(questId);
+}
+
+void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
+{
+    RewardedQuestSet::iterator rewItr = m_RewardedQuests.find(questId);
+    if (rewItr != m_RewardedQuests.end())
+    {
+        m_RewardedQuests.erase(rewItr);
+        m_RewardedQuestsSave[questId] = false;
+    }
+
+    if (update)
+        SendQuestUpdate(questId);
+}
+
+void Player::SendQuestUpdate(uint32 questId)
+{
     uint32 zone = 0, area = 0;
 
-    SpellAreaForQuestMapBounds saBounds = sSpellMgr->GetSpellAreaForQuestMapBounds(quest_id);
+    SpellAreaForQuestMapBounds saBounds = sSpellMgr->GetSpellAreaForQuestMapBounds(questId);
     if (saBounds.first != saBounds.second)
     {
         GetZoneAndAreaId(zone, area);
@@ -15657,7 +15692,7 @@ void Player::SetQuestStatus(uint32 quest_id, QuestStatus status)
                     CastSpell(this, itr->second->spellId, true);
     }
 
-    saBounds = sSpellMgr->GetSpellAreaForQuestEndMapBounds(quest_id);
+    saBounds = sSpellMgr->GetSpellAreaForQuestEndMapBounds(questId);
     if (saBounds.first != saBounds.second)
     {
         if (!zone || !area)
@@ -15671,25 +15706,108 @@ void Player::SetQuestStatus(uint32 quest_id, QuestStatus status)
     UpdateForQuestWorldObjects();
 }
 
-void Player::RemoveActiveQuest(uint32 quest_id)
+QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
 {
-    QuestStatusMap::iterator itr = m_QuestStatus.find(quest_id);
-    if (itr != m_QuestStatus.end())
-    {
-        m_QuestStatus.erase(itr);
-        m_QuestStatusSave[quest_id] = false;
-        return;
-    }
-}
+    QuestRelationBounds qr;
+    QuestRelationBounds qir;
 
-void Player::RemoveRewardedQuest(uint32 quest_id)
-{
-    RewardedQuestSet::iterator rewItr = m_RewardedQuests.find(quest_id);
-    if (rewItr != m_RewardedQuests.end())
+    switch (questgiver->GetTypeId())
     {
-        m_RewardedQuests.erase(rewItr);
-        m_RewardedQuestsSave[quest_id] = false;
+        case TYPEID_GAMEOBJECT:
+        {
+            QuestGiverStatus questStatus = QuestGiverStatus(sScriptMgr->GetDialogStatus(this, questgiver->ToGameObject()));
+            if (questStatus != DIALOG_STATUS_SCRIPTED_NO_STATUS)
+                return questStatus;
+            qr = sObjectMgr->GetGOQuestRelationBounds(questgiver->GetEntry());
+            qir = sObjectMgr->GetGOQuestInvolvedRelationBounds(questgiver->GetEntry());
+            break;
+        }
+        case TYPEID_UNIT:
+        {
+            QuestGiverStatus questStatus = QuestGiverStatus(sScriptMgr->GetDialogStatus(this, questgiver->ToCreature()));
+            if (questStatus != DIALOG_STATUS_SCRIPTED_NO_STATUS)
+                return questStatus;
+            qr = sObjectMgr->GetCreatureQuestRelationBounds(questgiver->GetEntry());
+            qir = sObjectMgr->GetCreatureQuestInvolvedRelationBounds(questgiver->GetEntry());
+            break;
+        }
+        default:
+            // it's impossible, but check
+            TC_LOG_ERROR("entities.player.quest", "GetQuestDialogStatus called for unexpected type %u", questgiver->GetTypeId());
+            return DIALOG_STATUS_NONE;
     }
+
+    QuestGiverStatus result = DIALOG_STATUS_NONE;
+
+    for (QuestRelations::const_iterator i = qir.first; i != qir.second; ++i)
+    {
+        QuestGiverStatus result2 = DIALOG_STATUS_NONE;
+        uint32 questId = i->second;
+        Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+        if (!quest)
+            continue;
+
+        ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK, quest->GetQuestId());
+        if (!sConditionMgr->IsObjectMeetToConditions(this, conditions))
+            continue;
+
+        QuestStatus status = GetQuestStatus(questId);
+        if ((status == QUEST_STATUS_COMPLETE && !GetQuestRewardStatus(questId)) ||
+            (quest->IsAutoComplete() && CanTakeQuest(quest, false)))
+        {
+            if (quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly())
+                result2 = DIALOG_STATUS_REWARD_REP;
+            else
+                result2 = DIALOG_STATUS_REWARD;
+        }
+        else if (status == QUEST_STATUS_INCOMPLETE)
+            result2 = DIALOG_STATUS_INCOMPLETE;
+
+        if (result2 > result)
+            result = result2;
+    }
+
+    for (QuestRelations::const_iterator i = qr.first; i != qr.second; ++i)
+    {
+        QuestGiverStatus result2 = DIALOG_STATUS_NONE;
+        uint32 questId = i->second;
+        Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+        if (!quest)
+            continue;
+
+        ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK, quest->GetQuestId());
+        if (!sConditionMgr->IsObjectMeetToConditions(this, conditions))
+            continue;
+
+        QuestStatus status = GetQuestStatus(questId);
+        if (status == QUEST_STATUS_NONE)
+        {
+            if (CanSeeStartQuest(quest))
+            {
+                if (SatisfyQuestLevel(quest, false))
+                {
+                    if (quest->IsAutoComplete())
+                        result2 = DIALOG_STATUS_REWARD_REP;
+                    else if (getLevel() <= (GetQuestLevel(quest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF)))
+                    {
+                        if (quest->IsDaily())
+                            result2 = DIALOG_STATUS_AVAILABLE_REP;
+                        else
+                            result2 = DIALOG_STATUS_AVAILABLE;
+                    }
+                    else
+                        result2 = DIALOG_STATUS_LOW_LEVEL_AVAILABLE;
+                }
+                else
+                    result2 = DIALOG_STATUS_UNAVAILABLE;
+            }
+        }
+
+        if (result2 > result)
+            result = result2;
+    }
+
+    return result;
 }
 
 // not used in Trinity, but used in scripting code

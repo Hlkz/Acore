@@ -527,7 +527,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
 
         m_Events |= BG_STARTING_EVENT_4;
 
-        StartingEvent();
+        StartingEventOpenDoors();
 
         SetStatus(STATUS_IN_PROGRESS);
         SetStartDelayTime(StartDelayTimes[BG_STARTING_EVENT_FOURTH]);

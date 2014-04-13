@@ -260,7 +260,6 @@ void AddSC_winterspring();
 
 //northrend
 void AddSC_dalaran();
-void AddSC_isle_of_conquest();
 
 // Events
 void AddSC_event_childrens_week();
@@ -299,7 +298,6 @@ void AddScripts()
     AddWorldScripts();
     AddEasternKingdomsScripts();
     AddKalimdorScripts();
-    AddOutlandScripts();
     AddNorthrendScripts();
     AddEventScripts();
     AddPetScripts();
@@ -570,7 +568,6 @@ void AddNorthrendScripts()
 {
 #ifdef SCRIPTS
     AddSC_dalaran();
-    AddSC_isle_of_conquest();
 #endif
 }
 

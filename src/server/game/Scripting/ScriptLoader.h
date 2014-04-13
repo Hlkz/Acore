@@ -25,7 +25,6 @@ void AddCommandScripts();
 void AddWorldScripts();
 void AddEasternKingdomsScripts();
 void AddKalimdorScripts();
-void AddOutlandScripts();
 void AddNorthrendScripts();
 void AddEventScripts();
 void AddPetScripts();
