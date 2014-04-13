@@ -94,8 +94,7 @@ ChatCommand* ChatHandler::getCommandTable()
             {
                 Field* fields = result->Fetch();
                 std::string name = fields[0].GetString();
-
-                SetDataForCommandInTable(commandTableCache, name.c_str(), fields[1].GetUInt16(), fields[2].GetString(), name);
+                SetDataForCommandInTable(commandTableCache, name.c_str(), fields[1].GetString(), name);
             }
             while (result->NextRow());
         }
@@ -382,7 +381,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, st
     return false;
 }
 
-bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, char const* text, uint32 SecurityLevel, std::string const& help, std::string const& fullcommand)
+bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, char const* text, std::string const& help, std::string const& fullcommand)
 {
     std::string cmd = "";
 
@@ -403,7 +402,7 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, char const* text,
         // select subcommand from child commands list (including "")
         if (table[i].ChildCommands != NULL)
         {
-            if (SetDataForCommandInTable(table[i].ChildCommands, text, SecurityLevel, help, fullcommand))
+            if (SetDataForCommandInTable(table[i].ChildCommands, text, help, fullcommand))
                 return true;
             else if (*text)
                 return false;
@@ -417,10 +416,6 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, char const* text,
             return false;
         }
 
-        if (table[i].SecurityLevel != SecurityLevel)
-            TC_LOG_INFO("misc", "Table `command` overwrite for command '%s' default permission (%u) by %u", fullcommand.c_str(), table[i].SecurityLevel, SecurityLevel);
-
-        table[i].SecurityLevel = SecurityLevel;
         table[i].Help          = help;
         return true;
     }
