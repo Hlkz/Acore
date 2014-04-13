@@ -3315,13 +3315,10 @@ enum BattlegroundTypeId
     BATTLEGROUND_AA             = 6, // All Arenas
     BATTLEGROUND_EY             = 7, // Eye of the Storm
     BATTLEGROUND_RL             = 8, // Ruins of Lordaernon
-    BATTLEGROUND_SA             = 9, // Strand of the Ancients
     BATTLEGROUND_DS             = 10, // Dalaran Sewers
-    BATTLEGROUND_RV             = 11, // Ring of Valor
     BATTLEGROUND_BA             = 12, // MOBA
     BATTLEGROUND_BB             = 13, // MOBB
     BATTLEGROUND_IWP            = 14, // IWP
-    BATTLEGROUND_IC             = 30, // Isle of Conquest
     BATTLEGROUND_RB             = 32, // Random Battleground
     BATTLEGROUND_AO             = 33, // AObg
 };

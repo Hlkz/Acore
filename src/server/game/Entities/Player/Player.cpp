@@ -2221,7 +2221,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             // stop spellcasting
             // not attempt interrupt teleportation spell at caster teleport
             if (!(options & TELE_TO_SPELL))
-                if (IsNonMeleeSpellCasted(true))
+                if (IsNonMeleeSpellCast(true))
                     InterruptNonMeleeSpells(true);
 
             //remove auras before removing from map...
@@ -9275,137 +9275,6 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             break;
         // any of these needs change! the client remembers the prev setting!
         // ON EVERY ZONE LEAVE, RESET THE OLD ZONE'S WORLD STATE, BUT AT LEAST THE UI STUFF!
-        case 3483:                                          // Hellfire Peninsula
-            if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_HP)
-                pvp->FillInitialWorldStates(data);
-            else
-            {
-                data << uint32(0x9ba) << uint32(0x1);           // 10 // add ally tower main gui icon       // maybe should be sent only on login?
-                data << uint32(0x9b9) << uint32(0x1);           // 11 // add horde tower main gui icon      // maybe should be sent only on login?
-                data << uint32(0x9b5) << uint32(0x0);           // 12 // show neutral broken hill icon      // 2485
-                data << uint32(0x9b4) << uint32(0x1);           // 13 // show icon above broken hill        // 2484
-                data << uint32(0x9b3) << uint32(0x0);           // 14 // show ally broken hill icon         // 2483
-                data << uint32(0x9b2) << uint32(0x0);           // 15 // show neutral overlook icon         // 2482
-                data << uint32(0x9b1) << uint32(0x1);           // 16 // show the overlook arrow            // 2481
-                data << uint32(0x9b0) << uint32(0x0);           // 17 // show ally overlook icon            // 2480
-                data << uint32(0x9ae) << uint32(0x0);           // 18 // horde pvp objectives captured      // 2478
-                data << uint32(0x9ac) << uint32(0x0);           // 19 // ally pvp objectives captured       // 2476
-                data << uint32(2475)  << uint32(100); //: ally / horde slider grey area                              // show only in direct vicinity!
-                data << uint32(2474)  << uint32(50);  //: ally / horde slider percentage, 100 for ally, 0 for horde  // show only in direct vicinity!
-                data << uint32(2473)  << uint32(0);   //: ally / horde slider display                                // show only in direct vicinity!
-                data << uint32(0x9a8) << uint32(0x0);           // 20 // show the neutral stadium icon      // 2472
-                data << uint32(0x9a7) << uint32(0x0);           // 21 // show the ally stadium icon         // 2471
-                data << uint32(0x9a6) << uint32(0x1);           // 22 // show the horde stadium icon        // 2470
-            }
-            break;
-        case 3518:                                          // Nagrand
-            if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_NA)
-                pvp->FillInitialWorldStates(data);
-            else
-            {
-                data << uint32(2503) << uint32(0x0);    // 10
-                data << uint32(2502) << uint32(0x0);    // 11
-                data << uint32(2493) << uint32(0x0);    // 12
-                data << uint32(2491) << uint32(0x0);    // 13
-
-                data << uint32(2495) << uint32(0x0);    // 14
-                data << uint32(2494) << uint32(0x0);    // 15
-                data << uint32(2497) << uint32(0x0);    // 16
-
-                data << uint32(2762) << uint32(0x0);    // 17
-                data << uint32(2662) << uint32(0x0);    // 18
-                data << uint32(2663) << uint32(0x0);    // 19
-                data << uint32(2664) << uint32(0x0);    // 20
-
-                data << uint32(2760) << uint32(0x0);    // 21
-                data << uint32(2670) << uint32(0x0);    // 22
-                data << uint32(2668) << uint32(0x0);    // 23
-                data << uint32(2669) << uint32(0x0);    // 24
-
-                data << uint32(2761) << uint32(0x0);    // 25
-                data << uint32(2667) << uint32(0x0);    // 26
-                data << uint32(2665) << uint32(0x0);    // 27
-                data << uint32(2666) << uint32(0x0);    // 28
-
-                data << uint32(2763) << uint32(0x0);    // 29
-                data << uint32(2659) << uint32(0x0);    // 30
-                data << uint32(2660) << uint32(0x0);    // 31
-                data << uint32(2661) << uint32(0x0);    // 32
-
-                data << uint32(2671) << uint32(0x0);    // 33
-                data << uint32(2676) << uint32(0x0);    // 34
-                data << uint32(2677) << uint32(0x0);    // 35
-                data << uint32(2672) << uint32(0x0);    // 36
-                data << uint32(2673) << uint32(0x0);    // 37
-            }
-            break;
-        case 3519:                                          // Terokkar Forest
-            if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_TF)
-                pvp->FillInitialWorldStates(data);
-            else
-            {
-                data << uint32(0xa41) << uint32(0x0);           // 10 // 2625 capture bar pos
-                data << uint32(0xa40) << uint32(0x14);          // 11 // 2624 capture bar neutral
-                data << uint32(0xa3f) << uint32(0x0);           // 12 // 2623 show capture bar
-                data << uint32(0xa3e) << uint32(0x0);           // 13 // 2622 horde towers controlled
-                data << uint32(0xa3d) << uint32(0x5);           // 14 // 2621 ally towers controlled
-                data << uint32(0xa3c) << uint32(0x0);           // 15 // 2620 show towers controlled
-                data << uint32(0xa88) << uint32(0x0);           // 16 // 2696 SE Neu
-                data << uint32(0xa87) << uint32(0x0);           // 17 // SE Horde
-                data << uint32(0xa86) << uint32(0x0);           // 18 // SE Ally
-                data << uint32(0xa85) << uint32(0x0);           // 19 //S Neu
-                data << uint32(0xa84) << uint32(0x0);           // 20 S Horde
-                data << uint32(0xa83) << uint32(0x0);           // 21 S Ally
-                data << uint32(0xa82) << uint32(0x0);           // 22 NE Neu
-                data << uint32(0xa81) << uint32(0x0);           // 23 NE Horde
-                data << uint32(0xa80) << uint32(0x0);           // 24 NE Ally
-                data << uint32(0xa7e) << uint32(0x0);           // 25 // 2686 N Neu
-                data << uint32(0xa7d) << uint32(0x0);           // 26 N Horde
-                data << uint32(0xa7c) << uint32(0x0);           // 27 N Ally
-                data << uint32(0xa7b) << uint32(0x0);           // 28 NW Ally
-                data << uint32(0xa7a) << uint32(0x0);           // 29 NW Horde
-                data << uint32(0xa79) << uint32(0x0);           // 30 NW Neutral
-                data << uint32(0x9d0) << uint32(0x5);           // 31 // 2512 locked time remaining seconds first digit
-                data << uint32(0x9ce) << uint32(0x0);           // 32 // 2510 locked time remaining seconds second digit
-                data << uint32(0x9cd) << uint32(0x0);           // 33 // 2509 locked time remaining minutes
-                data << uint32(0x9cc) << uint32(0x0);           // 34 // 2508 neutral locked time show
-                data << uint32(0xad0) << uint32(0x0);           // 35 // 2768 horde locked time show
-                data << uint32(0xacf) << uint32(0x1);           // 36 // 2767 ally locked time show
-            }
-            break;
-        case 3521:                                          // Zangarmarsh
-            if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_ZM)
-                pvp->FillInitialWorldStates(data);
-            else
-            {
-                data << uint32(0x9e1) << uint32(0x0);           // 10 //2529
-                data << uint32(0x9e0) << uint32(0x0);           // 11
-                data << uint32(0x9df) << uint32(0x0);           // 12
-                data << uint32(0xa5d) << uint32(0x1);           // 13 //2653
-                data << uint32(0xa5c) << uint32(0x0);           // 14 //2652 east beacon neutral
-                data << uint32(0xa5b) << uint32(0x1);           // 15 horde
-                data << uint32(0xa5a) << uint32(0x0);           // 16 ally
-                data << uint32(0xa59) << uint32(0x1);           // 17 // 2649 Twin spire graveyard horde  12???
-                data << uint32(0xa58) << uint32(0x0);           // 18 ally     14 ???
-                data << uint32(0xa57) << uint32(0x0);           // 19 neutral  7???
-                data << uint32(0xa56) << uint32(0x0);           // 20 // 2646 west beacon neutral
-                data << uint32(0xa55) << uint32(0x1);           // 21 horde
-                data << uint32(0xa54) << uint32(0x0);           // 22 ally
-                data << uint32(0x9e7) << uint32(0x0);           // 23 // 2535
-                data << uint32(0x9e6) << uint32(0x0);           // 24
-                data << uint32(0x9e5) << uint32(0x0);           // 25
-                data << uint32(0xa00) << uint32(0x0);           // 26 // 2560
-                data << uint32(0x9ff) << uint32(0x1);           // 27
-                data << uint32(0x9fe) << uint32(0x0);           // 28
-                data << uint32(0x9fd) << uint32(0x0);           // 29
-                data << uint32(0x9fc) << uint32(0x1);           // 30
-                data << uint32(0x9fb) << uint32(0x0);           // 31
-                data << uint32(0xa62) << uint32(0x0);           // 32 // 2658
-                data << uint32(0xa61) << uint32(0x1);           // 33
-                data << uint32(0xa60) << uint32(0x1);           // 34
-                data << uint32(0xa5f) << uint32(0x0);           // 35
-            }
-            break;
         case 3698:                                          // Nagrand Arena
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_NA)
                 bg->FillInitialWorldStates(data);
@@ -9446,101 +9315,6 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(3610) << uint32(0x0);           // 9 show
             }
             break;
-        case 4384:                                          // Strand of the Ancients
-            if (bg && bg->GetTypeID(true) == BATTLEGROUND_SA)
-                bg->FillInitialWorldStates(data);
-            else
-            {
-                // 1-3 A defend, 4-6 H defend, 7-9 unk defend, 1 - ok, 2 - half destroyed, 3 - destroyed
-                data << uint32(0xf09) << uint32(0x0);       // 7  3849 Gate of Temple
-                data << uint32(0xe36) << uint32(0x0);       // 8  3638 Gate of Yellow Moon
-                data << uint32(0xe27) << uint32(0x0);       // 9  3623 Gate of Green Emerald
-                data << uint32(0xe24) << uint32(0x0);       // 10 3620 Gate of Blue Sapphire
-                data << uint32(0xe21) << uint32(0x0);       // 11 3617 Gate of Red Sun
-                data << uint32(0xe1e) << uint32(0x0);       // 12 3614 Gate of Purple Ametyst
-
-                data << uint32(0xdf3) << uint32(0x0);       // 13 3571 bonus timer (1 - on, 0 - off)
-                data << uint32(0xded) << uint32(0x0);       // 14 3565 Horde Attacker
-                data << uint32(0xdec) << uint32(0x0);       // 15 3564 Alliance Attacker
-                // End Round (timer), better explain this by example, eg. ends in 19:59 -> A:BC
-                data << uint32(0xde9) << uint32(0x0);       // 16 3561 C
-                data << uint32(0xde8) << uint32(0x0);       // 17 3560 B
-                data << uint32(0xde7) << uint32(0x0);       // 18 3559 A
-                data << uint32(0xe35) << uint32(0x0);       // 19 3637 East g - Horde control
-                data << uint32(0xe34) << uint32(0x0);       // 20 3636 West g - Horde control
-                data << uint32(0xe33) << uint32(0x0);       // 21 3635 South g - Horde control
-                data << uint32(0xe32) << uint32(0x0);       // 22 3634 East g - Alliance control
-                data << uint32(0xe31) << uint32(0x0);       // 23 3633 West g - Alliance control
-                data << uint32(0xe30) << uint32(0x0);       // 24 3632 South g - Alliance control
-                data << uint32(0xe2f) << uint32(0x0);       // 25 3631 Chamber of Ancients - Horde control
-                data << uint32(0xe2e) << uint32(0x0);       // 26 3630 Chamber of Ancients - Alliance control
-                data << uint32(0xe2d) << uint32(0x0);       // 27 3629 Beach1 - Horde control
-                data << uint32(0xe2c) << uint32(0x0);       // 28 3628 Beach2 - Horde control
-                data << uint32(0xe2b) << uint32(0x0);       // 29 3627 Beach1 - Alliance control
-                data << uint32(0xe2a) << uint32(0x0);       // 30 3626 Beach2 - Alliance control
-                // and many unks...
-            }
-            break;
-        case 4406:                                          // Ring of Valor
-            if (bg && bg->GetTypeID(true) == BATTLEGROUND_RV)
-                bg->FillInitialWorldStates(data);
-            else
-            {
-                data << uint32(0xe10) << uint32(0x0);           // 7 gold
-                data << uint32(0xe11) << uint32(0x0);           // 8 green
-                data << uint32(0xe1a) << uint32(0x0);           // 9 show
-            }
-            break;
-        case 4710:
-            if (bg && bg->GetTypeID(true) == BATTLEGROUND_IC)
-                bg->FillInitialWorldStates(data);
-            else
-            {
-                data << uint32(4221) << uint32(1); // 7 BG_IC_ALLIANCE_RENFORT_SET
-                data << uint32(4222) << uint32(1); // 8 BG_IC_HORDE_RENFORT_SET
-                data << uint32(4226) << uint32(300); // 9 BG_IC_ALLIANCE_RENFORT
-                data << uint32(4227) << uint32(300); // 10 BG_IC_HORDE_RENFORT
-                data << uint32(4322) << uint32(1); // 11 BG_IC_GATE_FRONT_H_WS_OPEN
-                data << uint32(4321) << uint32(1); // 12 BG_IC_GATE_WEST_H_WS_OPEN
-                data << uint32(4320) << uint32(1); // 13 BG_IC_GATE_EAST_H_WS_OPEN
-                data << uint32(4323) << uint32(1); // 14 BG_IC_GATE_FRONT_A_WS_OPEN
-                data << uint32(4324) << uint32(1); // 15 BG_IC_GATE_WEST_A_WS_OPEN
-                data << uint32(4325) << uint32(1); // 16 BG_IC_GATE_EAST_A_WS_OPEN
-                data << uint32(4317) << uint32(1); // 17 unknown
-
-                data << uint32(4301) << uint32(1); // 18 BG_IC_DOCKS_UNCONTROLLED
-                data << uint32(4296) << uint32(1); // 19 BG_IC_HANGAR_UNCONTROLLED
-                data << uint32(4306) << uint32(1); // 20 BG_IC_QUARRY_UNCONTROLLED
-                data << uint32(4311) << uint32(1); // 21 BG_IC_REFINERY_UNCONTROLLED
-                data << uint32(4294) << uint32(1); // 22 BG_IC_WORKSHOP_UNCONTROLLED
-                data << uint32(4243) << uint32(1); // 23 unknown
-                data << uint32(4345) << uint32(1); // 24 unknown
-            }
-            break;
-        // The Ruby Sanctum
-        case 4987:
-            if (instance && mapid == 724)
-                instance->FillInitialWorldStates(data);
-            else
-            {
-                data << uint32(5049) << uint32(50);             // 9  WORLDSTATE_CORPOREALITY_MATERIAL
-                data << uint32(5050) << uint32(50);             // 10 WORLDSTATE_CORPOREALITY_TWILIGHT
-                data << uint32(5051) << uint32(0);              // 11 WORLDSTATE_CORPOREALITY_TOGGLE
-            }
-            break;
-        // Icecrown Citadel
-        case 4812:
-            if (instance && mapid == 631)
-                instance->FillInitialWorldStates(data);
-            else
-            {
-                data << uint32(4903) << uint32(0);              // 9  WORLDSTATE_SHOW_TIMER (Blood Quickening weekly)
-                data << uint32(4904) << uint32(30);             // 10 WORLDSTATE_EXECUTION_TIME
-                data << uint32(4940) << uint32(0);              // 11 WORLDSTATE_SHOW_ATTEMPTS
-                data << uint32(4941) << uint32(50);             // 12 WORLDSTATE_ATTEMPTS_REMAINING
-                data << uint32(4942) << uint32(50);             // 13 WORLDSTATE_ATTEMPTS_MAX
-            }
-            break;
         // The Culling of Stratholme
         case 4100:
             if (instance && mapid == 595)
@@ -9552,16 +9326,6 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(3504) << uint32(0);              // 11 WORLDSTATE_WAVE_COUNT
                 data << uint32(3931) << uint32(25);             // 12 WORLDSTATE_TIME_GUARDIAN
                 data << uint32(3932) << uint32(0);              // 13 WORLDSTATE_TIME_GUARDIAN_SHOW
-            }
-            break;
-        // Ulduar
-        case 4273:
-            if (instance && mapid == 603)
-                instance->FillInitialWorldStates(data);
-            else
-            {
-                data << uint32(4132) << uint32(0);              // 9  WORLDSTATE_ALGALON_TIMER_ENABLED
-                data << uint32(4131) << uint32(0);              // 10 WORLDSTATE_ALGALON_DESPAWN_TIMER
             }
             break;
         // KZ
@@ -11414,7 +11178,7 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
                 if (IsInCombat()&& (pProto->Class == ITEM_CLASS_WEAPON || pProto->InventoryType == INVTYPE_RELIC) && m_weaponChangeTimer != 0)
                     return EQUIP_ERR_CANT_DO_RIGHT_NOW;         // maybe exist better err
 
-                if (IsNonMeleeSpellCasted(false))
+                if (IsNonMeleeSpellCast(false))
                     return EQUIP_ERR_CANT_DO_RIGHT_NOW;
             }
 
@@ -14641,11 +14405,7 @@ void Player::SendPreparedQuest(uint64 guid)
                 }
 
                 if (quest->IsAutoAccept() && CanAddQuest(quest, true) && CanTakeQuest(quest, true))
-                {
-                    AddQuest(quest, object);
-                    if (CanCompleteQuest(questId))
-                        CompleteQuest(questId);
-                }
+                    AddQuestAndCheckCompletion(quest, object);
 
                 if ((quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly()) || quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
                     PlayerTalkClass->SendQuestGiverRequestItems(quest, guid, CanCompleteRepeatableQuest(quest), true);
@@ -14911,6 +14671,53 @@ bool Player::CanRewardQuest(Quest const* quest, bool msg)
         return false;
 
     return true;
+}
+
+void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
+{
+    AddQuest(quest, questGiver);
+
+    if (CanCompleteQuest(quest->GetQuestId()))
+        CompleteQuest(quest->GetQuestId());
+
+    if (!questGiver)
+        return;
+
+    switch (questGiver->GetTypeId())
+    {
+        case TYPEID_UNIT:
+            sScriptMgr->OnQuestAccept(this, questGiver->ToCreature(), quest);
+            questGiver->ToCreature()->AI()->sQuestAccept(this, quest);
+            break;
+        case TYPEID_ITEM:
+        case TYPEID_CONTAINER:
+        {
+            Item* item = (Item*)questGiver;
+            sScriptMgr->OnQuestAccept(this, item, quest);
+
+            // destroy not required for quest finish quest starting item
+            bool destroyItem = true;
+            for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
+            {
+                if (quest->RequiredItemId[i] == item->GetEntry() && item->GetTemplate()->MaxCount > 0)
+                {
+                    destroyItem = false;
+                    break;
+                }
+            }
+
+            if (destroyItem)
+                DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
+
+            break;
+        }
+        case TYPEID_GAMEOBJECT:
+            sScriptMgr->OnQuestAccept(this, questGiver->ToGameObject(), quest);
+            questGiver->ToGameObject()->AI()->QuestAccept(this, quest);
+            break;
+        default:
+            break;
+    }
 }
 
 bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
@@ -20964,7 +20771,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         }
 
         // not let cheating with start flight in time of logout process || if casting not finished || while in combat || if not use Spell's with EffectSendTaxi
-        if (IsNonMeleeSpellCasted(false))
+        if (IsNonMeleeSpellCast(false))
         {
             GetSession()->SendActivateTaxiReply(ERR_TAXIPLAYERBUSY);
             return false;
@@ -25729,7 +25536,7 @@ void Player::ActivateSpec(uint8 spec)
     if (spec > GetSpecsCount())
         return;
 
-    if (IsNonMeleeSpellCasted(false))
+    if (IsNonMeleeSpellCast(false))
         InterruptNonMeleeSpells(false);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();

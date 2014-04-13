@@ -402,7 +402,7 @@ void WorldSession::HandleCancelCastOpcode(WorldPacket& recvPacket)
     recvPacket.read_skip<uint8>();                          // counter, increments with every CANCEL packet, don't use for now
     recvPacket >> spellId;
 
-    if (_player->IsNonMeleeSpellCasted(false))
+    if (_player->IsNonMeleeSpellCast(false))
         _player->InterruptNonMeleeSpells(false, spellId, false);
 }
 

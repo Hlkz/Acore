@@ -2990,7 +2990,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     m_caster->m_Events.AddEvent(Event, m_caster->m_Events.CalculateTime(1));
 
     //Prevent casting at cast another spell (ServerSide check)
-    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && m_caster->IsNonMeleeSpellCasted(false, true, true) && m_cast_count)
+    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && m_caster->IsNonMeleeSpellCast(false, true, true) && m_cast_count)
     {
         SendCastResult(SPELL_FAILED_SPELL_IN_PROGRESS);
         finish(false);
@@ -3324,7 +3324,7 @@ void Spell::cast(bool skipCheck)
         m_spellState = SPELL_STATE_DELAYED;
         SetDelayStart(0);
 
-        if (m_caster->HasUnitState(UNIT_STATE_CASTING) && !m_caster->IsNonMeleeSpellCasted(false, false, true))
+        if (m_caster->HasUnitState(UNIT_STATE_CASTING) && !m_caster->IsNonMeleeSpellCast(false, false, true))
             m_caster->ClearUnitState(UNIT_STATE_CASTING);
     }
     else
@@ -3646,7 +3646,7 @@ void Spell::finish(bool ok)
     if (m_spellInfo->IsChanneled())
         m_caster->UpdateInterruptMask();
 
-    if (m_caster->HasUnitState(UNIT_STATE_CASTING) && !m_caster->IsNonMeleeSpellCasted(false, false, true))
+    if (m_caster->HasUnitState(UNIT_STATE_CASTING) && !m_caster->IsNonMeleeSpellCast(false, false, true))
         m_caster->ClearUnitState(UNIT_STATE_CASTING);
 
     // Unsummon summon as possessed creatures on spell cancel
@@ -6629,7 +6629,7 @@ bool SpellEvent::Execute(uint64 e_time, uint32 p_time)
                 {
                     // evented channeled spell is processed separately, casted once after delay, and not destroyed till finish
                     // check, if we have casting anything else except this channeled spell and autorepeat
-                    if (m_Spell->GetCaster()->IsNonMeleeSpellCasted(false, true, true))
+                    if (m_Spell->GetCaster()->IsNonMeleeSpellCast(false, true, true))
                     {
                         // another non-melee non-delayed spell is casted now, abort
                         m_Spell->cancel();

@@ -2656,7 +2656,7 @@ uint32 Unit::GetDefenseSkillValue(Unit const* target) const
 
 float Unit::GetUnitDodgeChance() const
 {
-    if (IsNonMeleeSpellCasted(false) || HasUnitState(UNIT_STATE_CONTROLLED))
+    if (IsNonMeleeSpellCast(false) || HasUnitState(UNIT_STATE_CONTROLLED))
         return 0.0f;
 
     if (GetTypeId() == TYPEID_PLAYER)
@@ -2676,7 +2676,7 @@ float Unit::GetUnitDodgeChance() const
 
 float Unit::GetUnitParryChance() const
 {
-    if (IsNonMeleeSpellCasted(false) || HasUnitState(UNIT_STATE_CONTROLLED))
+    if (IsNonMeleeSpellCast(false) || HasUnitState(UNIT_STATE_CONTROLLED))
         return 0.0f;
 
     float chance = 0.0f;
@@ -2722,7 +2722,7 @@ float Unit::GetUnitMissChance(WeaponAttackType attType) const
 
 float Unit::GetUnitBlockChance() const
 {
-    if (IsNonMeleeSpellCasted(false) || HasUnitState(UNIT_STATE_CONTROLLED))
+    if (IsNonMeleeSpellCast(false) || HasUnitState(UNIT_STATE_CONTROLLED))
         return 0.0f;
 
     if (Player const* player = ToPlayer())
@@ -2914,7 +2914,7 @@ void Unit::_UpdateSpells(uint32 time)
 void Unit::_UpdateAutoRepeatSpell()
 {
     // check "realtime" interrupts
-    if ((GetTypeId() == TYPEID_PLAYER && ToPlayer()->isMoving()) || IsNonMeleeSpellCasted(false, false, true, m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id == 75))
+    if ((GetTypeId() == TYPEID_PLAYER && ToPlayer()->isMoving()) || IsNonMeleeSpellCast(false, false, true, m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id == 75))
     {
         // cancel wand shoot
         if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id != 75)
@@ -3060,7 +3060,7 @@ void Unit::FinishSpell(CurrentSpellTypes spellType, bool ok /*= true*/)
     spell->finish(ok);
 }
 
-bool Unit::IsNonMeleeSpellCasted(bool withDelayed, bool skipChanneled, bool skipAutorepeat, bool isAutoshoot, bool skipInstant) const
+bool Unit::IsNonMeleeSpellCast(bool withDelayed, bool skipChanneled, bool skipAutorepeat, bool isAutoshoot, bool skipInstant) const
 {
     // We don't do loop here to explicitly show that melee spell is excluded.
     // Maybe later some special spells will be excluded too.
@@ -9042,7 +9042,7 @@ bool Unit::AttackStop()
 
 void Unit::CombatStop(bool includingCast)
 {
-    if (includingCast && IsNonMeleeSpellCasted(false))
+    if (includingCast && IsNonMeleeSpellCast(false))
         InterruptNonMeleeSpells(false);
 
     AttackStop();
@@ -12401,7 +12401,7 @@ void Unit::setDeathState(DeathState s)
         getHostileRefManager().deleteReferences();
         ClearComboPointHolders();                           // any combo points pointed to unit lost at it death
 
-        if (IsNonMeleeSpellCasted(false))
+        if (IsNonMeleeSpellCast(false))
             InterruptNonMeleeSpells(false);
 
         ExitVehicle();                                      // Exit vehicle before calling RemoveAllControlled
@@ -17169,7 +17169,7 @@ void Unit::StopAttackFaction(uint32 faction_id)
         if (victim->GetFactionTemplateEntry()->faction == faction_id)
         {
             AttackStop();
-            if (IsNonMeleeSpellCasted(false))
+            if (IsNonMeleeSpellCast(false))
                 InterruptNonMeleeSpells(false);
 
             // melee and ranged forced attack cancel
