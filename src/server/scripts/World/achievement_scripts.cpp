@@ -19,8 +19,6 @@
 
 #include "BattlegroundAB.h"
 #include "BattlegroundWS.h"
-#include "BattlegroundIC.h"
-#include "BattlegroundSA.h"
 #include "BattlegroundAV.h"
 #include "Vehicle.h"
 #include "Player.h"
@@ -58,7 +56,7 @@ class achievement_bg_control_all_nodes : public AchievementCriteriaScript
             if (!bg)
                 return false;
 
-            if (!bg->IsAllNodesConrolledByTeam(source->GetTeam()))
+            if (!bg->IsAllNodesControlledByTeam(source->GetTeam()))
                 return false;
 
             return true;
@@ -87,71 +85,6 @@ class achievement_save_the_day : public AchievementCriteriaScript
                 if (static_cast<BattlegroundWS*>(bg)->GetFlagState(player->GetTeam()) == BG_WS_FLAG_STATE_ON_BASE)
                     return true;
             }
-            return false;
-        }
-};
-
-class achievement_bg_ic_resource_glut : public AchievementCriteriaScript
-{
-    public:
-        achievement_bg_ic_resource_glut() : AchievementCriteriaScript("achievement_bg_ic_resource_glut") { }
-
-        bool OnCheck(Player* source, Unit* /*target*/)
-        {
-            if (source->HasAura(SPELL_OIL_REFINERY) && source->HasAura(SPELL_QUARRY))
-                return true;
-
-            return false;
-        }
-};
-
-class achievement_bg_ic_glaive_grave : public AchievementCriteriaScript
-{
-    public:
-        achievement_bg_ic_glaive_grave() : AchievementCriteriaScript("achievement_bg_ic_glaive_grave") { }
-
-        bool OnCheck(Player* source, Unit* /*target*/)
-        {
-            if (Creature* vehicle = source->GetVehicleCreatureBase())
-            {
-                if (vehicle->GetEntry() == NPC_GLAIVE_THROWER_H ||  vehicle->GetEntry() == NPC_GLAIVE_THROWER_A)
-                    return true;
-            }
-
-            return false;
-        }
-};
-
-class achievement_bg_ic_mowed_down : public AchievementCriteriaScript
-{
-    public:
-        achievement_bg_ic_mowed_down() : AchievementCriteriaScript("achievement_bg_ic_mowed_down") { }
-
-        bool OnCheck(Player* source, Unit* /*target*/)
-        {
-            if (Creature* vehicle = source->GetVehicleCreatureBase())
-            {
-                if (vehicle->GetEntry() == NPC_KEEP_CANNON)
-                    return true;
-            }
-
-            return false;
-        }
-};
-
-class achievement_bg_sa_artillery : public AchievementCriteriaScript
-{
-    public:
-        achievement_bg_sa_artillery() : AchievementCriteriaScript("achievement_bg_sa_artillery") { }
-
-        bool OnCheck(Player* source, Unit* /*target*/)
-        {
-            if (Creature* vehicle = source->GetVehicleCreatureBase())
-            {
-                if (vehicle->GetEntry() == NPC_ANTI_PERSONNAL_CANNON)
-                    return true;
-            }
-
             return false;
         }
 };
@@ -237,32 +170,6 @@ class achievement_bg_av_perfection : public AchievementCriteriaScript
         }
 };
 
-class achievement_bg_sa_defense_of_ancients : public AchievementCriteriaScript
-{
-    public:
-        achievement_bg_sa_defense_of_ancients() : AchievementCriteriaScript("achievement_bg_sa_defense_of_ancients")
-        {
-        }
-
-        bool OnCheck(Player* player, Unit* /*target*/)
-        {
-            if (!player)
-                return false;
-
-            Battleground* battleground = player->GetBattleground();
-            if (!battleground)
-                return false;
-
-            if (player->GetTeamId() == static_cast<BattlegroundSA*>(battleground)->Attackers)
-                return false;
-
-            if (!static_cast<BattlegroundSA*>(battleground)->gateDestroyed)
-                return true;
-
-            return false;
-        }
-};
-
 enum ArgentTournamentAreas
 {
     AREA_ARGENT_TOURNAMENT_FIELDS  = 4658,
@@ -291,27 +198,6 @@ class achievement_tilted : public AchievementCriteriaScript
                                 player->GetAreaId() == AREA_RING_OF_CHAMPIONS;
 
             return checkArea && player->duel && player->duel->isMounted;
-        }
-};
-
-class achievement_not_even_a_scratch : public AchievementCriteriaScript
-{
-    public:
-        achievement_not_even_a_scratch() : AchievementCriteriaScript("achievement_not_even_a_scratch") { }
-
-        bool OnCheck(Player* source, Unit* /*target*/)
-        {
-            if (!source)
-                return false;
-
-            Battleground* battleground = source->GetBattleground();
-            if (!battleground)
-                return false;
-
-            if (static_cast<BattlegroundSA*>(battleground)->notEvenAScratch(source->GetTeam()))
-                return true;
-
-            return false;
         }
 };
 
@@ -355,19 +241,13 @@ void AddSC_achievement_scripts()
     new achievement_resilient_victory();
     new achievement_bg_control_all_nodes();
     new achievement_save_the_day();
-    new achievement_bg_ic_resource_glut();
-    new achievement_bg_ic_glaive_grave();
-    new achievement_bg_ic_mowed_down();
-    new achievement_bg_sa_artillery();
     new achievement_sickly_gazelle();
     new achievement_everything_counts();
     new achievement_bg_av_perfection();
     new achievement_arena_kills("achievement_arena_2v2_kills", ARENA_TYPE_2v2);
     new achievement_arena_kills("achievement_arena_3v3_kills", ARENA_TYPE_3v3);
     new achievement_arena_kills("achievement_arena_5v5_kills", ARENA_TYPE_5v5);
-    new achievement_bg_sa_defense_of_ancients();
     new achievement_tilted();
-    new achievement_not_even_a_scratch();
     new achievement_flirt_with_disaster_perf_check();
     new achievement_killed_exp_or_honor_target();
 }

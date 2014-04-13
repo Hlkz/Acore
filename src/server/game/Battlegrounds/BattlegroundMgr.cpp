@@ -31,10 +31,7 @@
 #include "BattlegroundNA.h"
 #include "BattlegroundBE.h"
 #include "BattlegroundRL.h"
-#include "BattlegroundSA.h"
 #include "BattlegroundDS.h"
-#include "BattlegroundRV.h"
-#include "BattlegroundIC.h"
 #include "BattlegroundBA.h"
 #include "BattlegroundBB.h"
 #include "BattlegroundIWP.h"
@@ -318,15 +315,6 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                         *data << uint32(((BattlegroundAVScore*)score)->TowersDefended);      // TowersDefended
                         *data << uint32(((BattlegroundAVScore*)score)->MinesCaptured);       // MinesCaptured
                         break;
-                    case 607:
-                        *data << uint32(0x00000002);            // count of next fields
-                        *data << uint32(((BattlegroundSAScore*)score)->demolishers_destroyed);
-                        *data << uint32(((BattlegroundSAScore*)score)->gates_destroyed);
-                        break;
-                    case 628:                                   // IC
-                        *data << uint32(0x00000002);            // count of next fields
-                        *data << uint32(((BattlegroundICScore*)score)->BasesAssaulted);       // bases asssulted
-                        *data << uint32(((BattlegroundICScore*)score)->BasesDefended);        // bases defended
 					case 784:                                   // BA
 						*data << uint32(0x00000002);            // count of next fields
 						*data << uint32(((BattlegroundBAScore*)score)->CreepsKilled);
@@ -364,16 +352,6 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                 *data << uint32(0x00000001);                    // count of next fields
                 *data << uint32(((BattlegroundEYScore*)score)->FlagCaptures);        // flag captures
                 break;
-            case BATTLEGROUND_SA:
-                *data << uint32(0x00000002);                    // count of next fields
-                *data << uint32(((BattlegroundSAScore*)score)->demolishers_destroyed);
-                *data << uint32(((BattlegroundSAScore*)score)->gates_destroyed);
-                break;
-            case BATTLEGROUND_IC:
-                *data << uint32(0x00000002);                // count of next fields
-                *data << uint32(((BattlegroundICScore*)score)->BasesAssaulted);       // bases assaulted
-                *data << uint32(((BattlegroundICScore*)score)->BasesDefended);        // bases defended
-                break;
             case BATTLEGROUND_BA:
                 *data << uint32(0x00000002);                // count of next fields
                 *data << uint32(((BattlegroundBAScore*)score)->CreepsKilled);
@@ -391,7 +369,6 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
             case BATTLEGROUND_AA:
             case BATTLEGROUND_RL:
             case BATTLEGROUND_DS:
-            case BATTLEGROUND_RV:
                 *data << uint32(0);
                 break;
             default:
@@ -586,17 +563,8 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId original
         case BATTLEGROUND_RL:
             bg = new BattlegroundRL(*(BattlegroundRL*)bg_template);
             break;
-        case BATTLEGROUND_SA:
-            bg = new BattlegroundSA(*(BattlegroundSA*)bg_template);
-            break;
         case BATTLEGROUND_DS:
             bg = new BattlegroundDS(*(BattlegroundDS*)bg_template);
-            break;
-        case BATTLEGROUND_RV:
-            bg = new BattlegroundRV(*(BattlegroundRV*)bg_template);
-            break;
-        case BATTLEGROUND_IC:
-            bg = new BattlegroundIC(*(BattlegroundIC*)bg_template);
             break;
         case BATTLEGROUND_BA:
             bg = new BattlegroundBA(*(BattlegroundBA*)bg_template);
@@ -681,17 +649,8 @@ bool BattlegroundMgr::CreateBattleground(CreateBattlegroundData& data)
         case BATTLEGROUND_RL:
             bg = new BattlegroundRL;
             break;
-        case BATTLEGROUND_SA:
-            bg = new BattlegroundSA;
-            break;
         case BATTLEGROUND_DS:
             bg = new BattlegroundDS;
-            break;
-        case BATTLEGROUND_RV:
-            bg = new BattlegroundRV;
-            break;
-        case BATTLEGROUND_IC:
-            bg = new BattlegroundIC;
             break;
         case BATTLEGROUND_BA:
             bg = new BattlegroundBA;
@@ -876,8 +835,8 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
         return;
 
     uint32 winner_kills = player->GetRandomWinner() ? BG_REWARD_WINNER_HONOR_LAST : BG_REWARD_WINNER_HONOR_FIRST;
-    uint32 winner_arena = player->GetRandomWinner() ? BG_REWARD_WINNER_ARENA_LAST : BG_REWARD_WINNER_ARENA_FIRST;
     uint32 loser_kills = player->GetRandomWinner() ? BG_REWARD_LOSER_HONOR_LAST : BG_REWARD_LOSER_HONOR_FIRST;
+    uint32 winner_arena = player->GetRandomWinner() ? BG_REWARD_WINNER_ARENA_LAST : BG_REWARD_WINNER_ARENA_FIRST;
 
     winner_kills = Trinity::Honor::hk_honor_at_level(player->getLevel(), float(winner_kills));
     loser_kills = Trinity::Honor::hk_honor_at_level(player->getLevel(), float(loser_kills));
@@ -958,7 +917,6 @@ bool BattlegroundMgr::IsArenaType(BattlegroundTypeId bgTypeId)
             || bgTypeId == BATTLEGROUND_BE
             || bgTypeId == BATTLEGROUND_NA
             || bgTypeId == BATTLEGROUND_DS
-            || bgTypeId == BATTLEGROUND_RV
             || bgTypeId == BATTLEGROUND_RL;
 }
 
@@ -972,8 +930,6 @@ BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgType
             return BATTLEGROUND_QUEUE_AV;
         case BATTLEGROUND_EY:
             return BATTLEGROUND_QUEUE_EY;
-        case BATTLEGROUND_IC:
-            return BATTLEGROUND_QUEUE_IC;
         case BATTLEGROUND_AO:
             return BATTLEGROUND_QUEUE_AO;
         case BATTLEGROUND_BA:
@@ -984,8 +940,6 @@ BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgType
             return BATTLEGROUND_QUEUE_IWP;
         case BATTLEGROUND_RB:
             return BATTLEGROUND_QUEUE_RB;
-        case BATTLEGROUND_SA:
-            return BATTLEGROUND_QUEUE_SA;
         case BATTLEGROUND_WS:
             return BATTLEGROUND_QUEUE_WS;
         case BATTLEGROUND_AA:
@@ -993,7 +947,6 @@ BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgType
         case BATTLEGROUND_DS:
         case BATTLEGROUND_NA:
         case BATTLEGROUND_RL:
-        case BATTLEGROUND_RV:
             switch (arenaType)
             {
                 case ARENA_TYPE_2v2:
@@ -1022,10 +975,6 @@ BattlegroundTypeId BattlegroundMgr::BGTemplateId(BattlegroundQueueTypeId bgQueue
             return BATTLEGROUND_AV;
         case BATTLEGROUND_QUEUE_EY:
             return BATTLEGROUND_EY;
-        case BATTLEGROUND_QUEUE_SA:
-            return BATTLEGROUND_SA;
-        case BATTLEGROUND_QUEUE_IC:
-            return BATTLEGROUND_IC;
         case BATTLEGROUND_QUEUE_AO:
             return BATTLEGROUND_AO;
         case BATTLEGROUND_QUEUE_BA:
@@ -1172,9 +1121,7 @@ HolidayIds BattlegroundMgr::BGTypeToWeekendHolidayId(BattlegroundTypeId bgTypeId
         case BATTLEGROUND_AV: return HOLIDAY_CALL_TO_ARMS_AV;
         case BATTLEGROUND_EY: return HOLIDAY_CALL_TO_ARMS_EY;
         case BATTLEGROUND_WS: return HOLIDAY_CALL_TO_ARMS_WS;
-        case BATTLEGROUND_SA: return HOLIDAY_CALL_TO_ARMS_SA;
         case BATTLEGROUND_AB: return HOLIDAY_CALL_TO_ARMS_AB;
-        case BATTLEGROUND_IC: return HOLIDAY_CALL_TO_ARMS_IC;
         case BATTLEGROUND_BA: return HOLIDAY_NONE;
         default: return HOLIDAY_NONE;
     }
@@ -1187,9 +1134,7 @@ BattlegroundTypeId BattlegroundMgr::WeekendHolidayIdToBGType(HolidayIds holiday)
         case HOLIDAY_CALL_TO_ARMS_AV: return BATTLEGROUND_AV;
         case HOLIDAY_CALL_TO_ARMS_EY: return BATTLEGROUND_EY;
         case HOLIDAY_CALL_TO_ARMS_WS: return BATTLEGROUND_WS;
-        case HOLIDAY_CALL_TO_ARMS_SA: return BATTLEGROUND_SA;
         case HOLIDAY_CALL_TO_ARMS_AB: return BATTLEGROUND_AB;
-        case HOLIDAY_CALL_TO_ARMS_IC: return BATTLEGROUND_IC;
         default: return BATTLEGROUND_TYPE_NONE;
     }
 }
