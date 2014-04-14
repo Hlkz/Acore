@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -2155,6 +2155,46 @@ class spell_q12619_emblazon_runeblade_effect : public SpellScriptLoader
         }
 };
 
+enum RelicOfTheEarthenRing
+{
+    SPELL_TOTEM_OF_THE_EARTHEN_RING = 66747
+};
+
+// 66744 - Make Player Destroy Totems
+class spell_q14100_q14111_make_player_destroy_totems : public SpellScriptLoader
+{
+    public:
+        spell_q14100_q14111_make_player_destroy_totems() : SpellScriptLoader("spell_q14100_q14111_make_player_destroy_totems") { }
+
+        class spell_q14100_q14111_make_player_destroy_totems_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q14100_q14111_make_player_destroy_totems_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_TOTEM_OF_THE_EARTHEN_RING))
+                    return false;
+                return true;
+            }
+
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                if (Player* player = GetHitPlayer())
+                    player->CastSpell(player, SPELL_TOTEM_OF_THE_EARTHEN_RING, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
+            }
+
+            void Register() OVERRIDE
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q14100_q14111_make_player_destroy_totems_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const OVERRIDE
+        {
+            return new spell_q14100_q14111_make_player_destroy_totems_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2207,4 +2247,5 @@ void AddSC_quest_spell_scripts()
     new spell_q12641_death_comes_from_on_high();
     new spell_q12619_emblazon_runeblade();
     new spell_q12619_emblazon_runeblade_effect();
+    new spell_q14100_q14111_make_player_destroy_totems();
 }
