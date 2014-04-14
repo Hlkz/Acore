@@ -3300,13 +3300,13 @@ void ObjectMgr::LoadPlayerInfo()
 
                 if (raceMask != 0 && !(raceMask & RACEMASK_ALL_PLAYABLE))
                 {
-                    TC_LOG_ERROR("sql.sql", "Wrong race mask %u in `%s` table, ignoring.", raceMask, tableName.c_str());
+                    TC_LOG_ERROR("sql.sql", "Wrong race mask %u in `playercreateinfo_spell` table, ignoring.", raceMask);
                     continue;
                 }
 
                 if (classMask != 0 && !(classMask & CLASSMASK_ALL_PLAYABLE))
                 {
-                    TC_LOG_ERROR("sql.sql", "Wrong class mask %u in `%s` table, ignoring.", classMask, tableName.c_str());
+                    TC_LOG_ERROR("sql.sql", "Wrong class mask %u in `playercreateinfo_spell` table, ignoring.", classMask);
                     continue;
                 }
 
