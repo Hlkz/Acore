@@ -1816,7 +1816,7 @@ class Unit : public WorldObject
         float GetNegStat(Stats stat) const { return GetFloatValue(UNIT_FIELD_NEGSTAT0+stat); }
         float GetCreateStat(Stats stat) const { return m_createStats[stat]; }
 
-        void SetCurrentCastedSpell(Spell* pSpell);
+        void SetCurrentCastSpell(Spell* pSpell);
         virtual void ProhibitSpellSchool(SpellSchoolMask /*idSchoolMask*/, uint32 /*unTimeMs*/) { }
         void InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true, bool withInstant = true);
         void FinishSpell(CurrentSpellTypes spellType, bool ok = true);
@@ -2170,8 +2170,8 @@ class Unit : public WorldObject
         uint32 m_removedAurasCount;
 
         AuraEffectList m_modAuras[TOTAL_AURAS];
-        AuraList m_scAuras;                        // casted singlecast auras
-        AuraApplicationList m_interruptableAuras;             // auras which have interrupt mask applied on unit
+        AuraList m_scAuras;                        // cast singlecast auras
+        AuraApplicationList m_interruptableAuras;  // auras which have interrupt mask applied on unit
         AuraStateAurasMap m_auraStateAuras;        // Used for improve performance of aura state checks on aura apply/remove
         uint32 m_interruptMask;
 
