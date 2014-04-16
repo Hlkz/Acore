@@ -1231,7 +1231,7 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p) const
                 case BAN_IP: nameOrIp = Session->GetRemoteAddress(); break;
             }
             sWorld->BanAccount(bm, nameOrIp, duration, "DOS (Packet Flooding/Spoofing", "Server: AutoDOS");
-            TC_LOG_INFO("network", "AntiDOS: Player automatically banned for "I64FMT" seconds.", duration);
+            TC_LOG_INFO("network", "AntiDOS: Player automatically banned for %u seconds.", duration);
 
             return false;
         }
