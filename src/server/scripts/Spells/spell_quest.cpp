@@ -2170,7 +2170,7 @@ class spell_q14100_q14111_make_player_destroy_totems : public SpellScriptLoader
         {
             PrepareSpellScript(spell_q14100_q14111_make_player_destroy_totems_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_TOTEM_OF_THE_EARTHEN_RING))
                     return false;
@@ -2183,13 +2183,13 @@ class spell_q14100_q14111_make_player_destroy_totems : public SpellScriptLoader
                     player->CastSpell(player, SPELL_TOTEM_OF_THE_EARTHEN_RING, TRIGGERED_FULL_MASK); // ignore reagent cost, consumed by quest
             }
 
-            void Register() OVERRIDE
+            void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q14100_q14111_make_player_destroy_totems_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const OVERRIDE
+        SpellScript* GetSpellScript() const
         {
             return new spell_q14100_q14111_make_player_destroy_totems_SpellScript();
         }
