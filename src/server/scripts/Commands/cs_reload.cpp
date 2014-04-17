@@ -453,8 +453,8 @@ public:
             cInfo->speed_run          = fields[20].GetFloat();
             cInfo->scale              = fields[21].GetFloat();
             cInfo->rank               = fields[22].GetUInt8();
-            cInfo->mindmg             = fields[23].GetFloat();
-            cInfo->maxdmg             = fields[24].GetFloat();
+            //cInfo->mindmg             = fields[23].GetFloat();
+            //cInfo->maxdmg             = fields[24].GetFloat();
             cInfo->dmgschool          = fields[25].GetUInt8();
             cInfo->attackpower        = fields[26].GetUInt32();
             cInfo->dmg_multiplier     = fields[27].GetFloat();

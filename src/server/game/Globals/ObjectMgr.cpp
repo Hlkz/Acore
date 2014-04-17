@@ -452,8 +452,8 @@ void ObjectMgr::LoadCreatureTemplates()
         creatureTemplate.speed_run         = fields[21].GetFloat();
         creatureTemplate.scale             = fields[22].GetFloat();
         creatureTemplate.rank              = uint32(fields[23].GetUInt8());
-        creatureTemplate.mindmg            = fields[24].GetFloat();
-        creatureTemplate.maxdmg            = fields[25].GetFloat();
+        //creatureTemplate.mindmg            = fields[24].GetFloat();
+        //creatureTemplate.maxdmg            = fields[25].GetFloat();
         creatureTemplate.dmgschool         = uint32(fields[26].GetInt8());
         creatureTemplate.attackpower       = fields[27].GetUInt32();
         creatureTemplate.dmg_multiplier    = fields[28].GetFloat();

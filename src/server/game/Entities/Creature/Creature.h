@@ -95,8 +95,8 @@ struct CreatureTemplate
     float   speed_run;
     float   scale;
     uint32  rank;
-    float   mindmg;
-    float   maxdmg;
+    //float   mindmg;
+    //float   maxdmg;
     uint32  dmgschool;
     uint32  attackpower;
     float   dmg_multiplier;
