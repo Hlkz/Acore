@@ -410,6 +410,13 @@ void MotionMaster::MoveFall(uint32 id /*=0*/)
     Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
 }
 
+void MotionMaster::MoveChargeTo(float dist)
+{
+    float x, y, z;
+    _owner->GetClosePoint(x, y, z, _owner->GetObjectSize(), dist);
+    MoveCharge(x, y, z + 2.0);
+}
+
 void MotionMaster::MoveCharge(float x, float y, float z, float speed, uint32 id, bool generatePath)
 {
     if (Impl[MOTION_SLOT_CONTROLLED] && Impl[MOTION_SLOT_CONTROLLED]->GetMovementGeneratorType() != DISTRACT_MOTION_TYPE)
