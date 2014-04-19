@@ -15448,7 +15448,7 @@ void Unit::SetStunned(bool apply)
     else
     {
         if (IsAlive() && GetVictim())
-            SetTarget(GetVictim()->GetGUID());
+            SetTarget(EnsureVictim()->GetGUID());
 
         // don't remove UNIT_FLAG_STUNNED for pet when owner is mounted (disabled pet's interface)
         Unit* owner = GetOwner();
@@ -15539,7 +15539,7 @@ void Unit::SetFeared(bool apply)
             if (GetMotionMaster()->GetCurrentMovementGeneratorType() == FLEEING_MOTION_TYPE)
                 GetMotionMaster()->MovementExpired();
             if (GetVictim())
-                SetTarget(GetVictim()->GetGUID());
+                SetTarget(EnsureVictim()->GetGUID());
         }
     }
 
@@ -15561,7 +15561,7 @@ void Unit::SetConfused(bool apply)
             if (GetMotionMaster()->GetCurrentMovementGeneratorType() == CONFUSED_MOTION_TYPE)
                 GetMotionMaster()->MovementExpired();
             if (GetVictim())
-                SetTarget(GetVictim()->GetGUID());
+                SetTarget(EnsureVictim()->GetGUID());
         }
     }
 
