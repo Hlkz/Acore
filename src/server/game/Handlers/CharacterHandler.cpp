@@ -1741,6 +1741,9 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         }
     }
 
+    // resurrect the character in case he's dead
+    sObjectAccessor->ConvertCorpseForPlayer(guid);
+
     CharacterDatabase.EscapeString(newname);
     Player::Customize(guid, gender, skin, face, hairStyle, hairColor, facialHair);
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
