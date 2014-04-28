@@ -2172,13 +2172,8 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     }
 
     uint32 phase = PHASEMASK_NORMAL;
-    uint32 team = 0;
     if (summoner)
-    {
         phase = summoner->GetPhaseMask();
-        if (summoner->GetTypeId() == TYPEID_PLAYER)
-            team = summoner->ToPlayer()->GetTeam();
-    }
 
     TempSummon* summon = NULL;
     switch (mask)
