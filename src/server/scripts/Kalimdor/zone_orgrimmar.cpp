@@ -32,8 +32,6 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "Player.h"
-#include "ReputationMgr.h"
-#include "AchievementMgr.h"
 
 /*######
 ## npc_shenthul
@@ -49,7 +47,7 @@ class npc_shenthul : public CreatureScript
 public:
     npc_shenthul() : CreatureScript("npc_shenthul") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_SHATTERED_SALUTE)
         {
@@ -59,9 +57,9 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_shenthulAI (creature);
+        return new npc_shenthulAI(creature);
     }
 
     struct npc_shenthulAI : public ScriptedAI
@@ -74,7 +72,7 @@ public:
         uint32 ResetTimer;
         uint64 PlayerGUID;
 
-        void Reset()
+        void Reset() override
         {
             CanTalk = false;
             CanEmote = false;
@@ -83,15 +81,15 @@ public:
             PlayerGUID = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (CanEmote)
             {
                 if (ResetTimer <= diff)
                 {
-                    if (Player* player = Unit::GetPlayer(*me, PlayerGUID))
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                     {
                         if (player->GetTypeId() == TYPEID_PLAYER && player->GetQuestStatus(QUEST_SHATTERED_SALUTE) == QUEST_STATUS_INCOMPLETE)
                             player->FailQuest(QUEST_SHATTERED_SALUTE);
@@ -116,7 +114,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void ReceiveEmote(Player* player, uint32 emote)
+        void ReceiveEmote(Player* player, uint32 emote) override
         {
             if (emote == TEXT_EMOTE_SALUTE && player->GetQuestStatus(QUEST_SHATTERED_SALUTE) == QUEST_STATUS_INCOMPLETE)
             {
@@ -157,7 +155,7 @@ class npc_thrall_warchief : public CreatureScript
 public:
     npc_thrall_warchief() : CreatureScript("npc_thrall_warchief") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -190,18 +188,11 @@ public:
                 player->CLOSE_GOSSIP_MENU();
                 player->AreaExploredOrEventHappens(QUEST_6566);
                 break;
-            case GOSSIP_ACTION_INFO_DEF+8:
-                player->CLOSE_GOSSIP_MENU();
-                player->SetTeam(HORDE, true);
-                if (AchievementEntry const* achievementEntry = sAchievementMgr->GetAchievement(7000))
-                    player->CompletedAchievement(achievementEntry);
-                player->SetUInt32Value(UNIT_FIELD_LEVEL, player->getLevel());
-                break;
         }
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -209,16 +200,13 @@ public:
         if (player->GetQuestStatus(QUEST_6566) == QUEST_STATUS_INCOMPLETE)
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HTW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        if (player->CanSwitchTeam() == HORDE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Rejoindre la Horde", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+8);
-
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_thrall_warchiefAI (creature);
+        return new npc_thrall_warchiefAI(creature);
     }
 
     struct npc_thrall_warchiefAI : public ScriptedAI
@@ -228,15 +216,15 @@ public:
         uint32 ChainLightningTimer;
         uint32 ShockTimer;
 
-        void Reset()
+        void Reset() override
         {
             ChainLightningTimer = 2000;
             ShockTimer = 8000;
         }
 
-        void EnterCombat(Unit* /*who*/) { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

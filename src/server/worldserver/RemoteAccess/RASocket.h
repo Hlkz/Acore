@@ -37,9 +37,9 @@ class RASocket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
         RASocket();
         virtual ~RASocket() { }
 
-        virtual int svc();
-        virtual int open(void* = 0);
-        virtual int handle_close(ACE_HANDLE = ACE_INVALID_HANDLE, ACE_Reactor_Mask = ACE_Event_Handler::ALL_EVENTS_MASK);
+        virtual int svc() override;
+        virtual int open(void* = 0) override;
+        virtual int handle_close(ACE_HANDLE = ACE_INVALID_HANDLE, ACE_Reactor_Mask = ACE_Event_Handler::ALL_EVENTS_MASK) override;
 
     private:
         int recv_line(std::string& outLine);

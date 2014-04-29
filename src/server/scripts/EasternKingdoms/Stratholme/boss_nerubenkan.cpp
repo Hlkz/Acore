@@ -40,7 +40,7 @@ class boss_nerubenkan : public CreatureScript
 public:
     boss_nerubenkan() : CreatureScript("boss_nerubenkan") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<boss_nerubenkanAI>(creature);
     }
@@ -59,7 +59,7 @@ public:
         uint32 CryptScarabs_Timer;
         uint32 RaiseUndeadScarab_Timer;
 
-        void Reset()
+        void Reset() override
         {
             CryptScarabs_Timer = 3000;
             EncasingWebs_Timer = 7000;
@@ -67,14 +67,13 @@ public:
             RaiseUndeadScarab_Timer = 3000;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
-            if (instance)
-                instance->SetData(TYPE_NERUB, IN_PROGRESS);
+            instance->SetData(TYPE_NERUB, IN_PROGRESS);
         }
 
         void RaiseUndeadScarab(Unit* victim)
@@ -84,7 +83,7 @@ public:
                     pUndeadScarab->AI()->AttackStart(victim);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

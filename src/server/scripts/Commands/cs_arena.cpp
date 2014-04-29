@@ -6,15 +6,15 @@ class arena_commandscript : public CommandScript
 public:
    arena_commandscript() : CommandScript("arena_commandscript") { }
 
-       ChatCommand* GetCommands() const
-       {
+    ChatCommand* GetCommands() const override
+    {
            static ChatCommand commandTable[] =
            {
                { "arena",          SEC_PLAYER,          false, &HandleArenaCommand, "", NULL },
                { NULL,             0,                   false, NULL,                "", NULL }
            };
            return commandTable;
-       }
+   }
 
        static bool HandleArenaCommand(ChatHandler* handler, const char* /*args*/)
        {

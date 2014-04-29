@@ -84,7 +84,7 @@ class npc_blastmaster_emi_shortfuse : public CreatureScript
 public:
     npc_blastmaster_emi_shortfuse() : CreatureScript("npc_blastmaster_emi_shortfuse") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return GetInstanceAI<npc_blastmaster_emi_shortfuseAI>(creature);
     }
@@ -106,7 +106,7 @@ public:
         std::list<uint64> SummonList;
         std::list<uint64> GoSummonList;
 
-        void Reset()
+        void Reset() override
         {
             if (!HasEscortState(STATE_ESCORT_ESCORTING))
             {
@@ -120,7 +120,7 @@ public:
             }
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId)
+        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             if (gossipListId == 0)
             {
@@ -167,34 +167,21 @@ public:
 
            if (bBool)
            {
-                if (instance)
-                    if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
-                        instance->HandleGameObject(0, false, go);
+                if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
+                    instance->HandleGameObject(0, false, go);
            }else
-                if (instance)
-                    if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_LEFT)))
-                        instance->HandleGameObject(0, false, go);
+                if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_LEFT)))
+                    instance->HandleGameObject(0, false, go);
         }
 
-        void SetInFace(bool bBool)
+        void SetInFace(bool isRight)
         {
-            if (!instance)
-                return;
-
-            if (bBool)
-            {
-                if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
-                    me->SetFacingToObject(go);
-            }else
-                if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_LEFT)))
-                    me->SetFacingToObject(go);
+            if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(isRight ? DATA_GO_CAVE_IN_RIGHT : DATA_GO_CAVE_IN_LEFT)))
+                me->SetFacingToObject(go);
         }
 
         void RestoreAll()
         {
-            if (!instance)
-                return;
-
             if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
                 instance->HandleGameObject(0, false, go);
 
@@ -245,7 +232,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) override
         {
             //just in case
             if (GetPlayerForEscort())
@@ -289,7 +276,7 @@ public:
             }
         }
 
-        void SetData(uint32 uiI, uint32 uiValue)
+        void SetData(uint32 uiI, uint32 uiValue) override
         {
             switch (uiI)
             {
@@ -299,9 +286,6 @@ public:
                     NextStep(2000, true);
                     break;
                 case 2:
-                    if (!instance)
-                        return;
-
                     switch (uiValue)
                     {
                         case 1:
@@ -389,7 +373,7 @@ public:
             }
         }
 
-        void UpdateEscortAI(const uint32 uiDiff)
+        void UpdateEscortAI(const uint32 uiDiff) override
         {
             if (uiPhase)
             {
@@ -422,9 +406,8 @@ public:
                             SetInFace(true);
                             Talk(SAY_BLASTMASTER_5);
                             Summon(1);
-                            if (instance)
-                                if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
-                                    instance->HandleGameObject(0, true, go);
+                            if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
+                                instance->HandleGameObject(0, true, go);
                             NextStep(3000, true);
                             break;
                         case 7:
@@ -469,9 +452,8 @@ public:
                         case 16:
                             Talk(SAY_BLASTMASTER_14);
                             SetInFace(false);
-                            if (instance)
-                                if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_LEFT)))
-                                    instance->HandleGameObject(0, true, go);
+                            if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_GO_CAVE_IN_LEFT)))
+                                instance->HandleGameObject(0, true, go);
                             NextStep(2000, true);
                             break;
                         case 17:
@@ -518,7 +500,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustSummoned(Creature* summon)
+        void JustSummoned(Creature* summon) override
         {
             SummonList.push_back(summon->GetGUID());
             AggroAllPlayers(summon);
@@ -532,7 +514,7 @@ class boss_grubbis : public CreatureScript
 public:
     boss_grubbis() : CreatureScript("boss_grubbis") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new boss_grubbisAI(creature);
     }
@@ -554,7 +536,7 @@ public:
                     creature->AI()->SetData(2, 1);
         }
 
-        void UpdateAI(uint32 /*diff*/)
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (!UpdateVictim())
                 return;
@@ -562,7 +544,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             if (!me->IsSummon())
                 return;

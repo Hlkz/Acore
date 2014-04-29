@@ -101,7 +101,7 @@ class instance_zulfarrak : public InstanceMapScript
 public:
     instance_zulfarrak() : InstanceMapScript("instance_zulfarrak", 209) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_zulfarrak_InstanceMapScript(map);
     }
@@ -124,7 +124,7 @@ public:
         uint32 addGroupSize;
         uint32 waypoint;
 
-        void Initialize()
+        void Initialize() override
         {
             GahzRillaEncounter = NOT_STARTED;
             ZumrahGUID = 0;
@@ -141,7 +141,7 @@ public:
             waypoint = 0;
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
@@ -177,7 +177,7 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) override
         {
             switch (go->GetEntry())
             {
@@ -187,7 +187,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const override
         {
             switch (type)
             {
@@ -197,7 +197,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 data) const
+        uint64 GetData64(uint32 data) const override
         {
             switch (data)
             {
@@ -219,7 +219,7 @@ public:
             return 0;
         }
 
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 data) override
         {
             switch (type)
             {

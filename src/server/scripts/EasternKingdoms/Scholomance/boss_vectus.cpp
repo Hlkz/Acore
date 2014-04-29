@@ -44,9 +44,9 @@ class boss_vectus : public CreatureScript
 public:
     boss_vectus() : CreatureScript("boss_vectus") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_vectusAI (creature);
+        return new boss_vectusAI(creature);
     }
 
     struct boss_vectusAI : public ScriptedAI
@@ -57,14 +57,14 @@ public:
         uint32 m_uiBlastWave_Timer;
         uint32 m_uiFrenzy_Timer;
 
-        void Reset()
+        void Reset() override
         {
             m_uiFireShield_Timer = 2000;
             m_uiBlastWave_Timer = 14000;
             m_uiFrenzy_Timer = 0;
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;

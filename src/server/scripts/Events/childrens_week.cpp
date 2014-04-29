@@ -160,7 +160,8 @@ class npc_winterfin_playmate : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) override
+
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -180,8 +181,8 @@ class npc_winterfin_playmate : public CreatureScript
 
                 if (timer <= diff)
                 {
-                    Player* player = Player::GetPlayer(*me, playerGUID);
-                    Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+                    Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGUID);
 
                     if (!orphan || !player)
                     {
@@ -258,7 +259,8 @@ class npc_snowfall_glade_playmate : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) override
+
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -278,8 +280,8 @@ class npc_snowfall_glade_playmate : public CreatureScript
 
                 if (timer <= diff)
                 {
-                    Player* player = Player::GetPlayer(*me, playerGUID);
-                    Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+                    Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGUID);
 
                     if (!orphan || !player)
                     {
@@ -358,7 +360,8 @@ class npc_the_biggest_tree : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) override
+
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -378,8 +381,8 @@ class npc_the_biggest_tree : public CreatureScript
 
                 if (timer <= diff)
                 {
-                    Player* player = Player::GetPlayer(*me, playerGUID);
-                    Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+                    Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGUID);
 
                     if (!orphan || !player)
                     {
@@ -444,7 +447,8 @@ class npc_high_oracle_soo_roo : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) override
+
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -464,8 +468,8 @@ class npc_high_oracle_soo_roo : public CreatureScript
 
                 if (timer <= diff)
                 {
-                    Player* player = Player::GetPlayer(*me, playerGUID);
-                    Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+                    Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGUID);
 
                     if (!orphan || !player)
                     {
@@ -532,7 +536,8 @@ class npc_elder_kekek : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) override
+
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -552,8 +557,8 @@ class npc_elder_kekek : public CreatureScript
 
                 if (timer <= diff)
                 {
-                    Player* player = Player::GetPlayer(*me, playerGUID);
-                    Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+                    Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGUID);
 
                     if (!player || !orphan)
                     {
@@ -620,7 +625,8 @@ class npc_the_etymidian : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) override
+
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -640,8 +646,8 @@ class npc_the_etymidian : public CreatureScript
 
                 if (timer <= diff)
                 {
-                    Player* player = Player::GetPlayer(*me, playerGUID);
-                    Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+                    Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGUID);
 
                     if (!orphan || !player)
                     {
@@ -715,7 +721,7 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
                 orphanGUID = 0;
             }
 
-            void SetData(uint32 type, uint32 data)
+            void SetData(uint32 type, uint32 data) override
             {
                 // Existing SmartAI
                 if (type == 0)
@@ -732,7 +738,8 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
                 }
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) override
+
             {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
@@ -761,8 +768,8 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
 
                 if (timer <= diff)
                 {
-                    Player* player = Player::GetPlayer(*me, playerGUID);
-                    Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+                    Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGUID);
 
                     if (!orphan || !player)
                     {
@@ -926,7 +933,8 @@ class npc_cw_area_trigger : public CreatureScript
                 me->SetDisplayId(DISPLAY_INVISIBLE);
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) override
+
             {
                 if (who && me->GetDistance2d(who) < 20.0f)
                     if (Player* player = who->ToPlayer())
@@ -1022,7 +1030,8 @@ class npc_grizzlemaw_cw_trigger : public CreatureScript
                 me->SetDisplayId(DISPLAY_INVISIBLE);
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who) override
+
             {
                 if (who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())

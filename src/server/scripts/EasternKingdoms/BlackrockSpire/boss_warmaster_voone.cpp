@@ -23,11 +23,11 @@
 enum Spells
 {
     SPELL_SNAPKICK                  = 15618,
-    SPELL_CLEAVE                    = 15579,
+    SPELL_CLEAVE                    = 15284,
     SPELL_UPPERCUT                  = 10966,
     SPELL_MORTALSTRIKE              = 16856,
     SPELL_PUMMEL                    = 15615,
-    SPELL_THROWAXE                  = 16075,
+    SPELL_THROWAXE                  = 16075
 };
 
 enum Events
@@ -37,7 +37,7 @@ enum Events
     EVENT_UPPERCUT                  = 3,
     EVENT_MORTAL_STRIKE             = 4,
     EVENT_PUMMEL                    = 5,
-    EVENT_THROW_AXE                 = 6,
+    EVENT_THROW_AXE                 = 6
 };
 
 class boss_warmaster_voone : public CreatureScript
@@ -45,21 +45,16 @@ class boss_warmaster_voone : public CreatureScript
 public:
     boss_warmaster_voone() : CreatureScript("boss_warmaster_voone") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_warmastervooneAI(creature);
-    }
-
     struct boss_warmastervooneAI : public BossAI
     {
         boss_warmastervooneAI(Creature* creature) : BossAI(creature, DATA_WARMASTER_VOONE) { }
 
-        void Reset()
+        void Reset() override
         {
             _Reset();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             events.ScheduleEvent(EVENT_SNAP_KICK, 8 * IN_MILLISECONDS);
@@ -70,12 +65,12 @@ public:
             events.ScheduleEvent(EVENT_THROW_AXE, 1 * IN_MILLISECONDS);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -119,6 +114,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new boss_warmastervooneAI(creature);
+    }
 };
 
 void AddSC_boss_warmastervoone()

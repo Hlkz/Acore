@@ -78,12 +78,12 @@ class boss_kirtonos_the_herald : public CreatureScript
         {
             boss_kirtonos_the_heraldAI(Creature* creature) : BossAI(creature, DATA_KIRTONOS) { }
 
-            void Reset()
+            void Reset() override
             {
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_SWOOP, urand(8000, 8000));
                 events.ScheduleEvent(EVENT_WING_FLAP, urand(15000, 15000));
@@ -96,7 +96,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                 _EnterCombat();
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_GATE_KIRTONOS)))
                     gate->SetGoState(GO_STATE_ACTIVE);
@@ -108,7 +108,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                 _JustDied();
             }
 
-            void EnterEvadeMode()
+            void EnterEvadeMode() override
             {
                 if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_GATE_KIRTONOS)))
                     gate->SetGoState(GO_STATE_ACTIVE);
@@ -120,7 +120,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                 me->DespawnOrUnsummon(5000);
             }
 
-            void IsSummonedBy(Unit* /*summoner*/)
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 events.ScheduleEvent(INTRO_1, 500);
                 me->SetDisableGravity(true);
@@ -129,12 +129,12 @@ class boss_kirtonos_the_herald : public CreatureScript
                 Talk(EMOTE_SUMMONED);
             }
 
-            void JustSummoned(Creature* summon)
+            void JustSummoned(Creature* summon) override
             {
                 BossAI::JustSummoned(summon);
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 type, uint32 id) override
             {
                 if (type == WAYPOINT_MOTION_TYPE && id == POINT_KIRTONOS_LAND)
                 {
@@ -142,7 +142,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 events.Update(diff);
 
@@ -251,7 +251,7 @@ class boss_kirtonos_the_herald : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<boss_kirtonos_the_heraldAI>(creature);
         }
@@ -277,7 +277,7 @@ class go_brazier_of_the_herald : public GameObjectScript
     public:
         go_brazier_of_the_herald() : GameObjectScript("go_brazier_of_the_herald") { }
 
-        bool OnGossipHello(Player* player, GameObject* go)
+        bool OnGossipHello(Player* player, GameObject* go) override
         {
             go->UseDoorOrButton();
             go->PlayDirectSound(SOUND_SCREECH, 0);

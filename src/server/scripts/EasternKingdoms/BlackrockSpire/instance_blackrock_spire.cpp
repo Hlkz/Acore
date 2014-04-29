@@ -33,7 +33,13 @@ uint32 const DragonspireMobs[3] = { NPC_BLACKHAND_DREADWEAVER, NPC_BLACKHAND_SUM
 enum EventIds
 {
     EVENT_DARGONSPIRE_ROOM_STORE           = 1,
-    EVENT_DARGONSPIRE_ROOM_CHECK           = 2
+    EVENT_DARGONSPIRE_ROOM_CHECK           = 2,
+    EVENT_UROK_DOOMHOWL_SPAWNS_1           = 3,
+    EVENT_UROK_DOOMHOWL_SPAWNS_2           = 4,
+    EVENT_UROK_DOOMHOWL_SPAWNS_3           = 5,
+    EVENT_UROK_DOOMHOWL_SPAWNS_4           = 6,
+    EVENT_UROK_DOOMHOWL_SPAWNS_5           = 7,
+    EVENT_UROK_DOOMHOWL_SPAWN_IN           = 8
 };
 
 class instance_blackrock_spire : public InstanceMapScript
@@ -71,7 +77,7 @@ public:
             memset(go_emberseerrunes, 0, sizeof(go_emberseerrunes));
         }
 
-        void OnCreatureCreate(Creature* creature)
+        void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
@@ -129,7 +135,7 @@ public:
              }
          }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) override
         {
             switch (go->GetEntry())
             {
@@ -236,7 +242,7 @@ public:
             }
         }
 
-        bool SetBossState(uint32 type, EncounterState state)
+        bool SetBossState(uint32 type, EncounterState state) override
         {
             if (!InstanceScript::SetBossState(type, state))
                 return false;
@@ -266,7 +272,7 @@ public:
              return true;
         }
 
-        void ProcessEvent(WorldObject* /*gameObject*/, uint32 eventId)
+        void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override
         {
             switch (eventId)
             {
@@ -277,12 +283,18 @@ public:
                             Emberseer->AI()->SetData(1, 1);
                     }
                     break;
+                case EVENT_UROK_DOOMHOWL:
+                    if (GetBossState(NPC_UROK_DOOMHOWL) == NOT_STARTED)
+                    {
+
+                    }
+                    break;
                 default:
                     break;
             }
         }
 
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 data) override
         {
             switch (type)
             {
@@ -297,114 +309,83 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 type) const
+        uint64 GetData64(uint32 type) const override
         {
             switch (type)
             {
                 case DATA_HIGHLORD_OMOKK:
                     return HighlordOmokk;
-                    break;
                 case DATA_SHADOW_HUNTER_VOSHGAJIN:
                     return ShadowHunterVoshgajin;
-                    break;
                 case DATA_WARMASTER_VOONE:
                     return WarMasterVoone;
-                    break;
                 case DATA_MOTHER_SMOLDERWEB:
                     return MotherSmolderweb;
-                    break;
                 case DATA_UROK_DOOMHOWL:
                     return UrokDoomhowl;
-                    break;
                 case DATA_QUARTERMASTER_ZIGRIS:
                     return QuartermasterZigris;
-                    break;
                 case DATA_GIZRUL_THE_SLAVENER:
                     return GizrultheSlavener;
-                    break;
                 case DATA_HALYCON:
                     return Halycon;
-                    break;
                 case DATA_OVERLORD_WYRMTHALAK:
                     return OverlordWyrmthalak;
-                    break;
                 case DATA_PYROGAURD_EMBERSEER:
                     return PyroguardEmberseer;
-                    break;
                 case DATA_WARCHIEF_REND_BLACKHAND:
                     return WarchiefRendBlackhand;
-                    break;
                 case DATA_GYTH:
                     return Gyth;
-                    break;
                 case DATA_THE_BEAST:
                     return TheBeast;
-                    break;
                 case DATA_GENERAL_DRAKKISATH:
                     return GeneralDrakkisath;
-                    break;
                 case GO_EMBERSEER_IN:
                     return go_emberseerin;
-                    break;
                 case GO_DOORS:
                     return go_doors;
-                    break;
                 case GO_EMBERSEER_OUT:
                     return go_emberseerout;
-                    break;
                 case GO_HALL_RUNE_1:
                     return go_roomrunes[0];
-                    break;
                 case GO_HALL_RUNE_2:
                     return go_roomrunes[1];
-                    break;
                 case GO_HALL_RUNE_3:
                     return go_roomrunes[2];
-                    break;
                 case GO_HALL_RUNE_4:
                     return go_roomrunes[3];
-                    break;
                 case GO_HALL_RUNE_5:
                     return go_roomrunes[4];
-                    break;
                 case GO_HALL_RUNE_6:
                     return go_roomrunes[5];
-                    break;
                 case GO_HALL_RUNE_7:
                     return go_roomrunes[6];
-                    break;
                 case GO_EMBERSEER_RUNE_1:
                     return go_emberseerrunes[0];
-                    break;
                 case GO_EMBERSEER_RUNE_2:
                     return go_emberseerrunes[1];
-                    break;
                 case GO_EMBERSEER_RUNE_3:
                     return go_emberseerrunes[2];
-                    break;
                 case GO_EMBERSEER_RUNE_4:
                     return go_emberseerrunes[3];
-                    break;
                 case GO_EMBERSEER_RUNE_5:
                     return go_emberseerrunes[4];
-                    break;
                 case GO_EMBERSEER_RUNE_6:
                     return go_emberseerrunes[5];
-                    break;
                 case GO_EMBERSEER_RUNE_7:
                     return go_emberseerrunes[6];
-                    break;
                 case GO_PORTCULLIS_ACTIVE:
                     return go_portcullis_active;
-                    break;
                 case GO_PORTCULLIS_TOBOSSROOMS:
                     return go_portcullis_tobossrooms;
+                default:
                     break;
             }
             return 0;
         }
 
-        void Update(uint32 diff)
+        void Update(uint32 diff) override
         {
             Events.Update(diff);
 
@@ -521,7 +502,7 @@ public:
             }
         }
 
-        std::string GetSaveData()
+        std::string GetSaveData() override
         {
             OUT_SAVE_INST_DATA;
 
@@ -532,7 +513,7 @@ public:
             return saveStream.str();
         }
 
-        void Load(const char* strIn)
+        void Load(const char* strIn) override
         {
             if (!strIn)
             {
@@ -567,8 +548,6 @@ public:
 
         protected:
             EventMap Events;
-            uint32 encounter[EncounterCount];
-            std::string m_strInstData;
             uint64 HighlordOmokk;
             uint64 ShadowHunterVoshgajin;
             uint64 WarMasterVoone;
@@ -595,7 +574,7 @@ public:
             uint64 go_portcullis_tobossrooms;
     };
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_blackrock_spireMapScript(map);
     }
@@ -610,7 +589,7 @@ class at_dragonspire_hall : public AreaTriggerScript
 public:
     at_dragonspire_hall() : AreaTriggerScript("at_dragonspire_hall") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
+    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
     {
         if (player && player->IsAlive())
         {
@@ -634,7 +613,7 @@ class at_blackrock_stadium : public AreaTriggerScript
 public:
     at_blackrock_stadium() : AreaTriggerScript("at_blackrock_stadium") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
+    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
     {
         if (player && player->IsAlive())
         {

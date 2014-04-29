@@ -41,7 +41,7 @@ class npc_pet_gen_mojo : public CreatureScript
         {
             npc_pet_gen_mojoAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset()
+            void Reset() override
             {
                 _victimGUID = 0;
 
@@ -49,10 +49,10 @@ class npc_pet_gen_mojo : public CreatureScript
                     me->GetMotionMaster()->MoveFollow(owner, 0.0f, 0.0f);
             }
 
-            void EnterCombat(Unit* /*who*/) { }
-            void UpdateAI(uint32 /*diff*/) { }
+            void EnterCombat(Unit* /*who*/) override { }
+            void UpdateAI(uint32 /*diff*/) override { }
 
-            void ReceiveEmote(Player* player, uint32 emote)
+            void ReceiveEmote(Player* player, uint32 emote) override
             {
                 me->HandleEmoteCommand(emote);
                 Unit* owner = me->GetOwner();
@@ -79,7 +79,7 @@ class npc_pet_gen_mojo : public CreatureScript
             uint64 _victimGUID;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_pet_gen_mojoAI(creature);
         }

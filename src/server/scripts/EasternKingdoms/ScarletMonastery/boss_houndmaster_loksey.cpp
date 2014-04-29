@@ -42,9 +42,9 @@ class boss_houndmaster_loksey : public CreatureScript
 public:
     boss_houndmaster_loksey() : CreatureScript("boss_houndmaster_loksey") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_houndmaster_lokseyAI (creature);
+        return new boss_houndmaster_lokseyAI(creature);
     }
 
     struct boss_houndmaster_lokseyAI : public ScriptedAI
@@ -53,17 +53,17 @@ public:
 
         uint32 BloodLust_Timer;
 
-        void Reset()
+        void Reset() override
         {
             BloodLust_Timer = 20000;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

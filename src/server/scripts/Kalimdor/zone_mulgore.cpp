@@ -55,9 +55,9 @@ class npc_kyle_frenzied : public CreatureScript
 public:
     npc_kyle_frenzied() : CreatureScript("npc_kyle_frenzied") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_kyle_frenziedAI (creature);
+        return new npc_kyle_frenziedAI(creature);
     }
 
     struct npc_kyle_frenziedAI : public ScriptedAI
@@ -70,7 +70,7 @@ public:
         uint32 EventTimer;
         uint8 EventPhase;
 
-        void Reset()
+        void Reset() override
         {
             EventActive = false;
             IsMovingToLunch = false;
@@ -82,7 +82,7 @@ public:
                 me->UpdateEntry(NPC_KYLE_FRENZIED);
         }
 
-        void SpellHit(Unit* Caster, SpellInfo const* Spell)
+        void SpellHit(Unit* Caster, SpellInfo const* Spell) override
         {
             if (!me->GetVictim() && !EventActive && Spell->Id == SPELL_LUNCH)
             {
@@ -102,7 +102,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 Type, uint32 PointId)
+        void MovementInform(uint32 Type, uint32 PointId) override
         {
             if (Type != POINT_MOTION_TYPE || !EventActive)
                 return;
@@ -111,7 +111,7 @@ public:
                 IsMovingToLunch = false;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (EventActive)
             {
@@ -126,7 +126,7 @@ public:
                     switch (EventPhase)
                     {
                         case 1:
-                            if (Unit* unit = Unit::GetUnit(*me, PlayerGUID))
+                            if (Unit* unit = ObjectAccessor::GetUnit(*me, PlayerGUID))
                             {
                                 if (GameObject* go = unit->GetGameObject(SPELL_LUNCH))
                                 {
@@ -140,7 +140,7 @@ public:
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
                             break;
                         case 3:
-                            if (Player* unit = Unit::GetPlayer(*me, PlayerGUID))
+                            if (Player* unit = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                                 unit->TalkedToCreature(me->GetEntry(), me->GetGUID());
 
                             me->UpdateEntry(NPC_KYLE_FRIENDLY);
@@ -228,9 +228,9 @@ class npc_plains_vision : public CreatureScript
 public:
     npc_plains_vision() : CreatureScript("npc_plains_vision") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-          return new npc_plains_visionAI (creature);
+          return new npc_plains_visionAI(creature);
     }
 
     struct npc_plains_visionAI  : public ScriptedAI
@@ -241,16 +241,16 @@ public:
         uint8 WayPointId;
         uint8 amountWP;
 
-        void Reset()
+        void Reset() override
         {
             WayPointId = 0;
             newWaypoint = true;
             amountWP  = 49;
         }
 
-        void EnterCombat(Unit* /*who*/) { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -267,7 +267,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 /*diff*/)
+        void UpdateAI(uint32 /*diff*/) override
         {
             if (newWaypoint)
             {

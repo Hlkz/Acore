@@ -62,7 +62,7 @@ class npc_bunthen_plainswind : public CreatureScript
 public:
     npc_bunthen_plainswind() : CreatureScript("npc_bunthen_plainswind") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -82,7 +82,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (player->getClass() != CLASS_DRUID)
             player->SEND_GOSSIP_MENU(4916, creature->GetGUID());
@@ -121,7 +121,7 @@ class npc_great_bear_spirit : public CreatureScript
 public:
     npc_great_bear_spirit() : CreatureScript("npc_great_bear_spirit") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -149,7 +149,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         //ally or horde quest
         if (player->GetQuestStatus(5929) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(5930) == QUEST_STATUS_INCOMPLETE)
@@ -177,7 +177,7 @@ class npc_silva_filnaveth : public CreatureScript
 public:
     npc_silva_filnaveth() : CreatureScript("npc_silva_filnaveth") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -197,7 +197,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (player->getClass() != CLASS_DRUID)
             player->SEND_GOSSIP_MENU(4913, creature->GetGUID());
@@ -288,9 +288,9 @@ class npc_clintar_spirit : public CreatureScript
 public:
     npc_clintar_spirit() : CreatureScript("npc_clintar_spirit") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_clintar_spiritAI (creature);
+        return new npc_clintar_spiritAI(creature);
     }
 
     struct npc_clintar_spiritAI : public npc_escortAI
@@ -310,7 +310,7 @@ public:
 
         bool EventOnWait;
 
-        void Reset()
+        void Reset() override
         {
             if (!PlayerGUID)
             {
@@ -323,7 +323,7 @@ public:
             }
         }
 
-        void IsSummonedBy(Unit* /*summoner*/)
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             std::list<Player*> playerOnQuestList;
             Trinity::AnyPlayerInObjectRangeCheck checker(me, 5.0f);
@@ -345,12 +345,12 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             if (!PlayerGUID)
                 return;
 
-            Player* player = Unit::GetPlayer(*me, PlayerGUID);
+            Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
             if (player && player->GetQuestStatus(10965) == QUEST_STATUS_INCOMPLETE)
             {
                 player->FailQuest(10965);
@@ -359,9 +359,9 @@ public:
             }
         }
 
-        void EnterEvadeMode()
+        void EnterEvadeMode() override
         {
-            Player* player = Unit::GetPlayer(*me, PlayerGUID);
+            Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
             if (player && player->IsInCombat() && player->getAttackerForHelper())
             {
                 AttackStart(player->getAttackerForHelper());
@@ -384,7 +384,7 @@ public:
             return;
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             npc_escortAI::UpdateAI(diff);
 
@@ -398,7 +398,7 @@ public:
             {
                 if (checkPlayerTimer <= diff)
                 {
-                    Player* player = Unit::GetPlayer(*me, PlayerGUID);
+                    Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
                     if (player && player->IsInCombat() && player->getAttackerForHelper())
                         AttackStart(player->getAttackerForHelper());
                     checkPlayerTimer = 1000;
@@ -407,9 +407,8 @@ public:
 
             if (EventOnWait && EventTimer <= diff)
             {
-
-                Player* player = Unit::GetPlayer(*me, PlayerGUID);
-                if (!player || (player && player->GetQuestStatus(10965) == QUEST_STATUS_NONE))
+                Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
+                if (!player || player->GetQuestStatus(10965) == QUEST_STATUS_NONE)
                 {
                     me->setDeathState(JUST_DIED);
                     return;
@@ -547,7 +546,7 @@ public:
             } else if (EventOnWait) EventTimer -= diff;
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) override
         {
             CurrWP = waypointId;
             EventTimer = 0;
@@ -594,7 +593,7 @@ public:
 
         EventMap events;
 
-        void MovementInform(uint32 type, uint32 pointId)
+        void MovementInform(uint32 type, uint32 pointId) override
         {
             if (type != POINT_MOTION_TYPE)
                 return;
@@ -608,19 +607,19 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*attacker*/)
+        void EnterCombat(Unit* /*attacker*/) override
         {
             events.Reset();
             events.ScheduleEvent(EVENT_CAST_CLEAVE, urand(3000, 5000));
             events.ScheduleEvent(EVENT_CAST_STARFALL, urand(8000, 10000));
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             DoCast(SPELL_OMEN_SUMMON_SPOTLIGHT);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
         {
             if (spell->Id == SPELL_ELUNE_CANDLE)
             {
@@ -631,7 +630,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -655,7 +654,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_omenAI(creature);
     }
@@ -672,13 +671,13 @@ public:
 
         EventMap events;
 
-        void Reset()
+        void Reset() override
         {
             events.Reset();
             events.ScheduleEvent(EVENT_DESPAWN, 5*MINUTE*IN_MILLISECONDS);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -698,7 +697,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_giant_spotlightAI(creature);
     }

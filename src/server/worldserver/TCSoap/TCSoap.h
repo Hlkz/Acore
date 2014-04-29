@@ -29,7 +29,7 @@ class TCSoapRunnable : public ACE_Based::Runnable
     public:
         TCSoapRunnable() : _port(0) { }
 
-        void run();
+        void run() override;
 
         void SetListenArguments(const std::string& host, uint16 port)
         {
@@ -48,7 +48,7 @@ class SOAPCommand
 {
     public:
         SOAPCommand():
-            pendingCommands(0, USYNC_THREAD, "pendingCommands")
+            pendingCommands(0, USYNC_THREAD, "pendingCommands"), m_success(false)
         {
         }
 

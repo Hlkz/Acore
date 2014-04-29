@@ -269,12 +269,17 @@ class Object
 
         // for output helpfull error messages from asserts
         bool PrintIndexError(uint32 index, bool set) const;
-        Object(const Object&);                              // prevent generation copy constructor
-        Object& operator=(Object const&);                   // prevent generation assigment operator
+        Object(Object const& right) = delete;
+        Object& operator=(Object const& right) = delete;
 };
 
 struct Position
 {
+    Position(float x = 0, float y = 0, float z = 0, float o = 0)
+        : m_positionX(x), m_positionY(y), m_positionZ(z), m_orientation(NormalizeOrientation(o)) { }
+
+    Position(const Position &loc) { Relocate(loc); }
+
     struct PositionXYZStreamer
     {
         explicit PositionXYZStreamer(Position& pos) : m_pos(&pos) { }
@@ -500,6 +505,8 @@ template<class T>
 class GridObject
 {
     public:
+        virtual ~GridObject() { }
+
         bool IsInGrid() const { return _gridRef.isValid(); }
         void AddToGrid(GridRefManager<T>& m) { ASSERT(!IsInGrid()); _gridRef.link(&m, (T*)this); }
         void RemoveFromGrid() { ASSERT(IsInGrid()); _gridRef.unlink(); }
@@ -545,7 +552,7 @@ class MapObject
 
     protected:
         MapObject() : _moveState(MAP_OBJECT_CELL_MOVE_NONE)
-        { 
+        {
             _newPosition.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
         }
 

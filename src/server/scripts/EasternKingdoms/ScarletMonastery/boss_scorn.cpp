@@ -39,9 +39,9 @@ class boss_scorn : public CreatureScript
 public:
     boss_scorn() : CreatureScript("boss_scorn") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_scornAI (creature);
+        return new boss_scornAI(creature);
     }
 
     struct boss_scornAI : public ScriptedAI
@@ -53,7 +53,7 @@ public:
         uint32 MindFlay_Timer;
         uint32 FrostNova_Timer;
 
-        void Reset()
+        void Reset() override
         {
             LichSlap_Timer = 45000;
             FrostboltVolley_Timer = 30000;
@@ -61,9 +61,9 @@ public:
             FrostNova_Timer = 30000;
         }
 
-        void EnterCombat(Unit* /*who*/) { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;

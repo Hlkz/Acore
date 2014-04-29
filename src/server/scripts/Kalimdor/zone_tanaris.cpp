@@ -19,14 +19,13 @@
 /* ScriptData
 SDName: Tanaris
 SD%Complete: 80
-SDComment: Quest support: 648, 1560, 2954, 4005, 10277, 10279(Special flight path). Noggenfogger vendor
+SDComment: Quest support: 648, 1560, 2954, 4005, 10277, 10279(Special flight path).
 SDCategory: Tanaris
 EndScriptData */
 
 /* ContentData
 npc_aquementas
 npc_custodian_of_time
-npc_marin_noggenfogger
 npc_steward_of_time
 npc_stone_watcher_of_norgannon
 npc_OOX17
@@ -58,9 +57,9 @@ class npc_aquementas : public CreatureScript
 public:
     npc_aquementas() : CreatureScript("npc_aquementas") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_aquementasAI (creature);
+        return new npc_aquementasAI(creature);
     }
 
     struct npc_aquementasAI : public ScriptedAI
@@ -74,7 +73,7 @@ public:
         uint32 FrostShockTimer;
         uint32 AquaJetTimer;
 
-        void Reset()
+        void Reset() override
         {
             SendItemTimer = 0;
             SwitchFactionTimer = 10000;
@@ -101,12 +100,12 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who) override
         {
             Talk(AGGRO_YELL_AQUE, who);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (isFriendly)
             {
@@ -175,7 +174,7 @@ class npc_custodian_of_time : public CreatureScript
 public:
     npc_custodian_of_time() : CreatureScript("npc_custodian_of_time") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_custodian_of_timeAI(creature);
     }
@@ -184,7 +183,7 @@ public:
     {
         npc_custodian_of_timeAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) override
         {
             if (Player* player = GetPlayerForEscort())
             {
@@ -251,7 +250,8 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
+
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
                 return;
@@ -269,47 +269,14 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) { }
-        void Reset() { }
+        void EnterCombat(Unit* /*who*/) override { }
+        void Reset() override { }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             npc_escortAI::UpdateAI(diff);
         }
     };
-
-};
-
-/*######
-## npc_marin_noggenfogger
-######*/
-
-class npc_marin_noggenfogger : public CreatureScript
-{
-public:
-    npc_marin_noggenfogger() : CreatureScript("npc_marin_noggenfogger") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (creature->IsVendor() && player->GetQuestRewardStatus(2662))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
 
 };
 
@@ -324,7 +291,7 @@ class npc_steward_of_time : public CreatureScript
 public:
     npc_steward_of_time() : CreatureScript("npc_steward_of_time") { }
 
-    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
     {
         if (quest->GetQuestId() == 10279)                      //Quest: To The Master's Lair
             player->CastSpell(player, 34891, true);               //(Flight through Caverns)
@@ -332,7 +299,7 @@ public:
         return false;
     }
 
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
@@ -341,7 +308,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -375,7 +342,7 @@ class npc_stone_watcher_of_norgannon : public CreatureScript
 public:
     npc_stone_watcher_of_norgannon() : CreatureScript("npc_stone_watcher_of_norgannon") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
         switch (action)
@@ -408,7 +375,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -446,7 +413,7 @@ class npc_OOX17 : public CreatureScript
 public:
     npc_OOX17() : CreatureScript("npc_OOX17") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
     {
         if (quest->GetQuestId() == Q_OOX17)
         {
@@ -462,7 +429,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_OOX17AI(creature);
     }
@@ -471,7 +438,7 @@ public:
     {
         npc_OOX17AI(Creature* creature) : npc_escortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) override
         {
             if (Player* player = GetPlayerForEscort())
             {
@@ -499,14 +466,14 @@ public:
             }
         }
 
-        void Reset() { }
+        void Reset() override { }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_OOX_AGGRO);
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) override
         {
             summoned->AI()->AttackStart(me);
         }
@@ -541,7 +508,7 @@ class npc_tooga : public CreatureScript
 public:
     npc_tooga() : CreatureScript("npc_tooga") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
     {
         if (quest->GetQuestId() == QUEST_TOOGA)
         {
@@ -552,7 +519,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_toogaAI(creature);
     }
@@ -567,7 +534,7 @@ public:
 
         uint64 TortaGUID;
 
-        void Reset()
+        void Reset() override
         {
             CheckSpeechTimer = 2500;
             PostEventTimer = 1000;
@@ -576,7 +543,8 @@ public:
             TortaGUID = 0;
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
+
         {
             FollowerAI::MoveInLineOfSight(who);
 
@@ -594,7 +562,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 MotionType, uint32 PointId)
+        void MovementInform(uint32 MotionType, uint32 PointId) override
         {
             FollowerAI::MovementInform(MotionType, PointId);
 
@@ -605,7 +573,7 @@ public:
                 SetFollowComplete();
         }
 
-        void UpdateFollowerAI(uint32 Diff)
+        void UpdateFollowerAI(uint32 Diff) override
         {
             if (!UpdateVictim())
             {
@@ -679,7 +647,6 @@ void AddSC_tanaris()
 {
     new npc_aquementas();
     new npc_custodian_of_time();
-    new npc_marin_noggenfogger();
     new npc_steward_of_time();
     new npc_stone_watcher_of_norgannon();
     new npc_OOX17();
