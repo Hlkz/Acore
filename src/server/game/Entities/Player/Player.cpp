@@ -5773,20 +5773,44 @@ float Player::GetRatingMultiplier(CombatRating cr) const
 {
     switch(cr)
     {
-        case CR_DODGE:
-            return 1.0f/3.0f;
+        case CR_WEAPON_SKILL:
+            break;
         case CR_DEFENSE_SKILL:
             return 0.05f;
+        case CR_DODGE:
+        case CR_PARRY:
+        case CR_BLOCK:
+        case CR_CRIT_MELEE:
+        case CR_CRIT_RANGED:
+        case CR_CRIT_SPELL:
+            return 1.0f/3.0f;
+        case CR_HIT_MELEE:
+        case CR_HIT_RANGED:
+        case CR_HIT_SPELL:
+        case CR_HIT_TAKEN_MELEE:
+        case CR_HIT_TAKEN_RANGED:
+        case CR_HIT_TAKEN_SPELL:
+        case CR_CRIT_TAKEN_MELEE:
+        case CR_CRIT_TAKEN_RANGED:
+        case CR_CRIT_TAKEN_SPELL:
+        case CR_HASTE_MELEE:
+        case CR_HASTE_RANGED:
+        case CR_HASTE_SPELL:
+        case CR_WEAPON_SKILL_MAINHAND:
+        case CR_WEAPON_SKILL_OFFHAND:
+        case CR_WEAPON_SKILL_RANGED:
+        case CR_EXPERTISE:
+        case CR_ARMOR_PENETRATION:
         default:
             break;
     }
+    
+    TCLC("coucou GetRating : %u", cr);
 
     uint8 level = getLevel();
 
     if (level > GT_MAX_LEVEL)
         level = GT_MAX_LEVEL;
-
-    level = 39;
 
     GtCombatRatingsEntry const* Rating = sGtCombatRatingsStore.LookupEntry(cr*GT_MAX_LEVEL+level-1);
     // gtOCTClassCombatRatingScalarStore.dbc starts with 1, CombatRating with zero, so cr+1
@@ -5794,6 +5818,7 @@ float Player::GetRatingMultiplier(CombatRating cr) const
     if (!Rating || !classRating)
         return 1.0f;                                        // By default use minimum coefficient (not must be called)
 
+    TCLC("coucou GetRating---- %f", classRating->ratio / Rating->ratio);
     return classRating->ratio / Rating->ratio;
 }
 
