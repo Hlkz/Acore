@@ -5741,7 +5741,7 @@ float Player::GetMeleeCritFromAgility()
 
 void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing)
 {
-    float dodgeRatio = 0.05f;
+    float dodgeRatio = 1.0f/21.0f;
 
     /// @todo research if talents/effects that increase total agility by x% should increase non-diminishing part
     float base_agility = GetCreateStat(STAT_AGILITY) * m_auraModifiersGroup[UNIT_MOD_STAT_START + STAT_AGILITY][BASE_PCT];
@@ -5771,10 +5771,22 @@ float Player::GetSpellCritFromIntellect()
 
 float Player::GetRatingMultiplier(CombatRating cr) const
 {
+    switch(cr)
+    {
+        case CR_DODGE:
+            return 1.0f/3.0f;
+        case CR_DEFENSE_SKILL:
+            return 0.05f;
+        default:
+            break;
+    }
+
     uint8 level = getLevel();
 
     if (level > GT_MAX_LEVEL)
         level = GT_MAX_LEVEL;
+
+    level = 39;
 
     GtCombatRatingsEntry const* Rating = sGtCombatRatingsStore.LookupEntry(cr*GT_MAX_LEVEL+level-1);
     // gtOCTClassCombatRatingScalarStore.dbc starts with 1, CombatRating with zero, so cr+1

@@ -744,7 +744,8 @@ void Player::UpdateDodgePercentage()
     // Dodge from rating
     diminishing += GetRatingBonusValue(CR_DODGE);
     // Modify value from defense skill
-    diminishing += GetSkillValue(SKILL_DEFENSE) * 0.2f;
+    nondiminishing += GetSkillValue(SKILL_DEFENSE) * 0.05f;
+    diminishing += GetRatingBonusValue(CR_DEFENSE_SKILL);
 
     float value = nondiminishing + diminishing;
     //value = value > 90.0f ? 90.0f : value;
