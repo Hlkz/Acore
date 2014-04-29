@@ -5724,32 +5724,21 @@ uint32 Player::GetShieldBlockValue() const
 
 float Player::GetMeleeCritFromAgility()
 {
-    uint8 level = getLevel();
-    uint32 pclass = getClass();
+    float critPerAgility = 1.0f/14.0f;
 
-    if (level > GT_MAX_LEVEL)
-        level = GT_MAX_LEVEL;
-
-    GtChanceToMeleeCritBaseEntry const* critBase  = sGtChanceToMeleeCritBaseStore.LookupEntry(pclass-1);
-    GtChanceToMeleeCritEntry     const* critRatio = sGtChanceToMeleeCritStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
-    if (critBase == NULL || critRatio == NULL)
-        return 0.0f;
-
-    float crit = critBase->base + GetStat(STAT_AGILITY)*critRatio->ratio;
-    return crit*100.0f;
+    return  5.0f + GetStat(STAT_AGILITY) * critPerAgility;
 }
 
 void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing)
 {
-    float dodgeRatio = 1.0f/21.0f;
+    float dodgePerAgility = 1.0f/21.0f;
 
-    /// @todo research if talents/effects that increase total agility by x% should increase non-diminishing part
     float base_agility = GetCreateStat(STAT_AGILITY) * m_auraModifiersGroup[UNIT_MOD_STAT_START + STAT_AGILITY][BASE_PCT];
     float bonus_agility = GetStat(STAT_AGILITY) - base_agility;
 
     // calculate diminishing (green in char screen) and non-diminishing (white) contribution
-    diminishing = bonus_agility * dodgeRatio;
-    nondiminishing = base_agility * dodgeRatio;
+    diminishing = bonus_agility * dodgePerAgility;
+    nondiminishing = base_agility * dodgePerAgility;
 }
 
 float Player::GetSpellCritFromIntellect()
@@ -5773,7 +5762,7 @@ float Player::GetRatingMultiplier(CombatRating cr) const
 {
     switch(cr)
     {
-        case CR_DEFENSE_SKILL:
+        case CR_DEFENSE_SKILL: // 100 defense give 5% block/dodge/parry
             return 0.05f;
         case CR_DODGE:
         case CR_PARRY:
@@ -5781,28 +5770,31 @@ float Player::GetRatingMultiplier(CombatRating cr) const
         case CR_CRIT_MELEE:
         case CR_CRIT_RANGED:
         case CR_CRIT_SPELL:
-            return 1.0f/3.0f;
+            return 1.0f/3.0f; // 3 rating give 1%
+        case CR_HASTE_MELEE:
+        case CR_HASTE_RANGED:
+        case CR_HASTE_SPELL:
+        case CR_EXPERTISE:
+        case CR_ARMOR_PENETRATION:
+            break;
+
         case CR_HIT_MELEE:
         case CR_HIT_RANGED:
         case CR_HIT_SPELL:
+            return 1.0f;
         case CR_HIT_TAKEN_MELEE:
         case CR_HIT_TAKEN_RANGED:
         case CR_HIT_TAKEN_SPELL:
         case CR_CRIT_TAKEN_MELEE:
         case CR_CRIT_TAKEN_RANGED:
         case CR_CRIT_TAKEN_SPELL:
-        case CR_HASTE_MELEE:
-        case CR_HASTE_RANGED:
-        case CR_HASTE_SPELL:
+        case CR_WEAPON_SKILL:
         case CR_WEAPON_SKILL_MAINHAND:
         case CR_WEAPON_SKILL_OFFHAND:
         case CR_WEAPON_SKILL_RANGED:
-        case CR_EXPERTISE:
-        case CR_ARMOR_PENETRATION:
-
-        case CR_WEAPON_SKILL:
         default:
-            break;
+            TCLC("coucou ERROR unused CombatRating: %u", cr);
+            return 1.0f;
     }
     
     TCLC("coucou GetRating : %u", cr);
