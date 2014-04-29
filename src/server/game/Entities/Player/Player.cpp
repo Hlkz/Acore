@@ -5773,8 +5773,6 @@ float Player::GetRatingMultiplier(CombatRating cr) const
 {
     switch(cr)
     {
-        case CR_WEAPON_SKILL:
-            break;
         case CR_DEFENSE_SKILL:
             return 0.05f;
         case CR_DODGE:
@@ -5801,6 +5799,8 @@ float Player::GetRatingMultiplier(CombatRating cr) const
         case CR_WEAPON_SKILL_RANGED:
         case CR_EXPERTISE:
         case CR_ARMOR_PENETRATION:
+
+        case CR_WEAPON_SKILL:
         default:
             break;
     }
