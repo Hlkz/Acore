@@ -271,21 +271,18 @@ void Player::UpdateArmor()
 
 float Player::GetHealthBonusFromStamina()
 {
-    float stamina = GetStat(STAT_STAMINA);
-    float baseStam = std::min(20.0f, stamina);
-    float moreStam = stamina - baseStam;
+    float healthPerStamina = 10.0f;
 
-    return baseStam + (moreStam*10.0f);
+    float stamina = GetStat(STAT_STAMINA);
+    return stamina * healthPerStamina;
 }
 
 float Player::GetManaBonusFromIntellect()
 {
+    float manaPerIntellect = 10.0f;
+
     float intellect = GetStat(STAT_INTELLECT);
-
-    float baseInt = std::min(20.0f, intellect);
-    float moreInt = intellect - baseInt;
-
-    return baseInt + (moreInt * 15.0f);
+    return intellect * manaPerIntellect;
 }
 
 void Player::UpdateMaxHealth()
@@ -632,6 +629,7 @@ void Player::UpdateBlockPercentage()
     if (CanBlock())
     {
         // Increase from rating
+        GetBlockFromStrength(value);
         value += GetRatingBonusValue(CR_BLOCK);
         // Modify value from defense skill
         value += GetSkillValue(SKILL_DEFENSE) * 0.05f;
@@ -789,8 +787,8 @@ void Player::ApplyHealthRegenBonus(int32 amount, bool apply)
 void Player::UpdateManaRegen()
 {
     float Intellect = GetStat(STAT_INTELLECT);
-    // Mana regen from spirit and intellect
-    float power_regen = sqrt(Intellect) * OCTRegenMPPerSpirit();
+    // Mana regen from spirit
+    float power_regen = 1 + RegenMPPerSpirit();
     // Apply PCT bonus from SPELL_AURA_MOD_POWER_REGEN_PERCENT aura on spirit base regen
     power_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
 
@@ -804,11 +802,7 @@ void Player::UpdateManaRegen()
         power_regen_mp5 += GetStat(Stats((*i)->GetMiscValue())) * (*i)->GetAmount() / 500.0f;
     }
 
-    // Set regen rate in cast state apply only on spirit based regen
-    int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
-    if (modManaRegenInterrupt > 100)
-        modManaRegenInterrupt = 100;
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, power_regen_mp5 + CalculatePct(power_regen, modManaRegenInterrupt));
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, power_regen_mp5 + power_regen);
 
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, power_regen_mp5 + power_regen);
 }

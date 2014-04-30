@@ -2590,20 +2590,14 @@ void Player::RegenerateHealth()
     if (curValue >= maxValue)
         return;
 
-    float HealthIncreaseRate = sWorld->getRate(RATE_HEALTH);
-
-    if (getLevel() < 15)
-        HealthIncreaseRate = sWorld->getRate(RATE_HEALTH) * (2.066f - (getLevel() * 0.066f));
-
-    float addValue = 0.0f;
+    float addValue = RegenHPPerStamina();
 
     // polymorphed case
     if (IsPolymorphed())
         addValue = float(GetMaxHealth()) / 3.0f;
-    // normal regen case (maybe partly in combat case)
-    else if (!IsInCombat() || HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT))
+    // normal regen case
+    else
     {
-        addValue = OCTRegenHPPerSpirit() * HealthIncreaseRate;
         if (!IsInCombat())
         {
             AuraEffectList const& mModHealthRegenPct = GetAuraEffectsByType(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT);
@@ -5729,6 +5723,17 @@ float Player::GetMeleeCritFromAgility()
     return  5.0f + GetStat(STAT_AGILITY) * critPerAgility;
 }
 
+void Player::GetBlockFromStrength(float &value)
+{
+    float blockPerStrenth = 1.0f/21.0f;
+
+    float base_strength = GetCreateStat(STAT_STRENGTH) * m_auraModifiersGroup[UNIT_MOD_STAT_START + STAT_STRENGTH][BASE_PCT];
+    float bonus_strength = GetStat(STAT_STRENGTH) - base_strength;
+
+    // calculate diminishing (green in char screen) and non-diminishing (white) contribution
+    value = bonus_strength * blockPerStrenth + base_strength * blockPerStrenth;
+}
+
 void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing)
 {
     float dodgePerAgility = 1.0f/21.0f;
@@ -5833,46 +5838,16 @@ float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
     return 0.0f;
 }
 
-float Player::OCTRegenHPPerSpirit()
+float Player::RegenHPPerStamina()
 {
-    uint8 level = getLevel();
-    uint32 pclass = getClass();
-
-    if (level > GT_MAX_LEVEL)
-        level = GT_MAX_LEVEL;
-
-    GtOCTRegenHPEntry     const* baseRatio = sGtOCTRegenHPStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
-    GtRegenHPPerSptEntry  const* moreRatio = sGtRegenHPPerSptStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
-    if (baseRatio == NULL || moreRatio == NULL)
-        return 0.0f;
-
-    // Formula from PaperDollFrame script
-    float spirit = GetStat(STAT_SPIRIT);
-    float baseSpirit = spirit;
-    if (baseSpirit > 50)
-        baseSpirit = 50;
-    float moreSpirit = spirit - baseSpirit;
-    float regen = baseSpirit * baseRatio->ratio + moreSpirit * moreRatio->ratio;
-    return regen;
+    float hp5PerStamina = 0.05f;
+    return GetStat(STAT_STAMINA) * hp5PerStamina;
 }
 
-float Player::OCTRegenMPPerSpirit()
+float Player::RegenMPPerSpirit()
 {
-    uint8 level = getLevel();
-    uint32 pclass = getClass();
-
-    if (level > GT_MAX_LEVEL)
-        level = GT_MAX_LEVEL;
-
-//    GtOCTRegenMPEntry     const* baseRatio = sGtOCTRegenMPStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
-    GtRegenMPPerSptEntry  const* moreRatio = sGtRegenMPPerSptStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
-    if (moreRatio == NULL)
-        return 0.0f;
-
-    // Formula get from PaperDollFrame script
-    float spirit    = GetStat(STAT_SPIRIT);
-    float regen     = spirit * moreRatio->ratio;
-    return regen;
+    float hp5PerStamina = 0.05f;
+    return GetStat(STAT_SPIRIT) * hp5PerStamina;
 }
 
 void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)

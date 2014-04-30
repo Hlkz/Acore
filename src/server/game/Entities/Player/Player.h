@@ -1783,9 +1783,6 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 GetSpellByProto(ItemTemplate* proto);
 
-        float GetHealthBonusFromStamina();
-        float GetManaBonusFromIntellect();
-
         bool UpdateStats(Stats stat);
         bool UpdateAllStats();
         void UpdateStatsMod(uint32 type, bool force = false, bool fromdb = true);
@@ -1809,14 +1806,18 @@ class Player : public Unit, public GridObject<Player>
         void UpdateAllRatings();
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage);
-
-        void UpdateDefenseBonusesMod();
-        inline void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true);}
+        
+        float GetHealthBonusFromStamina();
+        float RegenHPPerStamina();
+        void GetBlockFromStrength(float &value);
         float GetMeleeCritFromAgility();
         void GetDodgeFromAgility(float &diminishing, float &nondiminishing);
+        float GetManaBonusFromIntellect();
         float GetSpellCritFromIntellect();
-        float OCTRegenHPPerSpirit();
-        float OCTRegenMPPerSpirit();
+        float RegenMPPerSpirit();
+
+        void UpdateDefenseBonusesMod();
+        inline void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true); }
         float GetRatingMultiplier(CombatRating cr) const;
         float GetRatingBonusValue(CombatRating cr) const;
         uint32 GetBaseSpellPowerBonus() const { return m_baseSpellPower; }
