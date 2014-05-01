@@ -111,6 +111,7 @@ bool Player::UpdateStats(Stats stat)
         case STAT_STRENGTH:
             UpdateShieldBlockValue();
             UpdateBlockPercentage();
+            UpdateRating(CR_ARMOR_PENETRATION);
             break;
         case STAT_AGILITY:
             UpdateArmor();
@@ -282,7 +283,7 @@ float Player::GetStatRatio(uint32 statPerCarac) const
         case ATTACKPOWER_PER_STRENGTH: return 2.0f;
         case BLOCK_PER_STRENGTH: return 1.0f/21.0f;
         case ATTACKSPEED_PER_STRENGTH: return 0.0f; // missing
-        case ARPEN_PER_STRENGTH: return 0.0f; // missing
+        case ARPEN_PER_STRENGTH: return 1.0f/21.0f;
 
         case MELEECRIT_PER_AGILITY: return 1.0f/14.0f;
         case DODGE_PER_AGILITY: return 1.0f/21.0f;
@@ -706,6 +707,7 @@ void Player::UpdateSpellCritChance(uint32 school)
 void Player::UpdateArmorPenetration(int32 amount)
 {
     // Store Rating Value
+    amount += GetStat(STAT_STRENGTH) * GetStatRatio(ARPEN_PER_STRENGTH);
     SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_ARMOR_PENETRATION, amount);
 }
 
