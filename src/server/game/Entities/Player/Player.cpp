@@ -5716,51 +5716,34 @@ uint32 Player::GetShieldBlockValue() const
     return uint32(value);
 }
 
-float Player::GetMeleeCritFromAgility()
+float Player::RegenHPPerStamina()
 {
-    float critPerAgility = 1.0f/14.0f;
-
-    return  5.0f + GetStat(STAT_AGILITY) * critPerAgility;
+    return GetStat(STAT_STAMINA) * GetStatRatio(HP_REGEN_PER_STAMINA);
 }
 
 void Player::GetBlockFromStrength(float &value)
 {
-    float blockPerStrenth = 1.0f/21.0f;
+    value = GetStat(STAT_STRENGTH) * GetStatRatio(BLOCK_PER_STRENGTH);
+}
 
-    float base_strength = GetCreateStat(STAT_STRENGTH) * m_auraModifiersGroup[UNIT_MOD_STAT_START + STAT_STRENGTH][BASE_PCT];
-    float bonus_strength = GetStat(STAT_STRENGTH) - base_strength;
-
-    // calculate diminishing (green in char screen) and non-diminishing (white) contribution
-    value = bonus_strength * blockPerStrenth + base_strength * blockPerStrenth;
+float Player::GetMeleeCritFromAgility()
+{
+    return 5.0f + GetStat(STAT_AGILITY) * GetStatRatio(MELEECRIT_PER_AGILITY);
 }
 
 void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing)
 {
-    float dodgePerAgility = 1.0f/21.0f;
-
-    float base_agility = GetCreateStat(STAT_AGILITY) * m_auraModifiersGroup[UNIT_MOD_STAT_START + STAT_AGILITY][BASE_PCT];
-    float bonus_agility = GetStat(STAT_AGILITY) - base_agility;
-
-    // calculate diminishing (green in char screen) and non-diminishing (white) contribution
-    diminishing = bonus_agility * dodgePerAgility;
-    nondiminishing = base_agility * dodgePerAgility;
+    diminishing = GetStat(STAT_AGILITY) * GetStatRatio(DODGE_PER_AGILITY);
 }
 
 float Player::GetSpellCritFromIntellect()
 {
-    uint8 level = getLevel();
-    uint32 pclass = getClass();
+    return GetStat(STAT_INTELLECT) * GetStatRatio(SPELLCRIT_PER_INTELLECT);
+}
 
-    if (level > GT_MAX_LEVEL)
-        level = GT_MAX_LEVEL;
-
-    GtChanceToSpellCritBaseEntry const* critBase  = sGtChanceToSpellCritBaseStore.LookupEntry(pclass-1);
-    GtChanceToSpellCritEntry     const* critRatio = sGtChanceToSpellCritStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
-    if (critBase == NULL || critRatio == NULL)
-        return 0.0f;
-
-    float crit=critBase->base + GetStat(STAT_INTELLECT)*critRatio->ratio;
-    return crit*100.0f;
+float Player::RegenMPPerSpirit()
+{
+    return GetStat(STAT_SPIRIT) * GetStatRatio(MP_REGEN_PER_SPIRIT);
 }
 
 float Player::GetRatingMultiplier(CombatRating cr) const
@@ -5768,14 +5751,17 @@ float Player::GetRatingMultiplier(CombatRating cr) const
     switch(cr)
     {
         case CR_DEFENSE_SKILL: // 100 defense give 5% block/dodge/parry
-            return 0.05f;
+            return GetStatRatio(PERCENT_PER_DEFENSE);
         case CR_DODGE:
         case CR_PARRY:
         case CR_BLOCK:
         case CR_CRIT_MELEE:
         case CR_CRIT_RANGED:
         case CR_CRIT_SPELL:
-            return 1.0f/3.0f; // 3 rating give 1%
+        case CR_HIT_MELEE:
+        case CR_HIT_RANGED:
+        case CR_HIT_SPELL:
+            return GetStatRatio(PERCENT_PER_RATING); // 3 rating give 1%
         case CR_HASTE_MELEE:
         case CR_HASTE_RANGED:
         case CR_HASTE_SPELL:
@@ -5783,10 +5769,6 @@ float Player::GetRatingMultiplier(CombatRating cr) const
         case CR_ARMOR_PENETRATION:
             break;
 
-        case CR_HIT_MELEE:
-        case CR_HIT_RANGED:
-        case CR_HIT_SPELL:
-            return 1.0f;
         case CR_HIT_TAKEN_MELEE:
         case CR_HIT_TAKEN_RANGED:
         case CR_HIT_TAKEN_SPELL:
@@ -5836,18 +5818,6 @@ float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
             break;
     }
     return 0.0f;
-}
-
-float Player::RegenHPPerStamina()
-{
-    float hp5PerStamina = 0.05f;
-    return GetStat(STAT_STAMINA) * hp5PerStamina;
-}
-
-float Player::RegenMPPerSpirit()
-{
-    float hp5PerStamina = 0.05f;
-    return GetStat(STAT_SPIRIT) * hp5PerStamina;
 }
 
 void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)

@@ -107,7 +107,7 @@ class spell_gen_pet_calculate : public SpellScriptLoader
                 if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
                 {
                     // For others recalculate it from:
-                    float CritSpell = 0.0f;
+                    float CritSpell = 5.0f;
                     // Crit from Intellect
                     CritSpell += owner->GetSpellCritFromIntellect();
                     // Increase crit from SPELL_AURA_MOD_SPELL_CRIT_CHANCE
@@ -673,7 +673,7 @@ public:
             if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
             {
                 // For others recalculate it from:
-                float CritSpell = 0.0f;
+                float CritSpell = 5.0f;
                 // Crit from Intellect
                 CritSpell += owner->GetSpellCritFromIntellect();
                 // Increase crit from SPELL_AURA_MOD_SPELL_CRIT_CHANCE

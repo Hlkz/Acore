@@ -134,6 +134,36 @@ enum StatsModType
     STAT_MOD_TYPE_END       = 7
 };
 
+enum StatPerCarac
+{
+    HP_PER_STAMINA,
+    HP_REGEN_PER_STAMINA,
+    ARMOR_PER_STAMINA,
+
+    ATTACKPOWER_PER_STRENGTH,
+    BLOCK_PER_STRENGTH,
+    ATTACKSPEED_PER_STRENGTH,
+    ARPEN_PER_STRENGTH,
+
+    MELEECRIT_PER_AGILITY,
+    DODGE_PER_AGILITY,
+    ATTACKSPEED_PER_AGILITY,
+    ATTACKPOWER_PER_AGILITY,
+
+    MP_PER_INTELLECT,
+    SPELLPOWER_PER_INTELLECT,
+    SPELLCRIT_PER_INTELLECT,
+    SPELLSPEED_PER_INTELLECT,
+
+    SPELLSPEED_PER_SPIRIT,
+    MP_REGEN_PER_SPIRIT,
+    RESIST_PER_SPIRIT,
+    SPELLPOWER_PER_SPIRIT,
+    
+    PERCENT_PER_RATING,
+    PERCENT_PER_DEFENSE,
+};
+
 // Spell modifier (used for modify other spells)
 struct SpellModifier
 {
@@ -1807,6 +1837,7 @@ class Player : public Unit, public GridObject<Player>
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage);
         
+        float GetStatRatio(uint32 statPerCarac) const;
         float GetHealthBonusFromStamina();
         float RegenHPPerStamina();
         void GetBlockFromStrength(float &value);

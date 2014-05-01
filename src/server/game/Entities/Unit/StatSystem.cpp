@@ -269,20 +269,50 @@ void Player::UpdateArmor()
     UpdateAttackPowerAndDamage();                           // armor dependent auras update for SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR
 }
 
+float Player::GetStatRatio(uint32 statPerCarac) const
+{
+    switch (statPerCarac)
+    {
+        case HP_PER_STAMINA: return 10.0f;
+        case HP_REGEN_PER_STAMINA: return 0.05f;
+        case ARMOR_PER_STAMINA: return 1.0f; // unused
+
+        case ATTACKPOWER_PER_STRENGTH: return 2.0f;
+        case BLOCK_PER_STRENGTH: return 1.0f/21.0f;
+        case ATTACKSPEED_PER_STRENGTH: return 0.0f; // missing
+        case ARPEN_PER_STRENGTH: return 0.0f; // missing
+
+        case MELEECRIT_PER_AGILITY: return 1.0f/14.0f;
+        case DODGE_PER_AGILITY: return 1.0f/21.0f;
+        case ATTACKSPEED_PER_AGILITY: return 0.0f; // missing
+        case ATTACKPOWER_PER_AGILITY: return 2.0f/3.0f;
+
+        case MP_PER_INTELLECT: return 10.0f;
+        case SPELLPOWER_PER_INTELLECT: return 2.0f;
+        case SPELLCRIT_PER_INTELLECT: return 1.0f/14.0f;
+        case SPELLSPEED_PER_INTELLECT: return 0.0f; // missing
+
+        case SPELLSPEED_PER_SPIRIT: return 0.0f; // missing
+        case MP_REGEN_PER_SPIRIT: return 0.05f;
+        case RESIST_PER_SPIRIT: return 0.1f; // unused
+        case SPELLPOWER_PER_SPIRIT: return 1.0f/3.0f;
+
+        case PERCENT_PER_RATING: return 1.0f/3.0f;
+        case PERCENT_PER_DEFENSE: return 0.05f;
+
+        default: break;
+    }
+    return 0.0f;
+}
+
 float Player::GetHealthBonusFromStamina()
 {
-    float healthPerStamina = 10.0f;
-
-    float stamina = GetStat(STAT_STAMINA);
-    return stamina * healthPerStamina;
+    return GetStat(STAT_STAMINA) * GetStatRatio(HP_PER_STAMINA);
 }
 
 float Player::GetManaBonusFromIntellect()
 {
-    float manaPerIntellect = 10.0f;
-
-    float intellect = GetStat(STAT_INTELLECT);
-    return intellect * manaPerIntellect;
+    return GetStat(STAT_INTELLECT) * GetStatRatio(MP_PER_INTELLECT);
 }
 
 void Player::UpdateMaxHealth()
@@ -336,15 +366,6 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
 
         switch (getClass())
         {
-            case CLASS_HUNTER:
-                val2 = level * 2.0f + GetStat(STAT_AGILITY) - 10.0f;
-                break;
-            case CLASS_ROGUE:
-                val2 = level + GetStat(STAT_AGILITY) - 10.0f;
-                break;
-            case CLASS_WARRIOR:
-                val2 = level + GetStat(STAT_AGILITY) - 10.0f;
-                break;
             case CLASS_DRUID:
                 switch (GetShapeshiftForm())
                 {
@@ -352,35 +373,18 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                     case FORM_BEAR:
                     case FORM_DIREBEAR:
                         val2 = 0.0f; break;
-                    default:
-                        val2 = GetStat(STAT_AGILITY) - 10.0f; break;
+                    default: break;
                 }
                 break;
-            default: val2 = GetStat(STAT_AGILITY) - 10.0f; break;
+            default: 
+                val2 = GetStat(STAT_STRENGTH) * GetStatRatio(ATTACKPOWER_PER_STRENGTH) + GetStat(STAT_AGILITY) * GetStatRatio(ATTACKPOWER_PER_AGILITY);
+                break;
         }
     }
     else
     {
         switch (getClass())
         {
-            case CLASS_WARRIOR:
-                val2 = level * 3.0f + GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
-                break;
-            case CLASS_PALADIN:
-                val2 = level * 3.0f + GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
-                break;
-            case CLASS_DEATH_KNIGHT:
-                val2 = level * 3.0f + GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
-                break;
-            case CLASS_ROGUE:
-                val2 = level * 2.0f + GetStat(STAT_STRENGTH) + GetStat(STAT_AGILITY) - 20.0f;
-                break;
-            case CLASS_HUNTER:
-                val2 = level * 2.0f + GetStat(STAT_STRENGTH) + GetStat(STAT_AGILITY) - 20.0f;
-                break;
-            case CLASS_SHAMAN:
-                val2 = level * 2.0f + GetStat(STAT_STRENGTH) + GetStat(STAT_AGILITY) - 20.0f;
-                break;
             case CLASS_DRUID:
             {
                 // Check if Predatory Strikes is skilled
@@ -420,29 +424,23 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                 switch (GetShapeshiftForm())
                 {
                     case FORM_CAT:
-                        val2 = getLevel() * (mLevelMult + 2.0f) + GetStat(STAT_STRENGTH) * 2.0f + GetStat(STAT_AGILITY) - 20.0f + weapon_bonus + m_baseFeralAP;
+                        val2 = GetStat(STAT_STRENGTH) * GetStatRatio(ATTACKPOWER_PER_STRENGTH) + GetStat(STAT_AGILITY) * GetStatRatio(ATTACKPOWER_PER_AGILITY) + weapon_bonus + m_baseFeralAP;
                         break;
                     case FORM_BEAR:
                     case FORM_DIREBEAR:
-                        val2 = getLevel() * (mLevelMult + 3.0f) + GetStat(STAT_STRENGTH) * 2.0f - 20.0f + weapon_bonus + m_baseFeralAP;
+                        val2 = GetStat(STAT_STRENGTH) * GetStatRatio(ATTACKPOWER_PER_STRENGTH) + GetStat(STAT_AGILITY) * GetStatRatio(ATTACKPOWER_PER_AGILITY) + weapon_bonus + m_baseFeralAP;
                         break;
                     case FORM_MOONKIN:
-                        val2 = getLevel() * (mLevelMult + 1.5f) + GetStat(STAT_STRENGTH) * 2.0f - 20.0f + m_baseFeralAP;
+                        val2 = GetStat(STAT_STRENGTH) * GetStatRatio(ATTACKPOWER_PER_STRENGTH) + GetStat(STAT_AGILITY) * GetStatRatio(ATTACKPOWER_PER_AGILITY) + weapon_bonus + m_baseFeralAP;
                         break;
                     default:
-                        val2 = GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
+                        val2 = GetStat(STAT_STRENGTH) * GetStatRatio(ATTACKPOWER_PER_STRENGTH) + GetStat(STAT_AGILITY) * GetStatRatio(ATTACKPOWER_PER_AGILITY);
                         break;
                 }
                 break;
             }
-            case CLASS_MAGE:
-                val2 = GetStat(STAT_STRENGTH) - 10.0f;
-                break;
-            case CLASS_PRIEST:
-                val2 = GetStat(STAT_STRENGTH) - 10.0f;
-                break;
-            case CLASS_WARLOCK:
-                val2 = GetStat(STAT_STRENGTH) - 10.0f;
+            default:
+                val2 = GetStat(STAT_STRENGTH) * GetStatRatio(ATTACKPOWER_PER_STRENGTH) + GetStat(STAT_AGILITY) * GetStatRatio(ATTACKPOWER_PER_AGILITY);
                 break;
         }
     }
@@ -632,7 +630,7 @@ void Player::UpdateBlockPercentage()
         GetBlockFromStrength(value);
         value += GetRatingBonusValue(CR_BLOCK);
         // Modify value from defense skill
-        value += GetSkillValue(SKILL_DEFENSE) * 0.05f;
+        value += GetSkillValue(SKILL_DEFENSE) * GetStatRatio(PERCENT_PER_DEFENSE);
         value += GetRatingBonusValue(CR_DEFENSE_SKILL);
         // Increase from SPELL_AURA_MOD_BLOCK_PERCENT aura
         value += GetTotalAuraModifier(SPELL_AURA_MOD_BLOCK_PERCENT);
@@ -654,7 +652,7 @@ void Player::UpdateParryPercentage()
         // Parry from SPELL_AURA_MOD_PARRY_PERCENT aura
         nondiminishing += GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT);
         // Modify value from defense skill
-        nondiminishing += GetSkillValue(SKILL_DEFENSE) * 0.05f;
+        nondiminishing += GetSkillValue(SKILL_DEFENSE) * GetStatRatio(PERCENT_PER_DEFENSE);
         diminishing += GetRatingBonusValue(CR_DEFENSE_SKILL);
 
         value = nondiminishing + diminishing;
@@ -673,7 +671,7 @@ void Player::UpdateDodgePercentage()
     // Dodge from SPELL_AURA_MOD_DODGE_PERCENT aura
     nondiminishing += GetTotalAuraModifier(SPELL_AURA_MOD_DODGE_PERCENT);
     // Modify value from defense skill
-    nondiminishing += GetSkillValue(SKILL_DEFENSE) * 0.05f;
+    nondiminishing += GetSkillValue(SKILL_DEFENSE) * GetStatRatio(PERCENT_PER_DEFENSE);
     diminishing += GetRatingBonusValue(CR_DEFENSE_SKILL);
 
     float value = nondiminishing + diminishing;
@@ -691,7 +689,7 @@ void Player::UpdateSpellCritChance(uint32 school)
         return;
     }
     // For others recalculate it from:
-    float crit = 0.0f;
+    float crit = 5.0f;
     // Crit from Intellect
     crit += GetSpellCritFromIntellect();
     // Increase crit from SPELL_AURA_MOD_SPELL_CRIT_CHANCE
