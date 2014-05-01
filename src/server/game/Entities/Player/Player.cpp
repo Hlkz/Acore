@@ -5762,11 +5762,12 @@ float Player::GetRatingMultiplier(CombatRating cr) const
         case CR_HIT_RANGED:
         case CR_HIT_SPELL:
             return GetStatRatio(PERCENT_PER_RATING); // 3 rating give 1%
+        case CR_ARMOR_PENETRATION:
+            return 1.0f; // ArPen = ArPen Rating
         case CR_HASTE_MELEE:
         case CR_HASTE_RANGED:
         case CR_HASTE_SPELL:
         case CR_EXPERTISE:
-        case CR_ARMOR_PENETRATION:
             break;
 
         case CR_HIT_TAKEN_MELEE:

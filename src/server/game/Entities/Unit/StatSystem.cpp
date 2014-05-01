@@ -110,6 +110,7 @@ bool Player::UpdateStats(Stats stat)
     {
         case STAT_STRENGTH:
             UpdateShieldBlockValue();
+            UpdateBlockPercentage();
             break;
         case STAT_AGILITY:
             UpdateArmor();
@@ -118,6 +119,7 @@ bool Player::UpdateStats(Stats stat)
             break;
         case STAT_STAMINA:
             UpdateMaxHealth();
+            UpdateArmor();
             break;
         case STAT_INTELLECT:
             UpdateMaxPower(POWER_MANA);
@@ -247,7 +249,7 @@ void Player::UpdateArmor()
 
     float value = GetModifierValue(unitMod, BASE_VALUE);    // base armor (from items)
     value *= GetModifierValue(unitMod, BASE_PCT);           // armor percent from items
-    value += GetStat(STAT_AGILITY) * 2.0f;                  // armor bonus from stats
+    value += GetStat(STAT_STAMINA) * GetStatRatio(ARMOR_PER_STAMINA);   // armor bonus from stats
     value += GetModifierValue(unitMod, TOTAL_VALUE);
 
     //add dynamic flat mods
@@ -275,7 +277,7 @@ float Player::GetStatRatio(uint32 statPerCarac) const
     {
         case HP_PER_STAMINA: return 10.0f;
         case HP_REGEN_PER_STAMINA: return 0.05f;
-        case ARMOR_PER_STAMINA: return 1.0f; // unused
+        case ARMOR_PER_STAMINA: return 1.0f;
 
         case ATTACKPOWER_PER_STRENGTH: return 2.0f;
         case BLOCK_PER_STRENGTH: return 1.0f/21.0f;
@@ -538,12 +540,8 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
 
     if (IsInFeralForm()) // check if player is druid and in cat or bear forms
     {
-        uint8 lvl = getLevel();
-        if (lvl > 60)
-            lvl = 60;
-
-        weaponMinDamage = lvl * 0.85f * attackSpeedMod;
-        weaponMaxDamage = lvl * 1.25f * attackSpeedMod;
+        weaponMinDamage = 0.85f * attackSpeedMod;
+        weaponMaxDamage = 1.25f * attackSpeedMod;
     }
     else if (!CanUseAttackType(attType)) // check if player not in form but still can't use (disarm case)
     {
