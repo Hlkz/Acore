@@ -1487,7 +1487,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
     return std::max<uint32>(damage - damage * (armor / (armor + 1000.0f)), 1);
 }
 
-uint32 Unit::CalcSpellResistance(Unit* victim, SpellSchoolMask schoolMask, SpellInfo const* spellInfo) const
+float Unit::CalcSpellResistance(Unit* victim, SpellSchoolMask schoolMask, SpellInfo const* spellInfo) const
 {
     // Magic damage, check for resists
     if (!(schoolMask & SPELL_SCHOOL_MASK_SPELL))
@@ -1496,16 +1496,6 @@ uint32 Unit::CalcSpellResistance(Unit* victim, SpellSchoolMask schoolMask, Spell
     // Ignore spells that can't be resisted
     if (spellInfo && spellInfo->AttributesEx4 & SPELL_ATTR4_IGNORE_RESISTANCES)
         return 0;
-
-    uint32 const BOSS_LEVEL = 83;
-    uint32 const BOSS_RESISTANCE_CONSTANT = 510;
-    uint32 resistanceConstant = 0;
-    uint8 level = victim->getLevel();
-
-    if (level == BOSS_LEVEL)
-        resistanceConstant = BOSS_RESISTANCE_CONSTANT;
-    else
-        resistanceConstant = level * 5;
 
     int32 baseVictimResistance = victim->GetResistance(schoolMask);
     baseVictimResistance += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_TARGET_RESISTANCE, schoolMask);
@@ -1537,31 +1527,7 @@ uint32 Unit::CalcSpellResistance(Unit* victim, SpellSchoolMask schoolMask, Spell
     if (victimResistance <= 0)
         return 0;
 
-    float averageResist = float(victimResistance) / float(victimResistance + resistanceConstant);
-
-    float discreteResistProbability[11];
-    for (uint32 i = 0; i < 11; ++i)
-    {
-        discreteResistProbability[i] = 0.5f - 2.5f * fabs(0.1f * i - averageResist);
-        if (discreteResistProbability[i] < 0.0f)
-            discreteResistProbability[i] = 0.0f;
-    }
-
-    if (averageResist <= 0.1f)
-    {
-        discreteResistProbability[0] = 1.0f - 7.5f * averageResist;
-        discreteResistProbability[1] = 5.0f * averageResist;
-        discreteResistProbability[2] = 2.5f * averageResist;
-    }
-
-    uint32 resistance = 0;
-    float r = float(rand_norm());
-    float probabilitySum = discreteResistProbability[0];
-
-    while (r >= probabilitySum && resistance < 10)
-        probabilitySum += discreteResistProbability[++resistance];
-
-    return resistance * 10;
+    return 100.0f * float(victimResistance) / float(victimResistance + 100);
 }
 
 void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffectType damagetype, uint32 const damage, uint32* absorb, uint32* resist, SpellInfo const* spellInfo /*= NULL*/)
@@ -1571,7 +1537,7 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
 
     DamageInfo dmgInfo = DamageInfo(this, victim, damage, spellInfo, schoolMask, damagetype);
 
-    uint32 spellResistance = CalcSpellResistance(victim, schoolMask, spellInfo);
+    float spellResistance = CalcSpellResistance(victim, schoolMask, spellInfo);
     dmgInfo.ResistDamage(CalculatePct(damage, spellResistance));
 
     // Ignore Absorption Auras

@@ -233,7 +233,7 @@ void Player::UpdateResistances(uint32 school)
 {
     if (school > SPELL_SCHOOL_NORMAL)
     {
-        float value  = GetTotalAuraModValue(UnitMods(UNIT_MOD_RESISTANCE_START + school));
+        float value  = GetTotalAuraModValue(UnitMods(UNIT_MOD_RESISTANCE_START + school)) + GetStat(STAT_SPIRIT) * GetStatRatio(RESIST_PER_SPIRIT);
         SetResistance(SpellSchools(school), int32(value));
 
         Pet* pet = GetPet();
@@ -297,7 +297,7 @@ float Player::GetStatRatio(uint32 statPerCarac) const
 
         case SPELLSPEED_PER_SPIRIT: return 0.0f; // missing
         case MP_REGEN_PER_SPIRIT: return 0.05f;
-        case RESIST_PER_SPIRIT: return 0.1f; // unused
+        case RESIST_PER_SPIRIT: return 0.1f;
         case SPELLPOWER_PER_SPIRIT: return 1.0f/3.0f;
 
         case PERCENT_PER_RATING: return 1.0f/3.0f;
