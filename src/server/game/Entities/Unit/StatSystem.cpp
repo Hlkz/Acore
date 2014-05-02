@@ -111,12 +111,14 @@ bool Player::UpdateStats(Stats stat)
         case STAT_STRENGTH:
             UpdateBlockPercentage();
             UpdateAllAttackSpeed();
+            UpdateAllAttackTime();
             UpdateRating(CR_ARMOR_PENETRATION);
             break;
         case STAT_AGILITY:
             UpdateAllCritPercentages();
             UpdateDodgePercentage();
             UpdateAllAttackSpeed();
+            UpdateAllAttackTime();
             break;
         case STAT_STAMINA:
             UpdateMaxHealth();
@@ -706,16 +708,29 @@ void Player::UpdateSpellCritChance(uint32 school)
     SetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1 + school, crit);
 }
 
-void Player::UpdateAllAttackSpeed()
+void Player::UpdateAttackTime(WeaponAttackType attType)
 {
-    UpdateAttackSpeed(BASE_ATTACK);
-    UpdateAttackSpeed(OFF_ATTACK);
-    UpdateAttackSpeed(RANGED_ATTACK);
+    SetFloatValue(UNIT_FIELD_BASEATTACKTIME, uint32((float)GetWeaponAttackDelay(BASE_ATTACK) / (m_modAttackSpeedPct[attType] + GetAttackSpeedPctFromStats())));
 }
 
-void Player::UpdateAttackSpeed(WeaponAttackType attType)
+void Player::UpdateAllAttackTime()
 {
-    SetFloatValue(UNIT_FIELD_BASEATTACKTIME, uint32((float)GetWeaponAttackDelay(BASE_ATTACK) / (m_modAttackSpeedPct[attType] + GetAttackSpeedFromStats())));
+    UpdateAttackTime(BASE_ATTACK);
+    UpdateAttackTime(OFF_ATTACK);
+    UpdateAttackTime(RANGED_ATTACK);
+}
+
+void Player::UpdateAttackSpeed(CombatRating cr)
+{
+    float modAttackSpeed = (1.0f / m_modAttackSpeedPct[cr==CR_HASTE_MELEE ? BASE_ATTACK : RANGED_ATTACK] - 1.0f) * 300.0f;
+    int32 rating = modAttackSpeed + GetAttackSpeedFromStats();
+    SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr, rating);
+}
+
+void Player::UpdateAllAttackSpeed()
+{
+    UpdateAttackSpeed(CR_HASTE_MELEE);
+    UpdateAttackSpeed(CR_HASTE_RANGED);
 }
 
 void Player::UpdateSpellSpeed()

@@ -5746,11 +5746,16 @@ float Player::RegenMPPerSpirit()
     return GetStat(STAT_SPIRIT) * GetStatRatio(MP_REGEN_PER_SPIRIT);
 }
 
-float Player::GetAttackSpeedFromStats() const
+int32 Player::GetAttackSpeedFromStats() const
 {
-    float value = float(uint32(GetStat(STAT_STRENGTH) * GetStatRatio(ATTACKSPEED_PER_STRENGTH)));
-    value += float(uint32(GetStat(STAT_AGILITY) * GetStatRatio(ATTACKSPEED_PER_AGILITY)));
-    return value / 100.0f;
+    int32 value = uint32(GetStat(STAT_STRENGTH) * GetStatRatio(ATTACKSPEED_PER_STRENGTH));
+    value += uint32(GetStat(STAT_AGILITY) * GetStatRatio(ATTACKSPEED_PER_AGILITY));
+    return value;
+}
+
+float Player::GetAttackSpeedPctFromStats() const
+{
+    return (int32)GetAttackSpeedFromStats() / 100.0f;
 }
 
 float Player::GetRatingMultiplier(CombatRating cr) const
@@ -5911,6 +5916,7 @@ void Player::UpdateRating(CombatRating cr)
             break;
         case CR_HASTE_MELEE:                                // Implemented in Player::ApplyRatingMod
         case CR_HASTE_RANGED:
+            UpdateAttackSpeed(cr);
             break;
         case CR_HASTE_SPELL:
             UpdateSpellSpeed();
