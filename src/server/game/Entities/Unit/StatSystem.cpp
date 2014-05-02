@@ -715,7 +715,7 @@ void Player::UpdateAllAttackSpeed()
 
 void Player::UpdateAttackSpeed(WeaponAttackType attType)
 {
-    SetFloatValue(UNIT_FIELD_BASEATTACKTIME, GetWeaponAttackDelay(BASE_ATTACK) / (m_modAttackSpeedPct[attType] + GetAttackSpeedFromStats(attType)));
+    SetFloatValue(UNIT_FIELD_BASEATTACKTIME, uint32((float)GetWeaponAttackDelay(BASE_ATTACK) / (m_modAttackSpeedPct[attType] + GetAttackSpeedFromStats(attType))));
 }
 
 void Player::UpdateSpellSpeed()

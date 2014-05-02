@@ -5748,9 +5748,9 @@ float Player::RegenMPPerSpirit()
 
 float Player::GetAttackSpeedFromStats(WeaponAttackType attType) const
 {
-    float value = (float)((uint32)(GetStat(STAT_STRENGTH) * GetStatRatio(ATTACKSPEED_PER_STRENGTH)));
-    value += (float)((uint32)(GetStat(STAT_AGILITY) * GetStatRatio(ATTACKSPEED_PER_AGILITY)));
-    return value/100.0f;
+    float value = float(uint32(GetStat(STAT_STRENGTH) * GetStatRatio(ATTACKSPEED_PER_STRENGTH)));
+    value += float(uint32(GetStat(STAT_AGILITY) * GetStatRatio(ATTACKSPEED_PER_AGILITY)));
+    return value / 100.0f;
 }
 
 float Player::GetRatingMultiplier(CombatRating cr) const

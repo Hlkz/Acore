@@ -14531,7 +14531,7 @@ void Unit::SetAttackTime(WeaponAttackType attType, uint32 val)
 {
     if (GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->SetWeaponAttackDelay(attType, val);
-    SetFloatValue(UNIT_FIELD_BASEATTACKTIME+attType, val*(m_modAttackSpeedPct[attType] + (GetTypeId() == TYPEID_PLAYER ? ToPlayer()->GetAttackSpeedFromStats(attType) : 0.0f)));
+    SetFloatValue(UNIT_FIELD_BASEATTACKTIME+attType, uint32(val / (m_modAttackSpeedPct[attType] + (GetTypeId()==TYPEID_PLAYER ? ToPlayer()->GetAttackSpeedFromStats(attType) : 0.0f))));
 }
 
 void Unit::ApplyAttackTimePercentMod(WeaponAttackType attType, float val, bool apply)
