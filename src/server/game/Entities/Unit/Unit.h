@@ -448,6 +448,7 @@ enum UnitMods
     UNIT_MOD_DAMAGE_MAINHAND,
     UNIT_MOD_DAMAGE_OFFHAND,
     UNIT_MOD_DAMAGE_RANGED,
+    UNIT_MOD_SPELL_SPEED,
     UNIT_MOD_END,
     // synonyms
     UNIT_MOD_STAT_START = UNIT_MOD_STAT_STRENGTH,
@@ -1303,10 +1304,10 @@ class Unit : public WorldObject
 
         virtual void Update(uint32 time);
 
-        void setAttackTimer(WeaponAttackType type, uint32 time) { m_attackTimer[type] = time; }
-        void resetAttackTimer(WeaponAttackType type = BASE_ATTACK);
-        uint32 getAttackTimer(WeaponAttackType type) const { return m_attackTimer[type]; }
-        bool isAttackReady(WeaponAttackType type = BASE_ATTACK) const { return m_attackTimer[type] == 0; }
+        void setAttackTimer(WeaponAttackType attType, uint32 time) { m_attackTimer[attType] = time; }
+        void resetAttackTimer(WeaponAttackType attType = BASE_ATTACK);
+        uint32 getAttackTimer(WeaponAttackType attType) const { return m_attackTimer[attType]; }
+        bool isAttackReady(WeaponAttackType attType = BASE_ATTACK) const { return m_attackTimer[attType] == 0; }
         bool haveOffhandWeapon() const;
         bool CanDualWield() const { return m_canDualWield; }
         virtual void SetCanDualWield(bool value) { m_canDualWield = value; }
@@ -1396,9 +1397,9 @@ class Unit : public WorldObject
         int32 ModifyPower(Powers power, int32 val);
         int32 ModifyPowerPct(Powers power, float pct, bool apply = true);
 
-        uint32 GetAttackTime(WeaponAttackType att) const;
-        void SetAttackTime(WeaponAttackType att, uint32 val) { SetFloatValue(UNIT_FIELD_BASEATTACKTIME+att, val*m_modAttackSpeedPct[att]); }
-        void ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply);
+        uint32 GetAttackTime(WeaponAttackType attType) const;
+        void SetAttackTime(WeaponAttackType attType, uint32 val);
+        void ApplyAttackTimePercentMod(WeaponAttackType attType, float val, bool apply);
         void ApplyCastTimePercentMod(float val, bool apply);
 
         SheathState GetSheath() const { return SheathState(GetByteValue(UNIT_FIELD_BYTES_2, 0)); }

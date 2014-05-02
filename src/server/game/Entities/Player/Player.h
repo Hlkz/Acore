@@ -155,11 +155,11 @@ enum StatPerCarac
     SPELLCRIT_PER_INTELLECT,
     SPELLSPEED_PER_INTELLECT,
 
-    SPELLSPEED_PER_SPIRIT,
     MP_REGEN_PER_SPIRIT,
+    SPELLSPEED_PER_SPIRIT,
     RESIST_PER_SPIRIT,
     SPELLPOWER_PER_SPIRIT,
-    
+
     PERCENT_PER_RATING,
     PERCENT_PER_DEFENSE,
 };
@@ -1846,6 +1846,7 @@ class Player : public Unit, public GridObject<Player>
         float GetManaBonusFromIntellect();
         float GetSpellCritFromIntellect();
         float RegenMPPerSpirit();
+        float GetAttackSpeedFromStats(WeaponAttackType attType) const;
 
         void UpdateDefenseBonusesMod();
         inline void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true); }
@@ -1853,6 +1854,8 @@ class Player : public Unit, public GridObject<Player>
         float GetRatingBonusValue(CombatRating cr) const;
         uint32 GetBaseSpellPowerBonus() const { return m_baseSpellPower; }
         int32 GetSpellPenetrationItemMod() const { return m_spellPenetrationItemMod; }
+        void SetWeaponAttackDelay(WeaponAttackType attType, uint32 delay) { m_weaponAttackDelay[attType] = delay; }
+        uint32 GetWeaponAttackDelay(WeaponAttackType attType) { return m_weaponAttackDelay[attType]; }
 
         float GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const;
         void UpdateBlockPercentage();
@@ -1863,6 +1866,10 @@ class Player : public Unit, public GridObject<Player>
         void UpdateMeleeHitChances();
         void UpdateRangedHitChances();
         void UpdateSpellHitChances();
+
+        void UpdateAllAttackSpeed();
+        void UpdateAttackSpeed(WeaponAttackType attType);
+        void UpdateSpellSpeed();
 
         void UpdateAllSpellCritChances();
         void UpdateSpellCritChance(uint32 school);
@@ -2578,6 +2585,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_baseManaRegen;
         uint32 m_baseHealthRegen;
         int32 m_spellPenetrationItemMod;
+        uint32 m_weaponAttackDelay[MAX_ATTACK];
 
         SpellModList m_spellMods[MAX_SPELLMOD];
 

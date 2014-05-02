@@ -5746,6 +5746,13 @@ float Player::RegenMPPerSpirit()
     return GetStat(STAT_SPIRIT) * GetStatRatio(MP_REGEN_PER_SPIRIT);
 }
 
+float Player::GetAttackSpeedFromStats(WeaponAttackType attType) const
+{
+    float value = (float)((uint32)(GetStat(STAT_STRENGTH) * GetStatRatio(ATTACKSPEED_PER_STRENGTH)));
+    value += (float)((uint32)(GetStat(STAT_AGILITY) * GetStatRatio(ATTACKSPEED_PER_AGILITY)));
+    return value/100.0f;
+}
+
 float Player::GetRatingMultiplier(CombatRating cr) const
 {
     switch(cr)
@@ -5761,13 +5768,12 @@ float Player::GetRatingMultiplier(CombatRating cr) const
         case CR_HIT_MELEE:
         case CR_HIT_RANGED:
         case CR_HIT_SPELL:
-            return GetStatRatio(PERCENT_PER_RATING); // 3 rating give 1%
-        case CR_ARMOR_PENETRATION:
-            return 1.0f; // ArPen = ArPen Rating
         case CR_HASTE_MELEE:
         case CR_HASTE_RANGED:
         case CR_HASTE_SPELL:
-        case CR_EXPERTISE:
+            return GetStatRatio(PERCENT_PER_RATING); // 3 rating give 1%
+        case CR_ARMOR_PENETRATION:
+            return 1.0f; // ArPen = ArPen Rating
             break;
 
         case CR_HIT_TAKEN_MELEE:
@@ -5780,26 +5786,11 @@ float Player::GetRatingMultiplier(CombatRating cr) const
         case CR_WEAPON_SKILL_MAINHAND:
         case CR_WEAPON_SKILL_OFFHAND:
         case CR_WEAPON_SKILL_RANGED:
+        case CR_EXPERTISE:
         default:
-            TCLC("coucou ERROR unused CombatRating: %u", cr);
-            return 1.0f;
+            break;
     }
-    
-    TCLC("coucou GetRating : %u", cr);
-
-    uint8 level = getLevel();
-
-    if (level > GT_MAX_LEVEL)
-        level = GT_MAX_LEVEL;
-
-    GtCombatRatingsEntry const* Rating = sGtCombatRatingsStore.LookupEntry(cr*GT_MAX_LEVEL+level-1);
-    // gtOCTClassCombatRatingScalarStore.dbc starts with 1, CombatRating with zero, so cr+1
-    GtOCTClassCombatRatingScalarEntry const* classRating = sGtOCTClassCombatRatingScalarStore.LookupEntry((getClass()-1)*GT_MAX_RATING+cr+1);
-    if (!Rating || !classRating)
-        return 1.0f;                                        // By default use minimum coefficient (not must be called)
-
-    TCLC("coucou GetRating---- %f", classRating->ratio / Rating->ratio);
-    return classRating->ratio / Rating->ratio;
+    return 0.0f;
 }
 
 float Player::GetRatingBonusValue(CombatRating cr) const
@@ -5843,8 +5834,7 @@ void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
         }
         case CR_HASTE_SPELL:
         {
-            float RatingChange = value * GetRatingMultiplier(cr);
-            ApplyCastTimePercentMod(RatingChange, apply);
+            HandleStatModifier(UNIT_MOD_SPELL_SPEED, TOTAL_VALUE, value, apply);
             break;
         }
         default:
@@ -5865,6 +5855,7 @@ void Player::UpdateRating(CombatRating cr)
             amount += int32(CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount()));
     if (amount < 0)
         amount = 0;
+
     SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr, uint32(amount));
 
     bool affectStats = CanModifyStats();
@@ -5920,7 +5911,9 @@ void Player::UpdateRating(CombatRating cr)
             break;
         case CR_HASTE_MELEE:                                // Implemented in Player::ApplyRatingMod
         case CR_HASTE_RANGED:
+            break;
         case CR_HASTE_SPELL:
+            UpdateSpellSpeed();
             break;
         case CR_WEAPON_SKILL_MAINHAND:                      // Implemented in Unit::RollMeleeOutcomeAgainst
         case CR_WEAPON_SKILL_OFFHAND:

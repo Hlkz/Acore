@@ -431,9 +431,9 @@ void Unit::DisableSpline()
     movespline->_Interrupt();
 }
 
-void Unit::resetAttackTimer(WeaponAttackType type)
+void Unit::resetAttackTimer(WeaponAttackType attType)
 {
-    m_attackTimer[type] = uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]);
+    m_attackTimer[attType] = uint32(GetAttackTime(attType) * (m_modAttackSpeedPct[attType] + (GetTypeId() == TYPEID_PLAYER ? ToPlayer()->GetAttackSpeedFromStats(attType) : 0.0f)));
 }
 
 float Unit::GetMeleeReach() const
@@ -11958,9 +11958,9 @@ int32 Unit::ModifyPowerPct(Powers power, float pct, bool apply)
     return ModifyPower(power, (int32)amount - (int32)GetMaxPower(power));
 }
 
-uint32 Unit::GetAttackTime(WeaponAttackType att) const
+uint32 Unit::GetAttackTime(WeaponAttackType attType) const
 {
-    float f_BaseAttackTime = GetFloatValue(UNIT_FIELD_BASEATTACKTIME+att) / m_modAttackSpeedPct[att];
+    float f_BaseAttackTime = GetFloatValue(UNIT_FIELD_BASEATTACKTIME+attType) / (m_modAttackSpeedPct[attType] + (GetTypeId() == TYPEID_PLAYER ? ToPlayer()->GetAttackSpeedFromStats(attType) : 0.0f));
     return (uint32)f_BaseAttackTime;
 }
 
@@ -14527,20 +14527,29 @@ Unit* Unit::SelectNearbyTarget(Unit* exclude, float dist) const
     return Trinity::Containers::SelectRandomContainerElement(targets);
 }
 
-void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply)
+void Unit::SetAttackTime(WeaponAttackType attType, uint32 val)
 {
-    float remainingTimePct = (float)m_attackTimer[att] / (GetAttackTime(att) * m_modAttackSpeedPct[att]);
+    if (GetTypeId() == TYPEID_PLAYER)
+        ToPlayer()->SetWeaponAttackDelay(attType, val);
+    SetFloatValue(UNIT_FIELD_BASEATTACKTIME+attType, val*(m_modAttackSpeedPct[attType] + (GetTypeId() == TYPEID_PLAYER ? ToPlayer()->GetAttackSpeedFromStats(attType) : 0.0f)));
+}
+
+void Unit::ApplyAttackTimePercentMod(WeaponAttackType attType, float val, bool apply)
+{
+    float pctFromStats = GetTypeId() == TYPEID_PLAYER ? ToPlayer()->GetAttackSpeedFromStats(attType) : 0.0f;
+    float remainingTimePct = (float)m_attackTimer[attType] / (GetAttackTime(attType) * (m_modAttackSpeedPct[attType] + pctFromStats));
+
     if (val > 0)
     {
-        ApplyPercentModFloatVar(m_modAttackSpeedPct[att], val, !apply);
-        ApplyPercentModFloatValue(UNIT_FIELD_BASEATTACKTIME+att, val, !apply);
+        ApplyPercentModFloatVar(m_modAttackSpeedPct[attType], val, !apply);
+        ApplyPercentModFloatValue(UNIT_FIELD_BASEATTACKTIME+attType, val, !apply);
     }
     else
     {
-        ApplyPercentModFloatVar(m_modAttackSpeedPct[att], -val, apply);
-        ApplyPercentModFloatValue(UNIT_FIELD_BASEATTACKTIME+att, -val, apply);
+        ApplyPercentModFloatVar(m_modAttackSpeedPct[attType], -val, apply);
+        ApplyPercentModFloatValue(UNIT_FIELD_BASEATTACKTIME+attType, -val, apply);
     }
-    m_attackTimer[att] = uint32(GetAttackTime(att) * m_modAttackSpeedPct[att] * remainingTimePct);
+    m_attackTimer[attType] = uint32(GetAttackTime(attType) * (m_modAttackSpeedPct[attType] + pctFromStats) * remainingTimePct);
 }
 
 void Unit::ApplyCastTimePercentMod(float val, bool apply)

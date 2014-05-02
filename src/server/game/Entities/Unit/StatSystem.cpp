@@ -109,14 +109,14 @@ bool Player::UpdateStats(Stats stat)
     switch (stat)
     {
         case STAT_STRENGTH:
-            UpdateShieldBlockValue();
             UpdateBlockPercentage();
+            UpdateAllAttackSpeed();
             UpdateRating(CR_ARMOR_PENETRATION);
             break;
         case STAT_AGILITY:
-            UpdateArmor();
             UpdateAllCritPercentages();
             UpdateDodgePercentage();
+            UpdateAllAttackSpeed();
             break;
         case STAT_STAMINA:
             UpdateMaxHealth();
@@ -125,9 +125,11 @@ bool Player::UpdateStats(Stats stat)
         case STAT_INTELLECT:
             UpdateMaxPower(POWER_MANA);
             UpdateAllSpellCritChances();
+            UpdateSpellSpeed();
             UpdateArmor();                                  //SPELL_AURA_MOD_RESISTANCE_OF_INTELLECT_PERCENT, only armor currently
             break;
         case STAT_SPIRIT:
+            UpdateSpellSpeed();
             break;
         default:
             break;
@@ -282,21 +284,21 @@ float Player::GetStatRatio(uint32 statPerCarac) const
 
         case ATTACKPOWER_PER_STRENGTH: return 2.0f;
         case BLOCK_PER_STRENGTH: return 1.0f/21.0f;
-        case ATTACKSPEED_PER_STRENGTH: return 0.0f; // missing
+        case ATTACKSPEED_PER_STRENGTH: return 1.0f/21.0f;
         case ARPEN_PER_STRENGTH: return 1.0f/21.0f;
 
         case MELEECRIT_PER_AGILITY: return 1.0f/14.0f;
         case DODGE_PER_AGILITY: return 1.0f/21.0f;
-        case ATTACKSPEED_PER_AGILITY: return 0.0f; // missing
+        case ATTACKSPEED_PER_AGILITY: return 1.0f/21.0f;
         case ATTACKPOWER_PER_AGILITY: return 2.0f/3.0f;
 
         case MP_PER_INTELLECT: return 10.0f;
         case SPELLPOWER_PER_INTELLECT: return 2.0f;
         case SPELLCRIT_PER_INTELLECT: return 1.0f/14.0f;
-        case SPELLSPEED_PER_INTELLECT: return 0.0f; // missing
+        case SPELLSPEED_PER_INTELLECT: return 1.0f/28.0f;
 
-        case SPELLSPEED_PER_SPIRIT: return 0.0f; // missing
         case MP_REGEN_PER_SPIRIT: return 0.05f;
+        case SPELLSPEED_PER_SPIRIT: return 1.0f/14.0f;
         case RESIST_PER_SPIRIT: return 0.1f;
         case SPELLPOWER_PER_SPIRIT: return 1.0f/3.0f;
 
@@ -702,6 +704,30 @@ void Player::UpdateSpellCritChance(uint32 school)
 
     // Store crit value
     SetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1 + school, crit);
+}
+
+void Player::UpdateAllAttackSpeed()
+{
+    UpdateAttackSpeed(BASE_ATTACK);
+    UpdateAttackSpeed(OFF_ATTACK);
+    UpdateAttackSpeed(RANGED_ATTACK);
+}
+
+void Player::UpdateAttackSpeed(WeaponAttackType attType)
+{
+    SetFloatValue(UNIT_FIELD_BASEATTACKTIME, GetWeaponAttackDelay(BASE_ATTACK) / (m_modAttackSpeedPct[attType] + GetAttackSpeedFromStats(attType)));
+}
+
+void Player::UpdateSpellSpeed()
+{
+    int32 rating = GetModifierValue(UNIT_MOD_SPELL_SPEED, TOTAL_VALUE);
+    rating += GetStat(STAT_INTELLECT) * GetStatRatio(SPELLSPEED_PER_INTELLECT);
+    rating += GetStat(STAT_SPIRIT) * GetStatRatio(SPELLSPEED_PER_SPIRIT);
+    float pct = rating * GetRatingMultiplier(CR_HASTE_SPELL);
+    float spbi = 1.0f + (pct/100.0f);
+    float value = 1.0f / spbi;
+    SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_HASTE_SPELL, rating);
+    SetFloatValue(UNIT_MOD_CAST_SPEED, value);
 }
 
 void Player::UpdateArmorPenetration(int32 amount)
