@@ -1846,7 +1846,7 @@ class Player : public Unit, public GridObject<Player>
         float GetManaBonusFromIntellect();
         float GetSpellCritFromIntellect();
         float RegenMPPerSpirit();
-        float GetAttackSpeedFromStats(WeaponAttackType attType) const;
+        float GetAttackSpeedFromStats() const;
 
         void UpdateDefenseBonusesMod();
         inline void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true); }

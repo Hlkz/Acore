@@ -433,7 +433,7 @@ void Unit::DisableSpline()
 
 void Unit::resetAttackTimer(WeaponAttackType attType)
 {
-    m_attackTimer[attType] = uint32(GetAttackTime(attType) * (m_modAttackSpeedPct[attType] + (GetTypeId() == TYPEID_PLAYER ? ToPlayer()->GetAttackSpeedFromStats(attType) : 0.0f)));
+    m_attackTimer[attType] = uint32(GetAttackTime(attType) * (m_modAttackSpeedPct[attType] + (GetTypeId() == TYPEID_PLAYER ? ToPlayer()->GetAttackSpeedFromStats() : 0.0f)));
 }
 
 float Unit::GetMeleeReach() const
@@ -11960,7 +11960,7 @@ int32 Unit::ModifyPowerPct(Powers power, float pct, bool apply)
 
 uint32 Unit::GetAttackTime(WeaponAttackType attType) const
 {
-    float f_BaseAttackTime = GetFloatValue(UNIT_FIELD_BASEATTACKTIME+attType) / (m_modAttackSpeedPct[attType] + (GetTypeId() == TYPEID_PLAYER ? ToPlayer()->GetAttackSpeedFromStats(attType) : 0.0f));
+    float f_BaseAttackTime = GetFloatValue(UNIT_FIELD_BASEATTACKTIME+attType) / (m_modAttackSpeedPct[attType] + (GetTypeId() == TYPEID_PLAYER ? ToPlayer()->GetAttackSpeedFromStats() : 0.0f));
     return (uint32)f_BaseAttackTime;
 }
 
@@ -14531,12 +14531,12 @@ void Unit::SetAttackTime(WeaponAttackType attType, uint32 val)
 {
     if (GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->SetWeaponAttackDelay(attType, val);
-    SetFloatValue(UNIT_FIELD_BASEATTACKTIME+attType, uint32(val / (m_modAttackSpeedPct[attType] + (GetTypeId()==TYPEID_PLAYER ? ToPlayer()->GetAttackSpeedFromStats(attType) : 0.0f))));
+    SetFloatValue(UNIT_FIELD_BASEATTACKTIME+attType, uint32(val / (m_modAttackSpeedPct[attType] + (GetTypeId()==TYPEID_PLAYER ? ToPlayer()->GetAttackSpeedFromStats() : 0.0f))));
 }
 
 void Unit::ApplyAttackTimePercentMod(WeaponAttackType attType, float val, bool apply)
 {
-    float pctFromStats = GetTypeId() == TYPEID_PLAYER ? ToPlayer()->GetAttackSpeedFromStats(attType) : 0.0f;
+    float pctFromStats = GetTypeId() == TYPEID_PLAYER ? ToPlayer()->GetAttackSpeedFromStats() : 0.0f;
     float remainingTimePct = (float)m_attackTimer[attType] / (GetAttackTime(attType) * (m_modAttackSpeedPct[attType] + pctFromStats));
 
     if (val > 0)
