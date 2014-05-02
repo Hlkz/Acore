@@ -21,6 +21,7 @@
 #include "DatabaseEnv.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "Util.h"
 #include "SHA1.h"
 #include "WorldSession.h"
@@ -165,10 +166,16 @@ AccountOpResult AccountMgr::ChangePassword(uint32 accountId, std::string newPass
     std::string username;
 
     if (!GetName(accountId, username))
+    {
+        sScriptMgr->OnFailedPasswordChange(accountId);
         return AOR_NAME_NOT_EXIST;                          // account doesn't exist
+    }
 
     if (utf8length(newPassword) > MAX_ACCOUNT_STR)
+    {
+        sScriptMgr->OnFailedPasswordChange(accountId);
         return AOR_PASS_TOO_LONG;
+    }
 
     normalizeString(username);
     normalizeString(newPassword);
@@ -188,6 +195,7 @@ AccountOpResult AccountMgr::ChangePassword(uint32 accountId, std::string newPass
 
     LoginDatabase.Execute(stmt);
 
+    sScriptMgr->OnPasswordChange(accountId);
     return AOR_OK;
 }
 

@@ -36,7 +36,7 @@ class LFGPlayerScript : public PlayerScript
 
         // Player Hooks
         void OnLogout(Player* player);
-        void OnLogin(Player* player, bool loginFirst);
+        void OnLogin(Player* player);
         void OnMapChanged(Player* player);
 };
 

@@ -961,10 +961,10 @@ class WorldSession
         // characters who failed on Player::BuildEnumData shouldn't login
         std::set<uint32> _legitCharacters;
 
-        uint32 m_GUIDLow;                                   // set loggined or recently logout player (while m_playerRecentlyLogout set)
+        uint32 m_GUIDLow;                                   // set logined or recently logout player (while m_playerRecentlyLogout set)
         Player* _player;
         WorldSocket* m_Socket;
-        std::string m_Address;
+        std::string m_Address;                              // Current Remote Address
 
         AccountTypes _security;
         uint32 _accountId;
