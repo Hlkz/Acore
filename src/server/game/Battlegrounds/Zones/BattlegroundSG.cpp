@@ -60,7 +60,7 @@ public:
 
     struct npc_iwp_creepAI : public npc_escortAI
     {
-        npc_iwp_creep::npc_iwp_creepAI(Creature* creature) : npc_escortAI(creature)
+        npc_iwp_creepAI(Creature* creature) : npc_escortAI(creature)
         {
             m_go = false;
             SetDespawnAtEnd(false);

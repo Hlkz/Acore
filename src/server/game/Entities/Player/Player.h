@@ -130,7 +130,7 @@ enum StatsModType
     STAT_MOD_TYPE_BAO       = 3,
     STAT_MOD_TYPE_SAO       = 4,
     STAT_MOD_TYPE_BG_BA     = 5,
-    STAT_MOD_TYPE_BG_IWP    = 6,
+    STAT_MOD_TYPE_BG_SG    = 6,
     STAT_MOD_TYPE_END       = 7
 };
 

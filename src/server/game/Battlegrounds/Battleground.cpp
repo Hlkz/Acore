@@ -1933,7 +1933,7 @@ bool Battleground::CheckAchievementCriteriaMeet(uint32 criteriaId, Player const*
 
 void Battleground::SetPlayerReady(uint64 guid)
 {
-    if (Player* player = ObjectAccessor::FindPlayer(guid))
+    if (ObjectAccessor::FindPlayer(guid))
     {
         if (m_Players[guid].Ready == 1 || GetStartDelayTime() < 0)
             return;
