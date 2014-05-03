@@ -17,11 +17,13 @@ class NodeMgr
         ~NodeMgr();
 
     public:
-        uint32 NodeMgr::GetPath(uint32 id, uint32 relation);
+        void Update(uint32 diff);
+        Node* GetNodeById(uint32 id);
+        uint32 GetPath(uint32 id, uint32 relation);
 
     private:
         NodeMap mNodes;
-	
+
 };
 
 #define sNodeMgr ACE_Singleton<NodeMgr, ACE_Null_Mutex>::instance()

@@ -5,6 +5,21 @@ NodeMgr::NodeMgr() { }
 
 NodeMgr::~NodeMgr() { }
 
+Node* NodeMgr::GetNodeById(uint32 id)
+{
+    for (NodeMap::iterator itr = mNodes.begin(); itr != mNodes.end(); ++itr)
+    {
+        if (itr->first == id)
+            return itr->second;
+    }
+    return NULL;
+}
+
+void NodeMgr::Update(uint32 diff)
+{
+
+}
+
 uint32 NodeMgr::GetPath(uint32 id, uint32 relation)
 {
     PreparedStatement* stmt;

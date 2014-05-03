@@ -37,6 +37,8 @@ class Node
         void RemoveEnemy(uint32 id) { NodeMap::iterator itr = m_Enemies.find(id); if (itr != m_Enemies.end()) { delete itr->second; m_Enemies.erase(itr); } }
         NodeMap GetEnemies() { return m_Enemies; }
 
+        void Update();
+
     private:
         uint32 Id;
         uint32 m_team;
