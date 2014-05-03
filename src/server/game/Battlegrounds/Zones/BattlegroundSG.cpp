@@ -118,7 +118,7 @@ BattlegroundSG::BattlegroundSG()
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_BA_HAS_BEGUN;
     m_WavesCount = 0;
     m_WavesTimer = 0;
-	m_WallFallen = false;
+    m_WallFallen = false;
     m_pts[0] = 0;
     m_pts[1] = 0;
     m_CreepsCount[0] = 0;

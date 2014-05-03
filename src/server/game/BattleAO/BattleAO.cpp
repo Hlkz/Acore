@@ -193,7 +193,7 @@ bool BattleAO::Update(uint32 diff)
             else if (m_Nodes[node].status == m_Nodes[node].prev - 2)
                 NeutralTaken(node);  // (cont V neutre)
             else                     // (cont V oqp)
-				TeamTaken(node, (m_Nodes[node].status-1) ? HORDE : ALLIANCE);
+                TeamTaken(node, (m_Nodes[node].status-1) ? HORDE : ALLIANCE);
         }
     }
 
@@ -900,7 +900,7 @@ void BattleAO::EventPlayerClickedOnFlag(Player* source, GameObject* target_obj)
 
     if (node >= BAO_NODE_A2)
         return;
-	
+    
     source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 
     uint32 team = source->GetTeam();
@@ -925,7 +925,7 @@ void BattleAO::TeamAttack(uint8 node, uint32 team)
         return;
     TeamId teamIndex =  GetTeamIndexByTeamId(team);
     m_Nodes[node].prev = m_Nodes[node].status;
-	m_Nodes[node].status = teamIndex + BAO_NODE_TYPE_CONTESTED;
+    m_Nodes[node].status = teamIndex + BAO_NODE_TYPE_CONTESTED;
     DelBanner(node, m_Nodes[node].prev);
     CreateBanner(node, BAO_NODE_TYPE_CONTESTED, teamIndex, true);
     if ((m_Nodes[node].prev == BAO_NODE_STATUS_ALLY_OCCUPIED) || (m_Nodes[node].status == BAO_NODE_STATUS_HORDE_OCCUPIED))

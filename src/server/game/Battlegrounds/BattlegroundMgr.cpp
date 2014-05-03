@@ -316,14 +316,14 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                         *data << uint32(((BattlegroundAVScore*)score)->TowersDefended);      // TowersDefended
                         *data << uint32(((BattlegroundAVScore*)score)->MinesCaptured);       // MinesCaptured
                         break;
-					case 784:                                   // BA
-						*data << uint32(0x00000002);            // count of next fields
-						*data << uint32(((BattlegroundBAScore*)score)->CreepsKilled);
-						*data << uint32(((BattlegroundBAScore*)score)->ArcaneFrag);
-					case 785:                                   // BB
-						*data << uint32(0x00000002);            // count of next fields
-						*data << uint32(((BattlegroundBBScore*)score)->CreepsKilled);
-						*data << uint32(((BattlegroundBBScore*)score)->ArcaneFrag);
+                    case 784:                                   // BA
+                        *data << uint32(0x00000002);            // count of next fields
+                        *data << uint32(((BattlegroundBAScore*)score)->CreepsKilled);
+                        *data << uint32(((BattlegroundBAScore*)score)->ArcaneFrag);
+                    case 785:                                   // BB
+                        *data << uint32(0x00000002);            // count of next fields
+                        *data << uint32(((BattlegroundBBScore*)score)->CreepsKilled);
+                        *data << uint32(((BattlegroundBBScore*)score)->ArcaneFrag);
                     case 786:                                   // SG
                     case 782:                                   // BAO
                     default:
@@ -363,7 +363,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                 *data << uint32(((BattlegroundBBScore*)score)->CreepsKilled);
                 *data << uint32(((BattlegroundBBScore*)score)->ArcaneFrag);
                 break;
-			case BATTLEGROUND_SG:
+            case BATTLEGROUND_SG:
             case BATTLEGROUND_AO:
             case BATTLEGROUND_NA:
             case BATTLEGROUND_BE:
