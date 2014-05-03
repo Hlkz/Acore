@@ -102,7 +102,7 @@ public:
             BattlegroundSG* iwp;
     };
     
-    CreatureAI* npc_iwp_creep::GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_iwp_creepAI(creature);
     }
