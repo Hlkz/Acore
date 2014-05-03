@@ -888,7 +888,7 @@ void BattleAO::UpdateBannersFlag(uint8 node, uint32 teambefore, uint32 teamafter
             }
 }
 
-void BattleAO::EventPlayerClickedOnFlag(Player* source, GameObject* target_obj)
+void BattleAO::EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj*/)
 {
     uint8 node = 0;
     GameObject* obj = m_Map->GetGameObject(AoObjects[node*BAO_BANNER_MAX+7]);

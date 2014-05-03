@@ -78,13 +78,13 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 /*diff*/)
         {
             if (!me->HasUnitState(UNIT_STATE_STUNNED))
                 me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
         }
 
-        void JustDied(Unit *) { }
+        void JustDied(Unit* /*killer*/) { }
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -144,7 +144,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void WaypointReached(uint32 pointId)
+        void WaypointReached(uint32 /*pointId*/)
         {
             me->DespawnOrUnsummon();
         }
@@ -323,7 +323,7 @@ void BattlegroundBA::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
 }
 
 
-void BattlegroundBA::FillInitialWorldStates(WorldPacket& data)
+void BattlegroundBA::FillInitialWorldStates(WorldPacket& /*data*/)
 {
     //tofix 20 node + 2 tower count
     //data << uint32(BG_BA_SHOW_A_SCORE) << uint32(0);

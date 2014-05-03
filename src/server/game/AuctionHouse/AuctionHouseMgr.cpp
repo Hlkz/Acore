@@ -330,7 +330,8 @@ void AuctionHouseMgr::Update()
 
 AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTemplateId)
 {
-    return sAuctionHouseStore.LookupEntry(7); // goblin auction house
+    factionTemplateId = 7;  // goblin auction house
+    return sAuctionHouseStore.LookupEntry(factionTemplateId);
 }
 
 void AuctionHouseObject::AddAuction(AuctionEntry* auction)
