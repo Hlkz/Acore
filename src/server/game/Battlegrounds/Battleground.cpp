@@ -1381,7 +1381,7 @@ void Battleground::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, 
 void Battleground::RelocateDeadPlayers(uint64 queueIndex)
 {
     // Those who are waiting to resurrect at this node are taken to the closest own node's graveyard
-    std::vector<uint64>& ghostList = sWorld->GetShReviveQueue(queueIndex);
+    std::vector<uint64> ghostList = sWorld->GetShReviveQueue(queueIndex);
     if (!ghostList.empty())
     {
         WorldSafeLocsEntry const* closestGrave = NULL;
