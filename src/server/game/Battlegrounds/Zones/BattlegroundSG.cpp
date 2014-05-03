@@ -1,5 +1,5 @@
 
-#include "BattlegroundIWP.h"
+#include "BattlegroundSG.h"
 #include "BattlegroundMgr.h"
 
 #include "ObjectMgr.h"
@@ -30,12 +30,12 @@ public:
         npc_iwp_bossAI(Creature* creature) : ScriptedAI(creature)
         {
             team = me->getFaction() == 3802 ? ALLIANCE : HORDE;
-            if (Battleground* bg = sBattlegroundMgr->GetBattleground(me->GetInstanceId(), BATTLEGROUND_IWP))
-                if (BattlegroundIWP* IWP = static_cast<BattlegroundIWP*>(bg))
-                    iwp = IWP;
+            if (Battleground* bg = sBattlegroundMgr->GetBattleground(me->GetInstanceId(), BATTLEGROUND_SG))
+                if (BattlegroundSG* SG = static_cast<BattlegroundSG*>(bg))
+                    iwp = SG;
         }
         uint32 team;
-        BattlegroundIWP* iwp;
+        BattlegroundSG* iwp;
 
         void Reset() { }
         void UpdateAI(uint32 diff) { }
@@ -65,9 +65,9 @@ public:
             m_go = false;
             SetDespawnAtEnd(false);
             m_team = me->getFaction() == 3802 ? ALLIANCE : HORDE;
-            if (Battleground* bg = sBattlegroundMgr->GetBattleground(me->GetInstanceId(), BATTLEGROUND_IWP))
-                if (BattlegroundIWP* IWP = static_cast<BattlegroundIWP*>(bg))
-                    iwp = IWP;
+            if (Battleground* bg = sBattlegroundMgr->GetBattleground(me->GetInstanceId(), BATTLEGROUND_SG))
+                if (BattlegroundSG* SG = static_cast<BattlegroundSG*>(bg))
+                    iwp = SG;
         }
         void UpdateAI(uint32 diff)
         {
@@ -99,7 +99,7 @@ public:
             bool m_go;
             uint32 m_team;
             uint32 m_lane;
-            BattlegroundIWP* iwp;
+            BattlegroundSG* iwp;
     };
     
     CreatureAI* npc_iwp_creep::GetAI(Creature* creature) const
@@ -108,10 +108,10 @@ public:
     }
 };
 
-BattlegroundIWP::BattlegroundIWP()
+BattlegroundSG::BattlegroundSG()
 {
-    BgObjects.resize(BG_IWP_OB_MAX);
-    BgCreatures.resize(BG_IWP_CREA_MAX);
+    BgObjects.resize(BG_SG_OB_MAX);
+    BgCreatures.resize(BG_SG_CREA_MAX);
     StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_BA_START_TWO_MINUTES;
     StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_BA_START_ONE_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_BA_START_HALF_MINUTE;
@@ -127,51 +127,51 @@ BattlegroundIWP::BattlegroundIWP()
     m_LastCreepWasTop[1] = false;
 }
 
-BattlegroundIWP::~BattlegroundIWP()
+BattlegroundSG::~BattlegroundSG()
 {
 }
 
-bool BattlegroundIWP::SetupBattleground()
+bool BattlegroundSG::SetupBattleground()
 {
-    if ((!AddCreature(BG_IWP_NPC_BOSS_A, BG_IWP_CREA_BOSS_A, ALLIANCE, BG_IWP_CreaturePos[BG_IWP_CREA_BOSS_A][0], BG_IWP_CreaturePos[BG_IWP_CREA_BOSS_A][1], BG_IWP_CreaturePos[BG_IWP_CREA_BOSS_A][2], BG_IWP_CreaturePos[BG_IWP_CREA_BOSS_A][3]))
-        || (!AddCreature(BG_IWP_NPC_BOSS_H, BG_IWP_CREA_BOSS_H, HORDE, BG_IWP_CreaturePos[BG_IWP_CREA_BOSS_H][0], BG_IWP_CreaturePos[BG_IWP_CREA_BOSS_H][1], BG_IWP_CreaturePos[BG_IWP_CREA_BOSS_H][2], BG_IWP_CreaturePos[BG_IWP_CREA_BOSS_H][3])))
+    if ((!AddCreature(BG_SG_NPC_BOSS_A, BG_SG_CREA_BOSS_A, ALLIANCE, BG_SG_CreaturePos[BG_SG_CREA_BOSS_A][0], BG_SG_CreaturePos[BG_SG_CREA_BOSS_A][1], BG_SG_CreaturePos[BG_SG_CREA_BOSS_A][2], BG_SG_CreaturePos[BG_SG_CREA_BOSS_A][3]))
+        || (!AddCreature(BG_SG_NPC_BOSS_H, BG_SG_CREA_BOSS_H, HORDE, BG_SG_CreaturePos[BG_SG_CREA_BOSS_H][0], BG_SG_CreaturePos[BG_SG_CREA_BOSS_H][1], BG_SG_CreaturePos[BG_SG_CREA_BOSS_H][2], BG_SG_CreaturePos[BG_SG_CREA_BOSS_H][3])))
     {
-        TC_LOG_ERROR("sql.sql", "BatteGroundIWP: Failed to spawn boss");
+        TC_LOG_ERROR("sql.sql", "BatteGroundSG: Failed to spawn boss");
         return false;
     }
     
-    if (!AddObject(BG_IWP_OB_WALL, BG_IWP_ENTRY_WALL, BG_IWP_ObjectPos[BG_IWP_OB_WALL][0], BG_IWP_ObjectPos[BG_IWP_OB_WALL][1], BG_IWP_ObjectPos[BG_IWP_OB_WALL][2], BG_IWP_ObjectPos[BG_IWP_OB_WALL][3],0,0,0,0,0))
+    if (!AddObject(BG_SG_OB_WALL, BG_SG_ENTRY_WALL, BG_SG_ObjectPos[BG_SG_OB_WALL][0], BG_SG_ObjectPos[BG_SG_OB_WALL][1], BG_SG_ObjectPos[BG_SG_OB_WALL][2], BG_SG_ObjectPos[BG_SG_OB_WALL][3],0,0,0,0,0))
     {
-        TC_LOG_ERROR("sql.sql", "BatteGroundIWP: Failed to spawn wall");
+        TC_LOG_ERROR("sql.sql", "BatteGroundSG: Failed to spawn wall");
         return false;
     }
 
     return true;
 }
 
-void BattlegroundIWP::StartingEventCloseDoors() {}
+void BattlegroundSG::StartingEventCloseDoors() {}
 
-void BattlegroundIWP::StartingEventOpenDoors()
+void BattlegroundSG::StartingEventOpenDoors()
 {
     //UpdateWorldState(AV_SHOW_H_SCORE, 1);
     //UpdateWorldState(AV_SHOW_A_SCORE, 1);
 }
 
-void BattlegroundIWP::HandleKillPlayer(Player* player, Player* killer)
+void BattlegroundSG::HandleKillPlayer(Player* player, Player* killer)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
     Battleground::HandleKillPlayer(player, killer);
 }
 
-void BattlegroundIWP::HandleKillUnit(Creature* unit, Player* killer)
+void BattlegroundSG::HandleKillUnit(Creature* unit, Player* killer)
 {
-    TC_LOG_DEBUG("bg.battleground", "IWP HandleKillUnit %i", unit->GetEntry());
+    TC_LOG_DEBUG("bg.battleground", "SG HandleKillUnit %i", unit->GetEntry());
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 }
 
-void BattlegroundIWP::PostUpdateImpl(uint32 diff)
+void BattlegroundSG::PostUpdateImpl(uint32 diff)
 {
     if (GetStatus())//== STATUS_IN_PROGRESS)
     {
@@ -191,18 +191,18 @@ void BattlegroundIWP::PostUpdateImpl(uint32 diff)
     }
 }
 
-void BattlegroundIWP::SpawnCreeps(uint32 count)
+void BattlegroundSG::SpawnCreeps(uint32 count)
 {
-    Creature* bossa = GetBGCreature(BG_IWP_CREA_BOSS_A);
-    Creature* bossh = GetBGCreature(BG_IWP_CREA_BOSS_H);
+    Creature* bossa = GetBGCreature(BG_SG_CREA_BOSS_A);
+    Creature* bossh = GetBGCreature(BG_SG_CREA_BOSS_H);
 
     if (bossa)
     {
-        if (m_CreepsCount[TEAM_ALLIANCE] < BG_IWP_CREEPS_MAX && m_WallFallen)
-            if (Creature* creepmid = bossa->SummonCreature(BG_IWP_NPC_CREEP_A, -5306.319336f, -0.073182f, 20.547842f, 3.165546f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
+        if (m_CreepsCount[TEAM_ALLIANCE] < BG_SG_CREEPS_MAX && m_WallFallen)
+            if (Creature* creepmid = bossa->SummonCreature(BG_SG_NPC_CREEP_A, -5306.319336f, -0.073182f, 20.547842f, 3.165546f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
                 if (npc_iwp_creep::npc_iwp_creepAI* creepAI = CAST_AI(npc_iwp_creep::npc_iwp_creepAI, creepmid->AI()))
                 { // MID
-                    m_Creeps[BG_IWP_LANE_MID][TEAM_ALLIANCE][creepmid->GetGUID()] = creepmid;
+                    m_Creeps[BG_SG_LANE_MID][TEAM_ALLIANCE][creepmid->GetGUID()] = creepmid;
                     creepAI->SetLane(2);
                     creepAI->AddWaypoint(0, -5323.509277f, -0.411021f, 17.558941f); // avantfontaine A
                     creepAI->AddWaypoint(0, -5333.532227f, -9.937929f, 17.584873f); // droitefontaine A
@@ -215,11 +215,11 @@ void BattlegroundIWP::SpawnCreeps(uint32 count)
                     creepAI->AddWaypoint(0, -5613.787109f, -0.336507f, 19.983620f); // Entrée H
                     m_CreepsCount[TEAM_ALLIANCE]++;
                 }
-        if ((1+m_CreepsCount[TEAM_ALLIANCE] < BG_IWP_CREEPS_MAX) || (BG_IWP_CREEPS_MAX-m_CreepsCount[TEAM_ALLIANCE] == 1 && !m_LastCreepWasTop[TEAM_ALLIANCE]))
-            if (Creature* creeptop = bossa->SummonCreature(BG_IWP_NPC_CREEP_A, -5306.319336f, -0.073182f, 20.547842f, 3.165546f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
+        if ((1+m_CreepsCount[TEAM_ALLIANCE] < BG_SG_CREEPS_MAX) || (BG_SG_CREEPS_MAX-m_CreepsCount[TEAM_ALLIANCE] == 1 && !m_LastCreepWasTop[TEAM_ALLIANCE]))
+            if (Creature* creeptop = bossa->SummonCreature(BG_SG_NPC_CREEP_A, -5306.319336f, -0.073182f, 20.547842f, 3.165546f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
                 if (npc_iwp_creep::npc_iwp_creepAI* creepAI = CAST_AI(npc_iwp_creep::npc_iwp_creepAI, creeptop->AI()))
                 { // TOP
-                    m_Creeps[BG_IWP_LANE_TOP][TEAM_ALLIANCE][creeptop->GetGUID()] = creeptop;
+                    m_Creeps[BG_SG_LANE_TOP][TEAM_ALLIANCE][creeptop->GetGUID()] = creeptop;
                     creepAI->SetLane(0);
                     creepAI->AddWaypoint(0, -5323.509277f, -0.411021f, 17.558941f); // avantfontaine A
                     creepAI->AddWaypoint(0, -5333.532227f, -9.937929f, 17.584873f); // droitefontaine A
@@ -235,11 +235,11 @@ void BattlegroundIWP::SpawnCreeps(uint32 count)
                     m_CreepsCount[TEAM_ALLIANCE]++;
                     m_LastCreepWasTop[TEAM_ALLIANCE] = true;
                 }
-        if (m_CreepsCount[TEAM_ALLIANCE] < BG_IWP_CREEPS_MAX)
-            if (Creature* creepbot = bossa->SummonCreature(BG_IWP_NPC_CREEP_A, -5306.319336f, -0.073182f, 20.547842f, 3.165546f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
+        if (m_CreepsCount[TEAM_ALLIANCE] < BG_SG_CREEPS_MAX)
+            if (Creature* creepbot = bossa->SummonCreature(BG_SG_NPC_CREEP_A, -5306.319336f, -0.073182f, 20.547842f, 3.165546f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
                 if (npc_iwp_creep::npc_iwp_creepAI* creepAI = CAST_AI(npc_iwp_creep::npc_iwp_creepAI, creepbot->AI()))
                 { // BOT
-                    m_Creeps[BG_IWP_LANE_BOT][TEAM_ALLIANCE][creepbot->GetGUID()] = creepbot;
+                    m_Creeps[BG_SG_LANE_BOT][TEAM_ALLIANCE][creepbot->GetGUID()] = creepbot;
                     creepAI->SetLane(1);
                     creepAI->AddWaypoint(0, -5323.509277f, -0.411021f, 17.558941f); // avantfontaine A
                     creepAI->AddWaypoint(0, -5333.461914f, 9.169089f, 17.504997f); // gauchefontaine A
@@ -259,11 +259,11 @@ void BattlegroundIWP::SpawnCreeps(uint32 count)
 
     if (bossh)
     {
-        if (m_CreepsCount[TEAM_HORDE] < BG_IWP_CREEPS_MAX && m_WallFallen)
-            if (Creature* creepmid = bossh->SummonCreature(BG_IWP_NPC_CREEP_H, -5613.787109f, -0.336507f, 19.983620f, 6.273757f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
+        if (m_CreepsCount[TEAM_HORDE] < BG_SG_CREEPS_MAX && m_WallFallen)
+            if (Creature* creepmid = bossh->SummonCreature(BG_SG_NPC_CREEP_H, -5613.787109f, -0.336507f, 19.983620f, 6.273757f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
                 if (npc_iwp_creep::npc_iwp_creepAI* creepAI = CAST_AI(npc_iwp_creep::npc_iwp_creepAI, creepmid->AI()))
                 { // MID
-                    m_Creeps[BG_IWP_LANE_MID][TEAM_HORDE][creepmid->GetGUID()] = creepmid;
+                    m_Creeps[BG_SG_LANE_MID][TEAM_HORDE][creepmid->GetGUID()] = creepmid;
                     creepAI->SetLane(2);
                     creepAI->AddWaypoint(0, -5593.929199f, -0.301656f, 16.911194f); // avantfontaine H
                     creepAI->AddWaypoint(0, -5583.243652f, 9.897322f, 16.889269f); // gauchefontaine H
@@ -276,11 +276,11 @@ void BattlegroundIWP::SpawnCreeps(uint32 count)
                     creepAI->AddWaypoint(0, -5306.319336f, -0.073182f, 20.547842f); // Entrée A
                     m_CreepsCount[TEAM_HORDE]++;
                 }
-        if ((1+m_CreepsCount[TEAM_HORDE] < BG_IWP_CREEPS_MAX) || (BG_IWP_CREEPS_MAX-m_CreepsCount[TEAM_HORDE] == 1 && !m_LastCreepWasTop[TEAM_HORDE]))
-            if (Creature* creeptop = bossh->SummonCreature(BG_IWP_NPC_CREEP_H, -5613.787109f, -0.336507f, 19.983620f, 6.273757f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
+        if ((1+m_CreepsCount[TEAM_HORDE] < BG_SG_CREEPS_MAX) || (BG_SG_CREEPS_MAX-m_CreepsCount[TEAM_HORDE] == 1 && !m_LastCreepWasTop[TEAM_HORDE]))
+            if (Creature* creeptop = bossh->SummonCreature(BG_SG_NPC_CREEP_H, -5613.787109f, -0.336507f, 19.983620f, 6.273757f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
                 if (npc_iwp_creep::npc_iwp_creepAI* creepAI = CAST_AI(npc_iwp_creep::npc_iwp_creepAI, creeptop->AI()))
                 { // TOP
-                    m_Creeps[BG_IWP_LANE_TOP][TEAM_HORDE][creeptop->GetGUID()] = creeptop;
+                    m_Creeps[BG_SG_LANE_TOP][TEAM_HORDE][creeptop->GetGUID()] = creeptop;
                     creepAI->SetLane(0);
                     creepAI->AddWaypoint(0, -5593.929199f, -0.301656f, 16.911194f); // avantfontaine H
                     creepAI->AddWaypoint(0, -5583.243652f, 9.897322f, 16.889269f); // gauchefontaine H
@@ -297,11 +297,11 @@ void BattlegroundIWP::SpawnCreeps(uint32 count)
                     m_LastCreepWasTop[TEAM_HORDE] = true;
                 
                 }
-        if (m_CreepsCount[TEAM_HORDE] < BG_IWP_CREEPS_MAX)
-            if (Creature* creepbot = bossh->SummonCreature(BG_IWP_NPC_CREEP_H, -5613.787109f, -0.336507f, 19.983620f, 6.273757f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
+        if (m_CreepsCount[TEAM_HORDE] < BG_SG_CREEPS_MAX)
+            if (Creature* creepbot = bossh->SummonCreature(BG_SG_NPC_CREEP_H, -5613.787109f, -0.336507f, 19.983620f, 6.273757f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
                 if (npc_iwp_creep::npc_iwp_creepAI* creepAI = CAST_AI(npc_iwp_creep::npc_iwp_creepAI, creepbot->AI()))
                 { // BOT
-                    m_Creeps[BG_IWP_LANE_BOT][TEAM_HORDE][creepbot->GetGUID()] = creepbot;
+                    m_Creeps[BG_SG_LANE_BOT][TEAM_HORDE][creepbot->GetGUID()] = creepbot;
                     creepAI->SetLane(1);
                     creepAI->AddWaypoint(0, -5593.929199f, -0.301656f, 16.911194f); // avantfontaine H
                     creepAI->AddWaypoint(0, -5583.074219f, -9.697697f, 16.914650f); // droitefontaine H
@@ -320,16 +320,16 @@ void BattlegroundIWP::SpawnCreeps(uint32 count)
     }
 }
 
-void BattlegroundIWP::EraseCreep(uint64 guid, uint8 lane, uint8 teamid)
+void BattlegroundSG::EraseCreep(uint64 guid, uint8 lane, uint8 teamid)
 {
     m_Creeps[lane][teamid].erase(guid);
     m_CreepsCount[teamid]--;
 }
 
-void BattlegroundIWP::AddPlayer(Player* player)
+void BattlegroundSG::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    BattlegroundIWPScore* sc = new BattlegroundIWPScore;
+    BattlegroundSGScore* sc = new BattlegroundSGScore;
     PlayerScores[player->GetGUID()] = sc;
     uint32 team = player->GetBGTeam();
     if (team == ALLIANCE)
@@ -346,21 +346,21 @@ void BattlegroundIWP::AddPlayer(Player* player)
     player->UpdateStatsMod(STAT_MOD_TYPE_BG_BA, true, false);
 }
 
-void BattlegroundIWP::EndBattleground(uint32 winner)
+void BattlegroundSG::EndBattleground(uint32 winner)
 {
     Battleground::EndBattleground(winner);
 }
 
-void BattlegroundIWP::RemovePlayer(Player* player, uint64 /*guid*/, uint32 /*team*/)
+void BattlegroundSG::RemovePlayer(Player* player, uint64 /*guid*/, uint32 /*team*/)
 {
     if (!player)
     {
-        TC_LOG_ERROR("bg.battleground", "bg_IWP no player at remove");
+        TC_LOG_ERROR("bg.battleground", "bg_SG no player at remove");
         return;
     }
 }
 
-void BattlegroundIWP::HandleAreaTrigger(Player* player, uint32 trigger)
+void BattlegroundSG::HandleAreaTrigger(Player* player, uint32 trigger)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -374,7 +374,7 @@ void BattlegroundIWP::HandleAreaTrigger(Player* player, uint32 trigger)
     }
 }
 
-void BattlegroundIWP::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
+void BattlegroundSG::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
 {
     BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
     if (itr == PlayerScores.end())
@@ -389,38 +389,38 @@ void BattlegroundIWP::UpdatePlayerScore(Player* Source, uint32 type, uint32 valu
     }
 }
 
-void BattlegroundIWP::FillInitialWorldStates(WorldPacket& data)
+void BattlegroundSG::FillInitialWorldStates(WorldPacket& data)
 {
     //tofix 20 node + 2 tower count
     //data << uint32(BA_SHOW_A_SCORE) << uint32(0);
 }
 
-void BattlegroundIWP::ResetBGSubclass()
+void BattlegroundSG::ResetBGSubclass()
 {
     //tofix timers
-    for (uint16 i = 0; i < BG_IWP_CREA_MAX; i++)
+    for (uint16 i = 0; i < BG_SG_CREA_MAX; i++)
         if (BgCreatures[i])
             DelCreature(i);
 }
 
-uint32 BattlegroundIWP::GetPrematureWinner()
+uint32 BattlegroundSG::GetPrematureWinner()
 {
     //tofix surrender
     return Battleground::GetPrematureWinner();
 }
 
-WorldSafeLocsEntry const* BattlegroundIWP::GetClosestGraveYard(Player* player)
+WorldSafeLocsEntry const* BattlegroundSG::GetClosestGraveYard(Player* player)
 {
     player->SetRezTime(getMSTime() + 12*IN_MILLISECONDS);
     TeamId teamIndex = GetTeamIndexByTeamId(player->GetTeam(true));
     std::vector<uint8> graveyards;
-    WorldSafeLocsEntry const*entry = sWorldSafeLocsStore.LookupEntry(BG_IWP_GraveyardIds[teamIndex]);
+    WorldSafeLocsEntry const*entry = sWorldSafeLocsStore.LookupEntry(BG_SG_GraveyardIds[teamIndex]);
     return entry;
 }
 
-void BattlegroundIWP::CrushWall()
+void BattlegroundSG::CrushWall()
 {
-    if (GameObject* wall = GetBGObject(BG_IWP_OB_WALL))
+    if (GameObject* wall = GetBGObject(BG_SG_OB_WALL))
     {
         if (wall->GetDestructibleState() != GO_DESTRUCTIBLE_DESTROYED)
         {

@@ -3326,7 +3326,7 @@ enum BattlegroundTypeId
     BATTLEGROUND_DS             = 10, // Dalaran Sewers
     BATTLEGROUND_BA             = 12, // MOBA
     BATTLEGROUND_BB             = 13, // MOBB
-    BATTLEGROUND_IWP            = 14, // IWP
+    BATTLEGROUND_SG             = 14, // Strom
     BATTLEGROUND_RB             = 32, // Random Battleground
     BATTLEGROUND_AO             = 33, // AObg
 };
@@ -3468,7 +3468,7 @@ enum BattlegroundQueueTypeId
     BATTLEGROUND_QUEUE_AO       = 11,
     BATTLEGROUND_QUEUE_BA       = 12,
     BATTLEGROUND_QUEUE_BB       = 13,
-    BATTLEGROUND_QUEUE_IWP      = 14,
+    BATTLEGROUND_QUEUE_SG      = 14,
     MAX_BATTLEGROUND_QUEUE_TYPES
 };
 

@@ -34,7 +34,7 @@
 #include "BattlegroundDS.h"
 #include "BattlegroundBA.h"
 #include "BattlegroundBB.h"
-#include "BattlegroundIWP.h"
+#include "BattlegroundSG.h"
 #include "Chat.h"
 #include "Map.h"
 #include "MapInstanced.h"
@@ -324,8 +324,8 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
 						*data << uint32(0x00000002);            // count of next fields
 						*data << uint32(((BattlegroundBBScore*)score)->CreepsKilled);
 						*data << uint32(((BattlegroundBBScore*)score)->ArcaneFrag);
-                    case 786:                                   // IWP
-					case 782:                                   // BAO
+                    case 786:                                   // SG
+                    case 782:                                   // BAO
                     default:
                         *data << uint32(0);
                         break;
@@ -363,7 +363,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                 *data << uint32(((BattlegroundBBScore*)score)->CreepsKilled);
                 *data << uint32(((BattlegroundBBScore*)score)->ArcaneFrag);
                 break;
-			case BATTLEGROUND_IWP:
+			case BATTLEGROUND_SG:
             case BATTLEGROUND_AO:
             case BATTLEGROUND_NA:
             case BATTLEGROUND_BE:
@@ -573,8 +573,8 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId original
         case BATTLEGROUND_BB:
             bg = new BattlegroundBB(*(BattlegroundBB*)bg_template);
             break;
-        case BATTLEGROUND_IWP:
-            bg = new BattlegroundIWP(*(BattlegroundIWP*)bg_template);
+        case BATTLEGROUND_SG:
+            bg = new BattlegroundSG(*(BattlegroundSG*)bg_template);
             break;
         case BATTLEGROUND_AO:
             bg = new Battleground(*bg_template);
@@ -659,8 +659,8 @@ bool BattlegroundMgr::CreateBattleground(CreateBattlegroundData& data)
         case BATTLEGROUND_BB:
             bg = new BattlegroundBB;
             break;
-        case BATTLEGROUND_IWP:
-            bg = new BattlegroundIWP;
+        case BATTLEGROUND_SG:
+            bg = new BattlegroundSG;
             break;
         case BATTLEGROUND_AO:
         case BATTLEGROUND_AA:
@@ -937,8 +937,8 @@ BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgType
             return BATTLEGROUND_QUEUE_BA;
         case BATTLEGROUND_BB:
             return BATTLEGROUND_QUEUE_BB;
-        case BATTLEGROUND_IWP:
-            return BATTLEGROUND_QUEUE_IWP;
+        case BATTLEGROUND_SG:
+            return BATTLEGROUND_QUEUE_SG;
         case BATTLEGROUND_RB:
             return BATTLEGROUND_QUEUE_RB;
         case BATTLEGROUND_WS:
@@ -982,8 +982,8 @@ BattlegroundTypeId BattlegroundMgr::BGTemplateId(BattlegroundQueueTypeId bgQueue
             return BATTLEGROUND_BA;
         case BATTLEGROUND_QUEUE_BB:
             return BATTLEGROUND_BB;
-        case BATTLEGROUND_QUEUE_IWP:
-            return BATTLEGROUND_IWP;
+        case BATTLEGROUND_QUEUE_SG:
+            return BATTLEGROUND_SG;
         case BATTLEGROUND_QUEUE_RB:
             return BATTLEGROUND_RB;
         case BATTLEGROUND_QUEUE_2v2:
