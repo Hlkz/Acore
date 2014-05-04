@@ -68,6 +68,7 @@ m_goValue(), m_AI(NULL)
 GameObject::~GameObject()
 {
     delete m_AI;
+
     //if (m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
     //    CleanupsBeforeDelete();
 }
@@ -463,7 +464,7 @@ void GameObject::Update(uint32 diff)
                              bool IsBattlegroundTrap = false;
                              //FIXME: this is activation radius (in different casting radius that must be selected from spell data)
                              /// @todo move activated state code (cast itself) to GO_ACTIVATED, in this place only check activating and set state
-                             float radius = (float)(goInfo->trap.radius) / 3 * 2; /// @todo rename radius to diameter (goInfo->trap.radius) should be (goInfo->trap.diameter)
+                             float radius = (float)(goInfo->trap.diameter) / 3 * 2;
                              if (!radius)
                              {
                                  if (goInfo->trap.cooldown != 3)            // cast in other case (at some triggering/linked go/etc explicit call)
@@ -1991,6 +1992,20 @@ void GameObject::SetLootState(LootState state, Unit* unit)
     sScriptMgr->OnGameObjectLootStateChanged(this, state, unit);
 }
 
+void GameObject::SetGoState(GOState state)
+{
+    SetByteValue(GAMEOBJECT_BYTES_1, 0, state);
+    sScriptMgr->OnGameObjectStateChanged(this, state);
+    if (!IsTransport())
+        if (!IsInWorld())
+            return;
+}
+
+void GameObject::SetDisplayId(uint32 displayid)
+{
+    SetUInt32Value(GAMEOBJECT_DISPLAYID, displayid);
+}
+
 Player* GameObject::GetLootRecipient() const
 {
     if (!m_lootRecipient)
@@ -2043,27 +2058,6 @@ bool GameObject::IsLootAllowedFor(Player const* player) const
         return false;                                           // if go doesnt have group bound it means it was solo killed by someone else
 
     return true;
-}
-
-void GameObject::SetGoState(GOState state)
-{
-    SetByteValue(GAMEOBJECT_BYTES_1, 0, state);
-    sScriptMgr->OnGameObjectStateChanged(this, state);
-    if (!IsTransport())
-    {
-        if (!IsInWorld())
-            return;
-
-        // startOpen determines whether we are going to add or remove the LoS on activation
-        bool collision = false;
-        if (state == GO_STATE_READY)
-            collision = !collision;
-    }
-}
-
-void GameObject::SetDisplayId(uint32 displayid)
-{
-    SetUInt32Value(GAMEOBJECT_DISPLAYID, displayid);
 }
 
 void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
@@ -2127,15 +2121,8 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
             {
                 uint32 flags = m_uint32Values[GAMEOBJECT_FLAGS];
                 if (GetGoType() == GAMEOBJECT_TYPE_CHEST)
-                    if (GetGOInfo()->chest.groupLootRules && !IsLootAllowedFor(target))
-                        flags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
-                if (target->IsDeserter())
-                {
-                    if (flags & GO_FLAG_CANTNEUTRAL)
-                        flags |= GO_FLAG_NOT_SELECTABLE;
-                }
-                else if ((target->GetTeam() == ALLIANCE && flags & GO_FLAG_CANTA2) || (target->GetTeam() == HORDE && flags & GO_FLAG_CANTH2))
-                    flags |= GO_FLAG_NOT_SELECTABLE;
+                if (GetGOInfo()->chest.groupLootRules && !IsLootAllowedFor(target))
+                    flags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
 
                 fieldBuffer << flags;
             }
