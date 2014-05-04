@@ -1,7 +1,7 @@
 #include "ScriptPCH.h"
 #include "Chat.h"
 #include "BattleAOMgr.h"
-#include "BattlegroundIWP.h"
+#include "BattlegroundSG.h"
 #include "BattlegroundMgr.h"
 
 class test_commandscript : public CommandScript
@@ -22,10 +22,10 @@ public:
     static bool HandleTestCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* player = handler->GetSession()->GetPlayer();
-        if (Battleground* bg = sBattlegroundMgr->GetBattleground(player->GetInstanceId(), BATTLEGROUND_IWP))
-            if (BattlegroundIWP* IWP = static_cast<BattlegroundIWP*>(bg))
+        if (Battleground* bg = sBattlegroundMgr->GetBattleground(player->GetInstanceId(), BATTLEGROUND_SG))
+            if (BattlegroundSG* SG = static_cast<BattlegroundSG*>(bg))
             {
-                IWP->CrushWall();
+                SG->CrushWall();
             }
         return true;
     }
