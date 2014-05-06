@@ -641,7 +641,7 @@ Creature* BattleAO::AddCreature(uint32 entry, uint32 type, uint32 teamval, float
     if (!map)
         return NULL;
     Creature* creature = new Creature;
-    if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, PHASEMASK_NORMAL, entry, 0, teamval, x, y, z, o))
+    if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, PHASEMASK_NORMAL, entry, x, y, z, o))
     {
         TC_LOG_ERROR("bao", "BattleAO::AddCreature: cannot create creature entry %u", entry);
         delete creature;

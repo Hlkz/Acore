@@ -133,8 +133,8 @@ BattlegroundSG::~BattlegroundSG()
 
 bool BattlegroundSG::SetupBattleground()
 {
-    if ((!AddCreature(BG_SG_NPC_BOSS_A, BG_SG_CREA_BOSS_A, ALLIANCE, BG_SG_CreaturePos[BG_SG_CREA_BOSS_A][0], BG_SG_CreaturePos[BG_SG_CREA_BOSS_A][1], BG_SG_CreaturePos[BG_SG_CREA_BOSS_A][2], BG_SG_CreaturePos[BG_SG_CREA_BOSS_A][3]))
-        || (!AddCreature(BG_SG_NPC_BOSS_H, BG_SG_CREA_BOSS_H, HORDE, BG_SG_CreaturePos[BG_SG_CREA_BOSS_H][0], BG_SG_CreaturePos[BG_SG_CREA_BOSS_H][1], BG_SG_CreaturePos[BG_SG_CREA_BOSS_H][2], BG_SG_CreaturePos[BG_SG_CREA_BOSS_H][3])))
+    if ((!AddCreature(BG_SG_NPC_BOSS_A, BG_SG_CREA_BOSS_A, BG_SG_CreaturePos[BG_SG_CREA_BOSS_A][0], BG_SG_CreaturePos[BG_SG_CREA_BOSS_A][1], BG_SG_CreaturePos[BG_SG_CREA_BOSS_A][2], BG_SG_CreaturePos[BG_SG_CREA_BOSS_A][3], TEAM_ALLIANCE))
+        || (!AddCreature(BG_SG_NPC_BOSS_H, BG_SG_CREA_BOSS_H, BG_SG_CreaturePos[BG_SG_CREA_BOSS_H][0], BG_SG_CreaturePos[BG_SG_CREA_BOSS_H][1], BG_SG_CreaturePos[BG_SG_CREA_BOSS_H][2], BG_SG_CreaturePos[BG_SG_CREA_BOSS_H][3], TEAM_HORDE)))
     {
         TC_LOG_ERROR("sql.sql", "BatteGroundSG: Failed to spawn boss");
         return false;

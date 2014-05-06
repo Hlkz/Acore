@@ -14,7 +14,7 @@
 Creature* WMScript::AddCreature(uint32 entry, float x, float y, float z, float o, uint32 respawntime)
 {
     Creature* creature = new Creature;
-    if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), world, PHASEMASK_NORMAL, entry, 0, 0, x, y, z, o))
+    if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), world, PHASEMASK_NORMAL, entry, x, y, z, o))
     {
         delete creature;
         return NULL;

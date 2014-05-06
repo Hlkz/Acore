@@ -183,7 +183,7 @@ BattlegroundBA::~BattlegroundBA()
 bool BattlegroundBA::SetupBattleground()
 {
     for (uint8 i = BG_BA_CREA_NODE_A_1; i < BG_BA_CREA_NODE_MAX; i++)
-        if (Creature* Node = AddCreature(i<BG_BA_CREA_NODE_H_1?BG_BA_NPC_NODE_A:BG_BA_NPC_NODE_H, i, i<BG_BA_CREA_NODE_H_1?ALLIANCE:HORDE, BG_BA_CreaturePos[i][0], BG_BA_CreaturePos[i][1], BG_BA_CreaturePos[i][2], BG_BA_CreaturePos[i][3]))
+    if (Creature* Node = AddCreature(i<BG_BA_CREA_NODE_H_1 ? BG_BA_NPC_NODE_A : BG_BA_NPC_NODE_H, i, BG_BA_CreaturePos[i][0], BG_BA_CreaturePos[i][1], BG_BA_CreaturePos[i][2], BG_BA_CreaturePos[i][3], i<BG_BA_CREA_NODE_H_1 ? TEAM_ALLIANCE : TEAM_HORDE))
         {
             if (npc_ba_node::npc_ba_nodeAI* pnode = CAST_AI(npc_ba_node::npc_ba_nodeAI, Node->AI()))
                 pnode->type = i;
@@ -194,8 +194,8 @@ bool BattlegroundBA::SetupBattleground()
             return false;
         }
 
-    if ((!AddCreature(BG_BA_NPC_NODE_A, BG_BA_CREA_NEXUS_A, ALLIANCE, BG_BA_CreaturePos[BG_BA_CREA_NEXUS_A][0], BG_BA_CreaturePos[BG_BA_CREA_NEXUS_A][1], BG_BA_CreaturePos[BG_BA_CREA_NEXUS_A][2], BG_BA_CreaturePos[BG_BA_CREA_NEXUS_A][3]))
-        || (!AddCreature(BG_BA_NPC_NODE_H, BG_BA_CREA_NEXUS_H, HORDE, BG_BA_CreaturePos[BG_BA_CREA_NEXUS_H][0], BG_BA_CreaturePos[BG_BA_CREA_NEXUS_H][1], BG_BA_CreaturePos[BG_BA_CREA_NEXUS_H][2], BG_BA_CreaturePos[BG_BA_CREA_NEXUS_H][3])))
+    if ((!AddCreature(BG_BA_NPC_NODE_A, BG_BA_CREA_NEXUS_A, BG_BA_CreaturePos[BG_BA_CREA_NEXUS_A][0], BG_BA_CreaturePos[BG_BA_CREA_NEXUS_A][1], BG_BA_CreaturePos[BG_BA_CREA_NEXUS_A][2], BG_BA_CreaturePos[BG_BA_CREA_NEXUS_A][3], TEAM_ALLIANCE))
+        || (!AddCreature(BG_BA_NPC_NODE_H, BG_BA_CREA_NEXUS_H, BG_BA_CreaturePos[BG_BA_CREA_NEXUS_H][0], BG_BA_CreaturePos[BG_BA_CREA_NEXUS_H][1], BG_BA_CreaturePos[BG_BA_CREA_NEXUS_H][2], BG_BA_CreaturePos[BG_BA_CREA_NEXUS_H][3], TEAM_HORDE)))
     {
         TC_LOG_ERROR("sql.sql", "BatteGroundBA: Failed to spawn nexus");
         return false;

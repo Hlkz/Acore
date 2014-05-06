@@ -290,7 +290,7 @@ bool BattlegroundBB::SetupBattleground()
 {
     for (uint8 i = BG_BB_CREA_TOWER_A_1; i < BG_BB_CREA_TOWER_H_1; i++)
     {
-        if (Creature* tower = AddCreature(BG_BB_TOWER_A_ENTRY, i, ALLIANCE, BG_BB_CreaturePos[i][0], BG_BB_CreaturePos[i][1], BG_BB_CreaturePos[i][2], BG_BB_CreaturePos[i][3]))
+        if (Creature* tower = AddCreature(BG_BB_TOWER_A_ENTRY, i, BG_BB_CreaturePos[i][0], BG_BB_CreaturePos[i][1], BG_BB_CreaturePos[i][2], BG_BB_CreaturePos[i][3], TEAM_ALLIANCE))
         {
             if (npc_bb_turret::npc_bb_turretAI* pturret = CAST_AI(npc_bb_turret::npc_bb_turretAI, tower->AI()))
                 pturret->type = i;
@@ -305,7 +305,7 @@ bool BattlegroundBB::SetupBattleground()
     }
     for (uint8 i = BG_BB_CREA_TOWER_H_1; i < BG_BB_CREA_TOWER_MAX; i++)
     {
-        if (Creature* tower = AddCreature(BG_BB_TOWER_H_ENTRY, i, HORDE, BG_BB_CreaturePos[i][0], BG_BB_CreaturePos[i][1], BG_BB_CreaturePos[i][2], BG_BB_CreaturePos[i][3]))
+        if (Creature* tower = AddCreature(BG_BB_TOWER_H_ENTRY, i, BG_BB_CreaturePos[i][0], BG_BB_CreaturePos[i][1], BG_BB_CreaturePos[i][2], BG_BB_CreaturePos[i][3], TEAM_HORDE))
         {
             if (npc_bb_turret::npc_bb_turretAI* pturret = CAST_AI(npc_bb_turret::npc_bb_turretAI, tower->AI()))
                 pturret->type = i;
@@ -319,15 +319,15 @@ bool BattlegroundBB::SetupBattleground()
         }
     }
 
-    if ((!AddCreature(BG_BB_NEXUS_A_ENTRY, BG_BB_CREA_NEXUS_A, ALLIANCE, BG_BB_CreaturePos[BG_BB_CREA_NEXUS_A][0], BG_BB_CreaturePos[BG_BB_CREA_NEXUS_A][1], BG_BB_CreaturePos[BG_BB_CREA_NEXUS_A][2], BG_BB_CreaturePos[BG_BB_CREA_NEXUS_A][3]))
-        || (!AddCreature(BG_BB_NEXUS_H_ENTRY, BG_BB_CREA_NEXUS_H, HORDE, BG_BB_CreaturePos[BG_BB_CREA_NEXUS_H][0], BG_BB_CreaturePos[BG_BB_CREA_NEXUS_H][1], BG_BB_CreaturePos[BG_BB_CREA_NEXUS_H][2], BG_BB_CreaturePos[BG_BB_CREA_NEXUS_H][3])))
+    if ((!AddCreature(BG_BB_NEXUS_A_ENTRY, BG_BB_CREA_NEXUS_A, BG_BB_CreaturePos[BG_BB_CREA_NEXUS_A][0], BG_BB_CreaturePos[BG_BB_CREA_NEXUS_A][1], BG_BB_CreaturePos[BG_BB_CREA_NEXUS_A][2], BG_BB_CreaturePos[BG_BB_CREA_NEXUS_A][3], TEAM_ALLIANCE))
+        || (!AddCreature(BG_BB_NEXUS_H_ENTRY, BG_BB_CREA_NEXUS_H, BG_BB_CreaturePos[BG_BB_CREA_NEXUS_H][0], BG_BB_CreaturePos[BG_BB_CREA_NEXUS_H][1], BG_BB_CreaturePos[BG_BB_CREA_NEXUS_H][2], BG_BB_CreaturePos[BG_BB_CREA_NEXUS_H][3], TEAM_HORDE)))
     {
         TC_LOG_ERROR("sql.sql", "BatteGroundBB: Failed to spawn nexus");
         return false;
     }
 
-    if ((!AddCreature(BG_BB_VENDOR_A_ENTRY, BG_BB_CREA_VENDOR_A, ALLIANCE, BG_BB_CreaturePos[BG_BB_CREA_VENDOR_A][0], BG_BB_CreaturePos[BG_BB_CREA_VENDOR_A][1], BG_BB_CreaturePos[BG_BB_CREA_VENDOR_A][2], BG_BB_CreaturePos[BG_BB_CREA_VENDOR_A][3]))
-        || (!AddCreature(BG_BB_VENDOR_H_ENTRY, BG_BB_CREA_VENDOR_H, HORDE, BG_BB_CreaturePos[BG_BB_CREA_VENDOR_H][0], BG_BB_CreaturePos[BG_BB_CREA_VENDOR_H][1], BG_BB_CreaturePos[BG_BB_CREA_VENDOR_H][2], BG_BB_CreaturePos[BG_BB_CREA_VENDOR_H][3])))
+    if ((!AddCreature(BG_BB_VENDOR_A_ENTRY, BG_BB_CREA_VENDOR_A, BG_BB_CreaturePos[BG_BB_CREA_VENDOR_A][0], BG_BB_CreaturePos[BG_BB_CREA_VENDOR_A][1], BG_BB_CreaturePos[BG_BB_CREA_VENDOR_A][2], BG_BB_CreaturePos[BG_BB_CREA_VENDOR_A][3], TEAM_ALLIANCE))
+        || (!AddCreature(BG_BB_VENDOR_H_ENTRY, BG_BB_CREA_VENDOR_H, BG_BB_CreaturePos[BG_BB_CREA_VENDOR_H][0], BG_BB_CreaturePos[BG_BB_CREA_VENDOR_H][1], BG_BB_CreaturePos[BG_BB_CREA_VENDOR_H][2], BG_BB_CreaturePos[BG_BB_CREA_VENDOR_H][3], TEAM_HORDE)))
     {
         TC_LOG_ERROR("sql.sql", "BatteGroundBB: Failed to spawn vendors");
         return false;

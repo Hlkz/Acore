@@ -1639,40 +1639,6 @@ class spell_gen_gnomish_transporter : public SpellScriptLoader
         }
 };
 
-class spell_gen_gunship_portal : public SpellScriptLoader
-{
-    public:
-        spell_gen_gunship_portal() : SpellScriptLoader("spell_gen_gunship_portal") { }
-
-        class spell_gen_gunship_portal_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_gen_gunship_portal_SpellScript);
-
-            bool Load() override
-            {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                Player* caster = GetCaster()->ToPlayer();
-                if (Battleground* bg = caster->GetBattleground())
-                    if (bg->GetTypeID(true) == BATTLEGROUND_IC)
-                        bg->DoAction(1, caster->GetGUID());
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_gunship_portal_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_gen_gunship_portal_SpellScript();
-        }
-};
-
 enum Launch
 {
     SPELL_LAUNCH_NO_FALLING_DAMAGE  = 66251
@@ -3767,7 +3733,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_gadgetzan_transporter_backfire();
     new spell_gen_gift_of_naaru();
     new spell_gen_gnomish_transporter();
-    new spell_gen_gunship_portal();
     new spell_gen_launch();
     new spell_gen_lifeblood();
     new spell_gen_lifebloom("spell_hexlord_lifebloom", SPELL_HEXLORD_MALACRASS_LIFEBLOOM_FINAL_HEAL);

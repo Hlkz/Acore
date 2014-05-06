@@ -4321,7 +4321,13 @@ void Player::_SaveSpellCooldowns(SQLTransaction& trans)
         trans->Append(ss.str().c_str());
 }
 
-bool Player::resetTalents()
+uint32 Player::resetTalentsCost() const
+{
+    // The first time reset costs 1 gold
+    return 1 * GOLD;
+}
+
+bool Player::resetTalents(bool no_cost)
 {
     sScriptMgr->OnPlayerTalentsReset(this);
 
@@ -4335,6 +4341,19 @@ bool Player::resetTalents()
     {
         SetFreeTalentPoints(talentPointsForLevel);
         return false;
+    }
+
+    uint32 cost = 0;
+
+    if (!no_cost)
+    {
+        cost = resetTalentsCost();
+
+        if (!HasEnoughMoney(cost))
+        {
+            SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
+            return false;
+        }
     }
 
     RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
@@ -4357,19 +4376,19 @@ bool Player::resetTalents()
         if ((getClassMask() & talentTabInfo->ClassMask) == 0)
             continue;
 
-        for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
+        for (int8 rank = MAX_TALENT_RANK - 1; rank >= 0; --rank)
         {
             // skip non-existant talent ranks
             if (talentInfo->RankID[rank] == 0)
                 continue;
-            const SpellInfo* _spellInfo = sSpellMgr->GetSpellInfo(talentInfo->RankID[rank]);
-            if (!_spellInfo)
+            const SpellInfo* _spellEntry = sSpellMgr->GetSpellInfo(talentInfo->RankID[rank]);
+            if (!_spellEntry)
                 continue;
             removeSpell(talentInfo->RankID[rank], true);
             // search for spells that the talent teaches and unlearn them
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                if (_spellInfo->Effects[i].TriggerSpell > 0 && _spellInfo->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
-                    removeSpell(_spellInfo->Effects[i].TriggerSpell, true);
+            if (_spellEntry->Effects[i].TriggerSpell > 0 && _spellEntry->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
+                removeSpell(_spellEntry->Effects[i].TriggerSpell, true);
             // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
             PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->RankID[rank]);
             if (plrTalent != m_talents[m_activeSpec]->end())
@@ -4384,14 +4403,21 @@ bool Player::resetTalents()
 
     SetFreeTalentPoints(talentPointsForLevel);
 
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS, 1);
-    m_resetTalentsTime = time(NULL);
+    if (!no_cost)
+    {
+        ModifyMoney(-(int32)cost);
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS, cost);
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS, 1);
+
+        //m_resetTalentsCost = cost;
+        m_resetTalentsTime = time(NULL);
+    }
 
     /* when prev line will dropped use next line
     if (Pet* pet = GetPet())
     {
-        if (pet->getPetType() == HUNTER_PET && !pet->GetCreatureTemplate()->IsTameable(CanTameExoticPets()))
-            RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
+    if (pet->getPetType() == HUNTER_PET && !pet->GetCreatureTemplate()->IsTameable(CanTameExoticPets()))
+    RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
     }
     */
 
@@ -23505,13 +23531,14 @@ uint32 Player::GetResurrectionSpellId()
 }
 
 // Used in triggers for check "Only to targets that grant experience or honor" req
-bool Player::isHonorOrXPTarget(Unit* victim)
+bool Player::isHonorOrXPTarget(Unit* victim) const
 {
     uint8 v_level = victim->getLevel();
-    uint8 k_grey  = Trinity::XP::GetGrayLevel(getLevel());
+    //uint8 k_grey  = Trinity::XP::GetGrayLevel(getLevel());
 
     // Victim level less gray level
-    if (v_level <= k_grey)
+    // if (v_level <= k_grey)
+    if (v_level <= 9)
         return false;
 
     if (victim->GetTypeId() == TYPEID_UNIT)
@@ -24157,7 +24184,7 @@ bool Player::isTotalImmune()
     return false;
 }
 
-bool Player::HasTitle(uint32 bitIndex)
+bool Player::HasTitle(uint32 bitIndex) const
 {
     if (bitIndex > MAX_TITLE_INDEX)
         return false;
