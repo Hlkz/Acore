@@ -1,19 +1,19 @@
 /*
-* Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "TransportMgr.h"
 #include "Transport.h"
@@ -121,7 +121,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
 
     SplineRawInitializer initer(allPoints);
     TransportSpline orientationSpline;
-    //orientationSpline.init_spline_custom(initer);
+    orientationSpline.init_spline_custom(initer);
     orientationSpline.initLengths();
 
     for (size_t i = 0; i < path.size(); ++i)
@@ -355,8 +355,8 @@ Transport* TransportMgr::CreateTransport(uint32 entry, uint32 guid /*= 0*/, Map*
     {
         // SetZoneScript() is called after adding to map, so fetch the script using map
         if (map->IsDungeon())
-        if (InstanceScript* instance = static_cast<InstanceMap*>(map)->GetInstanceScript())
-            entry = instance->GetGameObjectEntry(0, entry);
+            if (InstanceScript* instance = static_cast<InstanceMap*>(map)->GetInstanceScript())
+                entry = instance->GetGameObjectEntry(0, entry);
 
         if (!entry)
             return NULL;
@@ -428,9 +428,9 @@ void TransportMgr::SpawnContinentTransports()
             uint32 entry = fields[1].GetUInt32();
 
             if (TransportTemplate const* tInfo = GetTransportTemplate(entry))
-            if (!tInfo->inInstance)
-            if (CreateTransport(entry, guid))
-                ++count;
+                if (!tInfo->inInstance)
+                    if (CreateTransport(entry, guid))
+                        ++count;
 
         } while (result->NextRow());
     }
@@ -457,8 +457,8 @@ TransportAnimationEntry const* TransportAnimation::GetAnimNode(uint32 time) cons
         return NULL;
 
     for (TransportPathContainer::const_reverse_iterator itr2 = Path.rbegin(); itr2 != Path.rend(); ++itr2)
-    if (time >= itr2->first)
-        return itr2->second;
+        if (time >= itr2->first)
+            return itr2->second;
 
     return Path.begin()->second;
 }

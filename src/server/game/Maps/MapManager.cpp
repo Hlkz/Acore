@@ -124,7 +124,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
 {
     MapEntry const* entry = sMapStore.LookupEntry(mapid);
     if (!entry)
-       return false;
+        return false;
 
     if (!entry->IsDungeon())
         return true;
@@ -217,14 +217,6 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
                     /// @todo send some kind of error message to the player
                     return false;
                 }*/
-    }
-
-    // players are only allowed to enter 5 instances per hour
-    if (entry->IsDungeon() && (!player->GetGroup() || (player->GetGroup() && !player->GetGroup()->isLFGGroup())))
-    {
-        uint32 instaceIdToCheck = 0;
-        if (InstanceSave* save = player->GetInstanceSave(mapid, entry->IsRaid()))
-            instaceIdToCheck = save->GetInstanceId();
     }
 
     //Other requirements
