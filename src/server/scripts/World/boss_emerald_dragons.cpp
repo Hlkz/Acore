@@ -260,4 +260,4 @@ void AddSC_emerald_dragons()
     new npc_dream_fog();
     new npc_dream_fog_cine();
     new boss_emeriss();
-};
+}

@@ -77,4 +77,4 @@ namespace AuthHelper
 
         return NULL;
     }
-};
+}

@@ -79,7 +79,7 @@ public:
 
     class spell_dk_anti_magic_shell_raid_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_dk_anti_magic_shell_raid_AuraScript);
+        PrepareAuraScript(spell_dk_anti_magic_shell_raid_AuraScript)
 
         uint32 absorbPct;
 
@@ -121,7 +121,7 @@ public:
 
     class spell_dk_anti_magic_shell_self_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_dk_anti_magic_shell_self_AuraScript);
+        PrepareAuraScript(spell_dk_anti_magic_shell_self_AuraScript)
 
         uint32 absorbPct, hpPct;
         bool Load() override
@@ -178,7 +178,7 @@ public:
 
     class spell_dk_anti_magic_zone_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_dk_anti_magic_zone_AuraScript);
+        PrepareAuraScript(spell_dk_anti_magic_zone_AuraScript)
 
         uint32 absorbPct;
 
@@ -229,7 +229,7 @@ public:
 
     class spell_dk_blood_boil_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_dk_blood_boil_SpellScript);
+        PrepareSpellScript(spell_dk_blood_boil_SpellScript)
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
@@ -275,7 +275,7 @@ public:
 
     class spell_dk_blood_gorged_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_dk_blood_gorged_AuraScript);
+        PrepareAuraScript(spell_dk_blood_gorged_AuraScript)
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
@@ -349,7 +349,7 @@ public:
 
     class spell_dk_corpse_explosion_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_dk_corpse_explosion_SpellScript);
+        PrepareSpellScript(spell_dk_corpse_explosion_SpellScript)
 
         bool Validate(SpellInfo const* spellInfo) override
         {
@@ -448,7 +448,7 @@ public:
 
     class spell_dk_death_coil_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_dk_death_coil_SpellScript);
+        PrepareSpellScript(spell_dk_death_coil_SpellScript)
 
         bool Validate(SpellInfo const* /*spell*/) override
         {
@@ -515,7 +515,7 @@ public:
 
     class spell_dk_death_gate_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_dk_death_gate_SpellScript);
+        PrepareSpellScript(spell_dk_death_gate_SpellScript)
 
         SpellCastResult CheckClass()
         {
@@ -556,7 +556,7 @@ public:
 
     class spell_dk_death_grip_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_dk_death_grip_SpellScript);
+        PrepareSpellScript(spell_dk_death_grip_SpellScript)
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
@@ -590,7 +590,7 @@ public:
 
     class spell_dk_death_pact_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_dk_death_pact_SpellScript);
+        PrepareSpellScript(spell_dk_death_pact_SpellScript)
 
         SpellCastResult CheckCast()
         {
@@ -646,7 +646,7 @@ public:
 
     class spell_dk_death_strike_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_dk_death_strike_SpellScript);
+        PrepareSpellScript(spell_dk_death_strike_SpellScript)
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
@@ -690,7 +690,7 @@ public:
 
     class spell_dk_ghoul_explode_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_dk_ghoul_explode_SpellScript);
+        PrepareSpellScript(spell_dk_ghoul_explode_SpellScript)
 
         bool Validate(SpellInfo const* spellInfo) override
         {
@@ -738,7 +738,7 @@ public:
 
     class spell_dk_icebound_fortitude_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_dk_icebound_fortitude_AuraScript);
+        PrepareAuraScript(spell_dk_icebound_fortitude_AuraScript)
 
         bool Load() override
         {
@@ -787,7 +787,7 @@ public:
 
     class spell_dk_improved_blood_presence_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_dk_improved_blood_presence_AuraScript);
+        PrepareAuraScript(spell_dk_improved_blood_presence_AuraScript)
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
@@ -834,7 +834,7 @@ public:
 
     class spell_dk_improved_frost_presence_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_dk_improved_frost_presence_AuraScript);
+        PrepareAuraScript(spell_dk_improved_frost_presence_AuraScript)
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
@@ -881,7 +881,7 @@ public:
 
     class spell_dk_improved_unholy_presence_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_dk_improved_unholy_presence_AuraScript);
+        PrepareAuraScript(spell_dk_improved_unholy_presence_AuraScript)
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
@@ -941,7 +941,7 @@ public:
 
     class spell_dk_presence_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_dk_presence_AuraScript);
+        PrepareAuraScript(spell_dk_presence_AuraScript)
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
@@ -1057,7 +1057,7 @@ public:
 
     class spell_dk_raise_dead_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_dk_raise_dead_SpellScript);
+        PrepareSpellScript(spell_dk_raise_dead_SpellScript)
 
         bool Validate(SpellInfo const* spellInfo) override
         {
@@ -1190,7 +1190,7 @@ public:
 
     class spell_dk_rune_tap_party_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_dk_rune_tap_party_SpellScript);
+        PrepareSpellScript(spell_dk_rune_tap_party_SpellScript)
 
         void CheckTargets(std::list<WorldObject*>& targets)
         {
@@ -1217,7 +1217,7 @@ public:
 
     class spell_dk_scent_of_blood_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_dk_scent_of_blood_AuraScript);
+        PrepareAuraScript(spell_dk_scent_of_blood_AuraScript)
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
@@ -1253,7 +1253,7 @@ public:
 
     class spell_dk_scourge_strike_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_dk_scourge_strike_SpellScript);
+        PrepareSpellScript(spell_dk_scourge_strike_SpellScript)
         float multiplier;
 
         bool Load() override
@@ -1316,7 +1316,7 @@ public:
 
     class spell_dk_spell_deflection_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_dk_spell_deflection_AuraScript);
+        PrepareAuraScript(spell_dk_spell_deflection_AuraScript)
 
         uint32 absorbPct;
 
@@ -1360,7 +1360,7 @@ public:
 
     class spell_dk_vampiric_blood_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_dk_vampiric_blood_AuraScript);
+        PrepareAuraScript(spell_dk_vampiric_blood_AuraScript)
 
         void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
         {
@@ -1387,7 +1387,7 @@ public:
 
     class spell_dk_will_of_the_necropolis_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_dk_will_of_the_necropolis_AuraScript);
+        PrepareAuraScript(spell_dk_will_of_the_necropolis_AuraScript)
 
         bool Validate(SpellInfo const* spellInfo) override
         {
