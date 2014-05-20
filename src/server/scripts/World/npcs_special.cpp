@@ -177,7 +177,7 @@ public:
 
         Creature* GetSummonedGuard()
         {
-            Creature* creature = Unit::GetCreature(*me, SpawnedGUID);
+            Creature* creature = ObjectAccessor::GetCreature(*me, SpawnedGUID);
 
             if (creature && creature->IsAlive())
                 return creature;
@@ -672,7 +672,7 @@ public:
                             std::list<uint64>::const_iterator itr;
                             for (itr = Patients.begin(); itr != Patients.end(); ++itr)
                             {
-                                if (Creature* patient = Unit::GetCreature((*me), *itr))
+                                if (Creature* patient = ObjectAccessor::GetCreature((*me), *itr))
                                     patient->setDeathState(JUST_DIED);
                             }
                         }
@@ -769,7 +769,7 @@ public:
 
             if (player->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE)
                 if (DoctorGUID)
-                    if (Creature* doctor = Unit::GetCreature(*me, DoctorGUID))
+                    if (Creature* doctor = ObjectAccessor::GetCreature(*me, DoctorGUID))
                         CAST_AI(npc_doctor::npc_doctorAI, doctor->AI())->PatientSaved(me, player, Coord);
 
             //make not selectable
@@ -815,7 +815,7 @@ public:
                 me->SetFlag(UNIT_DYNAMIC_FLAGS, 32);
 
                 if (DoctorGUID)
-                    if (Creature* doctor = Unit::GetCreature((*me), DoctorGUID))
+                    if (Creature* doctor = ObjectAccessor::GetCreature((*me), DoctorGUID))
                         CAST_AI(npc_doctor::npc_doctorAI, doctor->AI())->PatientDied(Coord);
             }
         }
@@ -1065,7 +1065,7 @@ public:
             {
                 if (RunAwayTimer <= diff)
                 {
-                    if (Unit* unit = Unit::GetUnit(*me, CasterGUID))
+                    if (Unit* unit = ObjectAccessor::GetUnit(*me, CasterGUID))
                     {
                         switch (me->GetEntry())
                         {
@@ -2318,7 +2318,7 @@ public:
             {
                 if (jumpTimer <= diff)
                 {
-                    if (Unit* rabbit = Unit::GetUnit(*me, rabbitGUID))
+                    if (Unit* rabbit = ObjectAccessor::GetUnit(*me, rabbitGUID))
                         DoCast(rabbit, SPELL_SPRING_RABBIT_JUMP);
                     jumpTimer = urand(5000, 10000);
                 } else jumpTimer -= diff;
