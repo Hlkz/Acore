@@ -1224,8 +1224,8 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
     if (++packetCounter.amountCounter > maxPacketCounterAllowed)
     {
         dosTriggered = true;
-        TC_LOG_WARN("network", "AntiDOS: Account %u, IP: %s, flooding packet (opc: %u, size: %u)",
-            Session->GetAccountId(), Session->GetRemoteAddress().c_str(), p.GetOpcode(), (uint32)p.size());
+        TC_LOG_WARN("network", "AntiDOS: Account %u, IP: %s, flooding packet (opc: %s (0x%X), count: %u)",
+            Session->GetAccountId(), Session->GetRemoteAddress().c_str(), opcodeTable[p.GetOpcode()].name, p.GetOpcode(), packetCounter.amountCounter);
     }
     
     // Then check if player is sending packets not allowed
@@ -1275,6 +1275,13 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
     uint32 maxPacketCounterAllowed;
     switch (opcode)
     {
+        case CMSG_MESSAGECHAT:
+        {
+            maxPacketCounterAllowed = 500;
+            break;
+        }
+
+        case CMSG_ATTACKSTOP:
         case CMSG_ITEM_QUERY_SINGLE:
         case CMSG_ITEM_NAME_QUERY:
         case CMSG_GUILD_QUERY:
@@ -1310,19 +1317,20 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
             break;
         }
 
-        case CMSG_MESSAGECHAT:
+        case CMSG_REQUEST_PARTY_MEMBER_STATS:
+        case CMSG_WHO:
         {
             maxPacketCounterAllowed = 50;
             break;
         }
 
+        case CMSG_SETSHEATHED:
         case CMSG_CONTACT_LIST:
         {
             maxPacketCounterAllowed = 10;
             break;
         }
 
-        case CMSG_WHO:
         case CMSG_GAMEOBJ_USE:
         case CMSG_GAMEOBJ_REPORT_USE:
         case CMSG_SPELLCLICK:
@@ -1400,14 +1408,12 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_GROUP_RAID_CONVERT:
         case CMSG_GROUP_CHANGE_SUB_GROUP:
         case CMSG_GROUP_ASSISTANT_LEADER:
-        case CMSG_REQUEST_PARTY_MEMBER_STATS:
         case CMSG_OPT_OUT_OF_LOOT:
         case CMSG_BATTLEMASTER_JOIN_ARENA:
         case CMSG_LEAVE_BATTLEFIELD:
         case CMSG_REPORT_PVP_AFK:
         case CMSG_DUEL_ACCEPTED:
         case CMSG_DUEL_CANCELLED:
-        case CMSG_SETSHEATHED:
         case CMSG_CALENDAR_GET_CALENDAR:
         case CMSG_CALENDAR_ADD_EVENT:
         case CMSG_CALENDAR_UPDATE_EVENT:
