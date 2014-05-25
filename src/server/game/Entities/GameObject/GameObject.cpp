@@ -2000,6 +2000,10 @@ void GameObject::SetLootState(LootState state, Unit* unit)
     m_lootStateUnitGUID = unit ? unit->GetGUID() : 0;
     AI()->OnStateChanged(state, unit);
     sScriptMgr->OnGameObjectLootStateChanged(this, state, unit);
+
+    if (GetGoType() == GAMEOBJECT_TYPE_DOOR) // only set collision for doors on SetGoState
+        return;
+
 }
 
 void GameObject::SetGoState(GOState state)
