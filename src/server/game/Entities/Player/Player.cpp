@@ -26620,3 +26620,8 @@ bool Player::IsDeserter(uint32 team)
         return true;
     }
 }
+
+bool Player::IsLoading() const
+{
+    return GetSession()->PlayerLoading();
+}

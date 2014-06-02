@@ -2428,6 +2428,8 @@ class Player : public Unit, public GridObject<Player>
         void SetRezTime(uint32 newreztime = 0) { m_rezData.rezTime = newreztime; }
         void SetSHGUID(uint32 newshguid) { m_rezData.shguid = newshguid; }
 
+        bool IsLoading() const;
+
     protected:
         // Gamemaster whisper whitelist
         WhisperListContainer WhisperList;
