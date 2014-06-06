@@ -58,6 +58,7 @@ EndContentData */
 #include "Pet.h"
 #include "MapManager.h"
 #include "Map.h"
+#include "CreatureTextMgr.h"
 
 /*########
 # npc_air_force_bots
@@ -2352,7 +2353,6 @@ public:
     };
 };
 
-
 class npc_invisiblemaker : public CreatureScript
 {
 public:
@@ -2390,6 +2390,59 @@ public:
     }
 };
 
+class npc_imp_in_a_ball : public CreatureScript
+{
+private:
+    enum
+    {
+        SAY_RANDOM,
+
+        EVENT_TALK = 1,
+    };
+
+public:
+    npc_imp_in_a_ball() : CreatureScript("npc_imp_in_a_ball") { }
+
+    struct npc_imp_in_a_ballAI : public ScriptedAI
+    {
+        npc_imp_in_a_ballAI(Creature* creature) : ScriptedAI(creature)
+        {
+            summonerGUID = 0;
+        }
+
+        void IsSummonedBy(Unit* summoner) override
+        {
+            if (summoner->GetTypeId() == TYPEID_PLAYER)
+            {
+                summonerGUID = summoner->GetGUID();
+                events.ScheduleEvent(EVENT_TALK, 3000);
+            }
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            events.Update(diff);
+
+            if (events.ExecuteEvent() == EVENT_TALK)
+            {
+                if (Player* owner = ObjectAccessor::GetPlayer(*me, summonerGUID))
+                {
+                    sCreatureTextMgr->SendChat(me, SAY_RANDOM, owner,
+                        owner->GetGroup() ? CHAT_MSG_MONSTER_PARTY : CHAT_MSG_MONSTER_WHISPER, LANG_ADDON, TEXT_RANGE_NORMAL);
+                }
+            }
+        }
+
+    private:
+        EventMap events;
+        uint64 summonerGUID;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_imp_in_a_ballAI(creature);
+    }
+};
 
 void AddSC_npcs_special()
 {
@@ -2414,4 +2467,5 @@ void AddSC_npcs_special()
     new npc_experience();
     new npc_firework();
     new npc_spring_rabbit();
+    new npc_imp_in_a_ball();
 }
