@@ -802,7 +802,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     * @param procFlags proc_flags of spellProc
     * @param procExtra proc_EX of procSpell
     * @param EventProcFlag proc_flags of aura to be procced
-
+    * @param spellProto SpellInfo of aura to be procced
 
     */
 

@@ -218,7 +218,7 @@ int Master::Run()
         if (GetProcessAffinityMask(hProcess, &appAff, &sysAff))
         {
             ULONG_PTR currentAffinity = affinity & appAff;            // remove non accessible processors
-            
+
             if (!currentAffinity)
                 TC_LOG_ERROR("server.worldserver", "Processors marked in UseProcessors bitmask (hex) %x are not accessible for the worldserver. Accessible processors bitmask (hex): %x", affinity, appAff);
             else if (SetProcessAffinityMask(hProcess, currentAffinity))
