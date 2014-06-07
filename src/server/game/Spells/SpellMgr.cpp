@@ -3468,6 +3468,9 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             // ENDOF TRIAL OF THE CRUSADER SPELLS
             //
+            case 72830: // Achievement Check
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
+                break;
             // ICECROWN CITADEL SPELLS
             //
             // THESE SPELLS ARE WORKING CORRECTLY EVEN WITHOUT THIS HACK
