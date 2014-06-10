@@ -4170,8 +4170,8 @@ void AuraEffect::HandleModMeleeSpeedPct(AuraApplication const* aurApp, uint8 mod
 
     if (spellGroupVal)
     {
-        target->ApplyAttackTimePercentMod(BASE_ATTACK, (float)GetAmount(), !apply);
-        target->ApplyAttackTimePercentMod(OFF_ATTACK, (float)GetAmount(), !apply);
+        target->ApplyAttackTimePercentMod(BASE_ATTACK, float(spellGroupVal), !apply);
+        target->ApplyAttackTimePercentMod(OFF_ATTACK, float(spellGroupVal), !apply);
     }
     target->ApplyAttackTimePercentMod(BASE_ATTACK, float(GetAmount()), apply);
     target->ApplyAttackTimePercentMod(OFF_ATTACK,  float(GetAmount()), apply);
