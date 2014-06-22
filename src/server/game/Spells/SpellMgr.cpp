@@ -2661,6 +2661,7 @@ void SpellMgr::LoadSpellInfoStore()
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SPELLS);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
+    ASSERT(result);
 
     do
     {

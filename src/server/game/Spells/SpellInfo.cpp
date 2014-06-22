@@ -323,35 +323,37 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
 SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, uint8 effIndex, Field* fields)
 {
     /*
-        68 Effect1, Effect2, Effect3, EffectDieSides1, EffectDieSides2, EffectDieSides3, EffectRealPointsPerLevel1, EffectRealPointsPerLevel2, EffectRealPointsPerLevel3, EffectBasePoints1, EffectBasePoints2, EffectBasePoints3, EffectMechanic1, EffectMechanic2, EffectMechanic3, EffectImplicitTargetA1, EffectImplicitTargetA2, EffectImplicitTargetA3, EffectImplicitTargetB1, EffectImplicitTargetB2, EffectImplicitTargetB3
-        89 EffectRadiusIndex1, EffectRadiusIndex2, EffectRadiusIndex3, EffectApplyAuraName1, EffectApplyAuraName2, EffectApplyAuraName3, EffectAmplitude1, EffectAmplitude2, EffectAmplitude3, EffectValueMultiplier1, EffectValueMultiplier2, EffectValueMultiplier3, EffectChainTarget1, EffectChainTarget2, EffectChainTarget3, EffectItemType1, EffectItemType2, EffectItemType3, EffectMiscValue1, EffectMiscValue2, EffectMiscValue3, EffectMiscValueB1, EffectMiscValueB2, EffectMiscValueB3
-        113 EffectTriggerSpell1, EffectTriggerSpell2, EffectTriggerSpell3, EffectPointsPerComboPoint1, EffectPointsPerComboPoint2, EffectPointsPerComboPoint3, EffectSpellClassMask1, EffectSpellClassMask2, EffectSpellClassMask3
-        169 EffectDamageMultiplier1, EffectDamageMultiplier2, EffectDamageMultiplier3
-        177 EffectBonusMultiplier1, EffectBonusMultiplier2, EffectBonusMultiplier3
+        92     "Effect1, Effect2, Effect3, EffectDieSides1, EffectDieSides2, EffectDieSides3, EffectRealPointsPerLevel1, EffectRealPointsPerLevel2, EffectRealPointsPerLevel3, EffectBasePoints1, EffectBasePoints2, EffectBasePoints3, "
+        104    "EffectMechanic1, EffectMechanic2, EffectMechanic3, EffectImplicitTargetA1, EffectImplicitTargetA2, EffectImplicitTargetA3, EffectImplicitTargetB1, EffectImplicitTargetB2, EffectImplicitTargetB3, "
+        113    "EffectRadiusIndex1, EffectRadiusIndex2, EffectRadiusIndex3, EffectApplyAuraName1, EffectApplyAuraName2, EffectApplyAuraName3, EffectAmplitude1, EffectAmplitude2, EffectAmplitude3, "
+        122    "EffectValueMultiplier1, EffectValueMultiplier2, EffectValueMultiplier3, EffectChainTarget1, EffectChainTarget2, EffectChainTarget3, EffectItemType1, EffectItemType2, EffectItemType3, "
+        131    "EffectMiscValue1, EffectMiscValue2, EffectMiscValue3, EffectMiscValueB1, EffectMiscValueB2, EffectMiscValueB3, EffectTriggerSpell1, EffectTriggerSpell2, EffectTriggerSpell3, "
+        140    "EffectPointsPerComboPoint1, EffectPointsPerComboPoint2, EffectPointsPerComboPoint3, EffectSpellClassMask1, EffectSpellClassMask2, EffectSpellClassMask3, "
+        146    "EffectDamageMultiplier1, EffectDamageMultiplier2, EffectDamageMultiplier3, EffectBonusMultiplier1, EffectBonusMultiplier2, EffectBonusMultiplier3
    */
 
     _spellInfo = spellInfo;
     _effIndex = effIndex;
-    Effect              = fields[68+effIndex].GetUInt32();
-    ApplyAuraName       = fields[92+effIndex].GetUInt32();
-    Amplitude           = fields[95+effIndex].GetUInt32();
-    DieSides            = fields[71+effIndex].GetInt32();
-    RealPointsPerLevel  = fields[74+effIndex].GetFloat();
-    BasePoints          = fields[77+effIndex].GetInt32();
-    PointsPerComboPoint = fields[116+effIndex].GetFloat();
-    ValueMultiplier     = fields[98+effIndex].GetFloat();
-    DamageMultiplier    = fields[169+effIndex].GetFloat();
-    BonusMultiplier     = fields[177+effIndex].GetFloat();
-    MiscValue           = fields[107+effIndex].GetInt32();
-    MiscValueB          = fields[110+effIndex].GetInt32();
-    Mechanic            = Mechanics(fields[80+effIndex].GetUInt32());
-    TargetA             = SpellImplicitTargetInfo(fields[83+effIndex].GetUInt32());
-    TargetB             = SpellImplicitTargetInfo(fields[86+effIndex].GetUInt32());
-    RadiusEntry         = fields[89+effIndex].GetUInt32() ? sSpellRadiusStore.LookupEntry(fields[89+effIndex].GetUInt32()) : NULL; 
-    ChainTarget         = fields[101+effIndex].GetUInt32();
-    ItemType            = fields[104+effIndex].GetUInt32();
-    TriggerSpell        = fields[113+effIndex].GetUInt32();
-    SpellClassMask      = fields[119+effIndex].GetUInt32();
+    Effect              = fields[92+effIndex].GetUInt32();
+    ApplyAuraName       = fields[116+effIndex].GetUInt32();
+    Amplitude           = fields[119+effIndex].GetUInt32();
+    DieSides            = fields[95+effIndex].GetInt32();
+    RealPointsPerLevel  = fields[98+effIndex].GetFloat();
+    BasePoints          = fields[101+effIndex].GetInt32();
+    PointsPerComboPoint = fields[140+effIndex].GetFloat();
+    ValueMultiplier     = fields[122+effIndex].GetFloat();
+    DamageMultiplier    = fields[146+effIndex].GetFloat();
+    BonusMultiplier     = fields[149+effIndex].GetFloat();
+    MiscValue           = fields[131+effIndex].GetInt32();
+    MiscValueB          = fields[134+effIndex].GetInt32();
+    Mechanic            = Mechanics(fields[104+effIndex].GetUInt32());
+    TargetA             = SpellImplicitTargetInfo(fields[107+effIndex].GetUInt32());
+    TargetB             = SpellImplicitTargetInfo(fields[110+effIndex].GetUInt32());
+    RadiusEntry         = fields[113+effIndex].GetUInt32() ? sSpellRadiusStore.LookupEntry(fields[113+effIndex].GetUInt32()) : NULL; 
+    ChainTarget         = fields[125+effIndex].GetUInt32();
+    ItemType            = fields[128+effIndex].GetUInt32();
+    TriggerSpell        = fields[137+effIndex].GetUInt32();
+    SpellClassMask      = fields[143+effIndex].GetUInt32();
     ImplicitTargetConditions = NULL;
 }
 
@@ -771,16 +773,15 @@ SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
 SpellInfo::SpellInfo(Field* fields)
 {
     /*
-        0 Entry, Category, Dispel, Mechanic, Attributes, AttributesEx, AttributesEx2, AttributesEx3, AttributesEx4, AttributesEx5, AttributesEx6, AttributesEx7
-        12 Stances, StancesNot, Targets, TargetCreatureType, RequiresSpellFocus, FacingCasterFlags, CasterAuraState, TargetAuraState, CasterAuraStateNot, TargetAuraStateNot, casterAuraSpell, targetAuraSpell
-        24 excludeCasterAuraSpell, excludeTargetAuraSpell, CastingTimeIndex, RecoveryTime, CategoryRecoveryTime, InterruptFlags, AuraInterruptFlags, ChannelInterruptFlags, procFlags, procChance, procCharges
-        35 maxLevel, baseLevel, spellLevel, DurationIndex, powerType, manaCost, manaCostPerlevel, manaPerSecond, manaPerSecondPerLevel, rangeIndex, speed, StackAmount, Totem1, Totem2
-        49 Reagent1, Reagent2, Reagent3, Reagent4, Reagent5, Reagent6, Reagent7, Reagent8, ReagentCount1, ReagentCount2, ReagentCount3, ReagentCount4, ReagentCount5, ReagentCount6, ReagentCount7, ReagentCount8, EquippedItemClass, EquippedItemSubClassMask, EquippedItemInventoryTypeMask
-        122 SpellVisual1, SpellVisual2, SpellIconID, activeIconID
-        126 SpellName_0, SpellName_1, SpellName_2, SpellName_3, SpellName_4, SpellName_5, SpellName_6, SpellName_7, SpellName_8, SpellName_9, SpellName_10, SpellName_11, SpellName_12, SpellName_13, SpellName_14, SpellName_15
-        142 Rank_0, Rank_1, Rank_2, Rank_3, Rank_4, Rank_5, Rank_6, Rank_7, Rank_8, Rank_9, Rank_10, Rank_11, Rank_12, Rank_13, Rank_14, Rank_15
-        158 ManaCostPercentage, StartRecoveryCategory, StartRecoveryTime, MaxTargetLevel, SpellFamilyName, SpellFamilyFlagsLow, SpellFamilyFlagsHigh, SpellFamilyFlags2, MaxAffectedTargets, DmgClass, PreventionType
-        172 TotemCategory1, TotemCategory2, AreaGroupId, SchoolMask, runeCostID
+        0     "Entry, Category, Dispel, Mechanic, Attributes, AttributesEx, AttributesEx2, AttributesEx3, AttributesEx4, AttributesEx5, AttributesEx6, AttributesEx7, "
+        12     "Stances, StancesNot, Targets, TargetCreatureType, RequiresSpellFocus, FacingCasterFlags, CasterAuraState, TargetAuraState, CasterAuraStateNot, TargetAuraStateNot, casterAuraSpell, targetAuraSpell, "
+        24     "excludeCasterAuraSpell, excludeTargetAuraSpell, CastingTimeIndex, RecoveryTime, CategoryRecoveryTime, InterruptFlags, AuraInterruptFlags, ChannelInterruptFlags, procFlags, procChance, procCharges, "
+        35     "maxLevel, baseLevel, spellLevel, DurationIndex, powerType, manaCost, manaCostPerlevel, manaPerSecond, manaPerSecondPerLevel, rangeIndex, speed, StackAmount, Totem1, Totem2, "
+        49     "Reagent1, Reagent2, Reagent3, Reagent4, Reagent5, Reagent6, Reagent7, Reagent8, ReagentCount1, ReagentCount2, ReagentCount3, ReagentCount4, ReagentCount5, ReagentCount6, ReagentCount7, ReagentCount8, "
+        65     "EquippedItemClass, EquippedItemSubClassMask, EquippedItemInventoryTypeMask, SpellVisual1, SpellVisual2, SpellIconID, activeIconID, "
+        72     "SpellName_0, SpellName_2, Rank_0, Rank_2, "
+        76     "ManaCostPercentage, StartRecoveryCategory, StartRecoveryTime, MaxTargetLevel, SpellFamilyName, SpellFamilyFlagsLow, SpellFamilyFlagsHigh, SpellFamilyFlags2, MaxAffectedTargets, DmgClass, PreventionType, "
+        87     "TotemCategory1, TotemCategory2, AreaGroupId, SchoolMask, runeCostID, "
     */
     Id                   = fields[0].GetUInt32();
     CategoryEntry        = fields[1].GetUInt32() ? sSpellCategoryStore.LookupEntry(fields[1].GetUInt32()) : NULL;
@@ -839,33 +840,37 @@ SpellInfo::SpellInfo(Field* fields)
     EquippedItemSubClassMask        = fields[66].GetInt32();
     EquippedItemInventoryTypeMask   = fields[67].GetInt32();
 
-    SpellVisual[0]                  = fields[122].GetUInt32();
-    SpellVisual[1]                  = fields[123].GetUInt32();
-    SpellIconID                     = fields[124].GetUInt32();
-    ActiveIconID                    = fields[125].GetUInt32();
+    SpellVisual[0]                  = fields[68].GetUInt32();
+    SpellVisual[1]                  = fields[69].GetUInt32();
+    SpellIconID                     = fields[70].GetUInt32();
+    ActiveIconID                    = fields[71].GetUInt32();
 
-    for (uint8 i = 0; i < 16; ++i)
-        SpellName[i] = fields[126+i].GetString();
+    //for (uint8 i = 0; i < 16; ++i)
+    //    SpellName[i] = fields[126+i].GetString();
+    SpellName[0] = fields[72].GetString();
+    SpellName[2] = fields[73].GetString();
 
-    for (uint8 i = 0; i < 16; ++i)
-        Rank[i] = fields[142+i].GetString();
+    //for (uint8 i = 0; i < 16; ++i)
+    //    Rank[i] = fields[142+i].GetString();
+    Rank[0] = fields[74].GetString();
+    Rank[2] = fields[75].GetString();
 
-    ManaCostPercentage      = fields[158].GetUInt32();
-    StartRecoveryCategory   = fields[159].GetUInt32();
-    StartRecoveryTime       = fields[160].GetUInt32();
-    MaxTargetLevel          = fields[161].GetUInt32();
-    SpellFamilyName         = fields[162].GetUInt32(); 
-    SpellFamilyFlags[0]     = fields[163].GetInt32();
-    SpellFamilyFlags[1]     = fields[164].GetInt32();
-    SpellFamilyFlags[2]     = fields[165].GetInt32();
-    MaxAffectedTargets      = fields[166].GetUInt32();
-    DmgClass                = fields[167].GetUInt32();
-    PreventionType          = fields[168].GetUInt32();
-    TotemCategory[0]        = fields[172].GetUInt32();
-    TotemCategory[1]        = fields[173].GetUInt32();
-    AreaGroupId             = fields[174].GetUInt32();
-    SchoolMask              = fields[175].GetUInt32();
-    RuneCostID              = fields[176].GetUInt32();
+    ManaCostPercentage      = fields[76].GetUInt32();
+    StartRecoveryCategory   = fields[77].GetUInt32();
+    StartRecoveryTime       = fields[78].GetUInt32();
+    MaxTargetLevel          = fields[79].GetUInt32();
+    SpellFamilyName         = fields[80].GetUInt32(); 
+    SpellFamilyFlags[0]     = fields[81].GetInt32();
+    SpellFamilyFlags[1]     = fields[82].GetInt32();
+    SpellFamilyFlags[2]     = fields[83].GetInt32();
+    MaxAffectedTargets      = fields[84].GetUInt32();
+    DmgClass                = fields[85].GetUInt32();
+    PreventionType          = fields[86].GetUInt32();
+    TotemCategory[0]        = fields[87].GetUInt32();
+    TotemCategory[1]        = fields[88].GetUInt32();
+    AreaGroupId             = fields[89].GetUInt32();
+    SchoolMask              = fields[90].GetUInt32();
+    RuneCostID              = fields[91].GetUInt32();
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         Effects[i] = SpellEffectInfo(this, i, fields);
