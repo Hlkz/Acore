@@ -3,28 +3,28 @@
 
 #include "BattlegroundMgr.h"
 
-enum BG_SG_SpellEntry
-{
-    BG_SG_SP_FLAG_A = 90001,
-    BG_SG_SP_FLAG_H = 90000,
-};
-
 enum BG_SG_CreatureEntry
 {
     BG_SG_NPC_CREEP_A = 1000400,
     BG_SG_NPC_CREEP_H = 1000401,
     BG_SG_NPC_BOSS_A = 1000400,
     BG_SG_NPC_BOSS_H = 1000401,
+    BG_SG_NPC_MINIBOSS_A = 1000400,
+    BG_SG_NPC_MINIBOSS_H = 1000401,
 };
 
 enum BG_SG_CreatureType
 {
     BG_SG_CREA_BOSS_A,
     BG_SG_CREA_BOSS_H,
+    BG_SG_CREA_LBOSS_A,
+    BG_SG_CREA_LBOSS_H,
+    BG_SG_CREA_RBOSS_A,
+    BG_SG_CREA_RBOSS_H,
     BG_SG_CREA_MAX,
 };
 
-const float BG_SG_CreaturePos[BG_SG_CREA_MAX][4] =
+const Position BG_SG_CreaturePos[BG_SG_CREA_MAX] =
 {
     {-5263.204590f, -0.234453f, 39.183247f, 3.195785f},
     {-5629.822f, 411.894f, -1.355f, 6.227f},
@@ -63,6 +63,8 @@ struct BattlegroundSGScore : public BattlegroundScore
     ~BattlegroundSGScore() { }
 };
 
+typedef std::map<uint64, Creature*> SGCreepMap;
+
 class BattlegroundSG : public Battleground
 {
     public:
@@ -92,6 +94,7 @@ class BattlegroundSG : public Battleground
 
         void CrushWall();
         void EraseCreep(uint64 guid, uint8 lane, uint8 teamid);
+        Creature* GetFirstCreep(uint8 lane, uint8 teamid) { return m_Creeps[lane][teamid].begin()->second; }
 
         /*variables*/
         uint32 m_pts[BG_TEAMS_COUNT];
@@ -109,7 +112,7 @@ class BattlegroundSG : public Battleground
         int32 m_WavesCount;
         bool m_WallFallen;
         int32 m_CreepsCount[BG_TEAMS_COUNT];
-        std::map<uint64, Creature*> m_Creeps[BG_SG_LANE_MAX][BG_TEAMS_COUNT];
+        SGCreepMap m_Creeps[BG_SG_LANE_MAX][BG_TEAMS_COUNT];
         bool m_LastCreepWasTop[BG_TEAMS_COUNT];
 };
 

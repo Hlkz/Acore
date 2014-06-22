@@ -37,9 +37,6 @@ public:
         uint32 team;
         BattlegroundSG* iwp;
 
-        void Reset() { }
-        void UpdateAI(uint32 diff) { }
-
         void JustDied(Unit *)
         {
             if (iwp)
@@ -50,6 +47,57 @@ public:
     CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_iwp_bossAI(creature);
+    }
+};
+
+class npc_iwp_miniboss : public CreatureScript
+{
+public:
+    npc_iwp_miniboss() : CreatureScript("npc_iwp_boss") { }
+
+    struct npc_iwp_minibossAI : ScriptedAI
+    {
+        npc_iwp_minibossAI(Creature* creature) : ScriptedAI(creature)
+        {
+            teamid = me->getFaction() == 3802 ? TEAM_ALLIANCE : TEAM_HORDE;
+            attackable = false; timer = 5000;
+            if (Battleground* bg = sBattlegroundMgr->GetBattleground(me->GetInstanceId(), BATTLEGROUND_SG))
+            if (BattlegroundSG* SG = static_cast<BattlegroundSG*>(bg))
+                iwp = SG;
+        }
+        uint8 teamid; uint8 laneid; bool attackable; int32 timer;
+        BattlegroundSG* iwp;
+
+        void UpdateAI(uint32 diff)
+        {
+            timer -= diff;
+            if (timer < 0)
+            {
+                attackable = me->IsWithinDist(iwp->GetFirstCreep(laneid, iwp->GetOtherTeam(teamid)), 10.0f);
+                timer = 5000;
+                if (attackable)
+                    me->MonsterSay("Attaquable !", 0, NULL);
+                else
+                    me->MonsterSay("Non attaquable !", 0, NULL);
+            }
+        }
+
+        void DamageTaken(Unit* attacker, uint32& damage) override
+        {
+            if (!attackable)
+                damage /= 3;
+        }
+
+        void DamageDealt(Unit* /*victim*/, uint32& damage, DamageEffectType /*damageType*/) override
+        {
+            if (attackable)
+                damage /= 3;
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_iwp_minibossAI(creature);
     }
 };
 
@@ -133,8 +181,12 @@ BattlegroundSG::~BattlegroundSG()
 
 bool BattlegroundSG::SetupBattleground()
 {
-    if ((!AddCreature(BG_SG_NPC_BOSS_A, BG_SG_CREA_BOSS_A, BG_SG_CreaturePos[BG_SG_CREA_BOSS_A][0], BG_SG_CreaturePos[BG_SG_CREA_BOSS_A][1], BG_SG_CreaturePos[BG_SG_CREA_BOSS_A][2], BG_SG_CreaturePos[BG_SG_CREA_BOSS_A][3], TEAM_ALLIANCE))
-        || (!AddCreature(BG_SG_NPC_BOSS_H, BG_SG_CREA_BOSS_H, BG_SG_CreaturePos[BG_SG_CREA_BOSS_H][0], BG_SG_CreaturePos[BG_SG_CREA_BOSS_H][1], BG_SG_CreaturePos[BG_SG_CREA_BOSS_H][2], BG_SG_CreaturePos[BG_SG_CREA_BOSS_H][3], TEAM_HORDE)))
+    if (!AddCreature(BG_SG_NPC_BOSS_A, BG_SG_CREA_BOSS_A, BG_SG_CreaturePos[BG_SG_CREA_BOSS_A], TEAM_ALLIANCE)
+        || !AddCreature(BG_SG_NPC_BOSS_H, BG_SG_CREA_BOSS_H, BG_SG_CreaturePos[BG_SG_CREA_BOSS_H], TEAM_HORDE)
+        || !AddCreature(BG_SG_NPC_MINIBOSS_A, BG_SG_CREA_LBOSS_A, BG_SG_CreaturePos[BG_SG_CREA_LBOSS_A], TEAM_ALLIANCE)
+        || !AddCreature(BG_SG_NPC_MINIBOSS_H, BG_SG_CREA_LBOSS_H, BG_SG_CreaturePos[BG_SG_CREA_LBOSS_H], TEAM_HORDE)
+        || !AddCreature(BG_SG_NPC_MINIBOSS_A, BG_SG_CREA_RBOSS_A, BG_SG_CreaturePos[BG_SG_CREA_RBOSS_A], TEAM_ALLIANCE)
+        || !AddCreature(BG_SG_NPC_MINIBOSS_H, BG_SG_CREA_RBOSS_H, BG_SG_CreaturePos[BG_SG_CREA_RBOSS_H], TEAM_HORDE))
     {
         TC_LOG_ERROR("sql.sql", "BatteGroundSG: Failed to spawn boss");
         return false;
@@ -439,5 +491,6 @@ void BattlegroundSG::CrushWall()
 void AddSC_npc_iwp()
 {
     new npc_iwp_boss();
+    new npc_iwp_miniboss();
     new npc_iwp_creep();
 }
