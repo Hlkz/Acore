@@ -4841,7 +4841,7 @@ void ObjectMgr::LoadEventScripts()
         if (uint32 eventId = itr->second.GetEventScriptId())
             evt_scripts.insert(eventId);
 
-    // Load all possible script entries from spells
+    // Load all possible script entries from spelldbc
     for (uint32 i = 1; i < sSpellMgr->GetSpellInfoStoreSize(); ++i)
         if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(i))
             for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)

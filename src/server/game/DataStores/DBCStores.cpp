@@ -552,7 +552,7 @@ void LoadDBCStores(const std::string& dataPath)
     {
         std::set<uint32> spellPaths;
         PreparedStatement* stmt;
-        stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SPELLS_SIZE);
+        stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SPELLDBC_SIZE);
         uint32 spellInfoMapSize = WorldDatabase.Query(stmt)->Fetch()[0].GetUInt32()+1;
         for (uint32 i = 1; i < spellInfoMapSize; ++i)
             if (SpellInfo const* sInfo = sSpellMgr->GetSpellInfo(i))

@@ -23702,7 +23702,7 @@ void Player::UpdateZoneDependentAuras(uint32 newZone)
 
 void Player::UpdateAreaDependentAuras(uint32 newArea)
 {
-    // remove auras from spells with area limitations
+    // remove auras from spelldbc with area limitations
     for (AuraMap::iterator iter = m_ownedAuras.begin(); iter != m_ownedAuras.end();)
     {
         // use m_zoneUpdateId for speed: UpdateArea called from UpdateZone or instead UpdateZone in both cases m_zoneUpdateId up-to-date

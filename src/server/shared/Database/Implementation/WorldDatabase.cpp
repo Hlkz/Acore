@@ -89,7 +89,7 @@ void WorldDatabaseConnection::DoPrepareStatements()
     PrepareStatement(WORLD_SEL_REQ_XP, "SELECT xp_for_next_level FROM player_xp_for_level WHERE lvl = ?", CONNECTION_SYNCH);
     PrepareStatement(WORLD_UPD_TOP_RANK, "UPDATE page_text SET text = ? WHERE entry = 10000", CONNECTION_ASYNC);
     PrepareStatement(WORLD_UPD_TOP_RANK_LOCALE, "UPDATE locales_page_text SET Text_loc2 = ? WHERE entry = 10000", CONNECTION_ASYNC);
-    PrepareStatement(WORLD_SEL_SPELLS, "SELECT "
+    PrepareStatement(WORLD_SEL_SPELLDBC, "SELECT "
         /* 0 */     "Entry, Category, Dispel, Mechanic, Attributes, AttributesEx, AttributesEx2, AttributesEx3, AttributesEx4, AttributesEx5, AttributesEx6, AttributesEx7, "
         /* 12 */    "Stances, StancesNot, Targets, TargetCreatureType, RequiresSpellFocus, FacingCasterFlags, CasterAuraState, TargetAuraState, CasterAuraStateNot, TargetAuraStateNot, casterAuraSpell, targetAuraSpell, "
         /* 24 */    "excludeCasterAuraSpell, excludeTargetAuraSpell, CastingTimeIndex, RecoveryTime, CategoryRecoveryTime, InterruptFlags, AuraInterruptFlags, ChannelInterruptFlags, procFlags, procChance, procCharges, "
@@ -105,7 +105,7 @@ void WorldDatabaseConnection::DoPrepareStatements()
         /* 122 */   "EffectValueMultiplier1, EffectValueMultiplier2, EffectValueMultiplier3, EffectChainTarget1, EffectChainTarget2, EffectChainTarget3, EffectItemType1, EffectItemType2, EffectItemType3, "
         /* 131 */   "EffectMiscValue1, EffectMiscValue2, EffectMiscValue3, EffectMiscValueB1, EffectMiscValueB2, EffectMiscValueB3, EffectTriggerSpell1, EffectTriggerSpell2, EffectTriggerSpell3, "
         /* 140 */   "EffectPointsPerComboPoint1, EffectPointsPerComboPoint2, EffectPointsPerComboPoint3, EffectSpellClassMask1, EffectSpellClassMask2, EffectSpellClassMask3, "
-        /* 146 */   "EffectDamageMultiplier1, EffectDamageMultiplier2, EffectDamageMultiplier3, EffectBonusMultiplier1, EffectBonusMultiplier2, EffectBonusMultiplier3 FROM spells ORDER BY Entry", CONNECTION_SYNCH);
-    PrepareStatement(WORLD_SEL_SPELLS_SIZE, "SELECT Entry FROM spells ORDER BY Entry DESC LIMIT 1", CONNECTION_SYNCH);
+        /* 146 */   "EffectDamageMultiplier1, EffectDamageMultiplier2, EffectDamageMultiplier3, EffectBonusMultiplier1, EffectBonusMultiplier2, EffectBonusMultiplier3 FROM spelldbc ORDER BY Entry", CONNECTION_SYNCH);
+    PrepareStatement(WORLD_SEL_SPELLDBC_SIZE, "SELECT Entry FROM spelldbc ORDER BY Entry DESC LIMIT 1", CONNECTION_SYNCH);
     PrepareStatement(WORLD_SEL_NODE_RELATIONS, "SELECT path FROM node_relations WHERE id = ? AND relation = ?", CONNECTION_SYNCH);
 }

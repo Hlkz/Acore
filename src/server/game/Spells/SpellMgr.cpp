@@ -2664,11 +2664,11 @@ void SpellMgr::LoadSpellInfoStore()
     UnloadSpellInfoStore();
 
     PreparedStatement* stmt;
-    stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SPELLS_SIZE);
+    stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SPELLDBC_SIZE);
     uint32 spellInfoMapSize = WorldDatabase.Query(stmt)->Fetch()[0].GetUInt32()+1;
     mSpellInfoMap.resize(spellInfoMapSize, NULL);
 
-    stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SPELLS);
+    stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SPELLDBC);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
     ASSERT(result);
 
