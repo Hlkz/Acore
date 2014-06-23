@@ -25,7 +25,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <unordered_map>
 
 /** ObjectRegistry holds all registry item of the same type
  */
