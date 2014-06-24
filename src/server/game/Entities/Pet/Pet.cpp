@@ -1447,7 +1447,7 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
     // talent: unlearn all other talent ranks (high and low)
     if (TalentSpellPos const* talentPos = GetTalentSpellPos(spellId))
     {
-        if (TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentPos->talent_id))
+        if (TalentEntry const* talentInfo = sDBCMgr->GetTalentEntry(talentPos->talent_id))
         {
             for (uint8 i = 0; i < MAX_TALENT_RANK; ++i)
             {
@@ -1685,10 +1685,9 @@ bool Pet::resetTalents()
         return false;
     }
 
-    for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
+    for (TalentContainer::const_iterator itr = sDBCMgr->TalentStore.begin(); itr != sDBCMgr->TalentStore.end(); ++itr)
     {
-        TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
-
+        TalentEntry const* talentInfo = itr->second;
         if (!talentInfo)
             continue;
 

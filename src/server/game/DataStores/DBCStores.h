@@ -166,7 +166,6 @@ extern DBCStorage <SpellRuneCostEntry>           sSpellRuneCostStore;
 extern DBCStorage <SpellShapeshiftEntry>         sSpellShapeshiftStore;
 extern DBCStorage <StableSlotPricesEntry>        sStableSlotPricesStore;
 extern DBCStorage <SummonPropertiesEntry>        sSummonPropertiesStore;
-extern DBCStorage <TalentEntry>                  sTalentStore;
 extern DBCStorage <TalentTabEntry>               sTalentTabStore;
 extern DBCStorage <TaxiNodesEntry>               sTaxiNodesStore;
 extern DBCStorage <TaxiPathEntry>                sTaxiPathStore;
@@ -187,5 +186,25 @@ extern DBCStorage <WorldMapOverlayEntry>         sWorldMapOverlayStore;
 extern DBCStorage <WorldSafeLocsEntry>           sWorldSafeLocsStore;
 
 void LoadDBCStores(const std::string& dataPath);
+
+typedef std::unordered_map<uint32, const TalentEntry*> TalentContainer;
+
+class DBCMgr
+{
+    friend class ACE_Singleton<DBCMgr, ACE_Null_Mutex>;
+    private:
+        DBCMgr() { }
+        ~DBCMgr() { }
+
+    public:
+
+        void LoadTalentStore();
+
+        const TalentEntry* GetTalentEntry(uint32 TalentID) const;
+
+        TalentContainer TalentStore;
+};
+
+#define sDBCMgr ACE_Singleton<DBCMgr, ACE_Null_Mutex>::instance()
 
 #endif

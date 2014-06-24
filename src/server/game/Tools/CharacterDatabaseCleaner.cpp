@@ -138,7 +138,7 @@ void CharacterDatabaseCleaner::CleanCharacterSpell()
 
 bool CharacterDatabaseCleaner::TalentCheck(uint32 talent_id)
 {
-    TalentEntry const* talentInfo = sTalentStore.LookupEntry(talent_id);
+    TalentEntry const* talentInfo = sDBCMgr->GetTalentEntry(talent_id);
     if (!talentInfo)
         return false;
 

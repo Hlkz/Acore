@@ -450,7 +450,7 @@ bool TalentChatLink::Initialize(std::istringstream& iss)
         return false;
     }
     // Validate talent
-    TalentEntry const* talentInfo = sTalentStore.LookupEntry(_talentId);
+    TalentEntry const* talentInfo = sDBCMgr->GetTalentEntry(_talentId);
     if (!talentInfo)
     {
         TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): got invalid talent id %u in |talent command", iss.str().c_str(), _talentId);

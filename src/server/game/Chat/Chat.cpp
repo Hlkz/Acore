@@ -986,7 +986,7 @@ uint32 ChatHandler::extractSpellIdFromLink(char* text)
         case SPELL_LINK_TALENT:
         {
             // talent
-            TalentEntry const* talentEntry = sTalentStore.LookupEntry(id);
+            TalentEntry const* talentEntry = sDBCMgr->GetTalentEntry(id);
             if (!talentEntry)
                 return 0;
 

@@ -3447,7 +3447,7 @@ bool Player::AddTalent(uint32 spellId, uint8 spec, bool learning)
         itr->second->state = PLAYERSPELL_UNCHANGED;
     else if (TalentSpellPos const* talentPos = GetTalentSpellPos(spellId))
     {
-        if (TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentPos->talent_id))
+        if (TalentEntry const* talentInfo = sDBCMgr->GetTalentEntry(talentPos->talent_id))
         {
             for (uint8 rank = 0; rank < MAX_TALENT_RANK; ++rank)
             {
@@ -3628,7 +3628,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         // talent: unlearn all other talent ranks (high and low)
         if (TalentSpellPos const* talentPos = GetTalentSpellPos(spellId))
         {
-            if (TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentPos->talent_id))
+            if (TalentEntry const* talentInfo = sDBCMgr->GetTalentEntry(talentPos->talent_id))
             {
                 for (uint8 rank = 0; rank < MAX_TALENT_RANK; ++rank)
                 {
@@ -4358,10 +4358,9 @@ bool Player::resetTalents(bool no_cost)
 
     RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
 
-    for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
+    for (TalentContainer::const_iterator itr = sDBCMgr->TalentStore.begin(); itr != sDBCMgr->TalentStore.end(); ++itr)
     {
-        TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
-
+        TalentEntry const* talentInfo = itr->second;
         if (!talentInfo)
             continue;
 
@@ -24842,7 +24841,7 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
     if (talentRank >= MAX_TALENT_RANK)
         return;
 
-    TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
+    TalentEntry const* talentInfo = sDBCMgr->GetTalentEntry(talentId);
 
     if (!talentInfo)
         return;
@@ -24878,7 +24877,7 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
     // Check if it requires another talent
     if (talentInfo->DependsOn > 0)
     {
-        if (TalentEntry const* depTalentInfo = sTalentStore.LookupEntry(talentInfo->DependsOn))
+        if (TalentEntry const* depTalentInfo = sDBCMgr->GetTalentEntry(talentInfo->DependsOn))
         {
             bool hasEnoughRank = false;
             for (uint8 rank = talentInfo->DependsOnRank; rank < MAX_TALENT_RANK; rank++)
@@ -24898,23 +24897,21 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
     uint32 tTab = talentInfo->TalentTab;
     if (talentInfo->Row > 0)
     {
-        uint32 numRows = sTalentStore.GetNumRows();
-        for (uint32 i = 0; i < numRows; i++)          // Loop through all talents.
+        for (TalentContainer::const_iterator itr = sDBCMgr->TalentStore.begin(); itr != sDBCMgr->TalentStore.end(); ++itr)
         {
-            // Someday, someone needs to revamp
-            const TalentEntry* tmpTalent = sTalentStore.LookupEntry(i);
-            if (tmpTalent)                                  // the way talents are tracked
+            TalentEntry const* talentInfo = itr->second;
+            if (!talentInfo)
+                continue;
+
+            if (talentInfo->TalentTab == tTab)
             {
-                if (tmpTalent->TalentTab == tTab)
+                for (uint8 rank = 0; rank < MAX_TALENT_RANK; rank++)
                 {
-                    for (uint8 rank = 0; rank < MAX_TALENT_RANK; rank++)
+                    if (talentInfo->RankID[rank] != 0)
                     {
-                        if (tmpTalent->RankID[rank] != 0)
+                        if (HasSpell(talentInfo->RankID[rank]))
                         {
-                            if (HasSpell(tmpTalent->RankID[rank]))
-                            {
-                                spentPoints += (rank + 1);
-                            }
+                            spentPoints += (rank + 1);
                         }
                     }
                 }
@@ -24966,7 +24963,7 @@ void Player::LearnPetTalent(uint64 petGuid, uint32 talentId, uint32 talentRank)
     if (talentRank >= MAX_PET_TALENT_RANK)
         return;
 
-    TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
+    TalentEntry const* talentInfo = sDBCMgr->GetTalentEntry(talentId);
 
     if (!talentInfo)
         return;
@@ -25015,7 +25012,7 @@ void Player::LearnPetTalent(uint64 petGuid, uint32 talentId, uint32 talentRank)
     // Check if it requires another talent
     if (talentInfo->DependsOn > 0)
     {
-        if (TalentEntry const* depTalentInfo = sTalentStore.LookupEntry(talentInfo->DependsOn))
+        if (TalentEntry const* depTalentInfo = sDBCMgr->GetTalentEntry(talentInfo->DependsOn))
         {
             bool hasEnoughRank = false;
             for (uint8 rank = talentInfo->DependsOnRank; rank < MAX_TALENT_RANK; rank++)
@@ -25035,23 +25032,21 @@ void Player::LearnPetTalent(uint64 petGuid, uint32 talentId, uint32 talentRank)
     uint32 tTab = talentInfo->TalentTab;
     if (talentInfo->Row > 0)
     {
-        uint32 numRows = sTalentStore.GetNumRows();
-        for (uint32 i = 0; i < numRows; ++i)          // Loop through all talents.
+        for (TalentContainer::const_iterator itr = sDBCMgr->TalentStore.begin(); itr != sDBCMgr->TalentStore.end(); ++itr)
         {
-            // Someday, someone needs to revamp
-            const TalentEntry* tmpTalent = sTalentStore.LookupEntry(i);
-            if (tmpTalent)                                  // the way talents are tracked
+            TalentEntry const* talentInfo = itr->second;
+            if (!talentInfo)
+                continue;
+
+            if (talentInfo->TalentTab == tTab)
             {
-                if (tmpTalent->TalentTab == tTab)
+                for (uint8 rank = 0; rank < MAX_TALENT_RANK; rank++)
                 {
-                    for (uint8 rank = 0; rank < MAX_TALENT_RANK; rank++)
+                    if (talentInfo->RankID[rank] != 0)
                     {
-                        if (tmpTalent->RankID[rank] != 0)
+                        if (pet->HasSpell(talentInfo->RankID[rank]))
                         {
-                            if (pet->HasSpell(tmpTalent->RankID[rank]))
-                            {
-                                spentPoints += (rank + 1);
-                            }
+                            spentPoints += (rank + 1);
                         }
                     }
                 }
@@ -25182,9 +25177,9 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
             {
                 uint32 talentTabId = talentTabIds[i];
 
-                for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
+                for (TalentContainer::const_iterator itr = sDBCMgr->TalentStore.begin(); itr != sDBCMgr->TalentStore.end(); ++itr)
                 {
-                    TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
+                    TalentEntry const* talentInfo = itr->second;
                     if (!talentInfo)
                         continue;
 
@@ -25259,9 +25254,9 @@ void Player::BuildPetTalentsInfoData(WorldPacket* data)
         if (!((1 << pet_family->petTalentType) & talentTabInfo->petTalentMask))
             continue;
 
-        for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
+        for (TalentContainer::const_iterator itr = sDBCMgr->TalentStore.begin(); itr != sDBCMgr->TalentStore.end(); ++itr)
         {
-            TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
+            TalentEntry const* talentInfo = itr->second;
             if (!talentInfo)
                 continue;
 
@@ -25727,10 +25722,9 @@ void Player::ActivateSpec(uint8 spec)
     // Let client clear his current Actions
     SendActionButtons(2);
     // m_actionButtons.clear() is called in the next _LoadActionButtons
-    for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
+    for (TalentContainer::const_iterator itr = sDBCMgr->TalentStore.begin(); itr != sDBCMgr->TalentStore.end(); ++itr)
     {
-        TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
-
+        TalentEntry const* talentInfo = itr->second;
         if (!talentInfo)
             continue;
 
@@ -25772,10 +25766,9 @@ void Player::ActivateSpec(uint8 spec)
     SetActiveSpec(spec);
     uint32 spentTalents = 0;
 
-    for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
+    for (TalentContainer::const_iterator itr = sDBCMgr->TalentStore.begin(); itr != sDBCMgr->TalentStore.end(); ++itr)
     {
-        TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
-
+        TalentEntry const* talentInfo = itr->second;
         if (!talentInfo)
             continue;
 

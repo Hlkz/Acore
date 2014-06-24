@@ -30,6 +30,7 @@ EndScriptData */
 #include "SpellInfo.h"
 #include "Player.h"
 #include "Pet.h"
+#include "DBCStore.h"
 
 class learn_commandscript : public CommandScript
 {
@@ -201,9 +202,9 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
         uint32 classMask = player->getClassMask();
 
-        for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
+        for (TalentContainer::const_iterator itr = sDBCMgr->TalentStore.begin(); itr != sDBCMgr->TalentStore.end(); ++itr)
         {
-            TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
+            TalentEntry const* talentInfo = itr->second;
             if (!talentInfo)
                 continue;
 
@@ -278,9 +279,9 @@ public:
             return false;
         }
 
-        for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
+        for (TalentContainer::const_iterator itr = sDBCMgr->TalentStore.begin(); itr != sDBCMgr->TalentStore.end(); ++itr)
         {
-            TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
+            TalentEntry const* talentInfo = itr->second;
             if (!talentInfo)
                 continue;
 

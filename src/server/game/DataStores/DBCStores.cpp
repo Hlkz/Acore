@@ -172,7 +172,6 @@ DBCStorage <SpellRuneCostEntry> sSpellRuneCostStore(SpellRuneCostfmt);
 DBCStorage <SpellShapeshiftEntry> sSpellShapeshiftStore(SpellShapeshiftfmt);
 DBCStorage <StableSlotPricesEntry> sStableSlotPricesStore(StableSlotPricesfmt);
 DBCStorage <SummonPropertiesEntry> sSummonPropertiesStore(SummonPropertiesfmt);
-DBCStorage <TalentEntry> sTalentStore(TalentEntryfmt);
 TalentSpellPosMap sTalentSpellPosMap;
 DBCStorage <TalentTabEntry> sTalentTabStore(TalentTabEntryfmt);
 
@@ -456,7 +455,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sStableSlotPricesStore,       dbcPath, "StableSlotPrices.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sSummonPropertiesStore,       dbcPath, "SummonProperties.dbc");
 
-    LoadDBC(availableDbcLocales, bad_dbc_files, sTalentStore,                 dbcPath, "Talent.dbc");
+    sDBCMgr->LoadTalentStore();
 
     // Create Spelldifficulty searcher
     for (uint32 i = 0; i < sSpellDifficultyStore.GetNumRows(); ++i)
@@ -487,15 +486,15 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     // create talent spells set
-    for (unsigned int i = 0; i < sTalentStore.GetNumRows(); ++i)
+    for (TalentContainer::const_iterator itr = sDBCMgr->TalentStore.begin(); itr != sDBCMgr->TalentStore.end(); ++itr)
     {
-        TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
+        TalentEntry const* talentInfo = itr->second;
         if (!talentInfo)
             continue;
 
         for (int j = 0; j < MAX_TALENT_RANK; j++)
             if (talentInfo->RankID[j])
-                sTalentSpellPosMap[talentInfo->RankID[j]] = TalentSpellPos(i, j);
+                sTalentSpellPosMap[talentInfo->RankID[j]] = TalentSpellPos(itr->first, j);
     }
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sTalentTabStore,              dbcPath, "TalentTab.dbc");
@@ -960,4 +959,42 @@ uint32 GetDefaultMapLight(uint32 mapId)
     }
 
     return 0;
+}
+
+void DBCMgr::LoadTalentStore()
+{
+    uint32 oldMSTime = getMSTime();
+    TalentStore.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT TalentID, TalentTab, Row, Col, Rank1, Rank2, Rank3, Rank4, Rank5, DependsOn, DependsOnRank FROM talentdbc");
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 talent. DB table `talentdbc` is empty.");
+        return;
+    }
+
+    do {
+        Field* fields = result->Fetch();
+
+        TalentEntry* newTalent = new TalentEntry;
+        newTalent->TalentID = fields[0].GetUInt32();
+        newTalent->TalentTab = fields[1].GetUInt32();
+        newTalent->Row = fields[2].GetUInt32();
+        newTalent->Col = fields[3].GetUInt32();
+        for (uint8 i = 0; i < 5; i++)
+            newTalent->RankID[0] = fields[4 + i].GetUInt32();
+        newTalent->DependsOn = fields[9].GetUInt32();
+        newTalent->DependsOnRank = fields[10].GetUInt32();
+        TalentStore[newTalent->TalentID] = newTalent;
+    } while (result->NextRow());
+
+    TC_LOG_ERROR("misc", ">> Loaded %lu Talent entries in %u ms", (unsigned long)TalentStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+const TalentEntry* DBCMgr::GetTalentEntry(uint32 TalentID) const
+{
+    TalentContainer::const_iterator itr = TalentStore.find(TalentID);
+    if (itr != TalentStore.end())
+        return itr->second;
+    return NULL;
 }
