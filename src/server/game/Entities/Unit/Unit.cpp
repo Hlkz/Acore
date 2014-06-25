@@ -15162,7 +15162,10 @@ void Unit::Kill(Unit* victim)
         {
             Loot* loot = &creature->loot;
             if (creature->lootForPickPocketed)
+            {
+                creature->ResetPickPocketRefillTimer();
                 creature->lootForPickPocketed = false;
+            }
 
             loot->clear();
             if (uint32 lootid = creature->GetCreatureTemplate()->lootid)

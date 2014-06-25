@@ -511,6 +511,10 @@ CreatureFamilyAssistanceDelay = 1500
 #                              assistance was found. (Default: 7000 7 Seconds)
 CreatureFamilyFleeDelay = 7000
 
+#    Creature.PickPocketRefillDelay : Time in seconds that the server will wait before
+                                  refilling the pickpocket loot for a creature (Default: 600)
+Creature.PickPocketRefillDelay = 600
+
 #    ListenRange.Say : Distance in which players can read say messages from creatues or
 #                      gameobjects. (Default: 40)
 ListenRange.Say = 40
