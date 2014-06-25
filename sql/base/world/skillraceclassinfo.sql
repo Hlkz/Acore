@@ -28,8 +28,8 @@ CREATE TABLE `skillraceclassinfo` (
   `Race` int(10) NOT NULL DEFAULT '0',
   `Class` int(10) NOT NULL DEFAULT '0',
   `Flags` int(10) NOT NULL DEFAULT '0',
-  `RequiredLevel` int(10) NOT NULL DEFAULT '0',
-  `SkillTierId` int(10) NOT NULL DEFAULT '0',
+  `MinLevel` int(10) NOT NULL DEFAULT '0',
+  `SkillTier` int(10) NOT NULL DEFAULT '0',
   `SkillCostId` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`),
   UNIQUE KEY `Id` (`Id`)

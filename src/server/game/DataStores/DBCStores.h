@@ -74,6 +74,10 @@ LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty);
 
 uint32 GetDefaultMapLight(uint32 mapId);
 
+typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const*> SkillRaceClassInfoMap;
+typedef std::pair<SkillRaceClassInfoMap::iterator, SkillRaceClassInfoMap::iterator> SkillRaceClassInfoBounds;
+SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_);
+
 //extern DBCStorage <ItemDisplayInfoEntry>      sItemDisplayInfoStore; -- not used currently
 extern MapDifficultyMap                          sMapDifficultyMap;
 extern SpellCategoryStore                        sSpellsByCategoryStore;
@@ -153,6 +157,8 @@ typedef std::unordered_map<uint32, const ScalingStatDistributionEntry*> ScalingS
 typedef std::unordered_map<uint32, const ScalingStatValuesEntry*> ScalingStatValuesContainer;
 typedef std::unordered_map<uint32, const SkillLineEntry*> SkillLineContainer;
 typedef std::unordered_map<uint32, const SkillLineAbilityEntry*> SkillLineAbilityContainer;
+typedef std::unordered_map<uint32, const SkillRaceClassInfoEntry*> SkillRaceClassInfoContainer;
+typedef std::unordered_map<uint32, const SkillTiersEntry*> SkillTiersContainer;
 typedef std::unordered_map<uint32, const SoundEntriesEntry*> SoundEntriesContainer;
 typedef std::unordered_map<uint32, const SpellCastTimesEntry*> SpellCastTimesContainer;
 typedef std::unordered_map<uint32, const SpellCategoryEntry*> SpellCategoryContainer;
@@ -255,6 +261,8 @@ class DBCMgr
         void LoadScalingStatValuesStore();
         void LoadSkillLineStore();
         void LoadSkillLineAbilityStore();
+        void LoadSkillRaceClassInfoStore();
+        void LoadSkillTiersStore();
         void LoadSoundEntriesStore();
         void LoadSpellCastTimesStore();
         void LoadSpellCategoryStore();
@@ -347,6 +355,8 @@ class DBCMgr
         const ScalingStatValuesEntry* GetScalingStatValuesEntry(uint32 Id) const { ScalingStatValuesContainer::const_iterator itr = ScalingStatValuesStore.find(Id); if (itr != ScalingStatValuesStore.end()) return itr->second; return NULL; }
         const SkillLineEntry* GetSkillLineEntry(uint32 Id) const { SkillLineContainer::const_iterator itr = SkillLineStore.find(Id); if (itr != SkillLineStore.end()) return itr->second; return NULL; }
         const SkillLineAbilityEntry* GetSkillLineAbilityEntry(uint32 Id) const { SkillLineAbilityContainer::const_iterator itr = SkillLineAbilityStore.find(Id); if (itr != SkillLineAbilityStore.end()) return itr->second; return NULL; }
+        const SkillTiersEntry* GetSkillTiersEntry(uint32 Id) const { SkillTiersContainer::const_iterator itr = SkillTiersStore.find(Id); if (itr != SkillTiersStore.end()) return itr->second; return NULL; }
+        const SkillRaceClassInfoEntry* GetSkillRaceClassInfoEntry(uint32 Id) const { SkillRaceClassInfoContainer::const_iterator itr = SkillRaceClassInfoStore.find(Id); if (itr != SkillRaceClassInfoStore.end()) return itr->second; return NULL; }
         const SoundEntriesEntry* GetSoundEntriesEntry(uint32 Id) const { SoundEntriesContainer::const_iterator itr = SoundEntriesStore.find(Id); if (itr != SoundEntriesStore.end()) return itr->second; return NULL; }
         const SpellCastTimesEntry* GetSpellCastTimesEntry(uint32 Id) const { SpellCastTimesContainer::const_iterator itr = SpellCastTimesStore.find(Id); if (itr != SpellCastTimesStore.end()) return itr->second; return NULL; }
         const SpellCategoryEntry* GetSpellCategoryEntry(uint32 Id) const { SpellCategoryContainer::const_iterator itr = SpellCategoryStore.find(Id); if (itr != SpellCategoryStore.end()) return itr->second; return NULL; }
@@ -440,6 +450,8 @@ class DBCMgr
         ScalingStatValuesContainer ScalingStatValuesStore;
         SkillLineContainer SkillLineStore;
         SkillLineAbilityContainer SkillLineAbilityStore;
+        SkillRaceClassInfoContainer SkillRaceClassInfoStore;
+        SkillTiersContainer SkillTiersStore;
         SoundEntriesContainer SoundEntriesStore;
         SpellCastTimesContainer SpellCastTimesStore;
         SpellCategoryContainer SpellCategoryStore;

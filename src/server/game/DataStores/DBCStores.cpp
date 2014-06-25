@@ -66,6 +66,7 @@ static FactionTeamMap sFactionTeamMap;
 // DBC used only for initialization sMapDifficultyMap at startup.
 MapDifficultyMap sMapDifficultyMap;
 
+SkillRaceClassInfoMap SkillRaceClassInfoBySkill;
 SpellCategoryStore sSpellsByCategoryStore;
 PetFamilySpellsStore sPetFamilySpellsStore;
 
@@ -353,6 +354,12 @@ void LoadDBCStores(const std::string& dataPath)
     sDBCMgr->LoadWorldSafeLocsStore();
 
     sSpellMgr->LoadSpellInfoStore();
+    sDBCMgr->LoadSkillRaceClassInfoStore();
+    for (uint32 i = 0; i < sDBCMgr->SkillRaceClassInfoStore.size(); ++i)
+        if (SkillRaceClassInfoEntry const* entry = sDBCMgr->GetSkillRaceClassInfoEntry(i))
+            if (sDBCMgr->GetSkillLineEntry(entry->SkillLine))
+                SkillRaceClassInfoBySkill.emplace(entry->SkillLine, entry);
+    sDBCMgr->LoadSkillTiersStore();
 
     for (SkillLineAbilityContainer::const_iterator itr = sDBCMgr->SkillLineAbilityStore.begin(); itr != sDBCMgr->SkillLineAbilityStore.end(); ++itr)
     {
@@ -760,6 +767,22 @@ uint32 GetDefaultMapLight(uint32 mapId)
     }
 
     return 0;
+}
+
+SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_)
+{
+    SkillRaceClassInfoBounds bounds = SkillRaceClassInfoBySkill.equal_range(skill);
+    for (SkillRaceClassInfoMap::iterator itr = bounds.first; itr != bounds.second; ++itr)
+    {
+        if (itr->second->RaceMask && !(itr->second->RaceMask & (1 << (race - 1))))
+            continue;
+        if (itr->second->ClassMask && !(itr->second->ClassMask & (1 << (class_ - 1))))
+            continue;
+
+        return itr->second;
+    }
+
+    return NULL;
 }
 
 /*********************************************************/
@@ -2828,6 +2851,61 @@ void DBCMgr::LoadSkillLineAbilityStore()
     } while (result->NextRow());
 
     TC_LOG_ERROR("misc", ">> Loaded %lu SkillLineAbility entries in %u ms", (unsigned long)SkillLineAbilityStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void DBCMgr::LoadSkillRaceClassInfoStore()
+{
+    uint32 oldMSTime = getMSTime();
+    SkillRaceClassInfoStore.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT Id, SkillLine, Race, Class, Flags, SkillTier FROM skillraceclassinfodbc");
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 SkillRaceClassInfo entry. DB table `SkillRaceClassInfo dbc` is empty.");
+        return;
+    }
+
+    do {
+        Field* fields = result->Fetch();
+
+        SkillRaceClassInfoEntry* newSkillRaceClassInfo = new SkillRaceClassInfoEntry;
+        newSkillRaceClassInfo->SkillLine = fields[1].GetUInt32();
+        newSkillRaceClassInfo->RaceMask = fields[2].GetUInt32();
+        newSkillRaceClassInfo->ClassMask = fields[3].GetUInt32();
+        newSkillRaceClassInfo->Flags = fields[4].GetUInt32();
+        newSkillRaceClassInfo->SkillTier = fields[5].GetUInt32();
+        SkillRaceClassInfoStore[fields[0].GetUInt32()] = newSkillRaceClassInfo;
+
+    } while (result->NextRow());
+
+    TC_LOG_ERROR("misc", ">> Loaded %lu SkillRaceClassInfo entries in %u ms", (unsigned long)SkillRaceClassInfoStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void DBCMgr::LoadSkillTiersStore()
+{
+    uint32 oldMSTime = getMSTime();
+    SkillTiersStore.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT Id, MaxValue1, MaxValue2, MaxValue3, MaxValue4, MaxValue5, MaxValue6, MaxValue7, MaxValue8, "
+                            " MaxValue9, MaxValue10, MaxValue11, MaxValue12, MaxValue13, MaxValue14, MaxValue15, MaxValue16 FROM skilltiersdbc");
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 SkillTiers entry. DB table `SkillTiers dbc` is empty.");
+        return;
+    }
+
+    do {
+        Field* fields = result->Fetch();
+
+        SkillTiersEntry* newSkillTiers = new SkillTiersEntry;
+        newSkillTiers->Id = fields[0].GetUInt32();
+        for (uint8 i = 0; i < MAX_SKILL_STEP; i++)
+            newSkillTiers->MaxSkill[1 + i] = fields[1 + i].GetUInt32();
+        SkillTiersStore[newSkillTiers->Id] = newSkillTiers;
+
+    } while (result->NextRow());
+
+    TC_LOG_ERROR("misc", ">> Loaded %lu SkillTiers entries in %u ms", (unsigned long)SkillTiersStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void DBCMgr::LoadSoundEntriesStore()
