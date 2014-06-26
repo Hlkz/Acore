@@ -829,7 +829,7 @@ SpellInfo::SpellInfo(Field* fields)
     ManaPerSecond            = fields[42].GetUInt32();
     ManaPerSecondPerLevel    = fields[43].GetUInt32();
     RangeEntry               = fields[44].GetUInt32() ? sSpellRangeStore.LookupEntry(fields[44].GetUInt32()) : NULL;
-    float speed              = fields[45].GetFloat();
+    Speed                    = fields[45].GetFloat();
     StackAmount              = fields[46].GetUInt32();
     Totem[0]                 = fields[47].GetUInt32();
     Totem[1]                 = fields[48].GetUInt32();
