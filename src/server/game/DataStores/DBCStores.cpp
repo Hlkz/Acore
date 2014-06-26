@@ -410,37 +410,6 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sSkillLineStore,              dbcPath, "SkillLine.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sSkillLineAbilityStore,       dbcPath, "SkillLineAbility.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sSoundEntriesStore,           dbcPath, "SoundEntries.dbc");
-
-    for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
-    {
-        SkillLineAbilityEntry const* skillLine = sSkillLineAbilityStore.LookupEntry(j);
-
-        if (!skillLine)
-            continue;
-
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(skillLine->spellId);
-
-        if (spellInfo && spellInfo->Attributes & SPELL_ATTR0_PASSIVE)
-        {
-            for (uint32 i = 1; i < sCreatureFamilyStore.GetNumRows(); ++i)
-            {
-                CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(i);
-                if (!cFamily)
-                    continue;
-
-                if (skillLine->skillId != cFamily->skillLine[0] && skillLine->skillId != cFamily->skillLine[1])
-                    continue;
-                if (spellInfo->SpellLevel)
-                    continue;
-
-                if (skillLine->learnOnGetSkill != ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL)
-                    continue;
-
-                sPetFamilySpellsStore[i].insert(spellInfo->Id);
-            }
-        }
-    }
-
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellCastTimesStore,         dbcPath, "SpellCastTimes.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellCategoryStore,          dbcPath, "SpellCategory.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellDifficultyStore,        dbcPath, "SpellDifficulty.dbc", &CustomSpellDifficultyfmt, &CustomSpellDifficultyIndex);
@@ -456,34 +425,6 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sSummonPropertiesStore,       dbcPath, "SummonProperties.dbc");
 
     sDBCMgr->LoadTalentStore();
-
-    // Create Spelldifficulty searcher
-    for (uint32 i = 0; i < sSpellDifficultyStore.GetNumRows(); ++i)
-    {
-        SpellDifficultyEntry const* spellDiff = sSpellDifficultyStore.LookupEntry(i);
-        if (!spellDiff)
-            continue;
-
-        SpellDifficultyEntry newEntry;
-        memset(newEntry.SpellID, 0, 4*sizeof(uint32));
-        for (int x = 0; x < MAX_DIFFICULTY; ++x)
-        {
-            if (spellDiff->SpellID[x] <= 0 || !sSpellMgr->GetSpellInfo(spellDiff->SpellID[x]))
-            {
-                if (spellDiff->SpellID[x] > 0)//don't show error if spell is <= 0, not all modes have spells and there are unknown negative values
-                    TC_LOG_ERROR("sql.sql", "spelldifficulty_dbc: spell %i at field id:%u at spellid%i does not exist in SpellStore `spells` table, loaded as 0", spellDiff->SpellID[x], spellDiff->ID, x);
-                newEntry.SpellID[x] = 0;//spell was <= 0 or invalid, set to 0
-            }
-            else
-                newEntry.SpellID[x] = spellDiff->SpellID[x];
-        }
-        if (newEntry.SpellID[0] <= 0 || newEntry.SpellID[1] <= 0)//id0-1 must be always set!
-            continue;
-
-        for (int x = 0; x < MAX_DIFFICULTY; ++x)
-            if (newEntry.SpellID[x])
-                sSpellMgr->SetSpellDifficultyId(uint32(newEntry.SpellID[x]), spellDiff->ID);
-    }
 
     // create talent spells set
     for (TalentContainer::const_iterator itr = sDBCMgr->TalentStore.begin(); itr != sDBCMgr->TalentStore.end(); ++itr)
@@ -546,14 +487,105 @@ void LoadDBCStores(const std::string& dataPath)
         if (TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(i))
             sTaxiPathNodesByPath[entry->path].set(entry->index, entry);
 
+    LoadDBC(availableDbcLocales, bad_dbc_files, sTeamContributionPointsStore, dbcPath, "TeamContributionPoints.dbc");
+    LoadDBC(availableDbcLocales, bad_dbc_files, sTotemCategoryStore,          dbcPath, "TotemCategory.dbc");
+    LoadDBC(availableDbcLocales, bad_dbc_files, sTransportAnimationStore,     dbcPath, "TransportAnimation.dbc");
+    for (uint32 i = 0; i < sTransportAnimationStore.GetNumRows(); ++i)
+    {
+        TransportAnimationEntry const* anim = sTransportAnimationStore.LookupEntry(i);
+        if (!anim)
+            continue;
+
+        sTransportMgr->AddPathNodeToTransport(anim->TransportEntry, anim->TimeSeg, anim);
+    }
+
+    LoadDBC(availableDbcLocales, bad_dbc_files, sTransportRotationStore,     dbcPath, "TransportRotation.dbc");
+    for (uint32 i = 0; i < sTransportRotationStore.GetNumRows(); ++i)
+    {
+        TransportRotationEntry const* rot = sTransportRotationStore.LookupEntry(i);
+        if (!rot)
+            continue;
+
+        sTransportMgr->AddPathRotationToTransport(rot->TransportEntry, rot->TimeSeg, rot);
+    }
+
+    LoadDBC(availableDbcLocales, bad_dbc_files, sVehicleStore,                dbcPath, "Vehicle.dbc");
+    LoadDBC(availableDbcLocales, bad_dbc_files, sVehicleSeatStore,            dbcPath, "VehicleSeat.dbc");
+
+    LoadDBC(availableDbcLocales, bad_dbc_files, sWMOAreaTableStore,           dbcPath, "WMOAreaTable.dbc");
+    for (uint32 i = 0; i < sWMOAreaTableStore.GetNumRows(); ++i)
+        if (WMOAreaTableEntry const* entry = sWMOAreaTableStore.LookupEntry(i))
+            sWMOAreaInfoByTripple.insert(WMOAreaInfoByTripple::value_type(WMOAreaTableTripple(entry->rootId, entry->adtId, entry->groupId), entry));
+    LoadDBC(availableDbcLocales, bad_dbc_files, sWorldMapAreaStore,           dbcPath, "WorldMapArea.dbc");
+    LoadDBC(availableDbcLocales, bad_dbc_files, sWorldMapOverlayStore,        dbcPath, "WorldMapOverlay.dbc");
+    LoadDBC(availableDbcLocales, bad_dbc_files, sWorldSafeLocsStore,          dbcPath, "WorldSafeLocs.dbc");
+
+    TC_LOG_INFO("server.loading", "Loading SpellInfo store...");
+    sSpellMgr->LoadSpellInfoStore();
+
+    for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j) // (After SkillLineAbility CreatureFamily Spell)
+    {
+        SkillLineAbilityEntry const* skillLine = sSkillLineAbilityStore.LookupEntry(j);
+
+        if (!skillLine)
+            continue;
+
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(skillLine->spellId);
+
+        if (spellInfo && spellInfo->Attributes & SPELL_ATTR0_PASSIVE)
+        {
+            for (uint32 i = 1; i < sCreatureFamilyStore.GetNumRows(); ++i)
+            {
+                CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(i);
+                if (!cFamily)
+                    continue;
+
+                if (skillLine->skillId != cFamily->skillLine[0] && skillLine->skillId != cFamily->skillLine[1])
+                    continue;
+                if (spellInfo->SpellLevel)
+                    continue;
+
+                if (skillLine->learnOnGetSkill != ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL)
+                    continue;
+
+                sPetFamilySpellsStore[i].insert(spellInfo->Id);
+            }
+        }
+    }
+
+    // Create Spelldifficulty searcher (After SpellDifficulty Spell)
+    for (uint32 i = 0; i < sSpellDifficultyStore.GetNumRows(); ++i)
+    {
+        SpellDifficultyEntry const* spellDiff = sSpellDifficultyStore.LookupEntry(i);
+        if (!spellDiff)
+            continue;
+
+        SpellDifficultyEntry newEntry;
+        memset(newEntry.SpellID, 0, 4 * sizeof(uint32));
+        for (int x = 0; x < MAX_DIFFICULTY; ++x)
+        {
+            if (spellDiff->SpellID[x] <= 0 || !sSpellMgr->GetSpellInfo(spellDiff->SpellID[x]))
+            {
+                if (spellDiff->SpellID[x] > 0)//don't show error if spell is <= 0, not all modes have spells and there are unknown negative values
+                    TC_LOG_ERROR("sql.sql", "spelldifficulty_dbc: spell %i at field id:%u at spellid%i does not exist in SpellStore `spells` table, loaded as 0", spellDiff->SpellID[x], spellDiff->ID, x);
+                newEntry.SpellID[x] = 0;//spell was <= 0 or invalid, set to 0
+            }
+            else
+                newEntry.SpellID[x] = spellDiff->SpellID[x];
+        }
+        if (newEntry.SpellID[0] <= 0 || newEntry.SpellID[1] <= 0)//id0-1 must be always set!
+            continue;
+
+        for (int x = 0; x < MAX_DIFFICULTY; ++x)
+        if (newEntry.SpellID[x])
+            sSpellMgr->SetSpellDifficultyId(uint32(newEntry.SpellID[x]), spellDiff->ID);
+    }
+
     // Initialize global taxinodes mask
     // include existed nodes that have at least single not spell base (scripted) path
     {
         std::set<uint32> spellPaths;
-        PreparedStatement* stmt;
-        stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SPELLDBC_SIZE);
-        uint32 spellInfoMapSize = WorldDatabase.Query(stmt)->Fetch()[0].GetUInt32()+1;
-        for (uint32 i = 1; i < spellInfoMapSize; ++i)
+        for (uint32 i = 1; i < sSpellMgr->GetSpellInfoStoreSize(); ++i)
             if (SpellInfo const* sInfo = sSpellMgr->GetSpellInfo(i))
                 for (int j = 0; j < MAX_SPELL_EFFECTS; ++j)
                     if (sInfo->Effects[j].Effect == SPELL_EFFECT_SEND_TAXI)
@@ -589,8 +621,8 @@ void LoadDBCStores(const std::string& dataPath)
             }
 
             // valid taxi network node
-            uint8  field   = (uint8)((i - 1) / 32);
-            uint32 submask = 1<<((i-1)%32);
+            uint8  field = (uint8)((i - 1) / 32);
+            uint32 submask = 1 << ((i - 1) % 32);
             sTaxiNodesMask[field] |= submask;
 
             if (node->MountCreatureID[0] && node->MountCreatureID[0] != 32981)
@@ -609,39 +641,6 @@ void LoadDBCStores(const std::string& dataPath)
                 ((TaxiNodesEntry*)node)->MountCreatureID[1] = 32981;
         }
     }
-
-    LoadDBC(availableDbcLocales, bad_dbc_files, sTeamContributionPointsStore, dbcPath, "TeamContributionPoints.dbc");
-    LoadDBC(availableDbcLocales, bad_dbc_files, sTotemCategoryStore,          dbcPath, "TotemCategory.dbc");
-    LoadDBC(availableDbcLocales, bad_dbc_files, sTransportAnimationStore,     dbcPath, "TransportAnimation.dbc");
-    for (uint32 i = 0; i < sTransportAnimationStore.GetNumRows(); ++i)
-    {
-        TransportAnimationEntry const* anim = sTransportAnimationStore.LookupEntry(i);
-        if (!anim)
-            continue;
-
-        sTransportMgr->AddPathNodeToTransport(anim->TransportEntry, anim->TimeSeg, anim);
-    }
-
-    LoadDBC(availableDbcLocales, bad_dbc_files, sTransportRotationStore,     dbcPath, "TransportRotation.dbc");
-    for (uint32 i = 0; i < sTransportRotationStore.GetNumRows(); ++i)
-    {
-        TransportRotationEntry const* rot = sTransportRotationStore.LookupEntry(i);
-        if (!rot)
-            continue;
-
-        sTransportMgr->AddPathRotationToTransport(rot->TransportEntry, rot->TimeSeg, rot);
-    }
-
-    LoadDBC(availableDbcLocales, bad_dbc_files, sVehicleStore,                dbcPath, "Vehicle.dbc");
-    LoadDBC(availableDbcLocales, bad_dbc_files, sVehicleSeatStore,            dbcPath, "VehicleSeat.dbc");
-
-    LoadDBC(availableDbcLocales, bad_dbc_files, sWMOAreaTableStore,           dbcPath, "WMOAreaTable.dbc");
-    for (uint32 i = 0; i < sWMOAreaTableStore.GetNumRows(); ++i)
-        if (WMOAreaTableEntry const* entry = sWMOAreaTableStore.LookupEntry(i))
-            sWMOAreaInfoByTripple.insert(WMOAreaInfoByTripple::value_type(WMOAreaTableTripple(entry->rootId, entry->adtId, entry->groupId), entry));
-    LoadDBC(availableDbcLocales, bad_dbc_files, sWorldMapAreaStore,           dbcPath, "WorldMapArea.dbc");
-    LoadDBC(availableDbcLocales, bad_dbc_files, sWorldMapOverlayStore,        dbcPath, "WorldMapOverlay.dbc");
-    LoadDBC(availableDbcLocales, bad_dbc_files, sWorldSafeLocsStore,          dbcPath, "WorldSafeLocs.dbc");
 
     // error checks
     if (bad_dbc_files.size() >= DBCFileCount)
