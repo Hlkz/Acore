@@ -244,9 +244,6 @@ void BattleAO::AddPlayer(Player* player)
     if (!player->IsDeserter())
         AddOrSetPlayerToCorrectBAOGroup(player);
     RemoveAurasFromPlayer(player);
-
-    BattleAOScore* sc = new BattleAOScore;
-    PlayerScores[player->GetGUID()] = sc;
 }
 
 void BattleAO::RemovePlayer(uint64 guid, bool teleport)
@@ -266,13 +263,6 @@ void BattleAO::RemovePlayer(uint64 guid, bool teleport)
     }
     if (m_Players.size() < BAO_MIN_PLAYERS_FOR_BALANCE)
         m_balancetag = false;
-
-    BattleAOScoreMap::iterator itr2 = PlayerScores.find(guid);
-    if (itr2 != PlayerScores.end())
-    {
-        delete itr2->second;                                // delete player's score
-        PlayerScores.erase(itr2);
-    }
 
     Player* player = ObjectAccessor::FindPlayer(guid);
     if (player) // should remove spirit of redemption
@@ -553,23 +543,16 @@ WorldSafeLocsEntry const* BattleAO::GetClosestGraveYard(Player* player)
 
 void BattleAO::HandleKill(Player* killer, Player* victim)
 {
-    UpdatePlayerScore(victim, SCORE_DEATHS, 1);
     if (killer)
     {
         if (killer == victim)
             return;
-
-        UpdatePlayerScore(killer, SCORE_HONORABLE_KILLS, 1);
-        UpdatePlayerScore(killer, SCORE_KILLING_BLOWS, 1);
 
         for (BattleAOPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
         {
             Player* creditedPlayer = ObjectAccessor::FindPlayer(itr->first);
             if (!creditedPlayer || creditedPlayer == killer)
                 continue;
-
-            if (creditedPlayer->GetTeam() == killer->GetTeam() && creditedPlayer->IsAtGroupRewardDistance(victim))
-                UpdatePlayerScore(creditedPlayer, SCORE_HONORABLE_KILLS, 1);
         }
     }
     if (victim)
@@ -1011,30 +994,7 @@ void BattleAO::NeutralTaken(uint8 node)
 
 void BattleAO::UpdatePlayerScore(Player* Source, uint32 type, uint32 value)
 {
-    BattleAOScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
-    if (itr == PlayerScores.end())
-        return;
-
-    switch (type)
-    {
-        case SCORE_KILLING_BLOWS:                           // Killing blows
-            itr->second->KillingBlows += value;
-            break;
-        case SCORE_DEATHS:                                  // Deaths
-            itr->second->Deaths += value;
-            break;
-        case SCORE_HONORABLE_KILLS:                         // Honorable kills
-            itr->second->HonorableKills += value;
-            break;
-        case SCORE_DAMAGE_DONE:                             // Damage Done
-            itr->second->DamageDone += value;
-            break;
-        case SCORE_HEALING_DONE:                            // Healing Done
-            itr->second->HealingDone += value;
-            break;
-        default:
-            break;
-    }
+    // tofix no more score for bao
 }
 
 uint32 BattleAO::GetFreeSlotsForTeam(uint32 team) const

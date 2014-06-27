@@ -1,7 +1,8 @@
 #ifndef __BATTLEGROUNdSG_H
 #define __BATTLEGROUNdSG_H
 
-#include "BattlegroundMgr.h"
+#include "Battleground.h"
+#include "BattlegroundScore.h"
 
 enum BG_SG_CreatureEntry
 {
@@ -57,12 +58,6 @@ const float BG_SG_ObjectPos[BG_SG_OB_MAX][4] =
 
 const uint32 BG_SG_GraveyardIds[BG_TEAMS_COUNT] = { 1954, 1955 };
 
-struct BattlegroundSGScore : public BattlegroundScore
-{
-    BattlegroundSGScore() { }
-    ~BattlegroundSGScore() { }
-};
-
 typedef std::map<uint64, Creature*> SGCreepMap;
 
 class BattlegroundSG : public Battleground
@@ -79,9 +74,6 @@ class BattlegroundSG : public Battleground
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
         bool SetupBattleground();
         void ResetBGSubclass();
-
-        /*general stuff*/
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
 
         /*handlestuff*/ //these are functions which get called from extern
         void HandleKillPlayer(Player* player, Player* killer);

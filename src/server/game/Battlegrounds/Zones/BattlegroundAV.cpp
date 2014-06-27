@@ -453,15 +453,14 @@ void BattlegroundAV::StartingEventOpenDoors()
     DoorOpen(BG_AV_OBJECT_DOOR_A);
 
     // Achievement: The Alterac Blitz
-    StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, AV_EVENT_START_BATTLE);
+    StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, BG_AV_EVENT_START_BATTLE);
 }
 
 void BattlegroundAV::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    //create score and add it to map, default values are set in constructor
-    BattlegroundAVScore* sc = new BattlegroundAVScore;
-    PlayerScores[player->GetGUID()] = sc;
+    PlayerScores[player->GetGUIDLow()] = new BattlegroundAVScore(player->GetGUID());
+
     if (m_MaxLevel == 0)
         m_MaxLevel=(player->getLevel()%10 == 0)? player->getLevel() : (player->getLevel()-(player->getLevel()%10))+10; /// @todo just look at the code \^_^/ --but queue-info should provide this information..
 }
@@ -553,43 +552,29 @@ void BattlegroundAV::HandleAreaTrigger(Player* player, uint32 trigger)
     }
 }
 
-void BattlegroundAV::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
+bool BattlegroundAV::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)
 {
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
-    if (itr == PlayerScores.end())                         // player not found...
-        return;
+    if (!Battleground::UpdatePlayerScore(player, type, value, doAddHonor))
+        return false;
 
     switch (type)
     {
         case SCORE_GRAVEYARDS_ASSAULTED:
-            ((BattlegroundAVScore*)itr->second)->GraveyardsAssaulted += value;
-            Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_ASSAULT_GRAVEYARD);
+            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_ASSAULT_GRAVEYARD);
             break;
         case SCORE_GRAVEYARDS_DEFENDED:
-            ((BattlegroundAVScore*)itr->second)->GraveyardsDefended += value;
-            Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_DEFEND_GRAVEYARD);
+            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_DEFEND_GRAVEYARD);
             break;
         case SCORE_TOWERS_ASSAULTED:
-            ((BattlegroundAVScore*)itr->second)->TowersAssaulted += value;
-            Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_ASSAULT_TOWER);
+            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_ASSAULT_TOWER);
             break;
         case SCORE_TOWERS_DEFENDED:
-            ((BattlegroundAVScore*)itr->second)->TowersDefended += value;
-            Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_DEFEND_TOWER);
-            break;
-        case SCORE_MINES_CAPTURED:
-            ((BattlegroundAVScore*)itr->second)->MinesCaptured += value;
-            break;
-        case SCORE_LEADERS_KILLED:
-            ((BattlegroundAVScore*)itr->second)->LeadersKilled += value;
-            break;
-        case SCORE_SECONDARY_OBJECTIVES:
-            ((BattlegroundAVScore*)itr->second)->SecondaryObjectives += value;
+            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_DEFEND_TOWER);
             break;
         default:
-            Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
             break;
     }
+    return true;
 }
 
 void BattlegroundAV::EventPlayerDestroyedPoint(BG_AV_Nodes node)
@@ -741,7 +726,7 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, uint32 team, bool initial)
     return;
 }
 
-bool BattlegroundAV::PlayerCanDoMineQuest(int32 GOId, uint32 team)
+bool BattlegroundAV::CanActivateGO(int32 GOId, uint32 team) const
 {
     if (GOId == BG_AV_OBJECTID_MINE_N)
          return (m_Mine_Owner[AV_NORTH_MINE] == team);
@@ -1054,24 +1039,8 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
             //spawning/despawning of aura
             SpawnBGObject(BG_AV_OBJECT_AURA_N_FIRSTAID_STATION+3*node, RESPAWN_IMMEDIATELY); //neutral aura spawn
             SpawnBGObject(BG_AV_OBJECT_AURA_A_FIRSTAID_STATION+GetTeamIndexByTeamId(owner)+3*node, RESPAWN_ONE_DAY); //teeamaura despawn
-            // Those who are waiting to resurrect at this object are taken to the closest own object's graveyard
-            std::vector<uint64> ghost_list = sWorld->GetShReviveQueue(BgCreatures[node]);
-            if (!ghost_list.empty())
-            {
-                Player* waitingPlayer;  // player waiting at graveyard for resurrection
-                WorldSafeLocsEntry const* closestGrave = NULL;
-                for (std::vector<uint64>::iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
-                {
-                    waitingPlayer = ObjectAccessor::FindPlayer(*ghost_list.begin());
-                    if (!waitingPlayer)
-                        continue;
 
-                    if (!closestGrave)
-                        closestGrave = GetClosestGraveYard(waitingPlayer);
-                    else
-                        waitingPlayer->TeleportTo(GetMapId(), closestGrave->x, closestGrave->y, closestGrave->z, player->GetOrientation());
-                }
-            }
+            RelocateDeadPlayers(BgCreatures[node]);
         }
         DePopulateNode(node);
     }
@@ -1200,7 +1169,7 @@ WorldSafeLocsEntry const* BattlegroundAV::GetClosestGraveYard(Player* player)
 
     player->GetPosition(x, y);
 
-    pGraveyard = sDBCMgr->GetWorldSafeLocsEntry(BG_AV_GraveyardIds[GetTeamIndexByTeamId(player->GetTeam())+7]);
+    pGraveyard = sDBCMgr->GetWorldSafeLocsEntry(BG_AV_GraveyardIds[GetTeamIndexByTeamId(player->GetTeam()) + 7]);
     minDist = (pGraveyard->x - x)*(pGraveyard->x - x)+(pGraveyard->y - y)*(pGraveyard->y - y);
 
     for (uint8 i = BG_AV_NODES_FIRSTAID_STATION; i <= BG_AV_NODES_FROSTWOLF_HUT; ++i)
@@ -1637,63 +1606,67 @@ void BattlegroundAV::ResetBGSubclass()
             DelCreature(i);
 }
 
-bool BattlegroundAV::IsBothMinesControlledByTeam(uint32 team) const
+bool BattlegroundAV::CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target, uint32 miscValue)
 {
-    for (uint8 mine = 0; mine < 2; mine++)
-        if (m_Mine_Owner[mine] != team)
-            return false;
-
-    return true;
-}
-
-bool BattlegroundAV::IsAllTowersControlledAndCaptainAlive(uint32 team) const
-{
-    if (team == ALLIANCE)
+    uint32 team = source->GetTeam();
+    switch (criteriaId)
     {
-        for (BG_AV_Nodes i = BG_AV_NODES_DUNBALDAR_SOUTH; i <= BG_AV_NODES_STONEHEART_BUNKER; ++i) // alliance towers controlled
-        {
-            if (m_Nodes[i].State == POINT_CONTROLED)
-            {
-                if (m_Nodes[i].Owner != ALLIANCE)
+        case BG_CRITERIA_CHECK_EVERYTHING_COUNTS:
+            for (uint8 mine = 0; mine < 2; mine++)
+                if (m_Mine_Owner[mine] != team)
                     return false;
-            }
-            else
-                return false;
-        }
 
-        for (BG_AV_Nodes i = BG_AV_NODES_ICEBLOOD_TOWER; i <= BG_AV_NODES_FROSTWOLF_WTOWER; ++i) // horde towers destroyed
-            if (m_Nodes[i].State != POINT_DESTROYED)
-                return false;
-
-        if (!m_CaptainAlive[0])
-            return false;
-
-        return true;
-    }
-    else if (team == HORDE)
-    {
-        for (BG_AV_Nodes i = BG_AV_NODES_ICEBLOOD_TOWER; i <= BG_AV_NODES_FROSTWOLF_WTOWER; ++i) // horde towers controlled
+            return true;
+        case BG_CRITERIA_CHECK_AV_PERFECTION:
         {
-            if (m_Nodes[i].State == POINT_CONTROLED)
+            if (team == ALLIANCE)
             {
-                if (m_Nodes[i].Owner != HORDE)
+                for (BG_AV_Nodes i = BG_AV_NODES_DUNBALDAR_SOUTH; i <= BG_AV_NODES_STONEHEART_BUNKER; ++i) // alliance towers controlled
+                {
+                    if (m_Nodes[i].State == POINT_CONTROLED)
+                    {
+                        if (m_Nodes[i].Owner != ALLIANCE)
+                            return false;
+                    }
+                    else
+                        return false;
+                }
+
+                for (BG_AV_Nodes i = BG_AV_NODES_ICEBLOOD_TOWER; i <= BG_AV_NODES_FROSTWOLF_WTOWER; ++i) // horde towers destroyed
+                    if (m_Nodes[i].State != POINT_DESTROYED)
+                        return false;
+
+                if (!m_CaptainAlive[0])
                     return false;
+
+                return true;
             }
-            else
-                return false;
+            else if (team == HORDE)
+            {
+                for (BG_AV_Nodes i = BG_AV_NODES_ICEBLOOD_TOWER; i <= BG_AV_NODES_FROSTWOLF_WTOWER; ++i) // horde towers controlled
+                {
+                    if (m_Nodes[i].State == POINT_CONTROLED)
+                    {
+                        if (m_Nodes[i].Owner != HORDE)
+                            return false;
+                    }
+                    else
+                        return false;
+                }
+
+                for (BG_AV_Nodes i = BG_AV_NODES_DUNBALDAR_SOUTH; i <= BG_AV_NODES_STONEHEART_BUNKER; ++i) // alliance towers destroyed
+                    if (m_Nodes[i].State != POINT_DESTROYED)
+                        return false;
+
+                if (!m_CaptainAlive[1])
+                    return false;
+
+                return true;
+            }
         }
-
-        for (BG_AV_Nodes i = BG_AV_NODES_DUNBALDAR_SOUTH; i <= BG_AV_NODES_STONEHEART_BUNKER; ++i) // alliance towers destroyed
-            if (m_Nodes[i].State != POINT_DESTROYED)
-                return false;
-
-        if (!m_CaptainAlive[1])
-            return false;
-
-        return true;
     }
 
-    return false;
+    return Battleground::CheckAchievementCriteriaMeet(criteriaId, source, target, miscValue);
 }
 
 uint32 BattlegroundAV::GetPrematureWinner()

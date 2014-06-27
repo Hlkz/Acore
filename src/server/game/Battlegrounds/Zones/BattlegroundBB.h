@@ -2,6 +2,7 @@
 #define __BATTLEGROUNDBB_H
 
 #include "Battleground.h"
+#include "BattlegroundScore.h"
 
 enum BG_BB_Sounds
 {
@@ -141,12 +142,44 @@ const uint32 BG_BB_NodeWorldStates[20][4] =
 };
 inline BG_BB_Nodes &operator++(BG_BB_Nodes &i){ return i = BG_BB_Nodes(i + 1); }
 
-struct BattlegroundBBScore : public BattlegroundScore
+enum BG_BB_Objectives
 {
-    BattlegroundBBScore() : CreepsKilled(0), ArcaneFrag(0) { }
-    ~BattlegroundBBScore() { }
-    uint32 CreepsKilled;
-    uint32 ArcaneFrag;
+    BB_OBJECTIVE_CREEPS_KILLED = 42,
+    BB_OBJECTIVE_ARCANE_FRAG = 44
+};
+
+struct BattlegroundBBScore final : public BattlegroundScore
+{
+    friend class BattlegroundBB;
+
+    protected:
+        BattlegroundBBScore(uint64 playerGuid) : BattlegroundScore(playerGuid), CreepsKilled(0), ArcaneFrag(0) { }
+
+        void UpdateScore(uint32 type, uint32 value) override
+        {
+            switch (type)
+            {
+                case BB_OBJECTIVE_CREEPS_KILLED:
+                    CreepsKilled += value;
+                    break;
+                case BB_OBJECTIVE_ARCANE_FRAG:
+                    ArcaneFrag += value;
+                    break;
+                default:
+                    BattlegroundScore::UpdateScore(type, value);
+                    break;
+            }
+        }
+
+        void BuildObjectivesBlock(WorldPacket& data) final
+        {
+            data << uint32(2);
+            data << uint32(CreepsKilled);
+            data << uint32(ArcaneFrag);
+        }
+
+        uint32 CreepsKilled;
+        uint32 ArcaneFrag;
 };
 
 class BattlegroundBB : public Battleground
@@ -163,9 +196,6 @@ class BattlegroundBB : public Battleground
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
         bool SetupBattleground();
         void ResetBGSubclass();
-
-        /*general stuff*/
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
 
         /*handlestuff*/ //these are functions which get called from extern
         void HandleKillPlayer(Player* player, Player* killer);

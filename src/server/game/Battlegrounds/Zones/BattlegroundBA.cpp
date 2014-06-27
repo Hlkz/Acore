@@ -262,8 +262,8 @@ void BattlegroundBA::PostUpdateImpl(uint32 diff)
 void BattlegroundBA::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    BattlegroundBAScore* sc = new BattlegroundBAScore;
-    PlayerScores[player->GetGUID()] = sc;
+    PlayerScores[player->GetGUIDLow()] = new BattlegroundBAScore(player->GetGUID());
+
     uint32 team = player->GetBGTeam();
     if (team == ALLIANCE)
     {
@@ -306,22 +306,6 @@ void BattlegroundBA::HandleAreaTrigger(Player* player, uint32 trigger)
             break;
     }
 }
-
-void BattlegroundBA::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
-{
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
-    if (itr == PlayerScores.end())
-        return;
-
-    switch (type)
-    {
-        case 0:
-        default:
-            Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
-            break;
-    }
-}
-
 
 void BattlegroundBA::FillInitialWorldStates(WorldPacket& /*data*/)
 {

@@ -20,11 +20,13 @@
 #define __BATTLEGROUNDEY_H
 
 #include "Battleground.h"
+#include "BattlegroundScore.h"
 #include "Language.h"
 #include "Object.h"
 
 enum BG_EY_Misc
 {
+    BG_EY_EVENT_START_BATTLE        = 13180, // Achievement: Flurry
     BG_EY_FLAG_RESPAWN_TIME         = (8*IN_MILLISECONDS),
     BG_EY_FPOINTS_TICK_TIME         = (2*IN_MILLISECONDS)
 };
@@ -220,8 +222,6 @@ enum EYBattlegroundObjectTypes
 #define BG_EY_NotEYWeekendHonorTicks    260
 #define BG_EY_EYWeekendHonorTicks       160
 
-#define EY_EVENT_START_BATTLE           13180 // Achievement: Flurry
-
 enum BG_EY_Score
 {
     BG_EY_WARNING_NEAR_VICTORY_SCORE    = 1400,
@@ -323,11 +323,33 @@ const BattlegroundEYCapturingPointStruct m_CapturingPointTypes[EY_POINTS_MAX] =
     BattlegroundEYCapturingPointStruct(BG_EY_OBJECT_N_BANNER_MAGE_TOWER_CENTER, BG_EY_OBJECT_A_BANNER_MAGE_TOWER_CENTER, LANG_BG_EY_HAS_TAKEN_A_M_TOWER, BG_EY_OBJECT_H_BANNER_MAGE_TOWER_CENTER, LANG_BG_EY_HAS_TAKEN_H_M_TOWER, EY_GRAVEYARD_MAGE_TOWER)
 };
 
-struct BattlegroundEYScore : public BattlegroundScore
+struct BattlegroundEYScore final : public BattlegroundScore
 {
-    BattlegroundEYScore() : FlagCaptures(0) { }
-    ~BattlegroundEYScore() { }
-    uint32 FlagCaptures;
+    friend class BattlegroundEY;
+
+    protected:
+        BattlegroundEYScore(uint64 playerGuid) : BattlegroundScore(playerGuid), FlagCaptures(0) { }
+
+        void UpdateScore(uint32 type, uint32 value) override
+        {
+            switch (type)
+            {
+                case SCORE_FLAG_CAPTURES:   // Flags captured
+                    FlagCaptures += value;
+                    break;
+                default:
+                    BattlegroundScore::UpdateScore(type, value);
+                    break;
+            }
+        }
+
+        void BuildObjectivesBlock(WorldPacket& data) final
+        {
+            data << uint32(1); // Objectives Count
+            data << uint32(FlagCaptures);
+        }
+
+        uint32 FlagCaptures;
 };
 
 class BattlegroundEY : public Battleground
@@ -358,7 +380,7 @@ class BattlegroundEY : public Battleground
         void Reset();
         void UpdateTeamScore(uint32 Team);
         void EndBattleground(uint32 winner);
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
+        bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
         void FillInitialWorldStates(WorldPacket& data);
         void SetDroppedFlagGUID(uint64 guid, int32 /*TeamID*/ = -1)  { m_DroppedFlagGUID = guid;}
         uint64 GetDroppedFlagGUID() const          { return m_DroppedFlagGUID;}
@@ -368,7 +390,7 @@ class BattlegroundEY : public Battleground
         void EventPlayerDroppedFlag(Player* Source);
 
         /* achievement req. */
-        bool IsAllNodesConrolledByTeam(uint32 team) const;
+        bool IsAllNodesControlledByTeam(uint32 team) const;
 
         uint32 GetPrematureWinner();
     private:
@@ -414,4 +436,3 @@ class BattlegroundEY : public Battleground
         uint32 m_HonorTics;
 };
 #endif
-

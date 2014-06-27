@@ -118,14 +118,6 @@ enum BAO_Timers
     BAO_SPIRIT_REZ_TIME             = 22   *1000
 };
 
-struct BattleAOScore
-{
-    BattleAOScore() : KillingBlows(0), Deaths(0), HonorableKills(0), BonusHonor(0),
-        DamageDone(0), HealingDone(0) { }
-    uint32 KillingBlows; uint32 Deaths; uint32 HonorableKills;
-    uint32 BonusHonor; uint32 DamageDone; uint32 HealingDone;
-};
-
 const uint32 BAO_GraveyardIds[BAO_SPIRIT_COUNT] = {1761, 1762, 1763, 1764, 1765, 1760, 1766};
 
 const float BAO_NodePositions[BAO_NODES_COUNT][4] = // banners
@@ -205,11 +197,6 @@ class BattleAO : public ZoneScript
         bool HasPlayer(Player* player) const { return m_Players.find(player->GetGUID()) != m_Players.end(); }
         bool HasPlayerByGuid(uint64 guid) const { return m_Players.find(guid) != m_Players.end(); }
 
-        typedef std::map<uint64, BattleAOScore*> BattleAOScoreMap;
-        BattleAOScoreMap::const_iterator GetPlayerScoresBegin() const { return PlayerScores.begin(); }
-        BattleAOScoreMap::const_iterator GetPlayerScoresEnd() const { return PlayerScores.end(); }
-        uint32 GetPlayerScoresSize() const { return PlayerScores.size(); }
-
         // Players
         static TeamId GetTeamIndexByTeamId(uint32 Team) { return Team == ALLIANCE ? TEAM_ALLIANCE : Team == HORDE ? TEAM_HORDE : TEAM_NEUTRAL; }
         uint32 GetOtherTeam(uint32 team) const { return (team == HORDE ? ALLIANCE : HORDE); }
@@ -286,7 +273,6 @@ class BattleAO : public ZoneScript
         int32 m_PlayersCount[BAO_TEAMS_COUNT];
         GuidSet m_Groups[BG_TEAMS_COUNT];
         std::deque<uint64> m_OfflineQueue;
-        BattleAOScoreMap PlayerScores;
         bool m_playerscantag;
         bool m_balancetag;
 

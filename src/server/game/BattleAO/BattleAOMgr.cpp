@@ -118,35 +118,6 @@ void BattleAOMgr::BuildBattleAOStatusPacket(WorldPacket* data, uint8 QueueSlot, 
 
 void BattleAOMgr::BuildPvpLogDataPacket(WorldPacket* data)
 {
-    BattleAO* bao = sBattleAOMgr->GetBattleAO();
-    data->Initialize(MSG_PVP_LOG_DATA, (1+1+4+40*bao->GetPlayerScoresSize()));
-    *data << uint8(0); // type (battleground=0/arena=1)
-    *data << uint8(0); // bg not ended
-    size_t wpos = data->wpos();
-    uint32 scoreCount = 0;
-    *data << uint32(scoreCount); // placeholder
-    BattleAO::BattleAOScoreMap::const_iterator itr2 = bao->GetPlayerScoresBegin();
-    for (BattleAO::BattleAOScoreMap::const_iterator itr = itr2; itr != bao->GetPlayerScoresEnd();)
-    {
-        itr2 = itr++;
-        if (!bao->HasPlayerByGuid(itr2->first))
-        {
-            TC_LOG_ERROR("bao", "BAO player %u has scoreboard but is not in bao !", GUID_LOPART(itr->first));
-            continue;
-        }
-        *data << uint64(itr2->first);
-        *data << uint32(itr2->second->KillingBlows);
-        *data << uint32(itr2->second->HonorableKills);
-        *data << uint32(itr2->second->Deaths);
-        *data << uint32(itr2->second->BonusHonor);
-        *data << uint32(itr2->second->DamageDone);
-        *data << uint32(itr2->second->HealingDone);
-        *data << uint32(0);
-        //*data << uint32(itr2->second->BasesAssaulted);      // bases assaulted
-        //*data << uint32(itr2->second->BasesDefended);       // bases defended
-        scoreCount++;
-    }
-    data->put(wpos, scoreCount);
 }
 
 void BattleAOMgr::RemoveFromBAOFreeSlotQueue()

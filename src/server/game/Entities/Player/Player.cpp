@@ -26,6 +26,7 @@
 #include "Battleground.h"
 #include "BattlegroundAV.h"
 #include "BattlegroundMgr.h"
+#include "BattlegroundScore.h"
 #include "CellImpl.h"
 #include "Channel.h"
 #include "ChannelMgr.h"
@@ -8677,16 +8678,6 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
         if (go->getLootState() == GO_READY)
         {
             uint32 lootid = go->GetGOInfo()->GetLootId();
-
-            /// @todo fix this big hack
-            if ((go->GetEntry() == BG_AV_OBJECTID_MINE_N || go->GetEntry() == BG_AV_OBJECTID_MINE_S))
-                if (Battleground* bg = GetBattleground())
-                    if (bg->GetTypeID(true) == BATTLEGROUND_AV)
-                        if (!(((BattlegroundAV*)bg)->PlayerCanDoMineQuest(go->GetEntry(), GetTeam())))
-                        {
-                            SendLootRelease(guid);
-                            return;
-                        }
 
             if (lootid)
             {

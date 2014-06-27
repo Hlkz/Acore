@@ -381,8 +381,8 @@ void BattlegroundSG::EraseCreep(uint64 guid, uint8 lane, uint8 teamid)
 void BattlegroundSG::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    BattlegroundSGScore* sc = new BattlegroundSGScore;
-    PlayerScores[player->GetGUID()] = sc;
+    PlayerScores[player->GetGUIDLow()] = new BattlegroundScore(player->GetGUID());
+
     uint32 team = player->GetBGTeam();
     if (team == ALLIANCE)
     {
@@ -422,21 +422,6 @@ void BattlegroundSG::HandleAreaTrigger(Player* player, uint32 trigger)
         case 5840:
         default:
             Battleground::HandleAreaTrigger(player, trigger);
-            break;
-    }
-}
-
-void BattlegroundSG::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
-{
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
-    if (itr == PlayerScores.end())
-        return;
-
-    switch (type)
-    {
-        case 0:
-        default:
-            Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
             break;
     }
 }

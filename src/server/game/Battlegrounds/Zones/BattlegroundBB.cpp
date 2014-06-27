@@ -498,8 +498,8 @@ void BattlegroundBB::SpawnCreeps(uint32 count)
 void BattlegroundBB::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    BattlegroundBBScore* sc = new BattlegroundBBScore;
-    PlayerScores[player->GetGUID()] = sc;
+    PlayerScores[player->GetGUIDLow()] = new BattlegroundBBScore(player->GetGUID());
+
     uint32 team = player->GetBGTeam();
     if (team == ALLIANCE)
     {
@@ -541,26 +541,6 @@ void BattlegroundBB::HandleAreaTrigger(Player* player, uint32 trigger)
         case 5840:
         default:
             Battleground::HandleAreaTrigger(player, trigger);
-            break;
-    }
-}
-
-void BattlegroundBB::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
-{
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
-    if (itr == PlayerScores.end())
-        return;
-
-    switch (type)
-    {
-        case SCORE_CREEPS_KILLED:
-            ((BattlegroundBBScore*)itr->second)->CreepsKilled += value;
-            break;
-        case SCORE_ARCANE_FRAG:
-            ((BattlegroundBBScore*)itr->second)->ArcaneFrag += value;
-            break;
-        default:
-            Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
             break;
     }
 }

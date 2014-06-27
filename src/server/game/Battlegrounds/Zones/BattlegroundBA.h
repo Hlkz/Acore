@@ -2,6 +2,7 @@
 #define __BATTLEGROUNDBA_H
 
 #include "Battleground.h"
+#include "BattlegroundScore.h"
 
 enum BG_BA_SpellEntry
 {
@@ -97,12 +98,44 @@ class BANode
         BANodeMap m_Enemies;
 };
 
-struct BattlegroundBAScore : public BattlegroundScore
+enum BG_BA_Objectives
 {
-    BattlegroundBAScore() : CreepsKilled(0), ArcaneFrag(0) { }
-    ~BattlegroundBAScore() { }
-    uint32 CreepsKilled;
-    uint32 ArcaneFrag;
+    BA_OBJECTIVE_CREEPS_KILLED = 42,
+    BA_OBJECTIVE_ARCANE_FRAG = 44
+};
+
+struct BattlegroundBAScore final : public BattlegroundScore
+{
+    friend class BattlegroundBA;
+
+    protected:
+        BattlegroundBAScore(uint64 playerGuid) : BattlegroundScore(playerGuid), CreepsKilled(0), ArcaneFrag(0) { }
+
+        void UpdateScore(uint32 type, uint32 value) override
+        {
+            switch (type)
+            {
+                case BA_OBJECTIVE_CREEPS_KILLED:
+                    CreepsKilled += value;
+                    break;
+                case BA_OBJECTIVE_ARCANE_FRAG:
+                    ArcaneFrag += value;
+                    break;
+                default:
+                    BattlegroundScore::UpdateScore(type, value);
+                    break;
+            }
+        }
+
+        void BuildObjectivesBlock(WorldPacket& data) final
+        {
+            data << uint32(2);
+            data << uint32(CreepsKilled);
+            data << uint32(ArcaneFrag);
+        }
+
+        uint32 CreepsKilled;
+        uint32 ArcaneFrag;
 };
 
 class BattlegroundBA : public Battleground
@@ -119,9 +152,6 @@ class BattlegroundBA : public Battleground
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
         bool SetupBattleground();
         void ResetBGSubclass();
-
-        /*general stuff*/
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
 
         /*handlestuff*/ //these are functions which get called from extern
         void HandleKillPlayer(Player* player, Player* killer);
