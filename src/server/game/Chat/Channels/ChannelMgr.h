@@ -37,6 +37,13 @@ class ChannelMgr
         ~ChannelMgr();
 
     public:
+        static ChannelMgr* instance()
+        {
+            static ChannelMgr* instance = new ChannelMgr();
+            return instance;
+        }
+
+    public:
         static ChannelMgr* forTeam(uint32 team);
         void setTeam(uint32 newTeam) { team = newTeam; }
 
