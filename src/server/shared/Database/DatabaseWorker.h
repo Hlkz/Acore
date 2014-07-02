@@ -18,11 +18,11 @@
 #ifndef _WORKERTHREAD_H
 #define _WORKERTHREAD_H
 
-#include "Define.h"
 #include <ace/Task.h>
 #include <ace/Activation_Queue.h>
 
 class MySQLConnection;
+class SQLOperation;
 
 class DatabaseWorker : protected ACE_Task_Base
 {
