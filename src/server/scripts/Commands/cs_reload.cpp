@@ -25,6 +25,7 @@ EndScriptData */
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "AuctionHouseMgr.h"
+#include "BattlegroundMgr.h"
 #include "Chat.h"
 #include "CreatureTextMgr.h"
 #include "DisableMgr.h"
@@ -74,16 +75,17 @@ public:
             { "areatrigger_tavern",           SEC_GAMEMASTER,    true,  &HandleReloadAreaTriggerTavernCommand,          "", NULL },
             { "areatrigger_teleport",         SEC_GAMEMASTER,    true,  &HandleReloadAreaTriggerTeleportCommand,        "", NULL },
             { "autobroadcast",                SEC_GAMEMASTER,    true,  &HandleReloadAutobroadcastCommand,              "", NULL },
+            { "battleground_template",        SEC_GAMEMASTER,    true,  &HandleReloadBattlegroundTemplate,              "", NULL },
             { "broadcast_text",               SEC_GAMEMASTER,    true,  &HandleReloadBroadcastTextCommand,              "", NULL },
             { "command",                      SEC_GAMEMASTER,    true,  &HandleReloadCommandCommand,                    "", NULL },
             { "conditions",                   SEC_GAMEMASTER,    true,  &HandleReloadConditions,                        "", NULL },
             { "config",                       SEC_GAMEMASTER,    true,  &HandleReloadConfigCommand,                     "", NULL },
             { "creature_text",                SEC_GAMEMASTER,    true,  &HandleReloadCreatureText,                      "", NULL },
-            { "creature_questender",          SEC_ADMINISTRATOR, true,  &HandleReloadCreatureQuestEnderCommand,  "", NULL },
+            { "creature_questender",          SEC_ADMINISTRATOR, true,  &HandleReloadCreatureQuestEnderCommand,         "", NULL },
             { "creature_linked_respawn",      SEC_GAMEMASTER,    true,  &HandleReloadLinkedRespawnCommand,              "", NULL },
             { "creature_loot_template",       SEC_GAMEMASTER,    true,  &HandleReloadLootTemplatesCreatureCommand,      "", NULL },
             { "creature_onkill_reputation",   SEC_GAMEMASTER,    true,  &HandleReloadOnKillReputationCommand,           "", NULL },
-            { "creature_queststarter",        SEC_ADMINISTRATOR, true,  &HandleReloadCreatureQuestStarterCommand,     "", NULL },
+            { "creature_queststarter",        SEC_ADMINISTRATOR, true,  &HandleReloadCreatureQuestStarterCommand,       "", NULL },
             { "creature_summon_groups",       SEC_GAMEMASTER,    true,  &HandleReloadCreatureSummonGroupsCommand,       "", NULL },
             { "creature_template",            SEC_GAMEMASTER,    true,  &HandleReloadCreatureTemplateCommand,           "", NULL },
             //{ "db_script_string",             SEC_GAMEMASTER,    true,  &HandleReloadDbScriptStringCommand,            "", NULL },
@@ -200,6 +202,7 @@ public:
         HandleReloadVehicleTemplateAccessoryCommand(handler, "");
 
         HandleReloadAutobroadcastCommand(handler, "");
+        HandleReloadBattlegroundTemplate(handler, "");
         return true;
     }
 
@@ -373,6 +376,14 @@ public:
         TC_LOG_INFO("misc", "Re-Loading Autobroadcasts...");
         sWorld->LoadAutobroadcasts();
         handler->SendGlobalGMSysMessage("DB table `autobroadcast` reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadBattlegroundTemplate(ChatHandler* handler, char const* /*args*/)
+    {
+        TC_LOG_INFO("misc", "Re-Loading Battleground Templates...");
+        sBattlegroundMgr->LoadBattlegroundTemplates();
+        handler->SendGlobalGMSysMessage("DB table `battleground_template` reloaded.");
         return true;
     }
 
