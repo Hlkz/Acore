@@ -44,8 +44,8 @@ public:
         };
         static ChatCommand accountLockCommandTable[] =
         {
-            { "country",        SEC_PLAYER,         true,  &HandleAccountLockCountryCommand,  "", NULL },
-            { "ip",             SEC_PLAYER,         true,  &HandleAccountLockIpCommand,       "", NULL },
+            { "country",        SEC_PLAYER,         false, &HandleAccountLockCountryCommand,  "", NULL },
+            { "ip",             SEC_PLAYER,         false, &HandleAccountLockIpCommand,       "", NULL },
             { NULL,             SEC_PLAYER,         false, NULL,                              "", NULL },
         };
         static ChatCommand accountCommandTable[] =
