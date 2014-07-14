@@ -1484,6 +1484,7 @@ public:
         Player* target;
         uint64 targetGuid;
         std::string targetName;
+        PreparedStatement* stmt = NULL;
 
         // To make sure we get a target, we convert our guid to an omniversal...
         uint32 parseGUID = MAKE_NEW_GUID(atol((char*)args), 0, HIGHGUID_PLAYER);
@@ -1605,7 +1606,7 @@ public:
                 return false;
 
             // Query informations from the DB
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PINFO);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PINFO);
             stmt->setUInt32(0, lowguid);
             PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -1631,7 +1632,7 @@ public:
         }
 
         // Query the prepared statement for login data
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PINFO);
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PINFO);
         stmt->setInt32(0, int32(realmID));
         stmt->setUInt32(1, accId);
         PreparedQueryResult result = LoginDatabase.Query(stmt);
@@ -1654,7 +1655,7 @@ public:
                 EndianConvertReverse(ip);
 
                 // If ip2nation table is populated, it displays the country
-                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP2NATION_COUNTRY);
+                stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP2NATION_COUNTRY);
                 stmt->setUInt32(0, ip);
                 if (PreparedQueryResult result2 = LoginDatabase.Query(stmt))
                 {
