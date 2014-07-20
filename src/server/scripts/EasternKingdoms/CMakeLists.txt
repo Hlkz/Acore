@@ -17,6 +17,36 @@ set(scripts_STAT_SRCS
   EasternKingdoms/AlteracValley/boss_drekthar.cpp
   EasternKingdoms/AlteracValley/boss_vanndar.cpp
   EasternKingdoms/AlteracValley/alterac_valley.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_high_interrogator_gerstahn.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_gorosh_the_dervish.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/blackrock_depths.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_anubshiah.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_tomb_of_seven.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_general_angerforge.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_grizzle.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_ambassador_flamelash.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/instance_blackrock_depths.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_moira_bronzebeard.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/blackrock_depths.h
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_emperor_dagran_thaurissan.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_magmus.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_pyroguard_emberseer.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_drakkisath.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_warmaster_voone.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_mother_smolderweb.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_quartermaster_zigris.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_halycon.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_overlord_wyrmthalak.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_shadow_hunter_voshgajin.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_gyth.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_rend_blackhand.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_highlord_omokk.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_the_beast.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_gizrul_the_slavener.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_urok_doomhowl.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_lord_valthalak.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/blackrock_spire.h
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/instance_blackrock_spire.cpp
   EasternKingdoms/Scholomance/boss_the_ravenian.cpp
   EasternKingdoms/Scholomance/boss_instructor_malicia.cpp
   EasternKingdoms/Scholomance/boss_death_knight_darkreaver.cpp
@@ -39,19 +69,6 @@ set(scripts_STAT_SRCS
   EasternKingdoms/Gnomeregan/gnomeregan.cpp
   EasternKingdoms/Gnomeregan/gnomeregan.h
   EasternKingdoms/zone_redridge_mountains.cpp
-  EasternKingdoms/BlackrockDepths/boss_high_interrogator_gerstahn.cpp
-  EasternKingdoms/BlackrockDepths/boss_gorosh_the_dervish.cpp
-  EasternKingdoms/BlackrockDepths/blackrock_depths.cpp
-  EasternKingdoms/BlackrockDepths/boss_anubshiah.cpp
-  EasternKingdoms/BlackrockDepths/boss_tomb_of_seven.cpp
-  EasternKingdoms/BlackrockDepths/boss_general_angerforge.cpp
-  EasternKingdoms/BlackrockDepths/boss_grizzle.cpp
-  EasternKingdoms/BlackrockDepths/boss_ambassador_flamelash.cpp
-  EasternKingdoms/BlackrockDepths/instance_blackrock_depths.cpp
-  EasternKingdoms/BlackrockDepths/boss_moira_bronzebeard.cpp
-  EasternKingdoms/BlackrockDepths/blackrock_depths.h
-  EasternKingdoms/BlackrockDepths/boss_emperor_dagran_thaurissan.cpp
-  EasternKingdoms/BlackrockDepths/boss_magmus.cpp
   EasternKingdoms/zone_eastern_plaguelands.cpp
   EasternKingdoms/Stratholme/boss_baroness_anastari.cpp
   EasternKingdoms/Stratholme/boss_nerubenkan.cpp
