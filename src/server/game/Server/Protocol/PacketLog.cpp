@@ -19,6 +19,7 @@
 #include "Config.h"
 #include "ByteBuffer.h"
 #include "WorldPacket.h"
+#include "Timer.h"
 
 PacketLog::PacketLog() : _file(NULL)
 {

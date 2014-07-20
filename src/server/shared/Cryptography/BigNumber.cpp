@@ -21,6 +21,7 @@
 #include "Cryptography/BigNumber.h"
 #include <openssl/bn.h>
 #include <openssl/crypto.h>
+#include <cstring>
 #include <algorithm>
 #include <ace/Auto_Ptr.h>
 
