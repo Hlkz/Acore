@@ -356,11 +356,6 @@ std::string GetAddressString(ACE_INET_Addr const& addr);
 uint32 CreatePIDFile(const std::string& filename);
 
 std::string ByteArrayToHexStr(uint8 const* bytes, uint32 length, bool reverse = false);
-#endif
-
-//handler for operations on large flags
-#ifndef _FLAG96
-#define _FLAG96
 
 // simple class for not-modifyable list
 template <typename T>
@@ -405,13 +400,6 @@ public:
         part[0] = p1;
         part[1] = p2;
         part[2] = p3;
-    }
-
-    flag96(uint64 p1, uint32 p2)
-    {
-        part[0] = (uint32)(p1 & UI64LIT(0x00000000FFFFFFFF));
-        part[1] = (uint32)((p1 >> 32) & UI64LIT(0x00000000FFFFFFFF));
-        part[2] = p2;
     }
 
     inline bool IsEqual(uint32 p1 = 0, uint32 p2 = 0, uint32 p3 = 0) const
