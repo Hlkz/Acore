@@ -36,8 +36,6 @@
 
 using namespace VMAP;
 
-// G3D namespace typedefs conflicts with ACE typedefs
-
 namespace MMAP
 {
     struct MapTiles
