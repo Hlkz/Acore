@@ -70,9 +70,14 @@ MaxPingTime = 30
 #    BindIP : Bind world server to IP/hostname (Default: "0.0.0.0", Bind to all IPs on the system)
 BindIP = "0.0.0.0"
 
-#    ThreadPool : Number of threads to be used for the global thread pool. The thread pool is
-                  currently used for the signal handler and remote access (Default: 1)
-ThreadPool = 1
+#    ThreadPool : Number of threads to be used for the global thread pool
+#                 The thread pool is currently used for:
+#                      - Signal handling
+#                      - Remote access
+#                      - Database keep-alive ping
+#    (Default: 2)      - Core freeze check
+#                      - World socket networking
+ThreadPool = 2
 
 #
 ###################################################################################################
