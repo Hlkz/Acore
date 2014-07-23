@@ -1035,6 +1035,13 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
         }
     }
 
+    switch (spellInfo->Id)
+    {
+        case 72298: // Malleable Goo Summon
+            unitTarget->CastSpell(unitTarget, spellInfo->Id, true, NULL, NULL, m_originalCasterGUID);
+            return;
+    }
+
     CustomSpellValues values;
     // set basepoints for trigger with value effect
     if (m_spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_FORCE_CAST_WITH_VALUE)
