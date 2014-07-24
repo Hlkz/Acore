@@ -1,25 +1,25 @@
 /*
-* Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /*
-* Scripts for spells with SPELLFAMILY_DEATHKNIGHT and SPELLFAMILY_GENERIC spells used by deathknight players.
-* Ordered alphabetically using scriptname.
-* Scriptnames of files in this file should be prefixed with "spell_dk_".
-*/
+ * Scripts for spells with SPELLFAMILY_DEATHKNIGHT and SPELLFAMILY_GENERIC spells used by deathknight players.
+ * Ordered alphabetically using scriptname.
+ * Scriptnames of files in this file should be prefixed with "spell_dk_".
+ */
 
 #include "Player.h"
 #include "ScriptMgr.h"
@@ -29,148 +29,149 @@
 
 enum DeathKnightSpells
 {
-    SPELL_DK_ANTI_MAGIC_SHELL_TALENT = 51052,
-    SPELL_DK_BLACK_ICE_R1 = 49140,
-    SPELL_DK_BLOOD_BOIL_TRIGGERED = 65658,
-    SPELL_DK_BLOOD_GORGED_HEAL = 50454,
-    SPELL_DK_BLOOD_PRESENCE = 48266,
-    SPELL_DK_CORPSE_EXPLOSION_TRIGGERED = 43999,
-    SPELL_DK_CORPSE_EXPLOSION_VISUAL = 51270,
-    SPELL_DK_DEATH_COIL_DAMAGE = 47632,
-    SPELL_DK_DEATH_COIL_HEAL = 47633,
-    SPELL_DK_DEATH_STRIKE_HEAL = 45470,
+    SPELL_DK_ANTI_MAGIC_SHELL_TALENT            = 51052,
+    SPELL_DK_BLACK_ICE_R1                       = 49140,
+    SPELL_DK_BLOOD_BOIL_TRIGGERED               = 65658,
+    SPELL_DK_BLOOD_GORGED_HEAL                  = 50454,
+    SPELL_DK_BLOOD_PRESENCE                     = 48266,
+    SPELL_DK_CORPSE_EXPLOSION_TRIGGERED         = 43999,
+    SPELL_DK_CORPSE_EXPLOSION_VISUAL            = 51270,
+    SPELL_DK_DEATH_AND_DECAY_DAMAGE             = 52212,
+    SPELL_DK_DEATH_COIL_DAMAGE                  = 47632,
+    SPELL_DK_DEATH_COIL_HEAL                    = 47633,
+    SPELL_DK_DEATH_STRIKE_HEAL                  = 45470,
     SPELL_DK_FROST_FEVER                        = 55095,
-    SPELL_DK_FROST_PRESENCE = 48263,
-    SPELL_DK_FROST_PRESENCE_TRIGGERED = 61261,
-    SPELL_DK_GHOUL_EXPLODE = 47496,
+    SPELL_DK_FROST_PRESENCE                     = 48263,
+    SPELL_DK_FROST_PRESENCE_TRIGGERED           = 61261,
+    SPELL_DK_GHOUL_EXPLODE                      = 47496,
     SPELL_DK_GLYPH_OF_DISEASE                   = 63334,
-    SPELL_DK_GLYPH_OF_ICEBOUND_FORTITUDE = 58625,
-    SPELL_DK_IMPROVED_BLOOD_PRESENCE_R1 = 50365,
-    SPELL_DK_IMPROVED_FROST_PRESENCE_R1 = 50384,
-    SPELL_DK_IMPROVED_UNHOLY_PRESENCE_R1 = 50391,
-    SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED = 63611,
+    SPELL_DK_GLYPH_OF_ICEBOUND_FORTITUDE        = 58625,
+    SPELL_DK_IMPROVED_BLOOD_PRESENCE_R1         = 50365,
+    SPELL_DK_IMPROVED_FROST_PRESENCE_R1         = 50384,
+    SPELL_DK_IMPROVED_UNHOLY_PRESENCE_R1        = 50391,
+    SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED  = 63611,
     SPELL_DK_IMPROVED_UNHOLY_PRESENCE_TRIGGERED = 63622,
-    SPELL_DK_ITEM_SIGIL_VENGEFUL_HEART = 64962,
-    SPELL_DK_ITEM_T8_MELEE_4P_BONUS = 64736,
-    SPELL_DK_MASTER_OF_GHOULS = 52143,
+    SPELL_DK_ITEM_SIGIL_VENGEFUL_HEART          = 64962,
+    SPELL_DK_ITEM_T8_MELEE_4P_BONUS             = 64736,
+    SPELL_DK_MASTER_OF_GHOULS                   = 52143,
     SPELL_DK_BLOOD_PLAGUE                       = 55078,
-    SPELL_DK_RAISE_DEAD_USE_REAGENT = 48289,
-    SPELL_DK_RUNIC_POWER_ENERGIZE = 49088,
-    SPELL_DK_SCENT_OF_BLOOD = 50422,
-    SPELL_DK_SCOURGE_STRIKE_TRIGGERED = 70890,
-    SPELL_DK_UNHOLY_PRESENCE = 48265,
-    SPELL_DK_UNHOLY_PRESENCE_TRIGGERED = 49772,
-    SPELL_DK_WILL_OF_THE_NECROPOLIS_TALENT_R1 = 49189,
-    SPELL_DK_WILL_OF_THE_NECROPOLIS_AURA_R1 = 52284
+    SPELL_DK_RAISE_DEAD_USE_REAGENT             = 48289,
+    SPELL_DK_RUNIC_POWER_ENERGIZE               = 49088,
+    SPELL_DK_SCENT_OF_BLOOD                     = 50422,
+    SPELL_DK_SCOURGE_STRIKE_TRIGGERED           = 70890,
+    SPELL_DK_UNHOLY_PRESENCE                    = 48265,
+    SPELL_DK_UNHOLY_PRESENCE_TRIGGERED          = 49772,
+    SPELL_DK_WILL_OF_THE_NECROPOLIS_TALENT_R1   = 49189,
+    SPELL_DK_WILL_OF_THE_NECROPOLIS_AURA_R1     = 52284
 };
 
 enum DeathKnightSpellIcons
 {
-    DK_ICON_ID_IMPROVED_DEATH_STRIKE = 2751
+    DK_ICON_ID_IMPROVED_DEATH_STRIKE            = 2751
 };
 
 enum Misc
 {
-    NPC_DK_GHOUL = 26125
+    NPC_DK_GHOUL                                = 26125
 };
 
 // 50462 - Anti-Magic Shell (on raid member)
 class spell_dk_anti_magic_shell_raid : public SpellScriptLoader
 {
-public:
-    spell_dk_anti_magic_shell_raid() : SpellScriptLoader("spell_dk_anti_magic_shell_raid") { }
+    public:
+        spell_dk_anti_magic_shell_raid() : SpellScriptLoader("spell_dk_anti_magic_shell_raid") { }
 
-    class spell_dk_anti_magic_shell_raid_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dk_anti_magic_shell_raid_AuraScript);
-
-        uint32 absorbPct;
-
-        bool Load() override
+        class spell_dk_anti_magic_shell_raid_AuraScript : public AuraScript
         {
-            absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
-            return true;
-        }
+            PrepareAuraScript(spell_dk_anti_magic_shell_raid_AuraScript);
 
-        void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            uint32 absorbPct;
+
+            bool Load() override
+            {
+                absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
+                return true;
+            }
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                /// @todo this should absorb limited amount of damage, but no info on calculation formula
+                amount = -1;
+            }
+
+            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            {
+                absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
+            }
+
+            void Register() override
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_anti_magic_shell_raid_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell_raid_AuraScript::Absorb, EFFECT_0);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
         {
-            /// @todo this should absorb limited amount of damage, but no info on calculation formula
-            amount = -1;
+            return new spell_dk_anti_magic_shell_raid_AuraScript();
         }
-
-        void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
-        {
-            absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
-        }
-
-        void Register() override
-        {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_anti_magic_shell_raid_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-            OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell_raid_AuraScript::Absorb, EFFECT_0);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_dk_anti_magic_shell_raid_AuraScript();
-    }
 };
 
 // 48707 - Anti-Magic Shell (on self)
 class spell_dk_anti_magic_shell_self : public SpellScriptLoader
 {
-public:
-    spell_dk_anti_magic_shell_self() : SpellScriptLoader("spell_dk_anti_magic_shell_self") { }
+    public:
+        spell_dk_anti_magic_shell_self() : SpellScriptLoader("spell_dk_anti_magic_shell_self") { }
 
-    class spell_dk_anti_magic_shell_self_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dk_anti_magic_shell_self_AuraScript);
-
-        uint32 absorbPct, hpPct;
-        bool Load() override
+        class spell_dk_anti_magic_shell_self_AuraScript : public AuraScript
         {
-            absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
-            hpPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster());
-            return true;
-        }
+            PrepareAuraScript(spell_dk_anti_magic_shell_self_AuraScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+            uint32 absorbPct, hpPct;
+            bool Load() override
+            {
+                absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
+                hpPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster());
+                return true;
+            }
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DK_RUNIC_POWER_ENERGIZE))
+                    return false;
+                return true;
+            }
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                amount = GetCaster()->CountPctFromMaxHealth(hpPct);
+            }
+
+            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            {
+                absorbAmount = std::min(CalculatePct(dmgInfo.GetDamage(), absorbPct), GetTarget()->CountPctFromMaxHealth(hpPct));
+            }
+
+            void Trigger(AuraEffect* aurEff, DamageInfo& /*dmgInfo*/, uint32& absorbAmount)
+            {
+                // damage absorbed by Anti-Magic Shell energizes the DK with additional runic power.
+                // This, if I'm not mistaken, shows that we get back ~20% of the absorbed damage as runic power.
+                int32 bp = CalculatePct(absorbAmount, 20);
+                GetTarget()->CastCustomSpell(SPELL_DK_RUNIC_POWER_ENERGIZE, SPELLVALUE_BASE_POINT0, bp, GetTarget(), true, NULL, aurEff);
+            }
+
+            void Register() override
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_anti_magic_shell_self_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell_self_AuraScript::Absorb, EFFECT_0);
+                AfterEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell_self_AuraScript::Trigger, EFFECT_0);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DK_RUNIC_POWER_ENERGIZE))
-                return false;
-            return true;
+            return new spell_dk_anti_magic_shell_self_AuraScript();
         }
-
-        void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-        {
-            amount = GetCaster()->CountPctFromMaxHealth(hpPct);
-        }
-
-        void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
-        {
-            absorbAmount = std::min(CalculatePct(dmgInfo.GetDamage(), absorbPct), GetTarget()->CountPctFromMaxHealth(hpPct));
-        }
-
-        void Trigger(AuraEffect* aurEff, DamageInfo& /*dmgInfo*/, uint32& absorbAmount)
-        {
-            // damage absorbed by Anti-Magic Shell energizes the DK with additional runic power.
-            // This, if I'm not mistaken, shows that we get back ~20% of the absorbed damage as runic power.
-            int32 bp = CalculatePct(absorbAmount, 20);
-            GetTarget()->CastCustomSpell(SPELL_DK_RUNIC_POWER_ENERGIZE, SPELLVALUE_BASE_POINT0, bp, GetTarget(), true, NULL, aurEff);
-        }
-
-        void Register() override
-        {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_anti_magic_shell_self_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-            OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell_self_AuraScript::Absorb, EFFECT_0);
-            AfterEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell_self_AuraScript::Trigger, EFFECT_0);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_dk_anti_magic_shell_self_AuraScript();
-    }
 };
 
 // 50461 - Anti-Magic Zone
@@ -443,6 +444,33 @@ public:
     {
         return new spell_dk_corpse_explosion_SpellScript();
     }
+};
+
+class spell_dk_death_and_decay : public SpellScriptLoader
+{
+    public:
+        spell_dk_death_and_decay() : SpellScriptLoader("spell_dk_death_and_decay") { }
+
+        class spell_dk_death_and_decay_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_death_and_decay_AuraScript);
+
+            void HandleDummyTick(AuraEffect const* aurEff)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->CastCustomSpell(SPELL_DK_DEATH_AND_DECAY_DAMAGE, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, NULL, aurEff);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_death_and_decay_AuraScript::HandleDummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dk_death_and_decay_AuraScript();
+        }
 };
 
 // -47541, 52375, 59134, -62900 - Death Coil
@@ -1545,6 +1573,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_blood_boil();
     new spell_dk_blood_gorged();
     new spell_dk_corpse_explosion();
+    new spell_dk_death_and_decay();
     new spell_dk_death_coil();
     new spell_dk_death_gate();
     new spell_dk_death_grip();
