@@ -981,10 +981,11 @@ void DBCMgr::LoadTalentStore()
         newTalent->Row = fields[2].GetUInt32();
         newTalent->Col = fields[3].GetUInt32();
         for (uint8 i = 0; i < 5; i++)
-            newTalent->RankID[0] = fields[4 + i].GetUInt32();
+            newTalent->RankID[i] = fields[4 + i].GetUInt32();
         newTalent->DependsOn = fields[9].GetUInt32();
         newTalent->DependsOnRank = fields[10].GetUInt32();
         TalentStore[newTalent->TalentID] = newTalent;
+
     } while (result->NextRow());
 
     TC_LOG_ERROR("misc", ">> Loaded %lu Talent entries in %u ms", (unsigned long)TalentStore.size(), GetMSTimeDiffToNow(oldMSTime));
