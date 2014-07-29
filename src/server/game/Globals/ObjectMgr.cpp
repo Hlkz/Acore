@@ -2210,7 +2210,7 @@ void ObjectMgr::LoadItemLocales()
 
     _itemLocaleStore.clear();                                 // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, name_loc1, description_loc1, name_loc2, description_loc2, name_loc3, description_loc3, name_loc4, description_loc4, name_loc5, description_loc5, name_loc6, description_loc6, name_loc7, description_loc7, name_loc8, description_loc8 FROM locales_item");
+    QueryResult result = WorldDatabase.Query("SELECT entry, name_loc2, description_loc2 FROM item_template");
 
     if (!result)
         return;
@@ -2225,10 +2225,11 @@ void ObjectMgr::LoadItemLocales()
 
         for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
         {
-            LocaleConstant locale = (LocaleConstant) i;
-            AddLocaleString(fields[1 + 2 * (i - 1)].GetString(), locale, data.Name);
-            AddLocaleString(fields[1 + 2 * (i - 1) + 1].GetString(), locale, data.Description);
+            LocaleConstant locale = (LocaleConstant)i;
+            AddLocaleString(i == LOCALE_frFR ? fields[1].GetString() : "", locale, data.Name);
+            AddLocaleString(i == LOCALE_frFR ? fields[2].GetString() : "", locale, data.Description);
         }
+
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %lu Item locale strings in %u ms", (unsigned long)_itemLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
@@ -2853,7 +2854,7 @@ void ObjectMgr::LoadItemSetNameLocales()
 
     _itemSetNameLocaleStore.clear();                                 // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT `entry`, `name_loc1`, `name_loc2`, `name_loc3`, `name_loc4`, `name_loc5`, `name_loc6`, `name_loc7`, `name_loc8` FROM `locales_item_set_names`");
+    QueryResult result = WorldDatabase.Query("SELECT `entry`, `name_loc2` FROM `item_set_names`");
 
     if (!result)
         return;
@@ -2867,7 +2868,8 @@ void ObjectMgr::LoadItemSetNameLocales()
         ItemSetNameLocale& data = _itemSetNameLocaleStore[entry];
 
         for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
-            AddLocaleString(fields[i].GetString(), LocaleConstant(i), data.Name);
+            AddLocaleString(i == LOCALE_frFR ? fields[1].GetString() : "", LocaleConstant(i), data.Name);
+
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded " UI64FMTD " Item set name locale strings in %u ms", uint64(_itemSetNameLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
