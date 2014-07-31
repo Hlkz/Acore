@@ -15166,8 +15166,6 @@ void Unit::Kill(Unit* victim)
         if (creature)
         {
             Loot* loot = &creature->loot;
-            if (creature->loot.loot_type == LOOT_PICKPOCKETING)
-                creature->ResetPickPocketRefillTimer();
 
             loot->clear();
             if (uint32 lootid = creature->GetCreatureTemplate()->lootid)
