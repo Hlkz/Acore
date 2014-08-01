@@ -780,7 +780,7 @@ SpellInfo::SpellInfo(Field* fields)
         35     "maxLevel, baseLevel, spellLevel, DurationIndex, powerType, manaCost, manaCostPerlevel, manaPerSecond, manaPerSecondPerLevel, rangeIndex, speed, StackAmount, Totem1, Totem2, "
         49     "Reagent1, Reagent2, Reagent3, Reagent4, Reagent5, Reagent6, Reagent7, Reagent8, ReagentCount1, ReagentCount2, ReagentCount3, ReagentCount4, ReagentCount5, ReagentCount6, ReagentCount7, ReagentCount8, "
         65     "EquippedItemClass, EquippedItemSubClassMask, EquippedItemInventoryTypeMask, SpellVisual1, SpellVisual2, SpellIconID, activeIconID, "
-        72     "SpellName_0, SpellName_2, Rank_0, Rank_2, "
+        72     "Name, Name_loc2, Rank, Rank_loc2, "
         76     "ManaCostPercentage, StartRecoveryCategory, StartRecoveryTime, MaxTargetLevel, SpellFamilyName, SpellFamilyFlagsLow, SpellFamilyFlagsHigh, SpellFamilyFlags2, MaxAffectedTargets, DmgClass, PreventionType, "
         87     "TotemCategory1, TotemCategory2, AreaGroupId, SchoolMask, runeCostID, "
     */
