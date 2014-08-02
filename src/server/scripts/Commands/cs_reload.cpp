@@ -1083,7 +1083,7 @@ public:
     {
         TC_LOG_INFO("misc", "Re-Loading Locales Achievement Reward Data...");
         sAchievementMgr->LoadRewardLocales();
-        handler->SendGlobalGMSysMessage("DB table `locales_achievement_reward` reloaded.");
+        handler->SendGlobalGMSysMessage("DB table `achievement_reward` (just locales) reloaded.");
         return true;
     }
 
