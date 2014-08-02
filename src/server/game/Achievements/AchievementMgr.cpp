@@ -2530,7 +2530,7 @@ void AchievementGlobalMgr::LoadRewardLocales()
 
         AchievementRewardLocale& data = m_achievementRewardLocales[entry];
 
-        for (int i = 1; i < TOTAL_LOCALES; ++i)
+        for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
         {
             LocaleConstant locale = (LocaleConstant) i;
             ObjectMgr::AddLocaleString(i == LOCALE_frFR ? fields[1].GetString() : "", locale, data.subject);

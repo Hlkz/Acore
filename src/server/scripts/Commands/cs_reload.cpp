@@ -1115,7 +1115,7 @@ public:
     {
         TC_LOG_INFO("misc", "Re-Loading Locales Gameobject ... ");
         sObjectMgr->LoadGameObjectLocales();
-        handler->SendGlobalGMSysMessage("DB table `locales_gameobject` reloaded.");
+        handler->SendGlobalGMSysMessage("DB table `gameobject_template` (just locales) reloaded.");
         return true;
     }
 

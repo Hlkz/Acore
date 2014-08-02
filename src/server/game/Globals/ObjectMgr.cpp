@@ -6402,10 +6402,7 @@ void ObjectMgr::LoadGameObjectLocales()
 
     _gameObjectLocaleStore.clear();                           // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, "
-        "name_loc1, name_loc2, name_loc3, name_loc4, name_loc5, name_loc6, name_loc7, name_loc8, "
-        "castbarcaption_loc1, castbarcaption_loc2, castbarcaption_loc3, castbarcaption_loc4, "
-        "castbarcaption_loc5, castbarcaption_loc6, castbarcaption_loc7, castbarcaption_loc8 FROM locales_gameobject");
+    QueryResult result = WorldDatabase.Query("SELECT entry, name_loc2, castbarcaption_loc2 FROM locales_gameobject");
 
     if (!result)
         return;
@@ -6419,10 +6416,12 @@ void ObjectMgr::LoadGameObjectLocales()
         GameObjectLocale& data = _gameObjectLocaleStore[entry];
 
         for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
-            AddLocaleString(fields[i].GetString(), LocaleConstant(i), data.Name);
+        {
+            LocaleConstant locale = (LocaleConstant)i;
+            AddLocaleString(i == LOCALE_frFR ? fields[1].GetString() : "", LocaleConstant(i), data.Name);
+            AddLocaleString(i == LOCALE_frFR ? fields[2].GetString() : "", LocaleConstant(i), data.CastBarCaption);
+        }
 
-        for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
-            AddLocaleString(fields[i + (TOTAL_LOCALES - 1)].GetString(), LocaleConstant(i), data.CastBarCaption);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %lu gameobject locale strings in %u ms", (unsigned long)_gameObjectLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
