@@ -1099,7 +1099,7 @@ public:
     {
         TC_LOG_INFO("misc", "Re-Loading Locales Creature ...");
         sObjectMgr->LoadCreatureLocales();
-        handler->SendGlobalGMSysMessage("DB table `locales_creature` reloaded.");
+        handler->SendGlobalGMSysMessage("DB table `creature_template` (just locales) reloaded.");
         return true;
     }
 
@@ -1107,7 +1107,7 @@ public:
     {
         TC_LOG_INFO("misc", "Re-Loading Locales Creature Texts...");
         sCreatureTextMgr->LoadCreatureTextLocales();
-        handler->SendGlobalGMSysMessage("DB table `locales_creature_text` reloaded.");
+        handler->SendGlobalGMSysMessage("DB table `creature_text` (just locales) reloaded.");
         return true;
     }
 

@@ -169,7 +169,7 @@ void CreatureTextMgr::LoadCreatureTextLocales()
 
     mLocaleTextMap.clear(); // for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, groupid, id, text_loc1, text_loc2, text_loc3, text_loc4, text_loc5, text_loc6, text_loc7, text_loc8 FROM locales_creature_text");
+    QueryResult result = WorldDatabase.Query("SELECT entry, groupid, id, text_loc2 FROM creature_text");
 
     if (!result)
         return;
@@ -181,10 +181,7 @@ void CreatureTextMgr::LoadCreatureTextLocales()
         Field* fields = result->Fetch();
         CreatureTextLocale& loc = mLocaleTextMap[CreatureTextId(fields[0].GetUInt32(), uint32(fields[1].GetUInt8()), uint32(fields[2].GetUInt8()))];
         for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
-        {
-            LocaleConstant locale = LocaleConstant(i);
-            ObjectMgr::AddLocaleString(fields[3 + i - 1].GetString(), locale, loc.Text);
-        }
+            ObjectMgr::AddLocaleString(i == LOCALE_frFR ? fields[3].GetString() : "", LocaleConstant(i), loc.Text);
 
         ++textCount;
     } while (result->NextRow());
