@@ -1123,7 +1123,7 @@ public:
     {
         TC_LOG_INFO("misc", "Re-Loading Locales Gossip Menu Option ... ");
         sObjectMgr->LoadGossipMenuItemsLocales();
-        handler->SendGlobalGMSysMessage("DB table `locales_gossip_menu_option` reloaded.");
+        handler->SendGlobalGMSysMessage("DB table `gossip_menu_option` (just locales) reloaded.");
         return true;
     }
 

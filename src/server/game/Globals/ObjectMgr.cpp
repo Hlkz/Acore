@@ -331,12 +331,7 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
 
     _gossipMenuItemsLocaleStore.clear();                              // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT menu_id, id, "
-        "option_text_loc1, box_text_loc1, option_text_loc2, box_text_loc2, "
-        "option_text_loc3, box_text_loc3, option_text_loc4, box_text_loc4, "
-        "option_text_loc5, box_text_loc5, option_text_loc6, box_text_loc6, "
-        "option_text_loc7, box_text_loc7, option_text_loc8, box_text_loc8 "
-        "FROM locales_gossip_menu_option");
+    QueryResult result = WorldDatabase.Query("SELECT menu_id, id, option_text_loc2, box_text_loc2 FROM gossip_menu_option");
 
     if (!result)
         return;
@@ -353,8 +348,8 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
         for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
         {
             LocaleConstant locale = (LocaleConstant) i;
-            AddLocaleString(fields[2 + 2 * (i - 1)].GetString(), locale, data.OptionText);
-            AddLocaleString(fields[2 + 2 * (i - 1) + 1].GetString(), locale, data.BoxText);
+            AddLocaleString(i == LOCALE_frFR ? fields[2].GetString() : "", locale, data.OptionText);
+            AddLocaleString(i == LOCALE_frFR ? fields[3].GetString() : "", locale, data.BoxText);
         }
     }
     while (result->NextRow());
@@ -6402,7 +6397,7 @@ void ObjectMgr::LoadGameObjectLocales()
 
     _gameObjectLocaleStore.clear();                           // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, name_loc2, castbarcaption_loc2 FROM locales_gameobject");
+    QueryResult result = WorldDatabase.Query("SELECT entry, name_loc2, castbarcaption_loc2 FROM gameobject_template");
 
     if (!result)
         return;
