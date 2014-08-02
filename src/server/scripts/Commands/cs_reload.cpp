@@ -1147,7 +1147,7 @@ public:
     {
         TC_LOG_INFO("misc", "Re-Loading Locales NPC Text ... ");
         sObjectMgr->LoadNpcTextLocales();
-        handler->SendGlobalGMSysMessage("DB table `locales_npc_text` reloaded.");
+        handler->SendGlobalGMSysMessage("DB table `npc_text` (just locales) reloaded.");
         return true;
     }
 
