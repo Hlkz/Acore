@@ -1131,7 +1131,7 @@ public:
     {
         TC_LOG_INFO("misc", "Re-Loading Locales Item ... ");
         sObjectMgr->LoadItemLocales();
-        handler->SendGlobalGMSysMessage("DB table `locales_item` reloaded.");
+        handler->SendGlobalGMSysMessage("DB table `item_template` (just locales) reloaded.");
         return true;
     }
 
@@ -1139,7 +1139,7 @@ public:
     {
         TC_LOG_INFO("misc", "Re-Loading Locales Item set name... ");
         sObjectMgr->LoadItemSetNameLocales();
-        handler->SendGlobalGMSysMessage("DB table `locales_item_set_name` reloaded.");
+        handler->SendGlobalGMSysMessage("DB table `item_set_name` (just locales) reloaded.");
         return true;
     }
 
@@ -1155,7 +1155,7 @@ public:
     {
         TC_LOG_INFO("misc", "Re-Loading Locales Page Text ... ");
         sObjectMgr->LoadPageTextLocales();
-        handler->SendGlobalGMSysMessage("DB table `locales_page_text` reloaded.");
+        handler->SendGlobalGMSysMessage("DB table `page_text` (just locales) reloaded.");
         return true;
     }
 
@@ -1163,7 +1163,7 @@ public:
     {
         TC_LOG_INFO("misc", "Re-Loading Locales Points Of Interest ... ");
         sObjectMgr->LoadPointOfInterestLocales();
-        handler->SendGlobalGMSysMessage("DB table `locales_points_of_interest` reloaded.");
+        handler->SendGlobalGMSysMessage("DB table `points_of_interest` (just locales) reloaded.");
         return true;
     }
 
@@ -1171,7 +1171,7 @@ public:
     {
         TC_LOG_INFO("misc", "Re-Loading Locales Quest ... ");
         sObjectMgr->LoadQuestLocales();
-        handler->SendGlobalGMSysMessage("DB table `locales_quest` reloaded.");
+        handler->SendGlobalGMSysMessage("DB table `quest_template` (just locales) reloaded.");
         return true;
     }
 
