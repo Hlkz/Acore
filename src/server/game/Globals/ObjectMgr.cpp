@@ -4444,7 +4444,7 @@ void ObjectMgr::LoadQuestLocales()
     _questLocaleStore.clear();                                // need for reload case
 
     QueryResult result = WorldDatabase.Query("SELECT Id, "
-        "Title_loc2, Details_loc2, Objectives_loc2, OfferRewardText_loc2, RequestItemsText_loc2, EndText_loc2, CompletedText_loc2, ObjectiveText1_loc2, ObjectiveText2_loc2, ObjectiveText3_loc2, ObjectiveText4_loc2, "
+        "Title_loc2, Details_loc2, Objectives_loc2, OfferRewardText_loc2, RequestItemsText_loc2, EndText_loc2, CompletedText_loc2, ObjectiveText1_loc2, ObjectiveText2_loc2, ObjectiveText3_loc2, ObjectiveText4_loc2 "
         " FROM quest_template");
 
     if (!result)
@@ -4471,7 +4471,7 @@ void ObjectMgr::LoadQuestLocales()
             AddLocaleString(i == LOCALE_frFR ? fields[7].GetString() : "", locale, data.CompletedText);
 
             for (uint8 k = 0; k < 4; ++k)
-                AddLocaleString(fields[1 + 11 * (i - 1) + 7 + k].GetString(), locale, data.ObjectiveText[k]);
+                AddLocaleString(i == LOCALE_frFR ? fields[8 + k].GetString() : "", locale, data.ObjectiveText[k]);
         }
     } while (result->NextRow());
 
@@ -5352,7 +5352,7 @@ void ObjectMgr::LoadNpcTextLocales()
     _npcTextLocaleStore.clear();                              // need for reload case
 
     QueryResult result = WorldDatabase.Query("SELECT ID, "
-        "Text0_0_loc2, Text0_1_loc2, Text1_0_loc2, Text1_1_loc2, Text2_0_loc2, Text2_1_loc2, Text3_0_loc2, Text3_1_loc1, Text4_0_loc2, Text4_1_loc2, Text5_0_loc2, Text5_1_loc2, Text6_0_loc2, Text6_1_loc2, Text7_0_loc2, Text7_1_loc2, "
+        "Text0_0_loc2, Text0_1_loc2, Text1_0_loc2, Text1_1_loc2, Text2_0_loc2, Text2_1_loc2, Text3_0_loc2, Text3_1_loc2, Text4_0_loc2, Text4_1_loc2, Text5_0_loc2, Text5_1_loc2, Text6_0_loc2, Text6_1_loc2, Text7_0_loc2, Text7_1_loc2 "
         " FROM npc_text");
 
     if (!result)
