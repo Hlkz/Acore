@@ -153,7 +153,6 @@ extern DBCStorage <SkillLineAbilityEntry>        sSkillLineAbilityStore;
 extern DBCStorage <SoundEntriesEntry>            sSoundEntriesStore;
 extern DBCStorage <SpellCastTimesEntry>          sSpellCastTimesStore;
 extern DBCStorage <SpellCategoryEntry>           sSpellCategoryStore;
-extern DBCStorage <SpellDifficultyEntry>         sSpellDifficultyStore;
 extern DBCStorage <SpellDurationEntry>           sSpellDurationStore;
 extern DBCStorage <SpellFocusObjectEntry>        sSpellFocusObjectStore;
 extern DBCStorage <SpellItemEnchantmentEntry>    sSpellItemEnchantmentStore;
@@ -187,6 +186,7 @@ extern DBCStorage <WorldSafeLocsEntry>           sWorldSafeLocsStore;
 
 void LoadDBCStores(const std::string& dataPath);
 
+typedef std::unordered_map<uint32, const SpellDifficultyEntry*> SpellDifficultyContainer;
 typedef std::unordered_map<uint32, const TalentEntry*> TalentContainer;
 
 class DBCMgr
@@ -198,10 +198,13 @@ class DBCMgr
 
     public:
 
+        void LoadSpellDifficultyStore();
         void LoadTalentStore();
 
+        const SpellDifficultyEntry* GetSpellDifficultyEntry(uint32 ID) const;
         const TalentEntry* GetTalentEntry(uint32 TalentID) const;
 
+        SpellDifficultyContainer SpellDifficultyStore;
         TalentContainer TalentStore;
 };
 

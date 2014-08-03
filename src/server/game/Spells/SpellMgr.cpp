@@ -477,7 +477,7 @@ uint32 SpellMgr::GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) con
     if (!difficultyId)
         return spellId; //return source spell, it has only REGULAR_DIFFICULTY
 
-    SpellDifficultyEntry const* difficultyEntry = sSpellDifficultyStore.LookupEntry(difficultyId);
+    SpellDifficultyEntry const* difficultyEntry = sDBCMgr->GetSpellDifficultyEntry(difficultyId);
     if (!difficultyEntry)
     {
         TC_LOG_ERROR("spells", "SpellMgr::GetSpellIdForDifficulty: SpellDifficultyEntry not found for spell %u. This should never happen.", spellId);
@@ -492,7 +492,7 @@ uint32 SpellMgr::GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) con
 
     if (difficultyEntry->SpellID[mode] <= 0)
     {
-        TC_LOG_ERROR("sql.sql", "SpellMgr::GetSpellIdForDifficulty: spell %u mode %u spell is 0. Check spelldifficulty_dbc!", spellId, mode);
+        TC_LOG_ERROR("sql.sql", "SpellMgr::GetSpellIdForDifficulty: spell %u mode %u spell is 0. Check `spelldifficultydbc`!", spellId, mode);
         return spellId;
     }
 
@@ -509,7 +509,7 @@ SpellInfo const* SpellMgr::GetSpellForDifficultyFromSpell(SpellInfo const* spell
     SpellInfo const* newSpell = GetSpellInfo(newSpellId);
     if (!newSpell)
     {
-        TC_LOG_DEBUG("spells", "SpellMgr::GetSpellForDifficultyFromSpell: spell %u not found. Check spelldifficulty_dbc!", newSpellId);
+        TC_LOG_DEBUG("spells", "SpellMgr::GetSpellForDifficultyFromSpell: spell %u not found. Check `spelldifficultydbc`!", newSpellId);
         return spell;
     }
 

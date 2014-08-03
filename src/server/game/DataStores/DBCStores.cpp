@@ -163,7 +163,6 @@ PetFamilySpellsStore sPetFamilySpellsStore;
 
 DBCStorage <SpellCastTimesEntry> sSpellCastTimesStore(SpellCastTimefmt);
 DBCStorage <SpellCategoryEntry> sSpellCategoryStore(SpellCategoryfmt);
-DBCStorage <SpellDifficultyEntry> sSpellDifficultyStore(SpellDifficultyfmt);
 DBCStorage <SpellDurationEntry> sSpellDurationStore(SpellDurationfmt);
 DBCStorage <SpellFocusObjectEntry> sSpellFocusObjectStore(SpellFocusObjectfmt);
 DBCStorage <SpellRadiusEntry> sSpellRadiusStore(SpellRadiusfmt);
@@ -412,7 +411,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sSoundEntriesStore,           dbcPath, "SoundEntries.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellCastTimesStore,         dbcPath, "SpellCastTimes.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellCategoryStore,          dbcPath, "SpellCategory.dbc");
-    LoadDBC(availableDbcLocales, bad_dbc_files, sSpellDifficultyStore,        dbcPath, "SpellDifficulty.dbc", &CustomSpellDifficultyfmt, &CustomSpellDifficultyIndex);
+    sDBCMgr->LoadSpellDifficultyStore();
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellDurationStore,          dbcPath, "SpellDuration.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellFocusObjectStore,       dbcPath, "SpellFocusObject.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellItemEnchantmentStore,   dbcPath, "SpellItemEnchantment.dbc");
@@ -554,9 +553,9 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     // Create Spelldifficulty searcher (After SpellDifficulty Spell)
-    for (uint32 i = 0; i < sSpellDifficultyStore.GetNumRows(); ++i)
+    for (SpellDifficultyContainer::const_iterator itr = sDBCMgr->SpellDifficultyStore.begin(); itr != sDBCMgr->SpellDifficultyStore.end(); ++itr)
     {
-        SpellDifficultyEntry const* spellDiff = sSpellDifficultyStore.LookupEntry(i);
+        SpellDifficultyEntry const* spellDiff = itr->second;
         if (!spellDiff)
             continue;
 
@@ -567,7 +566,7 @@ void LoadDBCStores(const std::string& dataPath)
             if (spellDiff->SpellID[x] <= 0 || !sSpellMgr->GetSpellInfo(spellDiff->SpellID[x]))
             {
                 if (spellDiff->SpellID[x] > 0)//don't show error if spell is <= 0, not all modes have spells and there are unknown negative values
-                    TC_LOG_ERROR("sql.sql", "spelldifficulty_dbc: spell %i at field id:%u at spellid%i does not exist in SpellStore `spells` table, loaded as 0", spellDiff->SpellID[x], spellDiff->ID, x);
+                    TC_LOG_ERROR("sql.sql", "`spelldifficultydbc` table: spell %i at field id:%u at spellid%i does not exist in SpellStore (`spells` table), loaded as 0", spellDiff->SpellID[x], spellDiff->ID, x);
                 newEntry.SpellID[x] = 0;//spell was <= 0 or invalid, set to 0
             }
             else
@@ -960,6 +959,32 @@ uint32 GetDefaultMapLight(uint32 mapId)
     return 0;
 }
 
+void DBCMgr::LoadSpellDifficultyStore()
+{
+    uint32 oldMSTime = getMSTime();
+    SpellDifficultyStore.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT id, spellid0, spellid1, spellid2, spellid3 FROM spelldifficultydbc");
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 SpellDifficulty. DB table `spelldifficultydbc` is empty.");
+        return;
+    }
+
+    do {
+        Field* fields = result->Fetch();
+
+        SpellDifficultyEntry* newSpellDifficulty = new SpellDifficultyEntry;
+        newSpellDifficulty->ID = fields[0].GetUInt32();
+        for (uint8 i = 0; i < MAX_DIFFICULTY; i++)
+            newSpellDifficulty->SpellID[i] = fields[1 + i].GetUInt32();
+        SpellDifficultyStore[newSpellDifficulty->ID] = newSpellDifficulty;
+
+    } while (result->NextRow());
+
+    TC_LOG_ERROR("misc", ">> Loaded %lu SpellDifficulty entries in %u ms", (unsigned long)SpellDifficultyStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
 void DBCMgr::LoadTalentStore()
 {
     uint32 oldMSTime = getMSTime();
@@ -980,7 +1005,7 @@ void DBCMgr::LoadTalentStore()
         newTalent->TalentTab = fields[1].GetUInt32();
         newTalent->Row = fields[2].GetUInt32();
         newTalent->Col = fields[3].GetUInt32();
-        for (uint8 i = 0; i < 5; i++)
+        for (uint8 i = 0; i < MAX_TALENT_RANK; i++)
             newTalent->RankID[i] = fields[4 + i].GetUInt32();
         newTalent->DependsOn = fields[9].GetUInt32();
         newTalent->DependsOnRank = fields[10].GetUInt32();
@@ -989,6 +1014,14 @@ void DBCMgr::LoadTalentStore()
     } while (result->NextRow());
 
     TC_LOG_ERROR("misc", ">> Loaded %lu Talent entries in %u ms", (unsigned long)TalentStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+const SpellDifficultyEntry* DBCMgr::GetSpellDifficultyEntry(uint32 ID) const
+{
+    SpellDifficultyContainer::const_iterator itr = SpellDifficultyStore.find(ID);
+    if (itr != SpellDifficultyStore.end())
+        return itr->second;
+    return NULL;
 }
 
 const TalentEntry* DBCMgr::GetTalentEntry(uint32 TalentID) const
