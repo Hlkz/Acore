@@ -27,7 +27,7 @@ CREATE TABLE `spelldifficultydbc` (
   `spellid2` int(4) DEFAULT '0',
   `spellid3` int(4) DEFAULT '0',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `ID` (`id`)
+  UNIQUE KEY `id` (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
