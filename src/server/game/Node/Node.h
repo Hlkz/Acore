@@ -3,50 +3,58 @@
 #define __NODE_H
 
 class Node;
+struct NodeRelation
+{
+    Node* Relation;
+    uint32 Type;
+    int32 Hostile;
+    uint32 Path;
+};
 typedef std::map<uint32, Node*> NodeMap;
+typedef std::map<uint32, NodeRelation> NodeRelationMap;
+
 class Node
 {
     friend class NodeMgr;
 
     public:
-        Node(uint32 id, uint32 team, Creature* base) { Id = id; m_team = team; m_base = base; }
+        Node(Field* fields);
         ~Node() { }
         
-        void SetId(uint32 id) { Id = id; }
-        uint32 GetId() { return Id; }
-        void SetTeam(uint32 team) { m_team = team; }
-        uint32 GetTeam() { return m_team; }
-        void SetBase(Creature* base) { m_base = base; } 
-        Creature* GetBase() { return m_base; }
+        void SetId(uint32 id) { m_Id = id; }
+        uint32 GetId() { return m_Id; }
+        void SetTeam(uint32 team) { m_Team = team; }
+        uint32 GetTeam() { return m_Team; }
+        void SetBase(Creature* base) { m_Base = base; }
+        Creature* GetBase() { return m_Base; }
         
         typedef std::map<uint64, Creature*> CommanderMap;
-        void AddCommander(Creature* commander) { m_commanders[commander->GetGUID()] = commander; }
-        void RemoveCommander(uint64 guid) { CommanderMap::iterator itr = m_commanders.find(guid); if (itr != m_commanders.end()) { delete itr->second; m_commanders.erase(itr); } }
-        CommanderMap GetCommanders() { return m_commanders; }
+        void AddCommander(Creature* commander) { m_Commanders[commander->GetGUID()] = commander; }
+        void RemoveCommander(uint64 guid) { CommanderMap::iterator itr = m_Commanders.find(guid); if (itr != m_Commanders.end()) { delete itr->second; m_Commanders.erase(itr); } }
+        CommanderMap GetCommanders() { return m_Commanders; }
 
-        void AddFlag() { m_flags++; }
-        void RemoveFlag() { m_flags--; }
-        void SetFlags(uint32 flags) { m_flags = flags; }
-        uint32 GetFlags() { return m_flags; }
+        void AddFlag() { m_Flags++; }
+        void RemoveFlag() { m_Flags--; }
+        void SetFlags(uint32 flags) { m_Flags = flags; }
+        uint32 GetFlags() { return m_Flags; }
 
-        void AddAlly(Node* ally) { m_Allies[ally->GetId()] = ally; } // Allies
-        void RemoveAlly(uint32 id) { NodeMap::iterator itr = m_Allies.find(id); if (itr != m_Allies.end()) { delete itr->second; m_Allies.erase(itr); } }
-        NodeMap GetAllies() { return m_Allies; }
+        void AddRelation(uint32 id, uint32 type = 0, int32 hostile = 0, uint32 path = 0);
+      //void RemoveRelation(uint32 id) { NodeRelationMap::iterator itr = m_relations.find(id); if (itr != m_relations.end()) { delete itr->second; m_relations.erase(itr); } }
+      //NodeRelation GetRelation(uint32 id) { NodeRelationMap::iterator itr = m_relations.find(id); if (itr != m_relations.end()) return itr->second; return NULL; }
+        NodeRelationMap GetRelations() { return m_Relations; }
 
-        void AddEnemy(Node* enemy) { m_Enemies[enemy->GetId()] = enemy; } // Enemies
-        void RemoveEnemy(uint32 id) { NodeMap::iterator itr = m_Enemies.find(id); if (itr != m_Enemies.end()) { delete itr->second; m_Enemies.erase(itr); } }
-        NodeMap GetEnemies() { return m_Enemies; }
-
-        void Update();
+        void SendWaves();
+        void SendWave(NodeRelationMap::iterator itr);
 
     private:
-        uint32 Id;
-        uint32 m_team;
-        Creature* m_base;
-        CommanderMap m_commanders;
-        uint32 m_flags;
-        NodeMap m_Allies;
-        NodeMap m_Enemies;
+        uint32 m_Id;
+        std::string m_Comment;
+
+        uint32 m_Team;
+        Creature* m_Base;
+        CommanderMap m_Commanders;
+        uint32 m_Flags;
+        NodeRelationMap m_Relations;
 };
 
 #endif

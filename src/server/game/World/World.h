@@ -762,9 +762,10 @@ class World
         time_t m_NextRanksDistrib;
 
         time_t m_LastResurrectTime;
-        std::map<uint64, std::vector<uint64> >  m_ReviveQueue; // spirit + list
-        std::vector<uint64> m_ResurrectQueue; // final list
-        //Player Queue
+        std::map<uint64, std::vector<uint64> >  m_ReviveQueue; // spirit guid + player list (visual)
+        std::vector<uint64> m_ResurrectQueue; // final player list (resurrect)
+
+        // Player Queue
         Queue m_QueuedPlayer;
 
         // sessions that are added async

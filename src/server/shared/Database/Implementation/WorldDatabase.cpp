@@ -107,5 +107,4 @@ void WorldDatabaseConnection::DoPrepareStatements()
         /* 140 */   "EffectPointsPerComboPoint1, EffectPointsPerComboPoint2, EffectPointsPerComboPoint3, EffectSpellClassMask1, EffectSpellClassMask2, EffectSpellClassMask3, "
         /* 146 */   "EffectDamageMultiplier1, EffectDamageMultiplier2, EffectDamageMultiplier3, EffectBonusMultiplier1, EffectBonusMultiplier2, EffectBonusMultiplier3 FROM spelldbc ORDER BY Entry", CONNECTION_SYNCH);
     PrepareStatement(WORLD_SEL_SPELLDBC_SIZE, "SELECT Entry FROM spelldbc ORDER BY Entry DESC LIMIT 1", CONNECTION_SYNCH);
-    PrepareStatement(WORLD_SEL_NODE_RELATIONS, "SELECT path FROM node_relations WHERE id = ? AND relation = ?", CONNECTION_SYNCH);
 }

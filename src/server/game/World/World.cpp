@@ -50,7 +50,9 @@
 #include "MapManager.h"
 #include "CreatureAIRegistry.h"
 #include "BattlegroundMgr.h"
+#include "BattleAOMgr.h"
 #include "OutdoorPvPMgr.h"
+#include "NodeMgr.h"
 #include "TemporarySummon.h"
 #include "WaypointMovementGenerator.h"
 #include "VMapFactory.h"
@@ -78,7 +80,6 @@
 #include "WardenCheckMgr.h"
 #include "Warden.h"
 #include "CalendarMgr.h"
-#include "BattleAOMgr.h"
 #include "TransportMgr.h"
 
 ACE_Atomic_Op<ACE_Thread_Mutex, bool> World::m_stopEvent = false;
@@ -1599,6 +1600,11 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Starting BattleAO System");
     sBattleAOMgr->InitBattleAO();
 
+    ///- Initialize Nodes
+    TC_LOG_INFO("server.loading", "Starting BattleAO System");
+    sNodeMgr->InitNodes();
+
+    ///- Initialize Transports
     TC_LOG_INFO("server.loading", "Loading Transports...");
     sTransportMgr->SpawnContinentTransports();
 
@@ -1887,6 +1893,9 @@ void World::Update(uint32 diff)
 
     sBattleAOMgr->Update(diff);
     RecordTimeDiff("BattleAOMgr");
+
+    sNodeMgr->Update(diff);
+    RecordTimeDiff("NodeMgr");
 
     ///- Delete all characters which have been deleted X days before
     if (m_timers[WUPDATE_DELETECHARS].Passed())
