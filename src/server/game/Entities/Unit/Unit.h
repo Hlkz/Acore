@@ -1195,7 +1195,6 @@ struct CharmInfo
         CharmSpellInfo _charmspells[4];
         CommandStates _CommandState;
         uint32 _petnumber;
-        bool _barInit;
 
         //for restoration after charmed
         ReactStates     _oldReactState;
