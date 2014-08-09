@@ -79,22 +79,19 @@
 #include <sstream>
 #include <algorithm>
 
-#include "Threading/LockedQueue.h"
-#include "Threading/Threading.h"
+#include "Debugging/Errors.h"
 
-#include <ace/Basic_Types.h>
-#include <ace/Guard_T.h>
-#include <ace/RW_Thread_Mutex.h>
-#include <ace/Thread_Mutex.h>
-#include <ace/OS_NS_time.h>
+#include "Threading/LockedQueue.h"
 
 #if PLATFORM == PLATFORM_WINDOWS
-#  include <ace/config-all.h>
-// XP winver - needed to compile with standard leak check in MemoryLeaks.h
-// uncomment later if needed
-//#define _WIN32_WINNT 0x0501
 #  include <ws2tcpip.h>
-//#undef WIN32_WINNT
+
+#  if defined(__INTEL_COMPILER)
+#    if !defined(BOOST_ASIO_HAS_MOVE)
+#      define BOOST_ASIO_HAS_MOVE
+#    endif // !defined(BOOST_ASIO_HAS_MOVE)
+#  endif // if defined(__INTEL_COMPILER)
+
 #else
 #  include <sys/types.h>
 #  include <sys/ioctl.h>
@@ -122,8 +119,6 @@
 
 inline float finiteAlways(float f) { return std::isfinite(f) ? f : 0.0f; }
 
-#define atol(a) strtoul( a, NULL, 10)
-
 #define STRINGIZE(a) #a
 
 enum TimeConstants
@@ -140,11 +135,10 @@ enum TimeConstants
 enum AccountTypes
 {
     SEC_PLAYER         = 0,
-    SEC_ACCESS         = 1,
-    SEC_ANIMATOR       = 2,
-    SEC_GAMEMASTER     = 3,
-    SEC_ADMINISTRATOR  = 4,
-    SEC_CONSOLE        = 5                                  // must be always last in list, accounts must have less security level always also
+    SEC_MODERATOR      = 1,
+    SEC_GAMEMASTER     = 2,
+    SEC_ADMINISTRATOR  = 3,
+    SEC_CONSOLE        = 4                                  // must be always last in list, accounts must have less security level always also
 };
 
 enum LocaleConstant
@@ -186,21 +180,5 @@ typedef std::vector<std::string> StringVector;
 #endif
 
 #define MAX_QUERY_LEN 32*1024
-
-#define TRINITY_GUARD(MUTEX, LOCK) \
-  ACE_Guard< MUTEX > TRINITY_GUARD_OBJECT (LOCK); \
-    if (TRINITY_GUARD_OBJECT.locked() == 0) ASSERT(false);
-
-//! For proper implementation of multiple-read, single-write pattern, use
-//! ACE_RW_Mutex as underlying @MUTEX
-# define TRINITY_WRITE_GUARD(MUTEX, LOCK) \
-  ACE_Write_Guard< MUTEX > TRINITY_GUARD_OBJECT (LOCK); \
-    if (TRINITY_GUARD_OBJECT.locked() == 0) ASSERT(false);
-
-//! For proper implementation of multiple-read, single-write pattern, use
-//! ACE_RW_Mutex as underlying @MUTEX
-# define TRINITY_READ_GUARD(MUTEX, LOCK) \
-  ACE_Read_Guard< MUTEX > TRINITY_GUARD_OBJECT (LOCK); \
-    if (TRINITY_GUARD_OBJECT.locked() == 0) ASSERT(false);
 
 #endif
