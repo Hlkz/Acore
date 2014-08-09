@@ -2191,7 +2191,7 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
 {
     uint32 oldMSTime = getMSTime();
 
-    if (sAchievementStore.GetNumRows() == 0)
+    if (sDBCMgr->AchievementStore.size() == 0)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 achievement references.");
         return;
@@ -2199,7 +2199,7 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
 
     uint32 count = 0;
 
-    for (uint32 entryId = 0; entryId < sAchievementStore.GetNumRows(); ++entryId)
+    for (uint32 entryId = 0; entryId < sDBCMgr->AchievementStore.size(); ++entryId)
     {
         AchievementEntry const* achievement = sAchievementMgr->GetAchievement(entryId);
         if (!achievement || !achievement->refAchievement)
@@ -2544,7 +2544,7 @@ void AchievementGlobalMgr::LoadRewardLocales()
 
 AchievementEntry const* AchievementGlobalMgr::GetAchievement(uint32 achievementId) const
 {
-    return sAchievementStore.LookupEntry(achievementId);
+    return sDBCMgr->GetAchievementEntry(achievementId);
 }
 
 AchievementCriteriaEntry const* AchievementGlobalMgr::GetAchievementCriteria(uint32 criteriaId) const

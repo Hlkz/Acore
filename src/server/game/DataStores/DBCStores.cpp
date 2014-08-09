@@ -59,7 +59,6 @@ static AreaFlagByMapID sAreaFlagByMapID;                    // for instances wit
 
 static WMOAreaInfoByTripple sWMOAreaInfoByTripple;
 
-DBCStorage <AchievementEntry> sAchievementStore(Achievementfmt);
 DBCStorage <AchievementCriteriaEntry> sAchievementCriteriaStore(AchievementCriteriafmt);
 DBCStorage <AreaTriggerEntry> sAreaTriggerStore(AreaTriggerEntryfmt);
 DBCStorage <AuctionHouseEntry> sAuctionHouseStore(AuctionHouseEntryfmt);
@@ -286,7 +285,7 @@ void LoadDBCStores(const std::string& dataPath)
         }
     }
 
-    LoadDBC(availableDbcLocales, bad_dbc_files, sAchievementStore,            dbcPath, "Achievement.dbc", &CustomAchievementfmt, &CustomAchievementIndex);
+    sDBCMgr->LoadAchievementStore();
     LoadDBC(availableDbcLocales, bad_dbc_files, sAchievementCriteriaStore,    dbcPath, "Achievement_Criteria.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sAreaTriggerStore,            dbcPath, "AreaTrigger.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sAreaGroupStore,              dbcPath, "AreaGroup.dbc");
@@ -959,6 +958,41 @@ uint32 GetDefaultMapLight(uint32 mapId)
     return 0;
 }
 
+void DBCMgr::LoadAchievementStore()
+{
+    uint32 oldMSTime = getMSTime();
+    AchievementStore.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT ID, Faction, Map, Name, Name_loc2, Category, Points, Flags, Demands, ReferencedAchievement FROM achievementdbc");
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 Achievement entries. DB table `achievementdbc` is empty.");
+        return;
+    }
+
+    do {
+        Field* fields = result->Fetch();
+
+        AchievementEntry* newAchievement = new AchievementEntry;
+        newAchievement->ID              = fields[0].GetUInt32();
+        newAchievement->requiredFaction = fields[1].GetInt32();
+        newAchievement->mapID           = fields[2].GetInt32();
+        for (uint8 i = 0; i < 16; i++)
+            newAchievement->name[i] = NULL;
+        newAchievement->name[0]         = (char*)fields[3].GetCString();
+        newAchievement->name[2]         = (char*)fields[4].GetCString();
+        newAchievement->categoryId      = fields[5].GetUInt32();
+        newAchievement->points          = fields[6].GetUInt32();
+        newAchievement->flags           = fields[7].GetUInt32();
+        newAchievement->count           = fields[8].GetUInt32();
+        newAchievement->refAchievement  = fields[9].GetUInt32();
+        AchievementStore[newAchievement->ID] = newAchievement;
+
+    } while (result->NextRow());
+
+    TC_LOG_ERROR("misc", ">> Loaded %lu Achievement entries in %u ms", (unsigned long)AchievementStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
 void DBCMgr::LoadSpellDifficultyStore()
 {
     uint32 oldMSTime = getMSTime();
@@ -1014,20 +1048,4 @@ void DBCMgr::LoadTalentStore()
     } while (result->NextRow());
 
     TC_LOG_ERROR("misc", ">> Loaded %lu Talent entries in %u ms", (unsigned long)TalentStore.size(), GetMSTimeDiffToNow(oldMSTime));
-}
-
-const SpellDifficultyEntry* DBCMgr::GetSpellDifficultyEntry(uint32 ID) const
-{
-    SpellDifficultyContainer::const_iterator itr = SpellDifficultyStore.find(ID);
-    if (itr != SpellDifficultyStore.end())
-        return itr->second;
-    return NULL;
-}
-
-const TalentEntry* DBCMgr::GetTalentEntry(uint32 TalentID) const
-{
-    TalentContainer::const_iterator itr = TalentStore.find(TalentID);
-    if (itr != TalentStore.end())
-        return itr->second;
-    return NULL;
 }
