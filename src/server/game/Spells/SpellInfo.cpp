@@ -328,9 +328,9 @@ SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, uint8 effIndex, Fie
         104    "EffectMechanic1, EffectMechanic2, EffectMechanic3, EffectImplicitTargetA1, EffectImplicitTargetA2, EffectImplicitTargetA3, EffectImplicitTargetB1, EffectImplicitTargetB2, EffectImplicitTargetB3, "
         113    "EffectRadiusIndex1, EffectRadiusIndex2, EffectRadiusIndex3, EffectApplyAuraName1, EffectApplyAuraName2, EffectApplyAuraName3, EffectAmplitude1, EffectAmplitude2, EffectAmplitude3, "
         122    "EffectValueMultiplier1, EffectValueMultiplier2, EffectValueMultiplier3, EffectChainTarget1, EffectChainTarget2, EffectChainTarget3, EffectItemType1, EffectItemType2, EffectItemType3, "
-        131    "EffectMiscValue1, EffectMiscValue2, EffectMiscValue3, EffectMiscValueB1, EffectMiscValueB2, EffectMiscValueB3, EffectTriggerSpell1, EffectTriggerSpell2, EffectTriggerSpell3, "
-        140    "EffectPointsPerComboPoint1, EffectPointsPerComboPoint2, EffectPointsPerComboPoint3, EffectSpellClassMask1, EffectSpellClassMask2, EffectSpellClassMask3, "
-        146    "EffectDamageMultiplier1, EffectDamageMultiplier2, EffectDamageMultiplier3, EffectBonusMultiplier1, EffectBonusMultiplier2, EffectBonusMultiplier3
+        131    "EffectMiscValue1, EffectMiscValue2, EffectMiscValue3, EffectMiscValueB1, EffectMiscValueB2, EffectMiscValueB3, EffectTriggerSpell1, EffectTriggerSpell2, EffectTriggerSpell3, EffectPointsPerComboPoint1, EffectPointsPerComboPoint2, EffectPointsPerComboPoint3, "
+        143    "EffectSpellClassMaskA1, EffectSpellClassMaskA2, EffectSpellClassMaskA3, EffectSpellClassMaskB1, EffectSpellClassMaskB2, EffectSpellClassMaskB3, EffectSpellClassMaskC1, EffectSpellClassMaskC2, EffectSpellClassMaskC3, "
+        152    "EffectDamageMultiplier1, EffectDamageMultiplier2, EffectDamageMultiplier3, EffectBonusMultiplier1, EffectBonusMultiplier2, EffectBonusMultiplier3
    */
 
     _spellInfo = spellInfo;
@@ -343,8 +343,8 @@ SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, uint8 effIndex, Fie
     BasePoints          = fields[101+effIndex].GetInt32();
     PointsPerComboPoint = fields[140+effIndex].GetFloat();
     ValueMultiplier     = fields[122+effIndex].GetFloat();
-    DamageMultiplier    = fields[146+effIndex].GetFloat();
-    BonusMultiplier     = fields[149+effIndex].GetFloat();
+    DamageMultiplier    = fields[152+effIndex].GetFloat();
+    BonusMultiplier     = fields[155+effIndex].GetFloat();
     MiscValue           = fields[131+effIndex].GetInt32();
     MiscValueB          = fields[134+effIndex].GetInt32();
     Mechanic            = Mechanics(fields[104+effIndex].GetUInt32());
@@ -354,7 +354,7 @@ SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, uint8 effIndex, Fie
     ChainTarget         = fields[125+effIndex].GetUInt32();
     ItemType            = fields[128+effIndex].GetUInt32();
     TriggerSpell        = fields[137+effIndex].GetUInt32();
-    SpellClassMask      = fields[143+effIndex].GetUInt32();
+    SpellClassMask.Set(fields[143 + effIndex].GetUInt32(), fields[146 + effIndex].GetUInt32(), fields[149 + effIndex].GetUInt32());
     ImplicitTargetConditions = NULL;
 }
 

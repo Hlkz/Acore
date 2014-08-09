@@ -103,8 +103,8 @@ void WorldDatabaseConnection::DoPrepareStatements()
         /* 104 */   "EffectMechanic1, EffectMechanic2, EffectMechanic3, EffectImplicitTargetA1, EffectImplicitTargetA2, EffectImplicitTargetA3, EffectImplicitTargetB1, EffectImplicitTargetB2, EffectImplicitTargetB3, "
         /* 113 */   "EffectRadiusIndex1, EffectRadiusIndex2, EffectRadiusIndex3, EffectApplyAuraName1, EffectApplyAuraName2, EffectApplyAuraName3, EffectAmplitude1, EffectAmplitude2, EffectAmplitude3, "
         /* 122 */   "EffectValueMultiplier1, EffectValueMultiplier2, EffectValueMultiplier3, EffectChainTarget1, EffectChainTarget2, EffectChainTarget3, EffectItemType1, EffectItemType2, EffectItemType3, "
-        /* 131 */   "EffectMiscValue1, EffectMiscValue2, EffectMiscValue3, EffectMiscValueB1, EffectMiscValueB2, EffectMiscValueB3, EffectTriggerSpell1, EffectTriggerSpell2, EffectTriggerSpell3, "
-        /* 140 */   "EffectPointsPerComboPoint1, EffectPointsPerComboPoint2, EffectPointsPerComboPoint3, EffectSpellClassMask1, EffectSpellClassMask2, EffectSpellClassMask3, "
-        /* 146 */   "EffectDamageMultiplier1, EffectDamageMultiplier2, EffectDamageMultiplier3, EffectBonusMultiplier1, EffectBonusMultiplier2, EffectBonusMultiplier3 FROM spelldbc ORDER BY Entry", CONNECTION_SYNCH);
+        /* 131 */   "EffectMiscValue1, EffectMiscValue2, EffectMiscValue3, EffectMiscValueB1, EffectMiscValueB2, EffectMiscValueB3, EffectTriggerSpell1, EffectTriggerSpell2, EffectTriggerSpell3, EffectPointsPerComboPoint1, EffectPointsPerComboPoint2, EffectPointsPerComboPoint3, "
+        /* 143 */   "EffectSpellClassMaskA1, EffectSpellClassMaskA2, EffectSpellClassMaskA3, EffectSpellClassMaskB1, EffectSpellClassMaskB2, EffectSpellClassMaskB3, EffectSpellClassMaskC1, EffectSpellClassMaskC2, EffectSpellClassMaskC3, "
+        /* 152 */   "EffectDamageMultiplier1, EffectDamageMultiplier2, EffectDamageMultiplier3, EffectBonusMultiplier1, EffectBonusMultiplier2, EffectBonusMultiplier3 FROM spelldbc ORDER BY Entry", CONNECTION_SYNCH);
     PrepareStatement(WORLD_SEL_SPELLDBC_SIZE, "SELECT Entry FROM spelldbc ORDER BY Entry DESC LIMIT 1", CONNECTION_SYNCH);
 }
