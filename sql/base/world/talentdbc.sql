@@ -20,6 +20,8 @@
 --
 
 DROP TABLE IF EXISTS `talentdbc`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `talentdbc` (
   `TalentID` int(4) NOT NULL DEFAULT '0',
   `TalentTab` int(4) NOT NULL DEFAULT '0',
@@ -38,11 +40,22 @@ CREATE TABLE `talentdbc` (
   `allowForPetLow` int(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`TalentID`),
   UNIQUE KEY `TalentID` (`TalentID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Records of `talentdbc`
+-- Dumping data for table `talentdbc`
 --
+
+LOCK TABLES `talentdbc` WRITE;
+/*!40000 ALTER TABLE `talentdbc` DISABLE KEYS */;
+/*!40000 ALTER TABLE `talentdbc` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Records of talentdbc
+--
+
 
 INSERT INTO `talentdbc` VALUES ('27', '41', '0', '0', '11078', '11080', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 INSERT INTO `talentdbc` VALUES ('1141', '41', '0', '1', '18459', '18460', '54734', '0', '0', '0', '0', '0', '0', '0', '0');

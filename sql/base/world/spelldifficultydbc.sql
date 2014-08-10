@@ -20,6 +20,8 @@
 --
 
 DROP TABLE IF EXISTS `spelldifficultydbc`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `spelldifficultydbc` (
   `id` int(4) NOT NULL DEFAULT '0',
   `spellid0` int(4) DEFAULT '0',
@@ -28,7 +30,17 @@ CREATE TABLE `spelldifficultydbc` (
   `spellid3` int(4) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `spelldifficultydbc`
+--
+
+LOCK TABLES `spelldifficultydbc` WRITE;
+/*!40000 ALTER TABLE `spelldifficultydbc` DISABLE KEYS */;
+/*!40000 ALTER TABLE `spelldifficultydbc` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Records of `spelldifficultydbc`
