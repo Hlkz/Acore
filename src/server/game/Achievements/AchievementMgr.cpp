@@ -2162,14 +2162,14 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
 {
     uint32 oldMSTime = getMSTime();
 
-    if (sAchievementCriteriaStore.GetNumRows() == 0)
+    if (sDBCMgr->AchievementCriteriaStore.size() == 0)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 achievement criteria.");
         return;
     }
 
     uint32 loaded = 0;
-    for (uint32 entryId = 0; entryId < sAchievementCriteriaStore.GetNumRows(); ++entryId)
+    for (uint32 entryId = 0; entryId < sDBCMgr->AchievementCriteriaStore.size(); ++entryId)
     {
         AchievementCriteriaEntry const* criteria = sAchievementMgr->GetAchievementCriteria(entryId);
         if (!criteria)
@@ -2275,9 +2275,9 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
     while (result->NextRow());
 
     // post loading checks
-    for (uint32 entryId = 0; entryId < sAchievementCriteriaStore.GetNumRows(); ++entryId)
+    for (uint32 entryId = 0; entryId < sDBCMgr->AchievementCriteriaStore.size(); ++entryId)
     {
-        AchievementCriteriaEntry const* criteria = sAchievementMgr->GetAchievementCriteria(entryId);
+        AchievementCriteriaEntry const* criteria = sDBCMgr->GetAchievementCriteriaEntry(entryId);
         if (!criteria)
             continue;
 
@@ -2549,5 +2549,5 @@ AchievementEntry const* AchievementGlobalMgr::GetAchievement(uint32 achievementI
 
 AchievementCriteriaEntry const* AchievementGlobalMgr::GetAchievementCriteria(uint32 criteriaId) const
 {
-    return sAchievementCriteriaStore.LookupEntry(criteriaId);
+    return sDBCMgr->GetAchievementCriteriaEntry(criteriaId);
 }

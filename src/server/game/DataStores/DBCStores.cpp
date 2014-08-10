@@ -59,7 +59,6 @@ static AreaFlagByMapID sAreaFlagByMapID;                    // for instances wit
 
 static WMOAreaInfoByTripple sWMOAreaInfoByTripple;
 
-DBCStorage <AchievementCriteriaEntry> sAchievementCriteriaStore(AchievementCriteriafmt);
 DBCStorage <AreaTriggerEntry> sAreaTriggerStore(AreaTriggerEntryfmt);
 DBCStorage <AuctionHouseEntry> sAuctionHouseStore(AuctionHouseEntryfmt);
 DBCStorage <BankBagSlotPricesEntry> sBankBagSlotPricesStore(BankBagSlotPricesEntryfmt);
@@ -286,7 +285,7 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     sDBCMgr->LoadAchievementStore();
-    LoadDBC(availableDbcLocales, bad_dbc_files, sAchievementCriteriaStore,    dbcPath, "Achievement_Criteria.dbc");
+    sDBCMgr->LoadAchievementCriteriaStore();
     LoadDBC(availableDbcLocales, bad_dbc_files, sAreaTriggerStore,            dbcPath, "AreaTrigger.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sAreaGroupStore,              dbcPath, "AreaGroup.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sAreaPOIStore,                dbcPath, "AreaPOI.dbc");
@@ -966,7 +965,7 @@ void DBCMgr::LoadAchievementStore()
     QueryResult result = WorldDatabase.Query("SELECT ID, Faction, Map, Name, Name_loc2, Category, Points, Flags, Demands, ReferencedAchievement FROM achievementdbc");
     if (!result)
     {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 Achievement entries. DB table `achievementdbc` is empty.");
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 achievement entry. DB table `achievementdbc` is empty.");
         return;
     }
 
@@ -993,6 +992,276 @@ void DBCMgr::LoadAchievementStore()
     TC_LOG_ERROR("misc", ">> Loaded %lu Achievement entries in %u ms", (unsigned long)AchievementStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
+void DBCMgr::LoadAchievementCriteriaStore()
+{
+    uint32 oldMSTime = getMSTime();
+    AchievementCriteriaStore.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT ID, Achievement, Type, asset_id, quantity, start_event, start_asset, fail_event, fail_asset, "
+                            "flags, timer_start_event, timer_asset_id, timer_time FROM achievement_criteriadbc");
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 achievement criteria entry. DB table `achievement_criteriadbc` is empty.");
+        return;
+    }
+
+    do {
+        Field* fields = result->Fetch();
+
+        AchievementCriteriaEntry* newAchievementCriteria = new AchievementCriteriaEntry;
+        newAchievementCriteria->ID                  = fields[0].GetUInt32();
+        newAchievementCriteria->referredAchievement = fields[1].GetUInt32();
+        newAchievementCriteria->requiredType        = fields[2].GetUInt32();
+        switch (newAchievementCriteria->requiredType)
+        {
+            case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE:
+                newAchievementCriteria->kill_creature.creatureID = fields[3].GetUInt32();
+                newAchievementCriteria->kill_creature.creatureCount = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
+                newAchievementCriteria->win_bg.bgMapID = fields[3].GetUInt32();
+                newAchievementCriteria->win_bg.winCount = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL:
+                newAchievementCriteria->reach_level.unused = fields[3].GetUInt32();
+                newAchievementCriteria->reach_level.level = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL:
+                newAchievementCriteria->reach_skill_level.skillID = fields[3].GetUInt32();
+                newAchievementCriteria->reach_skill_level.skillLevel = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
+                newAchievementCriteria->complete_achievement.linkedAchievement = fields[3].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST_COUNT:
+                newAchievementCriteria->complete_quest_count.unused = fields[3].GetUInt32();
+                newAchievementCriteria->complete_quest_count.totalQuestCount = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST_DAILY:
+                newAchievementCriteria->complete_daily_quest_daily.unused = fields[3].GetUInt32();
+                newAchievementCriteria->complete_daily_quest_daily.numberOfDays = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE:
+                newAchievementCriteria->complete_quests_in_zone.zoneID = fields[3].GetUInt32();
+                newAchievementCriteria->complete_quests_in_zone.questCount = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST:
+                newAchievementCriteria->complete_daily_quest.unused = fields[3].GetUInt32();
+                newAchievementCriteria->complete_daily_quest.questCount = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
+                newAchievementCriteria->complete_battleground.mapID = fields[3].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_DEATH_AT_MAP:
+                newAchievementCriteria->death_at_map.mapID = fields[3].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_DEATH_IN_DUNGEON:
+                newAchievementCriteria->death_in_dungeon.manLimit = fields[3].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID:
+                newAchievementCriteria->complete_raid.groupSize = fields[3].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE:
+                newAchievementCriteria->killed_by_creature.creatureEntry = fields[3].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_FALL_WITHOUT_DYING:
+                newAchievementCriteria->fall_without_dying.unused = fields[3].GetUInt32();
+                newAchievementCriteria->fall_without_dying.fallHeight = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_DEATHS_FROM:
+                newAchievementCriteria->death_from.type = fields[3].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
+                newAchievementCriteria->complete_quest.questID = fields[3].GetUInt32();
+                newAchievementCriteria->complete_quest.questCount = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:
+                newAchievementCriteria->be_spell_target.spellID = fields[3].GetUInt32();
+                newAchievementCriteria->be_spell_target.spellCount = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:
+                newAchievementCriteria->cast_spell.spellID = fields[3].GetUInt32();
+                newAchievementCriteria->cast_spell.castCount = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
+                newAchievementCriteria->bg_objective.objectiveId = fields[3].GetUInt32();
+                newAchievementCriteria->bg_objective.completeCount = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
+                newAchievementCriteria->honorable_kill_at_area.areaID = fields[3].GetUInt32();
+                newAchievementCriteria->honorable_kill_at_area.killCount = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
+                newAchievementCriteria->win_arena.mapID = fields[3].GetUInt32();
+                newAchievementCriteria->win_arena.count = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA:
+                newAchievementCriteria->play_arena.mapID = fields[3].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL:
+                newAchievementCriteria->learn_spell.spellID = fields[3].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM:
+                newAchievementCriteria->own_item.itemID = fields[3].GetUInt32();
+                newAchievementCriteria->own_item.itemCount = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA:
+                newAchievementCriteria->win_rated_arena.unused = fields[3].GetUInt32();
+                newAchievementCriteria->win_rated_arena.count = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING:
+                newAchievementCriteria->highest_team_rating.teamtype = fields[3].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING:
+                newAchievementCriteria->highest_personal_rating.teamtype = fields[3].GetUInt32();
+                newAchievementCriteria->highest_personal_rating.PersonalRating = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL:
+                newAchievementCriteria->learn_skill_level.skillID = fields[3].GetUInt32();
+                newAchievementCriteria->learn_skill_level.skillLevel = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM:
+                newAchievementCriteria->use_item.itemID = fields[3].GetUInt32();
+                newAchievementCriteria->use_item.itemCount = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM:
+                newAchievementCriteria->loot_item.itemID = fields[3].GetUInt32();
+                newAchievementCriteria->loot_item.itemCount = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA:
+                newAchievementCriteria->explore_area.areaReference = fields[3].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK:
+                newAchievementCriteria->own_rank.rank = fields[3].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT:
+                newAchievementCriteria->buy_bank_slot.unused = fields[3].GetUInt32();
+                newAchievementCriteria->buy_bank_slot.numberOfSlots = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_GAIN_REPUTATION:
+                newAchievementCriteria->gain_reputation.factionID = fields[3].GetUInt32();
+                newAchievementCriteria->gain_reputation.reputationAmount = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_GAIN_EXALTED_REPUTATION:
+                newAchievementCriteria->gain_exalted_reputation.unused = fields[3].GetUInt32();
+                newAchievementCriteria->gain_exalted_reputation.numberOfExaltedFactions = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP:
+                newAchievementCriteria->visit_barber.unused = fields[3].GetUInt32();
+                newAchievementCriteria->visit_barber.numberOfVisits = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
+                newAchievementCriteria->equip_epic_item.itemSlot = fields[3].GetUInt32();
+                newAchievementCriteria->equip_epic_item.count = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
+                newAchievementCriteria->roll_need_on_loot.rollValue = fields[3].GetUInt32();
+                newAchievementCriteria->roll_need_on_loot.count = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT:
+                newAchievementCriteria->roll_greed_on_loot.rollValue = fields[3].GetUInt32();
+                newAchievementCriteria->roll_greed_on_loot.count = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_HK_CLASS:
+                newAchievementCriteria->hk_class.classID = fields[3].GetUInt32();
+                newAchievementCriteria->hk_class.count = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_HK_RACE:
+                newAchievementCriteria->hk_race.raceID = fields[3].GetUInt32();
+                newAchievementCriteria->hk_race.count = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:
+                newAchievementCriteria->do_emote.emoteID = fields[3].GetUInt32();
+                newAchievementCriteria->do_emote.count = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE:
+            case ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE:
+                newAchievementCriteria->healing_done.unused = fields[3].GetUInt32();
+                newAchievementCriteria->healing_done.count = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
+                newAchievementCriteria->get_killing_blow.unused = fields[3].GetUInt32();
+                newAchievementCriteria->get_killing_blow.killCount = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM:
+                newAchievementCriteria->equip_item.itemID = fields[3].GetUInt32();
+                newAchievementCriteria->equip_item.count = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_QUEST_REWARD:
+                newAchievementCriteria->quest_reward_money.unused = fields[3].GetUInt32();
+                newAchievementCriteria->quest_reward_money.goldInCopper = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY:
+                newAchievementCriteria->loot_money.unused = fields[3].GetUInt32();
+                newAchievementCriteria->loot_money.goldInCopper = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT:
+                newAchievementCriteria->use_gameobject.goEntry = fields[3].GetUInt32();
+                newAchievementCriteria->use_gameobject.useCount = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL:
+                newAchievementCriteria->special_pvp_kill.unused = fields[3].GetUInt32();
+                newAchievementCriteria->special_pvp_kill.killCount = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT:
+                newAchievementCriteria->fish_in_gameobject.goEntry = fields[3].GetUInt32();
+                newAchievementCriteria->fish_in_gameobject.lootCount = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
+                newAchievementCriteria->learn_skillline_spell.skillLine = fields[3].GetUInt32();
+                newAchievementCriteria->learn_skillline_spell.spellCount = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL:
+                newAchievementCriteria->win_duel.unused = fields[3].GetUInt32();
+                newAchievementCriteria->win_duel.duelCount = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_POWER:
+                newAchievementCriteria->highest_power.powerType = fields[3].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_STAT:
+                newAchievementCriteria->highest_stat.statType = fields[3].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_SPELLPOWER:
+                newAchievementCriteria->highest_spellpower.spellSchool = fields[3].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_RATING:
+                newAchievementCriteria->highest_rating.ratingType = fields[3].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE:
+                newAchievementCriteria->loot_type.lootType = fields[3].GetUInt32();
+                newAchievementCriteria->loot_type.lootTypeCount = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
+                newAchievementCriteria->learn_skill_line.skillLine = fields[3].GetUInt32();
+                newAchievementCriteria->learn_skill_line.spellCount = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL:
+                newAchievementCriteria->honorable_kill.unused = fields[3].GetUInt32();
+                newAchievementCriteria->honorable_kill.killCount = fields[4].GetUInt32();
+                break;
+            case ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS:
+                newAchievementCriteria->use_lfg.unused = fields[3].GetUInt32();
+                newAchievementCriteria->use_lfg.dungeonsComplete = fields[4].GetUInt32();
+                break;
+            default:
+                newAchievementCriteria->raw.field3 = fields[3].GetUInt32();
+                newAchievementCriteria->raw.count = fields[4].GetUInt32();
+        }
+        newAchievementCriteria->additionalRequirements[0].additionalRequirement_type    = fields[5].GetUInt32();
+        newAchievementCriteria->additionalRequirements[0].additionalRequirement_value   = fields[6].GetUInt32();
+        newAchievementCriteria->additionalRequirements[0].additionalRequirement_type    = fields[7].GetUInt32();
+        newAchievementCriteria->additionalRequirements[0].additionalRequirement_value   = fields[8].GetUInt32();
+        newAchievementCriteria->flags           = fields[9].GetUInt32();
+        newAchievementCriteria->timedType       = fields[10].GetUInt32();
+        newAchievementCriteria->timerStartEvent = fields[11].GetUInt32();
+        newAchievementCriteria->timeLimit       = fields[12].GetUInt32();
+        AchievementCriteriaStore[newAchievementCriteria->ID] = newAchievementCriteria;
+
+    } while (result->NextRow());
+
+    TC_LOG_ERROR("misc", ">> Loaded %lu achievement criteria entries in %u ms", (unsigned long)AchievementCriteriaStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
 void DBCMgr::LoadSpellDifficultyStore()
 {
     uint32 oldMSTime = getMSTime();
@@ -1001,7 +1270,7 @@ void DBCMgr::LoadSpellDifficultyStore()
     QueryResult result = WorldDatabase.Query("SELECT id, spellid0, spellid1, spellid2, spellid3 FROM spelldifficultydbc");
     if (!result)
     {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 SpellDifficulty. DB table `spelldifficultydbc` is empty.");
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 spelldifficulty entry. DB table `spelldifficultydbc` is empty.");
         return;
     }
 
@@ -1016,7 +1285,7 @@ void DBCMgr::LoadSpellDifficultyStore()
 
     } while (result->NextRow());
 
-    TC_LOG_ERROR("misc", ">> Loaded %lu SpellDifficulty entries in %u ms", (unsigned long)SpellDifficultyStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_ERROR("misc", ">> Loaded %lu spelldifficulty entries in %u ms", (unsigned long)SpellDifficultyStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void DBCMgr::LoadTalentStore()
@@ -1027,7 +1296,7 @@ void DBCMgr::LoadTalentStore()
     QueryResult result = WorldDatabase.Query("SELECT TalentID, TalentTab, Row, Col, Rank1, Rank2, Rank3, Rank4, Rank5, DependsOn, DependsOnRank FROM talentdbc");
     if (!result)
     {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 talent. DB table `talentdbc` is empty.");
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 talent entry. DB table `talentdbc` is empty.");
         return;
     }
 
@@ -1047,5 +1316,5 @@ void DBCMgr::LoadTalentStore()
 
     } while (result->NextRow());
 
-    TC_LOG_ERROR("misc", ">> Loaded %lu Talent entries in %u ms", (unsigned long)TalentStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_ERROR("misc", ">> Loaded %lu talent entries in %u ms", (unsigned long)TalentStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
