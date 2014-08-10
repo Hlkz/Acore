@@ -53,7 +53,6 @@ typedef std::map<WMOAreaTableTripple, WMOAreaTableEntry const*> WMOAreaInfoByTri
 
 DBCStorage <AreaTableEntry> sAreaStore(AreaTableEntryfmt);
 DBCStorage <AreaGroupEntry> sAreaGroupStore(AreaGroupEntryfmt);
-DBCStorage <AreaPOIEntry> sAreaPOIStore(AreaPOIEntryfmt);
 static AreaFlagByAreaID sAreaFlagByAreaID;
 static AreaFlagByMapID sAreaFlagByMapID;                    // for instances without generated *.map files
 
@@ -288,7 +287,7 @@ void LoadDBCStores(const std::string& dataPath)
     sDBCMgr->LoadAchievementCriteriaStore();
     LoadDBC(availableDbcLocales, bad_dbc_files, sAreaTriggerStore,            dbcPath, "AreaTrigger.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sAreaGroupStore,              dbcPath, "AreaGroup.dbc");
-    LoadDBC(availableDbcLocales, bad_dbc_files, sAreaPOIStore,                dbcPath, "AreaPOI.dbc");
+    sDBCMgr->LoadAreaPOIStore();
     LoadDBC(availableDbcLocales, bad_dbc_files, sAuctionHouseStore,           dbcPath, "AuctionHouse.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sBankBagSlotPricesStore,      dbcPath, "BankBagSlotPrices.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sBannedAddOnsStore,           dbcPath, "BannedAddOns.dbc");
@@ -1261,6 +1260,40 @@ void DBCMgr::LoadAchievementCriteriaStore()
 
     TC_LOG_ERROR("misc", ">> Loaded %lu achievement criteria entries in %u ms", (unsigned long)AchievementCriteriaStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
+
+void DBCMgr::LoadAreaPOIStore()
+{
+    uint32 oldMSTime = getMSTime();
+    AreaPOIStore.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT ID, importance, NormalIcon, NormalIcon50%, NormalIcon0%, HordeIcon, HordeIcon50%, HordeIcon0%, "
+                            "AllianceIcon, AllianceIcon50%, Alliance0%, factionID, X, Y, Z, continentID, Area, worldState FROM areapoidbc");
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 area POI entry. DB table `areapoidbc` is empty.");
+        return;
+    }
+
+    do {
+        Field* fields = result->Fetch();
+
+        AreaPOIEntry* newAreaPOI = new AreaPOIEntry;
+        newAreaPOI->id = fields[0].GetUInt32();
+        for (uint8 i = 0; i < 11; i++)
+            newAreaPOI->icon[i] = fields[i + 1].GetUInt32();
+        newAreaPOI->x           = fields[12].GetFloat();
+        newAreaPOI->y           = fields[13].GetFloat();
+        newAreaPOI->z           = fields[14].GetFloat();
+        newAreaPOI->mapId       = fields[15].GetUInt32();
+        newAreaPOI->zoneId      = fields[16].GetUInt32();
+        newAreaPOI->worldState  = fields[17].GetUInt32();
+        AreaPOIStore[newAreaPOI->id] = newAreaPOI;
+
+    } while (result->NextRow());
+
+    TC_LOG_ERROR("misc", ">> Loaded %lu area POI entries in %u ms", (unsigned long)AreaPOIStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
 
 void DBCMgr::LoadSpellDifficultyStore()
 {
