@@ -19,7 +19,6 @@
 #ifndef TRINITY_DBCSFRM_H
 #define TRINITY_DBCSFRM_H
 
-char const AreaTableEntryfmt[] = "iiinixxxxxissssssssssssssssxiiiiixxx";
 char const AreaGroupEntryfmt[] = "niiiiiii";
 char const AreaTriggerEntryfmt[] = "niffffffff";
 char const AuctionHouseEntryfmt[] = "niiixxxxxxxxxxxxxxxxx";

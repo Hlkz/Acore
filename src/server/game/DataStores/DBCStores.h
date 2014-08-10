@@ -74,7 +74,6 @@ LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty);
 
 uint32 GetDefaultMapLight(uint32 mapId);
 
-extern DBCStorage <AreaTableEntry>               sAreaStore;// recommend access using functions
 extern DBCStorage <AreaGroupEntry>               sAreaGroupStore;
 extern DBCStorage <AreaTriggerEntry>             sAreaTriggerStore;
 extern DBCStorage <AuctionHouseEntry>            sAuctionHouseStore;
@@ -186,6 +185,7 @@ void LoadDBCStores(const std::string& dataPath);
 typedef std::unordered_map<uint32, const AchievementEntry*> AchievementContainer;
 typedef std::unordered_map<uint32, const AchievementCriteriaEntry*> AchievementCriteriaContainer;
 typedef std::unordered_map<uint32, const AreaPOIEntry*> AreaPOIContainer;
+typedef std::unordered_map<uint32, const AreaTableEntry*> AreaTableContainer;
 typedef std::unordered_map<uint32, const SpellDifficultyEntry*> SpellDifficultyContainer;
 typedef std::unordered_map<uint32, const TalentEntry*> TalentContainer;
 
@@ -201,18 +201,21 @@ class DBCMgr
         void LoadAchievementStore();
         void LoadAchievementCriteriaStore();
         void LoadAreaPOIStore();
+        void LoadAreaTableStore();
         void LoadSpellDifficultyStore();
         void LoadTalentStore();
 
         const AchievementEntry* GetAchievementEntry(uint32 ID) const { AchievementContainer::const_iterator itr = AchievementStore.find(ID); if (itr != AchievementStore.end()) return itr->second; return NULL; }
         const AchievementCriteriaEntry* GetAchievementCriteriaEntry(uint32 ID) const { AchievementCriteriaContainer::const_iterator itr = AchievementCriteriaStore.find(ID); if (itr != AchievementCriteriaStore.end()) return itr->second; return NULL; }
         const AreaPOIEntry* GetAreaPOIEntry(uint32 ID) const { AreaPOIContainer::const_iterator itr = AreaPOIStore.find(ID); if (itr != AreaPOIStore.end()) return itr->second; return NULL; }
+        const AreaTableEntry* GetAreaTableEntry(uint32 ID) const { AreaTableContainer::const_iterator itr = AreaTableStore.find(ID); if (itr != AreaTableStore.end()) return itr->second; return NULL; }
         const SpellDifficultyEntry* GetSpellDifficultyEntry(uint32 ID) const { SpellDifficultyContainer::const_iterator itr = SpellDifficultyStore.find(ID); if (itr != SpellDifficultyStore.end()) return itr->second; return NULL; }
         const TalentEntry* GetTalentEntry(uint32 TalentID) const { TalentContainer::const_iterator itr = TalentStore.find(TalentID); if (itr != TalentStore.end()) return itr->second; return NULL; }
 
         AchievementContainer AchievementStore;
         AchievementCriteriaContainer AchievementCriteriaStore;
         AreaPOIContainer AreaPOIStore;
+        AreaTableContainer AreaTableStore;
         SpellDifficultyContainer SpellDifficultyStore;
         TalentContainer TalentStore;
 };

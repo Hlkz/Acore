@@ -51,7 +51,6 @@ struct WMOAreaTableTripple
 
 typedef std::map<WMOAreaTableTripple, WMOAreaTableEntry const*> WMOAreaInfoByTripple;
 
-DBCStorage <AreaTableEntry> sAreaStore(AreaTableEntryfmt);
 DBCStorage <AreaGroupEntry> sAreaGroupStore(AreaGroupEntryfmt);
 static AreaFlagByAreaID sAreaFlagByAreaID;
 static AreaFlagByMapID sAreaFlagByMapID;                    // for instances without generated *.map files
@@ -267,12 +266,12 @@ void LoadDBCStores(const std::string& dataPath)
     StoreProblemList bad_dbc_files;
     uint32 availableDbcLocales = 0xFFFFFFFF;
 
-    LoadDBC(availableDbcLocales, bad_dbc_files, sAreaStore,                   dbcPath, "AreaTable.dbc");
+    sDBCMgr->LoadAreaTableStore();
 
-    // must be after sAreaStore loading
-    for (uint32 i = 0; i < sAreaStore.GetNumRows(); ++i)           // areaflag numbered from 0
+    // must be after AreaTableStore loading
+    for (uint32 i = 0; i < sDBCMgr->AreaTableStore.size(); ++i)           // areaflag numbered from 0
     {
-        if (AreaTableEntry const* area = sAreaStore.LookupEntry(i))
+        if (AreaTableEntry const* area = sDBCMgr->GetAreaTableEntry(i))
         {
             // fill AreaId->DBC records
             sAreaFlagByAreaID.insert(AreaFlagByAreaID::value_type(uint16(area->ID), area->exploreFlag));
@@ -655,7 +654,7 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     // Check loaded DBC files proper version
-    if (!sAreaStore.LookupEntry(3617)              ||       // last area (areaflag) added in 3.3.5a
+    if (!sDBCMgr->GetAreaTableEntry(3617)          ||       // last area (areaflag) added in 3.3.5a
         !sCharTitlesStore.LookupEntry(177)         ||       // last char title added in 3.3.5a
         !sGemPropertiesStore.LookupEntry(1629)     ||       // last added spell in 3.3.5a
         !sItemStore.LookupEntry(56806)             ||       // last gem property added in 3.3.5a
@@ -729,13 +728,13 @@ AreaTableEntry const* GetAreaEntryByAreaID(uint32 area_id)
     if (areaflag < 0)
         return NULL;
 
-    return sAreaStore.LookupEntry(areaflag);
+    return sDBCMgr->GetAreaTableEntry(areaflag);
 }
 
 AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag, uint32 map_id)
 {
     if (area_flag)
-        return sAreaStore.LookupEntry(area_flag);
+        return sDBCMgr->GetAreaTableEntry(area_flag);
 
     if (MapEntry const* mapEntry = sMapStore.LookupEntry(map_id))
         return GetAreaEntryByAreaID(mapEntry->linked_zone);
@@ -961,7 +960,7 @@ void DBCMgr::LoadAchievementStore()
     uint32 oldMSTime = getMSTime();
     AchievementStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT ID, Faction, Map, Name, Name_loc2, Category, Points, Flags, Demands, ReferencedAchievement FROM achievementdbc");
+    QueryResult result = WorldDatabase.Query("SELECT Id, Faction, MapId, Name, Name_loc2, Category, Points, Flags, Demands, ReferencedAchievement FROM achievementdbc");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 achievement entry. DB table `achievementdbc` is empty.");
@@ -976,7 +975,7 @@ void DBCMgr::LoadAchievementStore()
         newAchievement->requiredFaction = fields[1].GetInt32();
         newAchievement->mapID           = fields[2].GetInt32();
         for (uint8 i = 0; i < 16; i++)
-            newAchievement->name[i] = NULL;
+            newAchievement->name[i]     = NULL;
         newAchievement->name[0]         = (char*)fields[3].GetCString();
         newAchievement->name[2]         = (char*)fields[4].GetCString();
         newAchievement->categoryId      = fields[5].GetUInt32();
@@ -996,8 +995,8 @@ void DBCMgr::LoadAchievementCriteriaStore()
     uint32 oldMSTime = getMSTime();
     AchievementCriteriaStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT ID, Achievement, Type, asset_id, quantity, start_event, start_asset, fail_event, fail_asset, "
-                            "flags, timer_start_event, timer_asset_id, timer_time FROM achievement_criteriadbc");
+    QueryResult result = WorldDatabase.Query("SELECT Id, Achievement, Type, AssetId, Quantity, StartEvent, StartAsset, FailEvent, FailAsset, "
+                            "Flags, TimerStartEvent, TimerAssetId, TimerTime FROM achievement_criteriadbc");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 achievement criteria entry. DB table `achievement_criteriadbc` is empty.");
@@ -1251,8 +1250,8 @@ void DBCMgr::LoadAchievementCriteriaStore()
         newAchievementCriteria->additionalRequirements[0].additionalRequirement_type    = fields[7].GetUInt32();
         newAchievementCriteria->additionalRequirements[0].additionalRequirement_value   = fields[8].GetUInt32();
         newAchievementCriteria->flags           = fields[9].GetUInt32();
-        newAchievementCriteria->timedType       = fields[10].GetUInt32();
-        newAchievementCriteria->timerStartEvent = fields[11].GetUInt32();
+        newAchievementCriteria->timerStartEvent = fields[10].GetUInt32();
+        newAchievementCriteria->timedType       = fields[11].GetUInt32();
         newAchievementCriteria->timeLimit       = fields[12].GetUInt32();
         AchievementCriteriaStore[newAchievementCriteria->ID] = newAchievementCriteria;
 
@@ -1266,8 +1265,8 @@ void DBCMgr::LoadAreaPOIStore()
     uint32 oldMSTime = getMSTime();
     AreaPOIStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT ID, importance, NormalIcon, NormalIcon50%, NormalIcon0%, HordeIcon, HordeIcon50%, HordeIcon0%, "
-                            "AllianceIcon, AllianceIcon50%, Alliance0%, factionID, X, Y, Z, continentID, Area, worldState FROM areapoidbc");
+    QueryResult result = WorldDatabase.Query("SELECT ID, importance, NormalIcon, NormalIcon50, NormalIcon0, HordeIcon, HordeIcon50, HordeIcon0, "
+                            "AllianceIcon, AllianceIcon50, AllianceIcon0, FactionID, X, Y, Z, MapId, Area, WorldState FROM areapoidbc");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 area POI entry. DB table `areapoidbc` is empty.");
@@ -1294,6 +1293,42 @@ void DBCMgr::LoadAreaPOIStore()
     TC_LOG_ERROR("misc", ">> Loaded %lu area POI entries in %u ms", (unsigned long)AreaPOIStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
+void DBCMgr::LoadAreaTableStore()
+{
+    uint32 oldMSTime = getMSTime();
+    AreaTableStore.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT Id, MapId, ParentArea, ExploreFlag, Flags, ExplorationLevel, Name, Name_loc2, FactionGroup, "
+                            "LiquidTypeWater, LiquidTypeOcean, LiquidTypeMagma, LiquidTypeSlime FROM areatabledbc");
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 area table entry. DB table `areatabledbc` is empty.");
+        return;
+    }
+
+    do {
+        Field* fields = result->Fetch();
+
+        AreaTableEntry* newAreaTable = new AreaTableEntry;
+        newAreaTable->ID            = fields[0].GetUInt32();
+        newAreaTable->mapid         = fields[1].GetUInt32();
+        newAreaTable->zone          = fields[2].GetUInt32();
+        newAreaTable->exploreFlag   = fields[3].GetUInt32();
+        newAreaTable->flags         = fields[4].GetUInt32();
+        newAreaTable->area_level    = fields[5].GetInt32();
+        for (uint8 i = 0; i < 16; i++)
+            newAreaTable->area_name[i] = NULL;
+        newAreaTable->area_name[0]  = (char*)fields[6].GetCString();
+        newAreaTable->area_name[2]  = (char*)fields[7].GetCString();
+        newAreaTable->team          = fields[8].GetUInt32();
+        for (uint8 i = 0; i < 4; i++)
+            newAreaTable->LiquidTypeOverride[i] = fields[9 + i].GetInt32();
+        AreaTableStore[newAreaTable->exploreFlag] = newAreaTable;
+
+    } while (result->NextRow());
+
+    TC_LOG_ERROR("misc", ">> Loaded %lu area table entries in %u ms", (unsigned long)AreaTableStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
 
 void DBCMgr::LoadSpellDifficultyStore()
 {

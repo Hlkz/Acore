@@ -23,10 +23,10 @@ DROP TABLE IF EXISTS `areatabledbc`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `areatabledbc` (
-  `ID` int(4) NOT NULL DEFAULT '0',
-  `Map` int(4) NOT NULL DEFAULT '0',
+  `Id` int(4) NOT NULL DEFAULT '0',
+  `MapId` int(4) NOT NULL DEFAULT '0',
   `ParentArea` int(4) NOT NULL DEFAULT '0',
-  `AreaBit` int(4) NOT NULL DEFAULT '0',
+  `ExploreFlag` int(4) NOT NULL DEFAULT '0',
   `Flags` int(4) NOT NULL DEFAULT '0',
   `SoundPreferences` int(4) NOT NULL DEFAULT '0',
   `SoundPreferencesUnderwater` int(4) NOT NULL DEFAULT '0',

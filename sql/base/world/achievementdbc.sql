@@ -23,9 +23,9 @@ DROP TABLE IF EXISTS `achievementdbc`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `achievementdbc` (
-  `ID` int(4) NOT NULL DEFAULT '0',
+  `Id` int(4) NOT NULL DEFAULT '0',
   `Faction` int(4) NOT NULL DEFAULT '0',
-  `Map` int(4) NOT NULL DEFAULT '0',
+  `MapId` int(4) NOT NULL DEFAULT '0',
   `Previous` int(4) NOT NULL DEFAULT '0',
   `Name` varchar(300) CHARACTER SET utf8 DEFAULT NULL,
   `Name_loc2` varchar(300) CHARACTER SET utf8 DEFAULT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE `achievementdbc` (
   `Reward_loc2` varchar(300) CHARACTER SET utf8 DEFAULT NULL,
   `Rewardflags` int(4) NOT NULL DEFAULT '0',
   `Demands` int(4) NOT NULL DEFAULT '0',
-  `ReferencedAchievemnt` int(4) NOT NULL DEFAULT '0',
+  `ReferencedAchievement` int(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`),
   UNIQUE KEY `ID` (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='';
