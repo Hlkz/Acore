@@ -32,6 +32,7 @@
 #include "CreatureAIImpl.h"
 #include "Player.h"
 #include "WorldPacket.h"
+#include "WorldSession.h"
 
 namespace
 {
@@ -175,8 +176,10 @@ struct TSpellSummary
     uint8 Effects;                                          // set of enum SelectEffect
 } *SpellSummary;
 
-ScriptMgr::ScriptMgr()
-    : _scriptCount(0), _scheduledScripts(0) { }
+ScriptMgr::ScriptMgr() : _scriptCount(0)
+{
+    _scheduledScripts = 0;
+}
 
 ScriptMgr::~ScriptMgr() { }
 
@@ -398,51 +401,49 @@ void ScriptMgr::OnNetworkStop()
     FOREACH_SCRIPT(ServerScript)->OnNetworkStop();
 }
 
-void ScriptMgr::OnSocketOpen(WorldSocket* socket)
+void ScriptMgr::OnSocketOpen(std::shared_ptr<WorldSocket> socket)
 {
     ASSERT(socket);
 
     FOREACH_SCRIPT(ServerScript)->OnSocketOpen(socket);
 }
 
-void ScriptMgr::OnSocketClose(WorldSocket* socket, bool wasNew)
+void ScriptMgr::OnSocketClose(std::shared_ptr<WorldSocket> socket)
 {
     ASSERT(socket);
 
-    FOREACH_SCRIPT(ServerScript)->OnSocketClose(socket, wasNew);
+    FOREACH_SCRIPT(ServerScript)->OnSocketClose(socket);
 }
 
-void ScriptMgr::OnPacketReceive(std::shared_ptr<WorldSocket> socket, WorldPacket const& packet)
+void ScriptMgr::OnPacketReceive(WorldSession* session, WorldPacket const& packet)
 {
-    ASSERT(socket);
+    if (SCR_REG_LST(ServerScript).empty())
+        return;
+
+    WorldPacket copy(packet);
+    FOREACH_SCRIPT(ServerScript)->OnPacketReceive(session, copy);
+}
+
+void ScriptMgr::OnPacketSend(WorldSession* session, WorldPacket const& packet)
+{
+    ASSERT(session);
 
     if (SCR_REG_LST(ServerScript).empty())
         return;
 
     WorldPacket copy(packet);
-    FOREACH_SCRIPT(ServerScript)->OnPacketReceive(socket, copy);
+    FOREACH_SCRIPT(ServerScript)->OnPacketSend(session, copy);
 }
 
-void ScriptMgr::OnPacketSend(std::shared_ptr<WorldSocket> socket, WorldPacket const& packet)
+void ScriptMgr::OnUnknownPacketReceive(WorldSession* session, WorldPacket const& packet)
 {
-    ASSERT(socket);
+    ASSERT(session);
 
     if (SCR_REG_LST(ServerScript).empty())
         return;
 
     WorldPacket copy(packet);
-    FOREACH_SCRIPT(ServerScript)->OnPacketSend(socket, copy);
-}
-
-void ScriptMgr::OnUnknownPacketReceive(std::shared_ptr<WorldSocket> socket, WorldPacket const& packet)
-{
-    ASSERT(socket);
-
-    if (SCR_REG_LST(ServerScript).empty())
-        return;
-
-    WorldPacket copy(packet);
-    FOREACH_SCRIPT(ServerScript)->OnUnknownPacketReceive(socket, copy);
+    FOREACH_SCRIPT(ServerScript)->OnUnknownPacketReceive(session, copy);
 }
 
 void ScriptMgr::OnOpenStateChange(bool open)
@@ -1188,9 +1189,9 @@ void ScriptMgr::OnPlayerFreeTalentPointsChanged(Player* player, uint32 points)
     FOREACH_SCRIPT(PlayerScript)->OnFreeTalentPointsChanged(player, points);
 }
 
-void ScriptMgr::OnPlayerTalentsReset(Player* player)
+void ScriptMgr::OnPlayerTalentsReset(Player* player, bool noCost)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnTalentsReset(player);
+    FOREACH_SCRIPT(PlayerScript)->OnTalentsReset(player, noCost);
 }
 
 void ScriptMgr::OnPlayerMoneyChanged(Player* player, int32& amount)
@@ -1263,9 +1264,9 @@ void ScriptMgr::OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck)
     FOREACH_SCRIPT(PlayerScript)->OnSpellCast(player, spell, skipCheck);
 }
 
-void ScriptMgr::OnPlayerLogin(Player* player)
+void ScriptMgr::OnPlayerLogin(Player* player, bool firstLogin)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnLogin(player);
+    FOREACH_SCRIPT(PlayerScript)->OnLogin(player, firstLogin);
 }
 
 void ScriptMgr::OnPlayerLogout(Player* player)
