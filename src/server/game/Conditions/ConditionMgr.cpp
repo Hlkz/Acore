@@ -1965,7 +1965,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_TITLE:
         {
-            CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(cond->ConditionValue1);
+            CharTitlesEntry const* titleEntry = sDBCMgr->GetCharTitlesEntry(cond->ConditionValue1);
             if (!titleEntry)
             {
                 TC_LOG_ERROR("sql.sql", "Title condition has non existing title in value1 (%u), skipped", cond->ConditionValue1);

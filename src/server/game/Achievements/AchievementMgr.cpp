@@ -577,7 +577,7 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
             // title achievement rewards are retroactive
             if (AchievementReward const* reward = sAchievementMgr->GetAchievementReward(achievement))
                 if (uint32 titleId = reward->titleId[GetPlayer()->GetTeam(true) == ALLIANCE ? 0 : 1])
-                    if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(titleId))
+                    if (CharTitlesEntry const* titleEntry = sDBCMgr->GetCharTitlesEntry(titleId))
                         GetPlayer()->SetTitle(titleEntry);
 
         } while (achievementResult->NextRow());
@@ -2028,7 +2028,7 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
     //! we explicitly check by ID. Maybe in the future we could move the achievement_reward
     //! condition fields to the condition system.
     if (uint32 titleId = reward->titleId[achievement->ID == 1793 ? GetPlayer()->getGender() : (GetPlayer()->GetTeam() == ALLIANCE ? 0 : 1)])
-        if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(titleId))
+        if (CharTitlesEntry const* titleEntry = sDBCMgr->GetCharTitlesEntry(titleId))
             GetPlayer()->SetTitle(titleEntry);
 
     // mail
@@ -2446,7 +2446,7 @@ void AchievementGlobalMgr::LoadRewards()
 
         if (reward.titleId[0])
         {
-            CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(reward.titleId[0]);
+            CharTitlesEntry const* titleEntry = sDBCMgr->GetCharTitlesEntry(reward.titleId[0]);
             if (!titleEntry)
             {
                 TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) has invalid title id (%u) in `title_A`, set to 0", entry, reward.titleId[0]);
@@ -2456,7 +2456,7 @@ void AchievementGlobalMgr::LoadRewards()
 
         if (reward.titleId[1])
         {
-            CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(reward.titleId[1]);
+            CharTitlesEntry const* titleEntry = sDBCMgr->GetCharTitlesEntry(reward.titleId[1]);
             if (!titleEntry)
             {
                 TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) has invalid title id (%u) in `title_H`, set to 0", entry, reward.titleId[1]);

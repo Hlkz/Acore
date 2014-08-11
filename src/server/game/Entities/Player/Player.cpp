@@ -14976,7 +14976,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     // title reward
     if (quest->GetCharTitleId())
     {
-        if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(quest->GetCharTitleId()))
+        if (CharTitlesEntry const* titleEntry = sDBCMgr->GetCharTitlesEntry(quest->GetCharTitleId()))
             SetTitle(titleEntry);
     }
 
@@ -18129,7 +18129,7 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
                 // set rewarded title if any
                 if (quest->GetCharTitleId())
                 {
-                    if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(quest->GetCharTitleId()))
+                    if (CharTitlesEntry const* titleEntry = sDBCMgr->GetCharTitlesEntry(quest->GetCharTitleId()))
                         SetTitle(titleEntry);
                 }
 
@@ -26452,14 +26452,16 @@ void Player::InitRank()
 
     for (uint8 i = 0; i < 6; ++i)
         for (uint8 j = 0; j < 2; ++j)
-            SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[i][j]), true);
+            if (CharTitlesEntry const* titleEntry = sDBCMgr->GetCharTitlesEntry(PvpRankTitle[i][j]))
+                SetTitle(titleEntry, true);
 
     if(m_PvpRank)
     {
         for (uint8 i = 0; i < m_PvpRank; ++i)
             if (AchievementEntry const* achievementEntry = sAchievementMgr->GetAchievement(i+6000-1000*GetTeamId()))
                 CompletedAchievement(achievementEntry);
-        SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[m_PvpRank-1][GetTeamId()]));
+        if (CharTitlesEntry const* titleEntry = sDBCMgr->GetCharTitlesEntry(PvpRankTitle[m_PvpRank-1][GetTeamId()]))
+            SetTitle(titleEntry);
     }
 }
 
@@ -26467,7 +26469,8 @@ void Player::SetPvpRank(uint32 pvprank)
 {
     uint32 oldrank = GetPvpRank();
     if (oldrank)
-        SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[oldrank-1][GetTeamId()]), true);
+        if (CharTitlesEntry const* titleEntry = sDBCMgr->GetCharTitlesEntry(PvpRankTitle[oldrank - 1][GetTeamId()]))
+            SetTitle(titleEntry, true);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PVP_RANK);
@@ -26478,7 +26481,8 @@ void Player::SetPvpRank(uint32 pvprank)
     m_PvpRank = pvprank;
 
     if (pvprank)
-        SetTitle(sCharTitlesStore.LookupEntry(PvpRankTitle[pvprank-1][GetTeamId()]));
+        if (CharTitlesEntry const* titleEntry = sDBCMgr->GetCharTitlesEntry(PvpRankTitle[pvprank - 1][GetTeamId()]))
+            SetTitle(titleEntry);
 
     for (uint8 i = 0; i < pvprank; ++i)
         if (AchievementEntry const* achievementEntry = sAchievementMgr->GetAchievement(i+6000-1000*GetTeamId()))

@@ -2074,8 +2074,8 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                     uint32 title_alliance = it->first;
                     uint32 title_horde = it->second;
 
-                    CharTitlesEntry const* atitleInfo = sCharTitlesStore.LookupEntry(title_alliance);
-                    CharTitlesEntry const* htitleInfo = sCharTitlesStore.LookupEntry(title_horde);
+                    CharTitlesEntry const* atitleInfo = sDBCMgr->GetCharTitlesEntry(title_alliance);
+                    CharTitlesEntry const* htitleInfo = sDBCMgr->GetCharTitlesEntry(title_horde);
                     // new team
                     if (team == TEAM_ALLIANCE)
                     {

@@ -64,7 +64,6 @@ DBCStorage <BannedAddOnsEntry> sBannedAddOnsStore(BannedAddOnsfmt);
 DBCStorage <BarberShopStyleEntry> sBarberShopStyleStore(BarberShopStyleEntryfmt);
 DBCStorage <CharStartOutfitEntry> sCharStartOutfitStore(CharStartOutfitEntryfmt);
 std::map<uint32, CharStartOutfitEntry const*> sCharStartOutfitMap;
-DBCStorage <CharTitlesEntry> sCharTitlesStore(CharTitlesEntryfmt);
 DBCStorage <ChatChannelsEntry> sChatChannelsStore(ChatChannelsEntryfmt);
 DBCStorage <ChrClassesEntry> sChrClassesStore(ChrClassesEntryfmt);
 DBCStorage <ChrRacesEntry> sChrRacesStore(ChrRacesEntryfmt);
@@ -296,7 +295,7 @@ void LoadDBCStores(const std::string& dataPath)
         if (CharStartOutfitEntry const* outfit = sCharStartOutfitStore.LookupEntry(i))
             sCharStartOutfitMap[outfit->Race | (outfit->Class << 8) | (outfit->Gender << 16)] = outfit;
 
-    LoadDBC(availableDbcLocales, bad_dbc_files, sCharTitlesStore,             dbcPath, "CharTitles.dbc");
+    sDBCMgr->LoadCharTitlesStore();
     LoadDBC(availableDbcLocales, bad_dbc_files, sChatChannelsStore,           dbcPath, "ChatChannels.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sChrClassesStore,             dbcPath, "ChrClasses.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sChrRacesStore,               dbcPath, "ChrRaces.dbc");
@@ -649,18 +648,6 @@ void LoadDBCStores(const std::string& dataPath)
             str += *i + "\n";
 
         TC_LOG_ERROR("misc", "Some required *.dbc files (%u from %d) not found or not compatible:\n%s", (uint32)bad_dbc_files.size(), DBCFileCount, str.c_str());
-        exit(1);
-    }
-
-    // Check loaded DBC files proper version
-    if (!sDBCMgr->GetAreaTableEntry(3617)          ||       // last area (areaflag) added in 3.3.5a
-        !sCharTitlesStore.LookupEntry(177)         ||       // last char title added in 3.3.5a
-        !sGemPropertiesStore.LookupEntry(1629)     ||       // last added spell in 3.3.5a
-        !sItemStore.LookupEntry(56806)             ||       // last gem property added in 3.3.5a
-        !sItemExtendedCostStore.LookupEntry(2997)  ||       // last item extended cost added in 3.3.5a
-        !sMapStore.LookupEntry(724)                )        // last map added in 3.3.5a
-    {
-        TC_LOG_ERROR("misc", "You have _outdated_ DBC files. Please extract correct versions from current using client.");
         exit(1);
     }
 
@@ -1329,6 +1316,69 @@ void DBCMgr::LoadAreaTableStore()
     TC_LOG_ERROR("misc", ">> Loaded %lu area table entries in %u ms", (unsigned long)AreaTableStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
+void DBCMgr::LoadBattlemasterListStore()
+{
+    uint32 oldMSTime = getMSTime();
+    BattlemasterListStore.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT Id, Instance1, Instance2, Instance3, Instance4, Instance5, Instance6, Instance7, Instance8, "
+        "InstanceType, Name, Name_loc2, MaxGroupSize, HolidayWorldStateId FROM battlemasterlistdbc");
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 battlemaster list entry. DB table `battlemasterlistdbc` is empty.");
+        return;
+    }
+
+    do {
+        Field* fields = result->Fetch();
+
+        BattlemasterListEntry* newBattlemasterList = new BattlemasterListEntry;
+        newBattlemasterList->id = fields[0].GetUInt32();
+        for (uint8 i = 0; i < 8; i++)
+            newBattlemasterList->mapid[i] = fields[1 + i].GetInt32();
+        newBattlemasterList->type = fields[1].GetUInt32();
+        for (uint8 i = 0; i < 16; i++)
+            newBattlemasterList->name[i] = NULL;
+        newBattlemasterList->name[0] = (char*)fields[9].GetCString();
+        newBattlemasterList->name[2] = (char*)fields[10].GetCString();
+        newBattlemasterList->maxGroupSize = fields[11].GetUInt32();
+        newBattlemasterList->HolidayWorldStateId = fields[12].GetUInt32();
+        BattlemasterListStore[newBattlemasterList->id] = newBattlemasterList;
+
+    } while (result->NextRow());
+
+    TC_LOG_ERROR("misc", ">> Loaded %lu battlemaster list entries in %u ms", (unsigned long)BattlemasterListStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void DBCMgr::LoadCharTitlesStore()
+{
+    uint32 oldMSTime = getMSTime();
+    CharTitlesStore.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT Id, Male, Male_loc2, InGameOrder FROM chartitlesdbc");
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 chartitles entry. DB table `battlemasterlistdbc` is empty.");
+        return;
+    }
+
+    do {
+        Field* fields = result->Fetch();
+
+        CharTitlesEntry* newCharTitles = new CharTitlesEntry;
+        newCharTitles->ID           = fields[0].GetUInt32();
+        for (uint8 i = 0; i < 16; i++)
+            newCharTitles->name[i]  = NULL;
+        newCharTitles->name[0]      = (char*)fields[9].GetCString();
+        newCharTitles->name[2]      = (char*)fields[10].GetCString();
+        newCharTitles->bit_index    = fields[12].GetUInt32();
+        CharTitlesStore[newCharTitles->ID] = newCharTitles;
+
+    } while (result->NextRow());
+
+    TC_LOG_ERROR("misc", ">> Loaded %lu chartitles entries in %u ms", (unsigned long)CharTitlesStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
 void DBCMgr::LoadSpellDifficultyStore()
 {
     uint32 oldMSTime = getMSTime();
@@ -1353,40 +1403,6 @@ void DBCMgr::LoadSpellDifficultyStore()
     } while (result->NextRow());
 
     TC_LOG_ERROR("misc", ">> Loaded %lu spelldifficulty entries in %u ms", (unsigned long)SpellDifficultyStore.size(), GetMSTimeDiffToNow(oldMSTime));
-}
-
-void DBCMgr::LoadBattlemasterListStore()
-{
-    uint32 oldMSTime = getMSTime();
-    BattlemasterListStore.clear();
-
-    QueryResult result = WorldDatabase.Query("SELECT Id, Instance1, Instance2, Instance3, Instance4, Instance5, Instance6, Instance7, Instance8, "
-                            "InstanceType, Name, Name_loc2, MaxGroupSize, HolidayWorldStateId FROM battlemasterlistdbc");
-    if (!result)
-    {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 battle master list entry. DB table `battlemasterlistdbc` is empty.");
-        return;
-    }
-
-    do {
-        Field* fields = result->Fetch();
-
-        BattlemasterListEntry* newBattlemasterList = new BattlemasterListEntry;
-        newBattlemasterList->id                     = fields[0].GetUInt32();
-        for (uint8 i = 0; i < 8; i++)
-            newBattlemasterList->mapid[i] = fields[1 + i].GetInt32();
-        newBattlemasterList->type                   = fields[1].GetUInt32();
-        for (uint8 i = 0; i < 16; i++)
-            newBattlemasterList->name[i]            = NULL;
-        newBattlemasterList->name[0]                = (char*)fields[9].GetCString();
-        newBattlemasterList->name[2]                = (char*)fields[10].GetCString();
-        newBattlemasterList->maxGroupSize           = fields[11].GetUInt32();
-        newBattlemasterList->HolidayWorldStateId    = fields[12].GetUInt32();
-        BattlemasterListStore[newBattlemasterList->id] = newBattlemasterList;
-
-    } while (result->NextRow());
-
-    TC_LOG_ERROR("misc", ">> Loaded %lu battlemaster list entries in %u ms", (unsigned long)BattlemasterListStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void DBCMgr::LoadTalentStore()

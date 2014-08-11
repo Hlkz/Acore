@@ -83,7 +83,7 @@ public:
         if (handler->HasLowerSecurity(target, 0))
             return false;
 
-        CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(id);
+        CharTitlesEntry const* titleInfo = sDBCMgr->GetCharTitlesEntry(id);
         if (!titleInfo)
         {
             handler->PSendSysMessage(LANG_INVALID_TITLE_ID, id);
@@ -128,7 +128,7 @@ public:
         if (handler->HasLowerSecurity(target, 0))
             return false;
 
-        CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(id);
+        CharTitlesEntry const* titleInfo = sDBCMgr->GetCharTitlesEntry(id);
         if (!titleInfo)
         {
             handler->PSendSysMessage(LANG_INVALID_TITLE_ID, id);
@@ -174,7 +174,7 @@ public:
         if (handler->HasLowerSecurity(target, 0))
             return false;
 
-        CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(id);
+        CharTitlesEntry const* titleInfo = sDBCMgr->GetCharTitlesEntry(id);
         if (!titleInfo)
         {
             handler->PSendSysMessage(LANG_INVALID_TITLE_ID, id);
@@ -224,8 +224,8 @@ public:
 
         uint64 titles2 = titles;
 
-        for (uint32 i = 1; i < sCharTitlesStore.GetNumRows(); ++i)
-            if (CharTitlesEntry const* tEntry = sCharTitlesStore.LookupEntry(i))
+        for (uint32 i = 1; i < sDBCMgr->CharTitlesStore.size(); ++i)
+            if (CharTitlesEntry const* tEntry = sDBCMgr->GetCharTitlesEntry(i))
                 titles2 &= ~(uint64(1) << tEntry->bit_index);
 
         titles &= ~titles2;                                     // remove not existed titles
