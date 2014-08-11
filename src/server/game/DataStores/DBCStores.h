@@ -80,7 +80,6 @@ extern DBCStorage <AuctionHouseEntry>            sAuctionHouseStore;
 extern DBCStorage <BankBagSlotPricesEntry>       sBankBagSlotPricesStore;
 extern DBCStorage <BannedAddOnsEntry>            sBannedAddOnsStore;
 extern DBCStorage <BarberShopStyleEntry>         sBarberShopStyleStore;
-extern DBCStorage <BattlemasterListEntry>        sBattlemasterListStore;
 extern DBCStorage <ChatChannelsEntry>            sChatChannelsStore;
 extern DBCStorage <CharStartOutfitEntry>         sCharStartOutfitStore;
 extern DBCStorage <CharTitlesEntry>              sCharTitlesStore;
@@ -186,6 +185,7 @@ typedef std::unordered_map<uint32, const AchievementEntry*> AchievementContainer
 typedef std::unordered_map<uint32, const AchievementCriteriaEntry*> AchievementCriteriaContainer;
 typedef std::unordered_map<uint32, const AreaPOIEntry*> AreaPOIContainer;
 typedef std::unordered_map<uint32, const AreaTableEntry*> AreaTableContainer;
+typedef std::unordered_map<uint32, const BattlemasterListEntry*> BattlemasterListContainer;
 typedef std::unordered_map<uint32, const SpellDifficultyEntry*> SpellDifficultyContainer;
 typedef std::unordered_map<uint32, const TalentEntry*> TalentContainer;
 
@@ -202,6 +202,7 @@ class DBCMgr
         void LoadAchievementCriteriaStore();
         void LoadAreaPOIStore();
         void LoadAreaTableStore();
+        void LoadBattlemasterListStore();
         void LoadSpellDifficultyStore();
         void LoadTalentStore();
 
@@ -209,6 +210,7 @@ class DBCMgr
         const AchievementCriteriaEntry* GetAchievementCriteriaEntry(uint32 ID) const { AchievementCriteriaContainer::const_iterator itr = AchievementCriteriaStore.find(ID); if (itr != AchievementCriteriaStore.end()) return itr->second; return NULL; }
         const AreaPOIEntry* GetAreaPOIEntry(uint32 ID) const { AreaPOIContainer::const_iterator itr = AreaPOIStore.find(ID); if (itr != AreaPOIStore.end()) return itr->second; return NULL; }
         const AreaTableEntry* GetAreaTableEntry(uint32 ID) const { AreaTableContainer::const_iterator itr = AreaTableStore.find(ID); if (itr != AreaTableStore.end()) return itr->second; return NULL; }
+        const BattlemasterListEntry* GetBattlemasterListEntry(uint32 ID) const { BattlemasterListContainer::const_iterator itr = BattlemasterListStore.find(ID); if (itr != BattlemasterListStore.end()) return itr->second; return NULL; }
         const SpellDifficultyEntry* GetSpellDifficultyEntry(uint32 ID) const { SpellDifficultyContainer::const_iterator itr = SpellDifficultyStore.find(ID); if (itr != SpellDifficultyStore.end()) return itr->second; return NULL; }
         const TalentEntry* GetTalentEntry(uint32 TalentID) const { TalentContainer::const_iterator itr = TalentStore.find(TalentID); if (itr != TalentStore.end()) return itr->second; return NULL; }
 
@@ -216,6 +218,7 @@ class DBCMgr
         AchievementCriteriaContainer AchievementCriteriaStore;
         AreaPOIContainer AreaPOIStore;
         AreaTableContainer AreaTableStore;
+        BattlemasterListContainer BattlemasterListStore;
         SpellDifficultyContainer SpellDifficultyStore;
         TalentContainer TalentStore;
 };

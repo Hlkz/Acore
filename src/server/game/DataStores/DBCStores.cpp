@@ -61,7 +61,6 @@ DBCStorage <AreaTriggerEntry> sAreaTriggerStore(AreaTriggerEntryfmt);
 DBCStorage <AuctionHouseEntry> sAuctionHouseStore(AuctionHouseEntryfmt);
 DBCStorage <BankBagSlotPricesEntry> sBankBagSlotPricesStore(BankBagSlotPricesEntryfmt);
 DBCStorage <BannedAddOnsEntry> sBannedAddOnsStore(BannedAddOnsfmt);
-DBCStorage <BattlemasterListEntry> sBattlemasterListStore(BattlemasterListEntryfmt);
 DBCStorage <BarberShopStyleEntry> sBarberShopStyleStore(BarberShopStyleEntryfmt);
 DBCStorage <CharStartOutfitEntry> sCharStartOutfitStore(CharStartOutfitEntryfmt);
 std::map<uint32, CharStartOutfitEntry const*> sCharStartOutfitMap;
@@ -290,7 +289,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sAuctionHouseStore,           dbcPath, "AuctionHouse.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sBankBagSlotPricesStore,      dbcPath, "BankBagSlotPrices.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sBannedAddOnsStore,           dbcPath, "BannedAddOns.dbc");
-    LoadDBC(availableDbcLocales, bad_dbc_files, sBattlemasterListStore,       dbcPath, "BattlemasterList.dbc");
+    sDBCMgr->LoadBattlemasterListStore();
     LoadDBC(availableDbcLocales, bad_dbc_files, sBarberShopStyleStore,        dbcPath, "BarberShopStyle.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sCharStartOutfitStore,        dbcPath, "CharStartOutfit.dbc");
     for (uint32 i = 0; i < sCharStartOutfitStore.GetNumRows(); ++i)
@@ -1354,6 +1353,40 @@ void DBCMgr::LoadSpellDifficultyStore()
     } while (result->NextRow());
 
     TC_LOG_ERROR("misc", ">> Loaded %lu spelldifficulty entries in %u ms", (unsigned long)SpellDifficultyStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void DBCMgr::LoadBattlemasterListStore()
+{
+    uint32 oldMSTime = getMSTime();
+    BattlemasterListStore.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT Id, Instance1, Instance2, Instance3, Instance4, Instance5, Instance6, Instance7, Instance8, "
+                            "InstanceType, Name, Name_loc2, MaxGroupSize, HolidayWorldStateId FROM battlemasterlistdbc");
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 battle master list entry. DB table `battlemasterlistdbc` is empty.");
+        return;
+    }
+
+    do {
+        Field* fields = result->Fetch();
+
+        BattlemasterListEntry* newBattlemasterList = new BattlemasterListEntry;
+        newBattlemasterList->id                     = fields[0].GetUInt32();
+        for (uint8 i = 0; i < 8; i++)
+            newBattlemasterList->mapid[i] = fields[1 + i].GetInt32();
+        newBattlemasterList->type                   = fields[1].GetUInt32();
+        for (uint8 i = 0; i < 16; i++)
+            newBattlemasterList->name[i]            = NULL;
+        newBattlemasterList->name[0]                = (char*)fields[9].GetCString();
+        newBattlemasterList->name[2]                = (char*)fields[10].GetCString();
+        newBattlemasterList->maxGroupSize           = fields[11].GetUInt32();
+        newBattlemasterList->HolidayWorldStateId    = fields[12].GetUInt32();
+        BattlemasterListStore[newBattlemasterList->id] = newBattlemasterList;
+
+    } while (result->NextRow());
+
+    TC_LOG_ERROR("misc", ">> Loaded %lu battlemaster list entries in %u ms", (unsigned long)BattlemasterListStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void DBCMgr::LoadTalentStore()

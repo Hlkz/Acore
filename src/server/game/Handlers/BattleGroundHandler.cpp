@@ -163,7 +163,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (!sBattlemasterListStore.LookupEntry(bgTypeId_))
+    if (!sDBCMgr->GetBattlemasterListEntry(bgTypeId_))
     {
         TC_LOG_ERROR("network", "Battleground: invalid bgtype (%u) received. possible cheater? player guid %u", bgTypeId_, _player->GetGUIDLow());
         return;
@@ -414,7 +414,7 @@ void WorldSession::HandleBattlefieldListOpcode(WorldPacket &recvData)
     uint8 canGainXP;
     recvData >> canGainXP;                                 // players with locked xp have their own bg queue on retail
 
-    BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(bgTypeId);
+    BattlemasterListEntry const* bl = sDBCMgr->GetBattlemasterListEntry(bgTypeId);
     if (!bl)
     {
         TC_LOG_DEBUG("bg.battleground", "BattlegroundHandler: invalid bgtype (%u) with player (Name: %s, GUID: %u) received.", bgTypeId, _player->GetName().c_str(), _player->GetGUIDLow());
@@ -435,7 +435,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
     uint8 action;                                           // enter battle 0x1, leave queue 0x0
 
     recvData >> type >> unk2 >> bgTypeId_ >> unk >> action;
-    if (!sBattlemasterListStore.LookupEntry(bgTypeId_))
+    if (!sDBCMgr->GetBattlemasterListEntry(bgTypeId_))
     {
         TC_LOG_DEBUG("bg.battleground", "CMSG_BATTLEFIELD_PORT %s ArenaType: %u, Unk: %u, BgType: %u, Action: %u. Invalid BgType!",
             GetPlayerInfo().c_str(), type, unk2, bgTypeId_, action);

@@ -9367,9 +9367,9 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
 
 void Player::SendBGWeekendWorldStates()
 {
-    for (uint32 i = 1; i < sBattlemasterListStore.GetNumRows(); ++i)
+    for (uint32 i = 1; i < sDBCMgr->BattlemasterListStore.size(); ++i)
     {
-        BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(i);
+        BattlemasterListEntry const* bl = sDBCMgr->GetBattlemasterListEntry(i);
         if (bl && bl->HolidayWorldStateId)
         {
             if (BattlegroundMgr::IsBGWeekend((BattlegroundTypeId)bl->id))
