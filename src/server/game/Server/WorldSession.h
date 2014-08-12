@@ -204,7 +204,7 @@ struct PacketCounter
 class WorldSession
 {
     public:
-        WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
+        WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
         ~WorldSession();
 
         bool PlayerLoading() const { return m_playerLoading; }
@@ -364,21 +364,21 @@ class WorldSession
         void SetLatency(uint32 latency) { m_latency = latency; }
         void ResetClientTimeDelay() { m_clientTimeDelay = 0; }
 
-        ACE_Atomic_Op<ACE_Thread_Mutex, time_t> m_timeOutTime;
+        std::atomic<int32> m_timeOutTime;
+
         void UpdateTimeOutTime(uint32 diff)
         {
-            if (time_t(diff) > m_timeOutTime.value())
-                m_timeOutTime = 0;
-            else
-                m_timeOutTime -= diff;
+            m_timeOutTime -= int32(diff);
         }
+
         void ResetTimeOutTime()
         {
-            m_timeOutTime = sWorld->getIntConfig(CONFIG_SOCKET_TIMEOUTTIME);
+            m_timeOutTime = int32(sWorld->getIntConfig(CONFIG_SOCKET_TIMEOUTTIME));
         }
+
         bool IsConnectionIdle() const
         {
-            return (m_timeOutTime <= 0 && !m_inQueue);
+            return m_timeOutTime <= 0 && !m_inQueue;
         }
 
         // Recruit-A-Friend Handling
@@ -918,7 +918,6 @@ class WorldSession
             public:
                 DosProtection(WorldSession* s) : Session(s), _policy((Policy)sWorld->getIntConfig(CONFIG_PACKET_SPOOF_POLICY)) { }
                 bool EvaluateOpcode(WorldPacket& p, time_t time) const;
-
             protected:
                 enum Policy
                 {
@@ -963,7 +962,7 @@ class WorldSession
 
         uint32 m_GUIDLow;                                   // set logined or recently logout player (while m_playerRecentlyLogout set)
         Player* _player;
-        WorldSocket* m_Socket;
+        std::shared_ptr<WorldSocket> m_Socket;
         std::string m_Address;                              // Current Remote Address
 
         AccountTypes _security;
@@ -983,15 +982,15 @@ class WorldSession
         bool m_playerSave;
         LocaleConstant m_sessionDbcLocale;
         LocaleConstant m_sessionDbLocaleIndex;
-        uint32 m_latency;
-        uint32 m_clientTimeDelay;
+        std::atomic<uint32> m_latency;
+        std::atomic<uint32> m_clientTimeDelay;
         AccountData m_accountData[NUM_ACCOUNT_DATA_TYPES];
         uint32 m_Tutorials[MAX_ACCOUNT_TUTORIAL_VALUES];
         bool   m_TutorialsChanged;
         AddonsList m_addonsList;
         uint32 recruiterId;
         bool isRecruiter;
-        ACE_Based::LockedQueue<WorldPacket*, ACE_Thread_Mutex> _recvQueue;
+        LockedQueue<WorldPacket*> _recvQueue;
         uint32 expireTime;
         bool forceExit;
         uint64 m_currentBankerGUID;
