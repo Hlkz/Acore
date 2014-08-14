@@ -26,7 +26,7 @@ class WorldDatabaseConnection : public MySQLConnection
     public:
         //- Constructors for sync and async connections
         WorldDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) { }
-        WorldDatabaseConnection(ACE_Activation_Queue* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) { }
+        WorldDatabaseConnection(ProducerConsumerQueue<SQLOperation*>* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) { }
 
         //- Loads database type specific prepared statements
         void DoPrepareStatements() override;
@@ -107,7 +107,6 @@ enum WorldDatabaseStatements
     WORLD_DEL_GAME_EVENT_CREATURE,
     WORLD_DEL_GAME_EVENT_MODEL_EQUIP,
     WORLD_INS_GAMEOBJECT,
-    WORLD_SEL_REQ_XP,
     WORLD_UPD_TOP_RANK,
     WORLD_UPD_TOP_RANK_LOCALE,
     WORLD_SEL_SPELLDBC,

@@ -1695,16 +1695,7 @@ public:
             banReason     = fields[3].GetString();
         }
 
-        // Can be used to query data from World database
-        stmt2 = WorldDatabase.GetPreparedStatement(WORLD_SEL_REQ_XP);
-        stmt2->setUInt8(0, level);
-        PreparedQueryResult result3 = WorldDatabase.Query(stmt2);
 
-        if (result3)
-        {
-            Field* fields = result3->Fetch();
-            xptotal       = fields[0].GetUInt32();
-        }
 
         // Can be used to query data from Characters database
         stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PINFO_XP);
@@ -1715,6 +1706,7 @@ public:
         {
             Field* fields = result4->Fetch();
             xp            = fields[0].GetUInt32();
+            xptotal = sObjectMgr->GetXPForLevel(level);
         }
 
         // Initiate output
@@ -1838,10 +1830,10 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
 
         // accept only explicitly selected target (not implicitly self targeting case)
-        Unit* target = handler->getSelectedUnit();
-        if (player->GetTarget() && target)
+        Creature* target = player->GetTarget() ? handler->getSelectedCreature() : nullptr;
+        if (target)
         {
-            if (target->GetTypeId() != TYPEID_UNIT || target->IsPet())
+            if (target->IsPet())
             {
                 handler->SendSysMessage(LANG_SELECT_CREATURE);
                 handler->SetSentErrorMessage(true);
@@ -1849,19 +1841,13 @@ public:
             }
 
             if (target->isDead())
-                target->ToCreature()->Respawn();
+                target->Respawn();
             return true;
         }
 
-        CellCoord p(Trinity::ComputeCellCoord(player->GetPositionX(), player->GetPositionY()));
-        Cell cell(p);
-        cell.SetNoCreate();
-
         Trinity::RespawnDo u_do;
         Trinity::WorldObjectWorker<Trinity::RespawnDo> worker(player, u_do);
-
-        TypeContainerVisitor<Trinity::WorldObjectWorker<Trinity::RespawnDo>, GridTypeMapContainer > obj_worker(worker);
-        cell.Visit(p, obj_worker, *player->GetMap(), *player, player->GetGridActivationRange());
+        player->VisitNearbyGridObject(player->GetGridActivationRange(), worker);
 
         return true;
     }
