@@ -314,7 +314,7 @@ void ObjectMgr::LoadCreatureLocales()
 
         CreatureLocale& data = _creatureLocaleStore[entry];
 
-        for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
+        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
         {
             LocaleConstant locale = (LocaleConstant) i;
             AddLocaleString(i == LOCALE_frFR ? fields[1].GetString() : "", locale, data.Name);
@@ -322,7 +322,7 @@ void ObjectMgr::LoadCreatureLocales()
         }
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %lu creature locale strings in %u ms", (unsigned long)_creatureLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u creature locale strings in %u ms", uint32(_creatureLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadGossipMenuItemsLocales()
@@ -345,7 +345,7 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
 
         GossipMenuItemsLocale& data = _gossipMenuItemsLocaleStore[MAKE_PAIR32(menuId, id)];
 
-        for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
+        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
         {
             LocaleConstant locale = (LocaleConstant) i;
             AddLocaleString(i == LOCALE_frFR ? fields[2].GetString() : "", locale, data.OptionText);
@@ -354,7 +354,7 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %lu gossip_menu_option locale strings in %u ms", (unsigned long)_gossipMenuItemsLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u gossip_menu_option locale strings in %u ms", uint32(_gossipMenuItemsLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadPointOfInterestLocales()
@@ -376,11 +376,11 @@ void ObjectMgr::LoadPointOfInterestLocales()
 
         PointOfInterestLocale& data = _pointOfInterestLocaleStore[entry];
 
-        for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
+        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
             AddLocaleString(i == LOCALE_frFR ? fields[1].GetString() : "", LocaleConstant(i), data.IconName);
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %lu points_of_interest locale strings in %u ms", (unsigned long)_pointOfInterestLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u points_of_interest locale strings in %u ms", uint32(_pointOfInterestLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadCreatureTemplates()
@@ -2219,7 +2219,7 @@ void ObjectMgr::LoadItemLocales()
 
         ItemLocale& data = _itemLocaleStore[entry];
 
-        for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
+        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
         {
             LocaleConstant locale = (LocaleConstant)i;
             AddLocaleString(i == LOCALE_frFR ? fields[1].GetString() : "", locale, data.Name);
@@ -2228,7 +2228,7 @@ void ObjectMgr::LoadItemLocales()
 
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %lu Item locale strings in %u ms", (unsigned long)_itemLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u Item locale strings in %u ms", uint32(_itemLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadItemTemplates()
@@ -2817,7 +2817,7 @@ void ObjectMgr::LoadItemSetNameLocales()
 
         ItemSetNameLocale& data = _itemSetNameLocaleStore[entry];
 
-        for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
+        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
             AddLocaleString(i == LOCALE_frFR ? fields[1].GetString() : "", LocaleConstant(i), data.Name);
 
     } while (result->NextRow());
@@ -4488,7 +4488,7 @@ void ObjectMgr::LoadQuestLocales()
 
         QuestLocale& data = _questLocaleStore[entry];
 
-        for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
+        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
         {
             LocaleConstant locale = (LocaleConstant) i;
 
@@ -4505,7 +4505,7 @@ void ObjectMgr::LoadQuestLocales()
         }
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %lu Quest locale strings in %u ms", (unsigned long)_questLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u Quest locale strings in %u ms", uint32(_questLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadScripts(ScriptsType type)
@@ -5107,11 +5107,11 @@ void ObjectMgr::LoadPageTextLocales()
 
         PageTextLocale& data = _pageTextLocaleStore[entry];
 
-        for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
+        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
             AddLocaleString(i == LOCALE_frFR ? fields[1].GetString() : "", LocaleConstant(i), data.Text);
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %lu PageText locale strings in %u ms", (unsigned long)_pageTextLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u PageText locale strings in %u ms", uint32(_pageTextLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadMapTemplate()
@@ -5396,10 +5396,10 @@ void ObjectMgr::LoadNpcTextLocales()
 
         NpcTextLocale& data = _npcTextLocaleStore[entry];
 
-        for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
+        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
         {
             LocaleConstant locale = (LocaleConstant) i;
-            for (uint8 j = 0; j < MAX_LOCALES; ++j)
+            for (uint8 j = 0; j < MAX_GOSSIP_TEXT_OPTIONS; ++j)
             {
                 AddLocaleString(i == LOCALE_frFR ? fields[1 + 2 * j].GetString() : "", locale, data.Text_0[j]);
                 AddLocaleString(i == LOCALE_frFR ? fields[1 + 2 * j + 1].GetString() : "", locale, data.Text_1[j]);
@@ -5407,7 +5407,7 @@ void ObjectMgr::LoadNpcTextLocales()
         }
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %lu NpcText locale strings in %u ms", (unsigned long)_npcTextLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u NpcText locale strings in %u ms", uint32(_npcTextLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 //not very fast function but it is called only once a day, or on starting-up
@@ -6426,16 +6426,16 @@ void ObjectMgr::LoadGameObjectLocales()
 
         GameObjectLocale& data = _gameObjectLocaleStore[entry];
 
-        for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
+        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
         {
             LocaleConstant locale = (LocaleConstant)i;
             AddLocaleString(i == LOCALE_frFR ? fields[1].GetString() : "", LocaleConstant(i), data.Name);
             AddLocaleString(i == LOCALE_frFR ? fields[2].GetString() : "", LocaleConstant(i), data.CastBarCaption);
         }
-
+        }
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %lu gameobject locale strings in %u ms", (unsigned long)_gameObjectLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u gameobject locale strings in %u ms", uint32(_gameObjectLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 inline void CheckGOLockId(GameObjectTemplate const* goInfo, uint32 dataN, uint32 N)
@@ -7745,7 +7745,7 @@ bool ObjectMgr::LoadTrinityStrings(const char* table, int32 min_value, int32 max
         data.Content.resize(1);
         ++count;
 
-        for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
+        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
             AddLocaleString(fields[i + 1].GetString(), LocaleConstant(i), data.Content);
     } while (result->NextRow());
 
@@ -8766,7 +8766,7 @@ void ObjectMgr::LoadBroadcastTextLocales()
             continue;
         }
 
-        for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
+        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
         {
             LocaleConstant locale = LocaleConstant(i);
             ObjectMgr::AddLocaleString(i == LOCALE_frFR ? fields[1].GetString() : "", locale, bct->second.MaleText);

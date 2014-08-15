@@ -180,7 +180,7 @@ void CreatureTextMgr::LoadCreatureTextLocales()
     {
         Field* fields = result->Fetch();
         CreatureTextLocale& loc = mLocaleTextMap[CreatureTextId(fields[0].GetUInt32(), uint32(fields[1].GetUInt8()), uint32(fields[2].GetUInt8()))];
-        for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
+        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
             ObjectMgr::AddLocaleString(i == LOCALE_frFR ? fields[3].GetString() : "", LocaleConstant(i), loc.Text);
 
         ++textCount;
