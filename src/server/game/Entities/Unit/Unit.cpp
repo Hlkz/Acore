@@ -62,7 +62,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
-#include <math.h>
+#include <cmath>
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
@@ -1314,7 +1314,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
 
     // If this is a creature and it attacks from behind it has a probability to daze it's victim
     if ((damageInfo->hitOutCome == MELEE_HIT_CRIT || damageInfo->hitOutCome == MELEE_HIT_CRUSHING || damageInfo->hitOutCome == MELEE_HIT_NORMAL || damageInfo->hitOutCome == MELEE_HIT_GLANCING) &&
-        GetTypeId() != TYPEID_PLAYER && !ToCreature()->IsControlledByPlayer() && !victim->HasInArc(M_PI, this)
+        GetTypeId() != TYPEID_PLAYER && !ToCreature()->IsControlledByPlayer() && !victim->HasInArc(float(M_PI), this)
         && (victim->GetTypeId() == TYPEID_PLAYER || !victim->ToCreature()->isWorldBoss())&& !victim->IsVehicle())
     {
         // -probability is between 0% and 40%
@@ -1328,7 +1328,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
         uint32 VictimDefense=victim->GetDefenseSkillValue();
         uint32 AttackerMeleeSkill=GetUnitMeleeSkill();
 
-        Probability *= AttackerMeleeSkill/(float)VictimDefense*0.16;
+        Probability *= AttackerMeleeSkill/(float)VictimDefense*0.16f;
 
         if (Probability < 0)
             Probability = 0;
@@ -1440,14 +1440,14 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
     {
         if ((*j)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL
             && (*j)->IsAffectedOnSpell(spellInfo))
-            armor = floor(AddPct(armor, -(*j)->GetAmount()));
+            armor = std::floor(AddPct(armor, -(*j)->GetAmount()));
     }
 
     AuraEffectList const& resIgnoreAuras = GetAuraEffectsByType(SPELL_AURA_MOD_IGNORE_TARGET_RESIST);
     for (AuraEffectList::const_iterator j = resIgnoreAuras.begin(); j != resIgnoreAuras.end(); ++j)
     {
         if ((*j)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
-            armor = floor(AddPct(armor, -(*j)->GetAmount()));
+            armor = std::floor(AddPct(armor, -(*j)->GetAmount()));
     }
 
     // Apply Player CR_ARMOR_PENETRATION rating and buffs from stances\specializations etc.
@@ -1930,7 +1930,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit* victim, WeaponAttackT
     // Dodge chance
 
     // only players can't dodge if attacker is behind
-    if (victim->GetTypeId() == TYPEID_PLAYER && !victim->HasInArc(M_PI, this) && !victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
+    if (victim->GetTypeId() == TYPEID_PLAYER && !victim->HasInArc(float(M_PI), this) && !victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
     {
         TC_LOG_DEBUG("entities.unit", "RollMeleeOutcomeAgainst: attack came from behind and victim was a player.");
     }
@@ -1959,7 +1959,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit* victim, WeaponAttackT
     // parry & block chances
 
     // check if attack comes from behind, nobody can parry or block if attacker is behind
-    if (!victim->HasInArc(M_PI, this) && !victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
+    if (!victim->HasInArc(float(M_PI), this) && !victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
         TC_LOG_DEBUG("entities.unit", "RollMeleeOutcomeAgainst: attack came from behind.");
     else
     {
@@ -2142,7 +2142,7 @@ bool Unit::isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttac
     if (spellProto && spellProto->Attributes & SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK)
         return false;
 
-    if (victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION) || victim->HasInArc(M_PI, this))
+    if (victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION) || victim->HasInArc(float(M_PI), this))
     {
         // Check creatures flags_extra for disable block
         if (victim->GetTypeId() == TYPEID_UNIT &&
@@ -2273,7 +2273,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
         canDodge = false;
 
         // only if in front
-        if (victim->HasInArc(M_PI, this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
+        if (victim->HasInArc(float(M_PI), this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
         {
             int32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
             tmp += deflect_chance;
@@ -2284,7 +2284,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
     }
 
     // Check for attack from behind
-    if (!victim->HasInArc(M_PI, this))
+    if (!victim->HasInArc(float(M_PI), this))
     {
         if (!victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
         {
@@ -2455,7 +2455,7 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo
         return SPELL_MISS_RESIST;
 
     // cast by caster in front of victim
-    if (victim->HasInArc(M_PI, this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
+    if (victim->HasInArc(float(M_PI), this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
     {
         int32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
         tmp += deflect_chance;
@@ -3024,7 +3024,7 @@ bool Unit::isInFrontInMap(Unit const* target, float distance,  float arc) const
 
 bool Unit::isInBackInMap(Unit const* target, float distance, float arc) const
 {
-    return IsWithinDistInMap(target, distance) && !HasInArc(2 * M_PI - arc, target);
+    return IsWithinDistInMap(target, distance) && !HasInArc(2 * float(M_PI) - arc, target);
 }
 
 bool Unit::isInAccessiblePlaceFor(Creature const* c) const
@@ -11448,7 +11448,7 @@ float Unit::GetPPMProcChance(uint32 WeaponSpeed, float PPM, const SpellInfo* spe
         if (Player* modOwner = GetSpellModOwner())
             modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_PROC_PER_MINUTE, PPM);
 
-    return floor((WeaponSpeed * PPM) / 600.0f);   // result is chance in percents (probability = Speed_in_sec * (PPM / 60))
+    return std::floor((WeaponSpeed * PPM) / 600.0f);   // result is chance in percents (probability = Speed_in_sec * (PPM / 60))
 }
 
 void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
@@ -16641,7 +16641,7 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
 
 void Unit::JumpTo(float speedXY, float speedZ, bool forward)
 {
-    float angle = forward ? 0 : M_PI;
+    float angle = forward ? 0 : float(M_PI);
     if (GetTypeId() == TYPEID_UNIT)
         GetMotionMaster()->MoveJumpTo(angle, speedXY, speedZ);
     else

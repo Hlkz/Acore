@@ -623,7 +623,7 @@ class EventMap
             if (!phase)
                 _phase = 0;
             else if (phase <= 8)
-                _phase = (1 << (phase - 1));
+                _phase = uint8(1 << (phase - 1));
         }
 
         /**
@@ -634,7 +634,7 @@ class EventMap
         void AddPhase(uint8 phase)
         {
             if (phase && phase <= 8)
-                _phase |= (1 << (phase - 1));
+                _phase |= uint8(1 << (phase - 1));
         }
 
         /**
@@ -645,7 +645,7 @@ class EventMap
         void RemovePhase(uint8 phase)
         {
             if (phase && phase <= 8)
-                _phase &= ~(1 << (phase - 1));
+                _phase &= uint8(~(1 << (phase - 1)));
         }
 
         /**
