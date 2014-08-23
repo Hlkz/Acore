@@ -8573,7 +8573,7 @@ void Unit::setPowerType(Powers new_powertype)
 
 FactionTemplateEntry const* Unit::GetFactionTemplateEntry() const
 {
-    FactionTemplateEntry const* entry = sFactionTemplateStore.LookupEntry(getFaction());
+    FactionTemplateEntry const* entry = sDBCMgr->GetFactionTemplateEntry(getFaction());
     if (!entry)
     {
         static uint64 guid = 0;                             // prevent repeating spam same faction problem

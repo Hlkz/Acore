@@ -591,7 +591,7 @@ public:
 
         uint32 factionId = (uint32) atoi((char*)args);
 
-        if (!sFactionTemplateStore.LookupEntry(factionId))
+        if (!sDBCMgr->GetFactionTemplateEntry(factionId))
         {
             handler->PSendSysMessage(LANG_WRONG_FACTION, factionId);
             handler->SetSentErrorMessage(true);

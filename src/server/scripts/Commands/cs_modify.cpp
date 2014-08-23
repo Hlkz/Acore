@@ -342,7 +342,7 @@ public:
         else
             dyflag = atoi(pdyflag);
 
-        if (!sFactionTemplateStore.LookupEntry(factionid))
+        if (!sDBCMgr->GetFactionTemplateEntry(factionid))
         {
             handler->PSendSysMessage(LANG_WRONG_FACTION, factionid);
             handler->SetSentErrorMessage(true);

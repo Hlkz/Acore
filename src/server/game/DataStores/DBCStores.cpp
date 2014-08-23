@@ -86,7 +86,6 @@ DBCStorage <EmotesTextEntry> sEmotesTextStore(EmotesTextEntryfmt);
 
 typedef std::map<uint32, SimpleFactionsList> FactionTeamMap;
 static FactionTeamMap sFactionTeamMap;
-DBCStorage <FactionTemplateEntry> sFactionTemplateStore(FactionTemplateEntryfmt);
 
 DBCStorage <GameObjectDisplayInfoEntry> sGameObjectDisplayInfoStore(GameObjectDisplayInfofmt);
 DBCStorage <GemPropertiesEntry> sGemPropertiesStore(GemPropertiesEntryfmt);
@@ -322,8 +321,8 @@ void LoadDBCStores(const std::string& dataPath)
             flist.push_back(i);
         }
     }
+    sDBCMgr->LoadFactionTemplateStore();
 
-    LoadDBC(availableDbcLocales, bad_dbc_files, sFactionTemplateStore,        dbcPath, "FactionTemplate.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sGameObjectDisplayInfoStore,  dbcPath, "GameObjectDisplayInfo.dbc");
     for (uint32 i = 0; i < sGameObjectDisplayInfoStore.GetNumRows(); ++i)
     {
@@ -1418,6 +1417,39 @@ void DBCMgr::LoadFactionStore()
     } while (result->NextRow());
 
     TC_LOG_ERROR("misc", ">> Loaded %lu faction entries in %u ms", (unsigned long)FactionStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void DBCMgr::LoadFactionTemplateStore()
+{
+    uint32 oldMSTime = getMSTime();
+    FactionTemplateStore.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT Id, Faction, FactionFlags, OurMask, FriendlyMask, HostileMask, EnemyFaction1, EnemyFaction2, EnemyFaction3, EnemyFaction4, "
+                                                "FriendFaction1, FriendFaction2, FriendFaction3, FriendFaction4 FROM factiontemplatedbc");
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 factiontemplate entry. DB table `factiontemplatedbc` is empty.");
+        return;
+    }
+
+    do {
+        Field* fields = result->Fetch();
+
+        FactionTemplateEntry* newFactionTemplate = new FactionTemplateEntry;
+        newFactionTemplate->ID = fields[0].GetUInt32();
+        newFactionTemplate->faction = fields[1].GetUInt32();
+        newFactionTemplate->factionFlags = fields[2].GetUInt32();
+        newFactionTemplate->ourMask = fields[3].GetUInt32();
+        newFactionTemplate->friendlyMask = fields[4].GetUInt32();
+        for (uint8 i = 0; i < 4; i++)
+            newFactionTemplate->enemyFaction[i] = fields[5 + i].GetUInt32();
+        for (uint8 i = 0; i < 4; i++)
+            newFactionTemplate->enemyFaction[i] = fields[9 + i].GetUInt32();
+        FactionTemplateStore[newFactionTemplate->ID] = newFactionTemplate;
+
+    } while (result->NextRow());
+
+    TC_LOG_ERROR("misc", ">> Loaded %lu factiontemplate entries in %u ms", (unsigned long)FactionTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void DBCMgr::LoadSpellDifficultyStore()

@@ -758,7 +758,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         ok = true;
     }
 
-    FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction);
+    FactionTemplateEntry const* factionTemplate = sDBCMgr->GetFactionTemplateEntry(cInfo->faction);
     if (!factionTemplate)
         TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has non-existing faction template (%u).", cInfo->Entry, cInfo->faction);
 

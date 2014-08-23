@@ -2693,7 +2693,7 @@ Creature* Player::GetNPCIfCanInteractWith(uint64 guid, uint32 npcflagmask)
         return NULL;
 
     // not unfriendly
-    if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(creature->getFaction()))
+    if (FactionTemplateEntry const* factionTemplate = sDBCMgr->GetFactionTemplateEntry(creature->getFaction()))
         if (factionTemplate->faction)
             if (FactionEntry const* faction = sDBCMgr->GetFactionEntry(factionTemplate->faction))
                 if (faction->reputationListID >= 0 && GetReputationMgr().GetRank(faction) <= REP_UNFRIENDLY)
@@ -24108,7 +24108,7 @@ bool Player::CanUseBattlegroundObject(GameObject* gameobject)
     if (gameobject)
     {
         FactionTemplateEntry const* playerFaction = GetFactionTemplateEntry();
-        FactionTemplateEntry const* faction = sFactionTemplateStore.LookupEntry(gameobject->GetUInt32Value(GAMEOBJECT_FACTION));
+        FactionTemplateEntry const* faction = sDBCMgr->GetFactionTemplateEntry(gameobject->GetUInt32Value(GAMEOBJECT_FACTION));
 
         if (playerFaction && faction && !playerFaction->IsFriendlyTo(*faction))
             return false;
