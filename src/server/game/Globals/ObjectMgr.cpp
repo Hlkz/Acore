@@ -1127,9 +1127,11 @@ void ObjectMgr::LoadEquipmentTemplates()
             if (!equipmentInfo.ItemEntry[i])
                 continue;
 
-            ItemEntry const* dbcItem = sItemStore.LookupEntry(equipmentInfo.ItemEntry[i]);
+            ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(equipmentInfo.ItemEntry[i]);
+            if (!pProto)
+                continue;
 
-            if (!dbcItem)
+            if (!pProto)
             {
                 TC_LOG_ERROR("sql.sql", "Unknown item (entry=%u) in creature_equip_template.itemEntry%u for entry = %u and id=%u, forced to 0.",
                     equipmentInfo.ItemEntry[i], i+1, entry, id);
@@ -1137,15 +1139,15 @@ void ObjectMgr::LoadEquipmentTemplates()
                 continue;
             }
 
-            if (dbcItem->InventoryType != INVTYPE_WEAPON &&
-                dbcItem->InventoryType != INVTYPE_SHIELD &&
-                dbcItem->InventoryType != INVTYPE_RANGED &&
-                dbcItem->InventoryType != INVTYPE_2HWEAPON &&
-                dbcItem->InventoryType != INVTYPE_WEAPONMAINHAND &&
-                dbcItem->InventoryType != INVTYPE_WEAPONOFFHAND &&
-                dbcItem->InventoryType != INVTYPE_HOLDABLE &&
-                dbcItem->InventoryType != INVTYPE_THROWN &&
-                dbcItem->InventoryType != INVTYPE_RANGEDRIGHT)
+            if (pProto->InventoryType != INVTYPE_WEAPON &&
+                pProto->InventoryType != INVTYPE_SHIELD &&
+                pProto->InventoryType != INVTYPE_RANGED &&
+                pProto->InventoryType != INVTYPE_2HWEAPON &&
+                pProto->InventoryType != INVTYPE_WEAPONMAINHAND &&
+                pProto->InventoryType != INVTYPE_WEAPONOFFHAND &&
+                pProto->InventoryType != INVTYPE_HOLDABLE &&
+                pProto->InventoryType != INVTYPE_THROWN &&
+                pProto->InventoryType != INVTYPE_RANGEDRIGHT)
             {
                 TC_LOG_ERROR("sql.sql", "Item (entry=%u) in creature_equip_template.itemEntry%u for entry = %u and id = %u is not equipable in a hand, forced to 0.",
                     equipmentInfo.ItemEntry[i], i+1, entry, id);
@@ -2393,52 +2395,6 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.FlagsCu                 = fields[137].GetUInt32();
 
         // Checks
-
-        ItemEntry const* dbcitem = sItemStore.LookupEntry(entry);
-
-        if (dbcitem)
-        {
-            if (itemTemplate.Class != dbcitem->Class)
-            {
-                TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not have a correct class %u, must be %u .", entry, itemTemplate.Class, dbcitem->Class);
-                if (enforceDBCAttributes)
-                    itemTemplate.Class = dbcitem->Class;
-            }
-
-            if (itemTemplate.SoundOverrideSubclass != dbcitem->SoundOverrideSubclass)
-            {
-                TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not have a correct SoundOverrideSubclass (%i), must be %i .", entry, itemTemplate.SoundOverrideSubclass, dbcitem->SoundOverrideSubclass);
-                if (enforceDBCAttributes)
-                    itemTemplate.SoundOverrideSubclass = dbcitem->SoundOverrideSubclass;
-            }
-            if (itemTemplate.Material != dbcitem->Material)
-            {
-                TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not have a correct material (%i), must be %i .", entry, itemTemplate.Material, dbcitem->Material);
-                if (enforceDBCAttributes)
-                    itemTemplate.Material = dbcitem->Material;
-            }
-            if (itemTemplate.InventoryType != dbcitem->InventoryType)
-            {
-                TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not have a correct inventory type (%u), must be %u .", entry, itemTemplate.InventoryType, dbcitem->InventoryType);
-                if (enforceDBCAttributes)
-                    itemTemplate.InventoryType = dbcitem->InventoryType;
-            }
-            if (itemTemplate.DisplayInfoID != dbcitem->DisplayId)
-            {
-                TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not have a correct display id (%u), must be %u .", entry, itemTemplate.DisplayInfoID, dbcitem->DisplayId);
-                if (enforceDBCAttributes)
-                    itemTemplate.DisplayInfoID = dbcitem->DisplayId;
-            }
-            if (itemTemplate.Sheath != dbcitem->Sheath)
-            {
-                TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not have a correct sheathid (%u), must be %u .", entry, itemTemplate.Sheath, dbcitem->Sheath);
-                if (enforceDBCAttributes)
-                    itemTemplate.Sheath = dbcitem->Sheath;
-            }
-
-        }
-        else
-            TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not exist in item.dbc! (not correct id?).", entry);
 
         if (itemTemplate.Class >= MAX_ITEM_CLASS)
         {
