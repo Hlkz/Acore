@@ -682,7 +682,7 @@ void Battleground::RewardHonorToTeam(uint32 Honor, uint32 TeamID)
 
 void Battleground::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, uint32 TeamID)
 {
-    if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction_id))
+    if (FactionEntry const* factionEntry = sDBCMgr->GetFactionEntry(faction_id))
         for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
             if (Player* player = _GetPlayerForTeam(TeamID, itr, "RewardReputationToTeam"))
                 player->GetReputationMgr().ModifyReputation(factionEntry, Reputation);

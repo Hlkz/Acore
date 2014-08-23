@@ -567,7 +567,7 @@ public:
         for (FactionStateList::const_iterator itr = targetFSL.begin(); itr != targetFSL.end(); ++itr)
         {
             FactionState const& faction = itr->second;
-            FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction.ID);
+            FactionEntry const* factionEntry = sDBCMgr->GetFactionEntry(faction.ID);
             char const* factionName = factionEntry ? factionEntry->name[loc] : "#Not found#";
             ReputationRank rank = target->GetReputationMgr().GetRank(factionEntry);
             std::string rankName = handler->GetTrinityString(ReputationRankStrIndex[rank]);
@@ -632,11 +632,11 @@ public:
             return false;
 
         uint32 team = target->GetTeam(true);
-        target->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(team==ALLIANCE?FACTION_SENTINEL:FACTION_THUNDERLORD), 3000);
-        target->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(team==ALLIANCE?FACTION_THUNDERLORD:FACTION_SENTINEL), -6000);
-        target->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(team==ALLIANCE?ALLIANCE:HORDE), 3000);
-        target->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(team==ALLIANCE?HORDE:ALLIANCE), -6000);
-        target->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(FACTION_LIFEMARKET), 3000);
+        target->GetReputationMgr().SetReputation(sDBCMgr->GetFactionEntry(team==ALLIANCE?FACTION_SENTINEL:FACTION_THUNDERLORD), 3000);
+        target->GetReputationMgr().SetReputation(sDBCMgr->GetFactionEntry(team==ALLIANCE?FACTION_THUNDERLORD:FACTION_SENTINEL), -6000);
+        target->GetReputationMgr().SetReputation(sDBCMgr->GetFactionEntry(team==ALLIANCE?ALLIANCE:HORDE), 3000);
+        target->GetReputationMgr().SetReputation(sDBCMgr->GetFactionEntry(team==ALLIANCE?HORDE:ALLIANCE), -6000);
+        target->GetReputationMgr().SetReputation(sDBCMgr->GetFactionEntry(FACTION_LIFEMARKET), 3000);
         handler->PSendSysMessage(LANG_GM_FACTION_INIT, target->GetName().c_str(), target->GetGUID());
         return true;
     }

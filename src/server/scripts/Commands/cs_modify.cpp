@@ -1219,7 +1219,7 @@ public:
             }
         }
 
-        FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionId);
+        FactionEntry const* factionEntry = sDBCMgr->GetFactionEntry(factionId);
 
         if (!factionEntry)
         {

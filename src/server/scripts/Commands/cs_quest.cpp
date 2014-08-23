@@ -219,7 +219,7 @@ public:
             uint32 repValue = quest->GetRepObjectiveValue();
             uint32 curRep = player->GetReputationMgr().GetReputation(repFaction);
             if (curRep < repValue)
-                if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(repFaction))
+                if (FactionEntry const* factionEntry = sDBCMgr->GetFactionEntry(repFaction))
                     player->GetReputationMgr().SetReputation(factionEntry, repValue);
         }
 
@@ -229,7 +229,7 @@ public:
             uint32 repValue2 = quest->GetRepObjectiveValue2();
             uint32 curRep = player->GetReputationMgr().GetReputation(repFaction);
             if (curRep < repValue2)
-                if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(repFaction))
+                if (FactionEntry const* factionEntry = sDBCMgr->GetFactionEntry(repFaction))
                     player->GetReputationMgr().SetReputation(factionEntry, repValue2);
         }
 

@@ -77,7 +77,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         {
             if (Player* player = object->ToPlayer())
             {
-                if (FactionEntry const* faction = sFactionStore.LookupEntry(ConditionValue1))
+                if (FactionEntry const* faction = sDBCMgr->GetFactionEntry(ConditionValue1))
                     condMeets = (ConditionValue2 & (1 << player->GetReputationMgr().GetRank(faction)));
             }
             break;
@@ -1591,7 +1591,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_REPUTATION_RANK:
         {
-            FactionEntry const* factionEntry = sFactionStore.LookupEntry(cond->ConditionValue1);
+            FactionEntry const* factionEntry = sDBCMgr->GetFactionEntry(cond->ConditionValue1);
             if (!factionEntry)
             {
                 TC_LOG_ERROR("sql.sql", "Reputation condition has non existing faction (%u), skipped", cond->ConditionValue1);

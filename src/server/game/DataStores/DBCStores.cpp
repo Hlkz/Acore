@@ -86,7 +86,6 @@ DBCStorage <EmotesTextEntry> sEmotesTextStore(EmotesTextEntryfmt);
 
 typedef std::map<uint32, SimpleFactionsList> FactionTeamMap;
 static FactionTeamMap sFactionTeamMap;
-DBCStorage <FactionEntry> sFactionStore(FactionEntryfmt);
 DBCStorage <FactionTemplateEntry> sFactionTemplateStore(FactionTemplateEntryfmt);
 
 DBCStorage <GameObjectDisplayInfoEntry> sGameObjectDisplayInfoStore(GameObjectDisplayInfofmt);
@@ -313,10 +312,10 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sDurabilityQualityStore,      dbcPath, "DurabilityQuality.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sEmotesStore,                 dbcPath, "Emotes.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sEmotesTextStore,             dbcPath, "EmotesText.dbc");
-    LoadDBC(availableDbcLocales, bad_dbc_files, sFactionStore,                dbcPath, "Faction.dbc");
-    for (uint32 i=0; i<sFactionStore.GetNumRows(); ++i)
+    sDBCMgr->LoadFactionStore();
+    for (uint32 i = 0; i < sDBCMgr->FactionStore.size(); ++i)
     {
-        FactionEntry const* faction = sFactionStore.LookupEntry(i);
+        FactionEntry const* faction = sDBCMgr->GetFactionEntry(i);
         if (faction && faction->team)
         {
             SimpleFactionsList &flist = sFactionTeamMap[faction->team];
@@ -1369,14 +1368,56 @@ void DBCMgr::LoadCharTitlesStore()
         newCharTitles->ID           = fields[0].GetUInt32();
         for (uint8 i = 0; i < 16; i++)
             newCharTitles->name[i]  = NULL;
-        newCharTitles->name[0]      = (char*)fields[9].GetCString();
-        newCharTitles->name[2]      = (char*)fields[10].GetCString();
-        newCharTitles->bit_index    = fields[12].GetUInt32();
+        newCharTitles->name[0]      = (char*)fields[1].GetCString();
+        newCharTitles->name[2]      = (char*)fields[2].GetCString();
+        newCharTitles->bit_index    = fields[3].GetUInt32();
         CharTitlesStore[newCharTitles->ID] = newCharTitles;
 
     } while (result->NextRow());
 
     TC_LOG_ERROR("misc", ">> Loaded %lu chartitles entries in %u ms", (unsigned long)CharTitlesStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void DBCMgr::LoadFactionStore()
+{
+    uint32 oldMSTime = getMSTime();
+    FactionStore.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT Id, ReputationListId, BaseRepRaceMask1, BaseRepRaceMask2, BaseRepRaceMask3, BaseRepRaceMask4, BaseRepClassMask1, BaseRepClassMask2, BaseRepClassMask3, BaseRepClassMask4, BaseRepValue1, BaseRepValue2, BaseRepValue3, BaseRepValue4, "
+                                                "ReputationFlags1, ReputationFlags2, ReputationFlags3, ReputationFlags4, Team, SpilloverRateIn, SpilloverRateOut, SpilloverMaxRankIn, Name, Name_loc2 FROM factiondbc");
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 faction entry. DB table `factiondbc` is empty.");
+        return;
+    }
+
+    do {
+        Field* fields = result->Fetch();
+
+        FactionEntry* newFaction = new FactionEntry;
+        newFaction->ID = fields[0].GetUInt32();
+        newFaction->reputationListID    = fields[1].GetInt32();
+        for (uint8 i = 0; i < 4; i++)
+            newFaction->BaseRepRaceMask[i] = fields[2 + i].GetUInt32();
+        for (uint8 i = 0; i < 4; i++)
+            newFaction->BaseRepClassMask[i] = fields[6 + i].GetUInt32();
+        for (uint8 i = 0; i < 4; i++)
+            newFaction->BaseRepValue[i] = fields[10 + i].GetUInt32();
+        for (uint8 i = 0; i < 4; i++)
+            newFaction->ReputationFlags[i] = fields[14 + i].GetUInt32();
+        newFaction->team                = fields[18].GetUInt32();
+        newFaction->spilloverRateIn     = fields[19].GetFloat();
+        newFaction->spilloverRateOut    = fields[20].GetFloat();
+        newFaction->spilloverMaxRankIn  = fields[21].GetUInt32();
+        for (uint8 i = 0; i < 16; i++)
+            newFaction->name[i] = NULL;
+        newFaction->name[0]             = (char*)fields[22].GetCString();
+        newFaction->name[2]             = (char*)fields[23].GetCString();
+        FactionStore[newFaction->ID] = newFaction;
+
+    } while (result->NextRow());
+
+    TC_LOG_ERROR("misc", ">> Loaded %lu faction entries in %u ms", (unsigned long)FactionStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void DBCMgr::LoadSpellDifficultyStore()

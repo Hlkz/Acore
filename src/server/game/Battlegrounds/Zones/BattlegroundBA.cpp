@@ -267,13 +267,13 @@ void BattlegroundBA::AddPlayer(Player* player)
     uint32 team = player->GetBGTeam();
     if (team == ALLIANCE)
     {
-        player->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(3801), 3000);
-        player->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(3802), -42000);
+        player->GetReputationMgr().SetReputation(sDBCMgr->GetFactionEntry(3801), 3000);
+        player->GetReputationMgr().SetReputation(sDBCMgr->GetFactionEntry(3802), -42000);
     }
     else
     {
-        player->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(3802), 3000);
-        player->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(3801), -42000);
+        player->GetReputationMgr().SetReputation(sDBCMgr->GetFactionEntry(3802), 3000);
+        player->GetReputationMgr().SetReputation(sDBCMgr->GetFactionEntry(3801), -42000);
     }
     player->InitStatsMod(STAT_MOD_TYPE_BG_BA);
     player->UpdateStatsMod(STAT_MOD_TYPE_BG_BA, true, false);

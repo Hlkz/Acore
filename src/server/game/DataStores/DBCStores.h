@@ -98,7 +98,6 @@ extern DBCStorage <DurabilityCostsEntry>         sDurabilityCostsStore;
 extern DBCStorage <DurabilityQualityEntry>       sDurabilityQualityStore;
 extern DBCStorage <EmotesEntry>                  sEmotesStore;
 extern DBCStorage <EmotesTextEntry>              sEmotesTextStore;
-extern DBCStorage <FactionEntry>                 sFactionStore;
 extern DBCStorage <FactionTemplateEntry>         sFactionTemplateStore;
 extern DBCStorage <GameObjectDisplayInfoEntry>   sGameObjectDisplayInfoStore;
 extern DBCStorage <GemPropertiesEntry>           sGemPropertiesStore;
@@ -186,6 +185,7 @@ typedef std::unordered_map<uint32, const AreaPOIEntry*> AreaPOIContainer;
 typedef std::unordered_map<uint32, const AreaTableEntry*> AreaTableContainer;
 typedef std::unordered_map<uint32, const BattlemasterListEntry*> BattlemasterListContainer;
 typedef std::unordered_map<uint32, const CharTitlesEntry*> CharTitlesContainer;
+typedef std::unordered_map<uint32, const FactionEntry*> FactionContainer;
 typedef std::unordered_map<uint32, const SpellDifficultyEntry*> SpellDifficultyContainer;
 typedef std::unordered_map<uint32, const TalentEntry*> TalentContainer;
 
@@ -204,6 +204,7 @@ class DBCMgr
         void LoadAreaTableStore();
         void LoadBattlemasterListStore();
         void LoadCharTitlesStore();
+        void LoadFactionStore();
         void LoadSpellDifficultyStore();
         void LoadTalentStore();
 
@@ -213,6 +214,7 @@ class DBCMgr
         const AreaTableEntry* GetAreaTableEntry(uint32 ID) const { AreaTableContainer::const_iterator itr = AreaTableStore.find(ID); if (itr != AreaTableStore.end()) return itr->second; return NULL; }
         const BattlemasterListEntry* GetBattlemasterListEntry(uint32 ID) const { BattlemasterListContainer::const_iterator itr = BattlemasterListStore.find(ID); if (itr != BattlemasterListStore.end()) return itr->second; return NULL; }
         const CharTitlesEntry* GetCharTitlesEntry(uint32 ID) const { CharTitlesContainer::const_iterator itr = CharTitlesStore.find(ID); if (itr != CharTitlesStore.end()) return itr->second; return NULL; }
+        const FactionEntry* GetFactionEntry(uint32 ID) const { FactionContainer::const_iterator itr = FactionStore.find(ID); if (itr != FactionStore.end()) return itr->second; return NULL; }
         const SpellDifficultyEntry* GetSpellDifficultyEntry(uint32 ID) const { SpellDifficultyContainer::const_iterator itr = SpellDifficultyStore.find(ID); if (itr != SpellDifficultyStore.end()) return itr->second; return NULL; }
         const TalentEntry* GetTalentEntry(uint32 TalentID) const { TalentContainer::const_iterator itr = TalentStore.find(TalentID); if (itr != TalentStore.end()) return itr->second; return NULL; }
 
@@ -222,6 +224,7 @@ class DBCMgr
         AreaTableContainer AreaTableStore;
         BattlemasterListContainer BattlemasterListStore;
         CharTitlesContainer CharTitlesStore;
+        FactionContainer FactionStore;
         SpellDifficultyContainer SpellDifficultyStore;
         TalentContainer TalentStore;
 };

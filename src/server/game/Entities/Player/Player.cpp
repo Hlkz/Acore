@@ -2695,7 +2695,7 @@ Creature* Player::GetNPCIfCanInteractWith(uint64 guid, uint32 npcflagmask)
     // not unfriendly
     if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(creature->getFaction()))
         if (factionTemplate->faction)
-            if (FactionEntry const* faction = sFactionStore.LookupEntry(factionTemplate->faction))
+            if (FactionEntry const* faction = sDBCMgr->GetFactionEntry(factionTemplate->faction))
                 if (faction->reputationListID >= 0 && GetReputationMgr().GetRank(faction) <= REP_UNFRIENDLY)
                     return NULL;
 
@@ -6869,7 +6869,7 @@ void Player::setFactionForRace(uint8 race)
 
 ReputationRank Player::GetReputationRank(uint32 faction) const
 {
-    FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction);
+    FactionEntry const* factionEntry = sDBCMgr->GetFactionEntry(faction);
     return GetReputationMgr().GetRank(factionEntry);
 }
 
@@ -6977,7 +6977,7 @@ void Player::RewardReputation(Unit* victim, float rate)
         int32 donerep1 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->getLevel(), Rep->RepValue1, ChampioningFaction ? ChampioningFaction : Rep->RepFaction1);
         donerep1 = int32(donerep1 * rate);
 
-        FactionEntry const* factionEntry1 = sFactionStore.LookupEntry(ChampioningFaction ? ChampioningFaction : Rep->RepFaction1);
+        FactionEntry const* factionEntry1 = sDBCMgr->GetFactionEntry(ChampioningFaction ? ChampioningFaction : Rep->RepFaction1);
         uint32 current_reputation_rank1 = GetReputationMgr().GetRank(factionEntry1);
         if (factionEntry1 && current_reputation_rank1 <= Rep->ReputationMaxCap1)
             GetReputationMgr().ModifyReputation(factionEntry1, donerep1);
@@ -6988,7 +6988,7 @@ void Player::RewardReputation(Unit* victim, float rate)
         int32 donerep2 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->getLevel(), Rep->RepValue2, ChampioningFaction ? ChampioningFaction : Rep->RepFaction2);
         donerep2 = int32(donerep2 * rate);
 
-        FactionEntry const* factionEntry2 = sFactionStore.LookupEntry(ChampioningFaction ? ChampioningFaction : Rep->RepFaction2);
+        FactionEntry const* factionEntry2 = sDBCMgr->GetFactionEntry(ChampioningFaction ? ChampioningFaction : Rep->RepFaction2);
         uint32 current_reputation_rank2 = GetReputationMgr().GetRank(factionEntry2);
         if (factionEntry2 && current_reputation_rank2 <= Rep->ReputationMaxCap2)
             GetReputationMgr().ModifyReputation(factionEntry2, donerep2);
@@ -7035,7 +7035,7 @@ void Player::RewardReputation(Quest const* quest)
         else
             rep = CalculateReputationGain(REPUTATION_SOURCE_QUEST, GetQuestLevel(quest), rep, quest->RewardFactionId[i], noQuestBonus);
 
-        if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(quest->RewardFactionId[i]))
+        if (FactionEntry const* factionEntry = sDBCMgr->GetFactionEntry(quest->RewardFactionId[i]))
             GetReputationMgr().ModifyReputation(factionEntry, rep);
     }
 }
@@ -7122,10 +7122,10 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             // reputation
             if (!plrVictim->IsDeserter())
             {
-                GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(plrVictim->GetTeam(true)==ALLIANCE?HORDE:ALLIANCE),3+plrVictim->GetPvpRank());
-                GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(plrVictim->GetTeam(true)),-5-plrVictim->GetPvpRank());
-                GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(plrVictim->GetTeam(true)==ALLIANCE?FACTION_THUNDERLORD:FACTION_SENTINEL),3+plrVictim->GetPvpRank());
-                GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(plrVictim->GetTeam(true)==ALLIANCE?FACTION_SENTINEL:FACTION_THUNDERLORD),-5-plrVictim->GetPvpRank());
+                GetReputationMgr().ModifyReputation(sDBCMgr->GetFactionEntry(plrVictim->GetTeam(true)==ALLIANCE?HORDE:ALLIANCE),3+plrVictim->GetPvpRank());
+                GetReputationMgr().ModifyReputation(sDBCMgr->GetFactionEntry(plrVictim->GetTeam(true)),-5-plrVictim->GetPvpRank());
+                GetReputationMgr().ModifyReputation(sDBCMgr->GetFactionEntry(plrVictim->GetTeam(true)==ALLIANCE?FACTION_THUNDERLORD:FACTION_SENTINEL),3+plrVictim->GetPvpRank());
+                GetReputationMgr().ModifyReputation(sDBCMgr->GetFactionEntry(plrVictim->GetTeam(true)==ALLIANCE?FACTION_SENTINEL:FACTION_THUNDERLORD),-5-plrVictim->GetPvpRank());
             }
 
             // count the number of playerkills in one day
@@ -14813,11 +14813,11 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     AdjustQuestReqItemCount(quest, questStatusData);
 
     if (quest->GetRepObjectiveFaction())
-        if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(quest->GetRepObjectiveFaction()))
+        if (FactionEntry const* factionEntry = sDBCMgr->GetFactionEntry(quest->GetRepObjectiveFaction()))
             GetReputationMgr().SetVisible(factionEntry);
 
     if (quest->GetRepObjectiveFaction2())
-        if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(quest->GetRepObjectiveFaction2()))
+        if (FactionEntry const* factionEntry = sDBCMgr->GetFactionEntry(quest->GetRepObjectiveFaction2()))
             GetReputationMgr().SetVisible(factionEntry);
 
     uint32 qtime = 0;
@@ -25850,11 +25850,11 @@ void Player::SendTimeSync()
 
 void Player::SetReputation(uint32 factionentry, uint32 value)
 {
-    GetReputationMgr().SetReputation(sFactionStore.LookupEntry(factionentry), value);
+    GetReputationMgr().SetReputation(sDBCMgr->GetFactionEntry(factionentry), value);
 }
 uint32 Player::GetReputation(uint32 factionentry) const
 {
-    return GetReputationMgr().GetReputation(sFactionStore.LookupEntry(factionentry));
+    return GetReputationMgr().GetReputation(sDBCMgr->GetFactionEntry(factionentry));
 }
 
 std::string const& Player::GetGuildName()

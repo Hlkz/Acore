@@ -2031,13 +2031,13 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 
                 Field* fields = result->Fetch();
                 int32 oldDBRep = fields[0].GetInt32();
-                FactionEntry const* factionEntry = sFactionStore.LookupEntry(oldReputation);
+                FactionEntry const* factionEntry = sDBCMgr->GetFactionEntry(oldReputation);
 
                 // old base reputation
                 int32 oldBaseRep = sObjectMgr->GetBaseReputationOf(factionEntry, oldRace, playerClass);
 
                 // new base reputation
-                int32 newBaseRep = sObjectMgr->GetBaseReputationOf(sFactionStore.LookupEntry(newReputation), race, playerClass);
+                int32 newBaseRep = sObjectMgr->GetBaseReputationOf(sDBCMgr->GetFactionEntry(newReputation), race, playerClass);
 
                 // final reputation shouldnt change
                 int32 FinalRep = oldDBRep + oldBaseRep;

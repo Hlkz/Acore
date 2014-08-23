@@ -311,9 +311,9 @@ public:
         uint32 count = 0;
         uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
-        for (uint32 id = 0; id < sFactionStore.GetNumRows(); ++id)
+        for (uint32 id = 0; id < sDBCMgr->FactionStore.size(); ++id)
         {
-            FactionEntry const* factionEntry = sFactionStore.LookupEntry(id);
+            FactionEntry const* factionEntry = sDBCMgr->GetFactionEntry(id);
             if (factionEntry)
             {
                 FactionState const* factionState = target ? target->GetReputationMgr().GetState(factionEntry) : NULL;

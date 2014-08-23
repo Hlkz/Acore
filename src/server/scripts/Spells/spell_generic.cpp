@@ -2628,7 +2628,7 @@ class spell_gen_oracle_wolvar_reputation : public SpellScriptLoader
                 uint32 factionId = GetSpellInfo()->Effects[effIndex].CalcValue();
                 int32  repChange =  GetSpellInfo()->Effects[EFFECT_1].CalcValue();
 
-                FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionId);
+                FactionEntry const* factionEntry = sDBCMgr->GetFactionEntry(factionId);
 
                 if (!factionEntry)
                     return;
