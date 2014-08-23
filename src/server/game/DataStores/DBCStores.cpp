@@ -110,7 +110,6 @@ DBCStorage <HolidaysEntry>                sHolidaysStore(Holidaysfmt);
 DBCStorage <ItemBagFamilyEntry>           sItemBagFamilyStore(ItemBagFamilyfmt);
 //DBCStorage <ItemCondExtCostsEntry> sItemCondExtCostsStore(ItemCondExtCostsEntryfmt);
 //DBCStorage <ItemDisplayInfoEntry> sItemDisplayInfoStore(ItemDisplayTemplateEntryfmt); -- not used currently
-DBCStorage <ItemExtendedCostEntry> sItemExtendedCostStore(ItemExtendedCostEntryfmt);
 DBCStorage <ItemLimitCategoryEntry> sItemLimitCategoryStore(ItemLimitCategoryEntryfmt);
 DBCStorage <ItemRandomPropertiesEntry> sItemRandomPropertiesStore(ItemRandomPropertiesfmt);
 DBCStorage <ItemRandomSuffixEntry> sItemRandomSuffixStore(ItemRandomSuffixfmt);
@@ -357,7 +356,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemBagFamilyStore,          dbcPath, "ItemBagFamily.dbc");
     //LoadDBC(dbcCount, availableDbcLocales, bad_dbc_files, sItemDisplayInfoStore,        dbcPath, "ItemDisplayInfo.dbc");     -- not used currently
     //LoadDBC(dbcCount, availableDbcLocales, bad_dbc_files, sItemCondExtCostsStore,       dbcPath, "ItemCondExtCosts.dbc");
-    LoadDBC(availableDbcLocales, bad_dbc_files, sItemExtendedCostStore,       dbcPath, "ItemExtendedCost.dbc");
+    sDBCMgr->LoadItemExtendedCostStore();
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemLimitCategoryStore,      dbcPath, "ItemLimitCategory.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemRandomPropertiesStore,   dbcPath, "ItemRandomProperties.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemRandomSuffixStore,       dbcPath, "ItemRandomSuffix.dbc");
@@ -1448,6 +1447,39 @@ void DBCMgr::LoadFactionTemplateStore()
     } while (result->NextRow());
 
     TC_LOG_ERROR("misc", ">> Loaded %lu factiontemplate entries in %u ms", (unsigned long)FactionTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void DBCMgr::LoadItemExtendedCostStore()
+{
+    uint32 oldMSTime = getMSTime();
+    ItemExtendedCostStore.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT Id, ReqHonorPoints, ReqArenaPoints, ReqArenaSlot, ReqItem1, ReqItem2, ReqItem3, ReqItem4, ReqItem5, "
+                                                "ReqItemCount1, ReqItemCount2, ReqItemCount3, ReqItemCount4, ReqItemCount5, ReqPersonalArenaRating FROM itemextendedcostdbc");
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 itemextendedcost entry. DB table `itemextendedcostdbc` is empty.");
+        return;
+    }
+
+    do {
+        Field* fields = result->Fetch();
+
+        ItemExtendedCostEntry* newItemExtendedCost = new ItemExtendedCostEntry;
+        newItemExtendedCost->ID = fields[0].GetUInt32();
+        newItemExtendedCost->reqhonorpoints = fields[1].GetUInt32();
+        newItemExtendedCost->reqarenapoints = fields[2].GetUInt32();
+        newItemExtendedCost->reqarenaslot = fields[3].GetUInt32();
+        for (uint8 i = 0; i < 5; i++)
+            newItemExtendedCost->reqitem[i] = fields[4 + i].GetUInt32();
+        for (uint8 i = 0; i < 4; i++)
+            newItemExtendedCost->reqitemcount[i] = fields[9 + i].GetUInt32();
+        newItemExtendedCost->reqpersonalarenarating = fields[14].GetUInt32();
+        ItemExtendedCostStore[newItemExtendedCost->ID] = newItemExtendedCost;
+
+    } while (result->NextRow());
+
+    TC_LOG_ERROR("misc", ">> Loaded %lu itemextendedcost entries in %u ms", (unsigned long)ItemExtendedCostStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void DBCMgr::LoadSpellDifficultyStore()

@@ -64,7 +64,6 @@ char const Itemfmt[] = "niiiiiii";
 char const ItemBagFamilyfmt[] = "nxxxxxxxxxxxxxxxxx";
 //char const ItemDisplayTemplateEntryfmt[] = "nxxxxxxxxxxixxxxxxxxxxx";
 //char const ItemCondExtCostsEntryfmt[] = "xiii";
-char const ItemExtendedCostEntryfmt[] = "niiiiiiiiiiiiiix";
 char const ItemLimitCategoryEntryfmt[] = "nxxxxxxxxxxxxxxxxxii";
 char const ItemRandomPropertiesfmt[] = "nxiiixxssssssssssssssssx";
 char const ItemRandomSuffixfmt[] = "nssssssssssssssssxxiiixxiiixx";

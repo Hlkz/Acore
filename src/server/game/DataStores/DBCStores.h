@@ -118,7 +118,6 @@ extern DBCStorage <GtRegenMPPerSptEntry>         sGtRegenMPPerSptStore;
 extern DBCStorage <HolidaysEntry>                sHolidaysStore;
 extern DBCStorage <ItemBagFamilyEntry>           sItemBagFamilyStore;
 //extern DBCStorage <ItemDisplayInfoEntry>      sItemDisplayInfoStore; -- not used currently
-extern DBCStorage <ItemExtendedCostEntry>        sItemExtendedCostStore;
 extern DBCStorage <ItemLimitCategoryEntry>       sItemLimitCategoryStore;
 extern DBCStorage <ItemRandomPropertiesEntry>    sItemRandomPropertiesStore;
 extern DBCStorage <ItemRandomSuffixEntry>        sItemRandomSuffixStore;
@@ -185,6 +184,7 @@ typedef std::unordered_map<uint32, const BattlemasterListEntry*> BattlemasterLis
 typedef std::unordered_map<uint32, const CharTitlesEntry*> CharTitlesContainer;
 typedef std::unordered_map<uint32, const FactionEntry*> FactionContainer;
 typedef std::unordered_map<uint32, const FactionTemplateEntry*> FactionTemplateContainer;
+typedef std::unordered_map<uint32, const ItemExtendedCostEntry*> ItemExtendedCostContainer;
 typedef std::unordered_map<uint32, const SpellDifficultyEntry*> SpellDifficultyContainer;
 typedef std::unordered_map<uint32, const TalentEntry*> TalentContainer;
 
@@ -205,6 +205,7 @@ class DBCMgr
         void LoadCharTitlesStore();
         void LoadFactionStore();
         void LoadFactionTemplateStore();
+        void LoadItemExtendedCostStore();
         void LoadSpellDifficultyStore();
         void LoadTalentStore();
 
@@ -216,6 +217,7 @@ class DBCMgr
         const CharTitlesEntry* GetCharTitlesEntry(uint32 ID) const { CharTitlesContainer::const_iterator itr = CharTitlesStore.find(ID); if (itr != CharTitlesStore.end()) return itr->second; return NULL; }
         const FactionEntry* GetFactionEntry(uint32 ID) const { FactionContainer::const_iterator itr = FactionStore.find(ID); if (itr != FactionStore.end()) return itr->second; return NULL; }
         const FactionTemplateEntry* GetFactionTemplateEntry(uint32 ID) const { FactionTemplateContainer::const_iterator itr = FactionTemplateStore.find(ID); if (itr != FactionTemplateStore.end()) return itr->second; return NULL; }
+        const ItemExtendedCostEntry* GetItemExtendedCostEntry(uint32 ID) const { ItemExtendedCostContainer::const_iterator itr = ItemExtendedCostStore.find(ID); if (itr != ItemExtendedCostStore.end()) return itr->second; return NULL; }
         const SpellDifficultyEntry* GetSpellDifficultyEntry(uint32 ID) const { SpellDifficultyContainer::const_iterator itr = SpellDifficultyStore.find(ID); if (itr != SpellDifficultyStore.end()) return itr->second; return NULL; }
         const TalentEntry* GetTalentEntry(uint32 TalentID) const { TalentContainer::const_iterator itr = TalentStore.find(TalentID); if (itr != TalentStore.end()) return itr->second; return NULL; }
 
@@ -227,6 +229,7 @@ class DBCMgr
         CharTitlesContainer CharTitlesStore;
         FactionContainer FactionStore;
         FactionTemplateContainer FactionTemplateStore;
+        ItemExtendedCostContainer ItemExtendedCostStore;
         SpellDifficultyContainer SpellDifficultyStore;
         TalentContainer TalentStore;
 };

@@ -21281,7 +21281,7 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
 
     if (crItem->ExtendedCost)                            // case for new honor system
     {
-        ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(crItem->ExtendedCost);
+        ItemExtendedCostEntry const* iece = sDBCMgr->GetItemExtendedCostEntry(crItem->ExtendedCost);
         ASSERT(iece);
         if (iece->reqhonorpoints)
             ModifyHonorPoints(- int32(iece->reqhonorpoints * count));
@@ -21364,7 +21364,7 @@ if(GetGUID()==vendorguid) {
         return false;
 
     if (crItem->ExtendedCost) {
-        ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(crItem->ExtendedCost);
+        ItemExtendedCostEntry const* iece = sDBCMgr->GetItemExtendedCostEntry(crItem->ExtendedCost);
         if (!iece) {
             TC_LOG_ERROR("entities.player", "Item %u have wrong ExtendedCost field value %u", pProto->ItemId, crItem->ExtendedCost);
             return false; }
@@ -21475,7 +21475,7 @@ else {
 
     if (crItem->ExtendedCost)
     {
-        ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(crItem->ExtendedCost);
+        ItemExtendedCostEntry const* iece = sDBCMgr->GetItemExtendedCostEntry(crItem->ExtendedCost);
         if (!iece)
         {
             TC_LOG_ERROR("entities.player", "Item %u have wrong ExtendedCost field value %u", pProto->ItemId, crItem->ExtendedCost);
@@ -25901,7 +25901,7 @@ void Player::SendRefundInfo(Item* item)
         return;
     }
 
-    ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(item->GetPaidExtendedCost());
+    ItemExtendedCostEntry const* iece = sDBCMgr->GetItemExtendedCostEntry(item->GetPaidExtendedCost());
     if (!iece)
     {
         TC_LOG_DEBUG("entities.player.items", "Item refund: cannot find extendedcost data.");
@@ -25971,7 +25971,7 @@ void Player::RefundItem(Item* item)
         return;
     }
 
-    ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(item->GetPaidExtendedCost());
+    ItemExtendedCostEntry const* iece = sDBCMgr->GetItemExtendedCostEntry(item->GetPaidExtendedCost());
     if (!iece)
     {
         TC_LOG_DEBUG("entities.player.items", "Item refund: cannot find extendedcost data.");
