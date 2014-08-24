@@ -71,7 +71,7 @@ InstanceSave* InstanceSaveManager::AddInstanceSave(uint32 mapId, uint32 instance
     if (InstanceSave* old_save = GetInstanceSave(instanceId))
         return old_save;
 
-    const MapEntry* entry = sMapStore.LookupEntry(mapId);
+    const MapEntry* entry = sDBCMgr->GetMapEntry(mapId);
     if (!entry)
     {
         TC_LOG_ERROR("misc", "InstanceSaveManager::AddInstanceSave: wrong mapid = %d, instanceid = %d!", mapId, instanceId);
@@ -214,7 +214,7 @@ void InstanceSave::SaveToDB()
 time_t InstanceSave::GetResetTimeForDB()
 {
     // only save the reset time for normal instances
-    const MapEntry* entry = sMapStore.LookupEntry(GetMapId());
+    const MapEntry* entry = sDBCMgr->GetMapEntry(GetMapId());
     if (!entry || entry->map_type == MAP_RAID || GetDifficulty() == DUNGEON_DIFFICULTY_HEROIC)
         return 0;
     else
@@ -229,7 +229,7 @@ InstanceTemplate const* InstanceSave::GetTemplate()
 
 MapEntry const* InstanceSave::GetMapEntry()
 {
-    return sMapStore.LookupEntry(m_mapid);
+    return sDBCMgr->GetMapEntry(m_mapid);
 }
 
 void InstanceSave::DeleteFromDB()
@@ -567,7 +567,7 @@ void InstanceSaveManager::_ResetInstance(uint32 mapid, uint32 instanceId)
 void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, bool warn, time_t resetTime)
 {
     // global reset for all instances of the given map
-    MapEntry const* mapEntry = sMapStore.LookupEntry(mapid);
+    MapEntry const* mapEntry = sDBCMgr->GetMapEntry(mapid);
     if (!mapEntry->Instanceable())
         return;
 

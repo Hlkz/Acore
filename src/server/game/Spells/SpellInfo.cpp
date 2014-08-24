@@ -1403,7 +1403,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     if (AttributesEx4 & SPELL_ATTR4_CAST_ONLY_IN_OUTLAND)
     {
         uint32 v_map = GetVirtualMapForMapAndZone(map_id, zone_id);
-        MapEntry const* mapEntry = sMapStore.LookupEntry(v_map);
+        MapEntry const* mapEntry = sDBCMgr->GetMapEntry(v_map);
         if (!mapEntry || mapEntry->addon < 1 || !mapEntry->IsContinent())
             return SPELL_FAILED_INCORRECT_AREA;
     }
@@ -1411,7 +1411,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     // raid instance limitation
     if (AttributesEx6 & SPELL_ATTR6_NOT_IN_RAID_INSTANCE)
     {
-        MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
+        MapEntry const* mapEntry = sDBCMgr->GetMapEntry(map_id);
         if (!mapEntry || mapEntry->IsRaid())
             return SPELL_FAILED_NOT_IN_RAID_INSTANCE;
     }
@@ -1451,7 +1451,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
             if (!player)
                 return SPELL_FAILED_REQUIRES_AREA;
 
-            MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
+            MapEntry const* mapEntry = sDBCMgr->GetMapEntry(map_id);
             if (!mapEntry)
                 return SPELL_FAILED_INCORRECT_AREA;
 
@@ -1466,7 +1466,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
         case 35774:                                         // Gold Team (Horde)
         case 35775:                                         // Green Team (Horde)
         {
-            MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
+            MapEntry const* mapEntry = sDBCMgr->GetMapEntry(map_id);
             if (!mapEntry)
                 return SPELL_FAILED_INCORRECT_AREA;
 
@@ -1477,7 +1477,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
             if (!player)
                 return SPELL_FAILED_REQUIRES_AREA;
 
-            MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
+            MapEntry const* mapEntry = sDBCMgr->GetMapEntry(map_id);
             if (!mapEntry)
                 return SPELL_FAILED_INCORRECT_AREA;
 

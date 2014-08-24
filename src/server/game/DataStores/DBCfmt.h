@@ -73,7 +73,6 @@ char const LightEntryfmt[] = "nifffxxxxxxxxxx";
 char const LiquidTypefmt[] = "nxxixixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 char const LockEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiixxxxxxxx";
 char const MailTemplateEntryfmt[] = "nxxxxxxxxxxxxxxxxxssssssssssssssssx";
-char const MapEntryfmt[] = "nxiixssssssssssssssssxixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxixiffxiii";
 char const MapDifficultyEntryfmt[] = "diisxxxxxxxxxxxxxxxxiix";
 char const MovieEntryfmt[] = "nxx";
 char const OverrideSpellDatafmt[] = "niiiiiiiiiix";

@@ -1256,9 +1256,9 @@ public:
         uint8 locale = handler->GetSession() ? handler->GetSession()->GetSessionDbcLocale() : sWorld->GetDefaultDbcLocale();
 
         // search in Map.dbc
-        for (uint32 id = 0; id < sMapStore.GetNumRows(); id++)
+        for (uint32 id = 0; id < sDBCMgr->MapStore.size(); id++)
         {
-            if (MapEntry const* mapInfo = sMapStore.LookupEntry(id))
+            if (MapEntry const* mapInfo = sDBCMgr->GetMapEntry(id))
             {
                 std::string name = mapInfo->name[locale];
                 if (name.empty())

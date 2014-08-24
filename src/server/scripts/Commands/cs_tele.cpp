@@ -237,7 +237,7 @@ public:
             return false;
         }
 
-        MapEntry const* map = sMapStore.LookupEntry(tele->mapId);
+        MapEntry const* map = sDBCMgr->GetMapEntry(tele->mapId);
         if (!map || map->IsBattlegroundOrArena())
         {
             handler->SendSysMessage(LANG_CANNOT_TELE_TO_BG);
@@ -318,7 +318,7 @@ public:
             return false;
         }
 
-        MapEntry const* map = sMapStore.LookupEntry(tele->mapId);
+        MapEntry const* map = sDBCMgr->GetMapEntry(tele->mapId);
         if (!map || map->IsBattlegroundOrArena())
         {
             handler->SendSysMessage(LANG_CANNOT_TELE_TO_BG);

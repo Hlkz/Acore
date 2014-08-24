@@ -399,7 +399,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                     return false;
                 break;
             case SMART_EVENT_RESPAWN:
-                if (e.event.respawn.type == SMART_SCRIPT_RESPAWN_CONDITION_MAP && !sMapStore.LookupEntry(e.event.respawn.map))
+                if (e.event.respawn.type == SMART_SCRIPT_RESPAWN_CONDITION_MAP && !sDBCMgr->GetMapEntry(e.event.respawn.map))
                 {
                     TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Map entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.respawn.map);
                     return false;
@@ -895,7 +895,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             break;
         case SMART_ACTION_TELEPORT:
-            if (!sMapStore.LookupEntry(e.action.teleport.mapID))
+            if (!sDBCMgr->GetMapEntry(e.action.teleport.mapID))
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Map entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.teleport.mapID);
                 return false;

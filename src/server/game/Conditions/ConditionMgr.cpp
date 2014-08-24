@@ -1725,7 +1725,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_MAPID:
         {
-            MapEntry const* me = sMapStore.LookupEntry(cond->ConditionValue1);
+            MapEntry const* me = sDBCMgr->GetMapEntry(cond->ConditionValue1);
             if (!me)
             {
                 TC_LOG_ERROR("sql.sql", "Map condition has non existing map (%u), skipped", cond->ConditionValue1);

@@ -1321,7 +1321,7 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                const MapEntry* const map = sMapStore.LookupEntry(master->mapid);
+                const MapEntry* const map = sDBCMgr->GetMapEntry(master->mapid);
                 if (!map || !map->Instanceable() || (master->mapid != slave->mapid))
                 {
                     TC_LOG_ERROR("sql.sql", "LinkedRespawn: Creature '%u' linking to Creature '%u' on an unpermitted map.", guidLow, linkedGuidLow);
@@ -1358,7 +1358,7 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                const MapEntry* const map = sMapStore.LookupEntry(master->mapid);
+                const MapEntry* const map = sDBCMgr->GetMapEntry(master->mapid);
                 if (!map || !map->Instanceable() || (master->mapid != slave->mapid))
                 {
                     TC_LOG_ERROR("sql.sql", "LinkedRespawn: Creature '%u' linking to Gameobject '%u' on an unpermitted map.", guidLow, linkedGuidLow);
@@ -1395,7 +1395,7 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                const MapEntry* const map = sMapStore.LookupEntry(master->mapid);
+                const MapEntry* const map = sDBCMgr->GetMapEntry(master->mapid);
                 if (!map || !map->Instanceable() || (master->mapid != slave->mapid))
                 {
                     TC_LOG_ERROR("sql.sql", "LinkedRespawn: Gameobject '%u' linking to Gameobject '%u' on an unpermitted map.", guidLow, linkedGuidLow);
@@ -1432,7 +1432,7 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                const MapEntry* const map = sMapStore.LookupEntry(master->mapid);
+                const MapEntry* const map = sDBCMgr->GetMapEntry(master->mapid);
                 if (!map || !map->Instanceable() || (master->mapid != slave->mapid))
                 {
                     TC_LOG_ERROR("sql.sql", "LinkedRespawn: Gameobject '%u' linking to Creature '%u' on an unpermitted map.", guidLow, linkedGuidLow);
@@ -1486,7 +1486,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guidLow, uint32 linkedGuidLow)
         return false;
     }
 
-    const MapEntry* const map = sMapStore.LookupEntry(master->mapid);
+    const MapEntry* const map = sDBCMgr->GetMapEntry(master->mapid);
     if (!map || !map->Instanceable() || (master->mapid != slave->mapid))
     {
         TC_LOG_ERROR("sql.sql", "Creature '%u' linking to '%u' on an unpermitted map.", guidLow, linkedGuidLow);
@@ -1550,7 +1550,7 @@ void ObjectMgr::LoadTempSummons()
                 }
                 break;
             case SUMMONER_TYPE_MAP:
-                if (!sMapStore.LookupEntry(summonerId))
+                if (!sDBCMgr->GetMapEntry(summonerId))
                 {
                     TC_LOG_ERROR("sql.sql", "Table `creature_summon_groups` has summoner with non existing entry %u for map summoner type, skipped.", summonerId);
                     continue;
@@ -1617,8 +1617,8 @@ void ObjectMgr::LoadCreatures()
 
     // Build single time for check spawnmask
     std::map<uint32, uint32> spawnMasks;
-    for (uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
-        if (sMapStore.LookupEntry(i))
+    for (uint32 i = 0; i < sDBCMgr->MapStore.size(); ++i)
+        if (sDBCMgr->GetMapEntry(i))
             for (int k = 0; k < MAX_DIFFICULTY; ++k)
                 if (GetMapDifficultyData(i, Difficulty(k)))
                     spawnMasks[i] |= (1 << k);
@@ -1662,7 +1662,7 @@ void ObjectMgr::LoadCreatures()
         data.unit_flags     = fields[20].GetUInt32();
         data.dynamicflags   = fields[21].GetUInt32();
 
-        MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
+        MapEntry const* mapEntry = sDBCMgr->GetMapEntry(data.mapid);
         if (!mapEntry)
         {
             TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u) that spawned at not existed map (Id: %u), skipped.", guid, data.mapid);
@@ -1925,8 +1925,8 @@ void ObjectMgr::LoadGameobjects()
 
     // build single time for check spawnmask
     std::map<uint32, uint32> spawnMasks;
-    for (uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
-        if (sMapStore.LookupEntry(i))
+    for (uint32 i = 0; i < sDBCMgr->MapStore.size(); ++i)
+        if (sDBCMgr->GetMapEntry(i))
             for (int k = 0; k < MAX_DIFFICULTY; ++k)
                 if (GetMapDifficultyData(i, Difficulty(k)))
                     spawnMasks[i] |= (1 << k);
@@ -1979,7 +1979,7 @@ void ObjectMgr::LoadGameobjects()
         data.rotation3      = fields[10].GetFloat();
         data.spawntimesecs  = fields[11].GetInt32();
 
-        MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
+        MapEntry const* mapEntry = sDBCMgr->GetMapEntry(data.mapid);
         if (!mapEntry)
         {
             TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: %u Entry: %u) spawned on a non-existed map (Id: %u), skip", guid, data.id, data.mapid);
@@ -2689,7 +2689,7 @@ void ObjectMgr::LoadItemTemplates()
         if (itemTemplate.Area && !GetAreaEntryByAreaID(itemTemplate.Area))
             TC_LOG_ERROR("sql.sql", "Item (Entry: %u) has wrong Area (%u)", entry, itemTemplate.Area);
 
-        if (itemTemplate.Map && !sMapStore.LookupEntry(itemTemplate.Map))
+        if (itemTemplate.Map && !sDBCMgr->GetMapEntry(itemTemplate.Map))
             TC_LOG_ERROR("sql.sql", "Item (Entry: %u) has wrong Map (%u)", entry, itemTemplate.Map);
 
         if (itemTemplate.BagFamily)
@@ -3205,7 +3205,7 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                if (sMapStore.LookupEntry(mapId)->Instanceable())
+                if (sDBCMgr->GetMapEntry(mapId)->Instanceable())
                 {
                     TC_LOG_ERROR("sql.sql", "Home position in instanceable map for class %u race %u pair in `playercreateinfo` table, ignoring.", current_class, current_race);
                     continue;
@@ -4523,7 +4523,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
 
             case SCRIPT_COMMAND_TELEPORT_TO:
             {
-                if (!sMapStore.LookupEntry(tmp.TeleportTo.MapID))
+                if (!sDBCMgr->GetMapEntry(tmp.TeleportTo.MapID))
                 {
                     TC_LOG_ERROR("sql.sql", "Table `%s` has invalid map (Id: %u) in SCRIPT_COMMAND_TELEPORT_TO for script id %u",
                         tableName.c_str(), tmp.TeleportTo.MapID, tmp.id);
@@ -5796,7 +5796,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
     //   if mapId != graveyard.mapId (ghost in instance) and search any graveyard associated
     //     then check faction
     GraveYardMapBounds range = GraveYardStore.equal_range(zoneId);
-    MapEntry const* map = sMapStore.LookupEntry(MapId);
+    MapEntry const* map = sDBCMgr->GetMapEntry(MapId);
 
     // not need to check validity of map object; MapId _MUST_ be valid here
     if (range.first == range.second && !map->IsBattlegroundOrArena())
@@ -5818,7 +5818,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
     // some where other
     WorldSafeLocsEntry const* entryFar = NULL;
 
-    MapEntry const* mapEntry = sMapStore.LookupEntry(MapId);
+    MapEntry const* mapEntry = sDBCMgr->GetMapEntry(MapId);
 
     for (; range.first != range.second; ++range.first)
     {
@@ -6025,7 +6025,7 @@ void ObjectMgr::LoadAreaTriggerTeleports()
             continue;
         }
 
-        MapEntry const* mapEntry = sMapStore.LookupEntry(at.target_mapId);
+        MapEntry const* mapEntry = sDBCMgr->GetMapEntry(at.target_mapId);
         if (!mapEntry)
         {
             TC_LOG_ERROR("sql.sql", "Area trigger (ID:%u) target map (ID: %u) does not exist in `Map.dbc`.", Trigger_ID, at.target_mapId);
@@ -6148,7 +6148,7 @@ AreaTrigger const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
 {
     bool useParentDbValue = false;
     uint32 parentId = 0;
-    const MapEntry* mapEntry = sMapStore.LookupEntry(Map);
+    const MapEntry* mapEntry = sDBCMgr->GetMapEntry(Map);
     if (!mapEntry || mapEntry->entrance_map < 0)
         return NULL;
 

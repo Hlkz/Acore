@@ -121,7 +121,6 @@ DBCStorage <LiquidTypeEntry> sLiquidTypeStore(LiquidTypefmt);
 DBCStorage <LockEntry> sLockStore(LockEntryfmt);
 
 DBCStorage <MailTemplateEntry> sMailTemplateStore(MailTemplateEntryfmt);
-DBCStorage <MapEntry> sMapStore(MapEntryfmt);
 
 // DBC used only for initialization sMapDifficultyMap at startup.
 DBCStorage <MapDifficultyEntry> sMapDifficultyStore(MapDifficultyEntryfmt); // only for loading
@@ -368,7 +367,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sLockStore,                   dbcPath, "Lock.dbc");
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sMailTemplateStore,           dbcPath, "MailTemplate.dbc");
-    LoadDBC(availableDbcLocales, bad_dbc_files, sMapStore,                    dbcPath, "Map.dbc");
+    sDBCMgr->LoadMapStore();
     LoadDBC(availableDbcLocales, bad_dbc_files, sMapDifficultyStore,          dbcPath, "MapDifficulty.dbc");
     // fill data
     for (uint32 i = 1; i < sMapDifficultyStore.GetNumRows(); ++i)
@@ -717,7 +716,7 @@ AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag, uint32 map_
     if (area_flag)
         return sDBCMgr->GetAreaTableEntry(area_flag);
 
-    if (MapEntry const* mapEntry = sMapStore.LookupEntry(map_id))
+    if (MapEntry const* mapEntry = sDBCMgr->GetMapEntry(map_id))
         return GetAreaEntryByAreaID(mapEntry->linked_zone);
 
     return NULL;
@@ -761,7 +760,7 @@ ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId)
     if (mapid < 2)
         return CONTENT_1_60;
 
-    MapEntry const* mapEntry = sMapStore.LookupEntry(mapid);
+    MapEntry const* mapEntry = sDBCMgr->GetMapEntry(mapid);
     if (!mapEntry)
         return CONTENT_1_60;
 
@@ -1480,6 +1479,45 @@ void DBCMgr::LoadItemExtendedCostStore()
     } while (result->NextRow());
 
     TC_LOG_ERROR("misc", ">> Loaded %lu itemextendedcost entries in %u ms", (unsigned long)ItemExtendedCostStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void DBCMgr::LoadMapStore()
+{
+    uint32 oldMSTime = getMSTime();
+    MapStore.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT Id, MapType, Flags, Name, Name_loc2, LinkedZone, MultiMapId, EntranceMap, EntranceX, EntranceY, "
+                                                "Addon, UnkTime, MaxPlayers FROM mapdbc");
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 map entry. DB table `mapdbc` is empty.");
+        return;
+    }
+
+    do {
+        Field* fields = result->Fetch();
+
+        MapEntry* newMap = new MapEntry;
+        newMap->MapID           = fields[0].GetUInt32();
+        newMap->map_type        = fields[1].GetUInt32();
+        newMap->Flags           = fields[2].GetUInt32();
+        for (uint8 i = 0; i < 16; i++)
+            newMap->name[i]     = NULL;
+        newMap->name[0]  = (char*)fields[3].GetCString();
+        newMap->name[2]  = (char*)fields[4].GetCString();
+        newMap->linked_zone     = fields[5].GetUInt32();
+        newMap->multimap_id     = fields[6].GetUInt32();
+        newMap->entrance_map    = fields[7].GetInt32();
+        newMap->entrance_x      = fields[8].GetFloat();
+        newMap->entrance_y      = fields[9].GetFloat();
+        newMap->addon           = fields[10].GetUInt32();
+        newMap->unk_time        = fields[11].GetUInt32();
+        newMap->maxPlayers      = fields[12].GetUInt32();
+        MapStore[newMap->MapID] = newMap;
+
+    } while (result->NextRow());
+
+    TC_LOG_ERROR("misc", ">> Loaded %lu map entries in %u ms", (unsigned long)MapStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void DBCMgr::LoadSpellDifficultyStore()

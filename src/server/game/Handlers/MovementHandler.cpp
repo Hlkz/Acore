@@ -59,7 +59,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     }
 
     // get the destination map entry, not the current one, this will fix homebind and reset greeting
-    MapEntry const* mEntry = sMapStore.LookupEntry(loc.GetMapId());
+    MapEntry const* mEntry = sDBCMgr->GetMapEntry(loc.GetMapId());
     InstanceTemplate const* mInstance = sObjectMgr->GetInstanceTemplate(loc.GetMapId());
 
     // reset instance validity, except if going to an instance inside an instance

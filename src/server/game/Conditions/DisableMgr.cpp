@@ -119,7 +119,7 @@ void LoadDisables()
                 break;
             case DISABLE_TYPE_MAP:
             {
-                MapEntry const* mapEntry = sMapStore.LookupEntry(entry);
+                MapEntry const* mapEntry = sDBCMgr->GetMapEntry(entry);
                 if (!mapEntry)
                 {
                     TC_LOG_ERROR("sql.sql", "Map entry %u from `disables` doesn't exist in dbc, skipped.", entry);
@@ -184,7 +184,7 @@ void LoadDisables()
                 break;
             case DISABLE_TYPE_VMAP:
             {
-                MapEntry const* mapEntry = sMapStore.LookupEntry(entry);
+                MapEntry const* mapEntry = sDBCMgr->GetMapEntry(entry);
                 if (!mapEntry)
                 {
                     TC_LOG_ERROR("sql.sql", "Map entry %u from `disables` doesn't exist in dbc, skipped.", entry);
@@ -224,7 +224,7 @@ void LoadDisables()
             }
             case DISABLE_TYPE_MMAP:
             {
-                MapEntry const* mapEntry = sMapStore.LookupEntry(entry);
+                MapEntry const* mapEntry = sDBCMgr->GetMapEntry(entry);
                 if (!mapEntry)
                 {
                     TC_LOG_ERROR("sql.sql", "Map entry %u from `disables` doesn't exist in dbc, skipped.", entry);
@@ -346,7 +346,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
         case DISABLE_TYPE_MAP:
             if (Player const* player = unit->ToPlayer())
             {
-                MapEntry const* mapEntry = sMapStore.LookupEntry(entry);
+                MapEntry const* mapEntry = sDBCMgr->GetMapEntry(entry);
                 if (mapEntry->IsDungeon())
                 {
                     uint8 disabledModes = itr->second.flags;

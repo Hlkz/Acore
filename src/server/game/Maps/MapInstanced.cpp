@@ -190,7 +190,7 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     TRINITY_GUARD(ACE_Thread_Mutex, Lock);
 
     // make sure we have a valid map id
-    const MapEntry* entry = sMapStore.LookupEntry(GetId());
+    const MapEntry* entry = sDBCMgr->GetMapEntry(GetId());
     if (!entry)
     {
         TC_LOG_ERROR("maps", "CreateInstance: no entry for map %d", GetId());

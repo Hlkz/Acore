@@ -70,7 +70,7 @@ Map* MapManager::CreateBaseMap(uint32 id)
     {
         TRINITY_GUARD(ACE_Thread_Mutex, Lock);
 
-        MapEntry const* entry = sMapStore.LookupEntry(id);
+        MapEntry const* entry = sDBCMgr->GetMapEntry(id);
         ASSERT(entry);
 
         if (entry->Instanceable())
@@ -122,7 +122,7 @@ Map* MapManager::FindMap(uint32 mapid, uint32 instanceId) const
 
 bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
 {
-    MapEntry const* entry = sMapStore.LookupEntry(mapid);
+    MapEntry const* entry = sDBCMgr->GetMapEntry(mapid);
     if (!entry)
         return false;
 
@@ -262,7 +262,7 @@ bool MapManager::ExistMapAndVMap(uint32 mapid, float x, float y)
 
 bool MapManager::IsValidMAP(uint32 mapid, bool startUp)
 {
-    MapEntry const* mEntry = sMapStore.LookupEntry(mapid);
+    MapEntry const* mEntry = sDBCMgr->GetMapEntry(mapid);
 
     if (startUp)
         return mEntry ? true : false;

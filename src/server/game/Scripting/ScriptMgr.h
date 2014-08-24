@@ -312,7 +312,7 @@ template<class TMap> class MapScript : public UpdatableScript<TMap>
     protected:
 
         MapScript(uint32 mapId)
-            : _mapEntry(sMapStore.LookupEntry(mapId))
+            : _mapEntry(sDBCMgr->GetMapEntry(mapId))
         {
             if (!_mapEntry)
                 TC_LOG_ERROR("scripts", "Invalid MapScript for %u; no such map ID.", mapId);

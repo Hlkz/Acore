@@ -4824,7 +4824,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     // - with SPELL_ATTR4_NOT_USABLE_IN_ARENA flag
     if ((m_spellInfo->AttributesEx4 & SPELL_ATTR4_NOT_USABLE_IN_ARENA) ||
         (m_spellInfo->GetRecoveryTime() > 10 * MINUTE * IN_MILLISECONDS && !(m_spellInfo->AttributesEx4 & SPELL_ATTR4_USABLE_IN_ARENA)))
-        if (MapEntry const* mapEntry = sMapStore.LookupEntry(m_caster->GetMapId()))
+        if (MapEntry const* mapEntry = sDBCMgr->GetMapEntry(m_caster->GetMapId()))
             if (mapEntry->IsBattleArena())
                 return SPELL_FAILED_NOT_IN_ARENA;
 
@@ -5207,7 +5207,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     return SPELL_FAILED_BAD_TARGETS;
 
                 // check if our map is dungeon
-                MapEntry const* map = sMapStore.LookupEntry(m_caster->GetMapId());
+                MapEntry const* map = sDBCMgr->GetMapEntry(m_caster->GetMapId());
                 if (map->IsDungeon())
                 {
                     uint32 mapId = m_caster->GetMap()->GetId();
