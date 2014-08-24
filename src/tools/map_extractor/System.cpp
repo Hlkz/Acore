@@ -1034,7 +1034,7 @@ void ExtractDBCFiles(int locale, bool basicLocale)
     {
         string filename = path;
         filename += (iter->c_str() + strlen("DBFilesClient\\"));
-        
+
         if(FileExists(filename.c_str()))
             continue;
 
