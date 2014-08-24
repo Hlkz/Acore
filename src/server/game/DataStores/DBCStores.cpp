@@ -123,7 +123,6 @@ DBCStorage <LockEntry> sLockStore(LockEntryfmt);
 DBCStorage <MailTemplateEntry> sMailTemplateStore(MailTemplateEntryfmt);
 
 // DBC used only for initialization sMapDifficultyMap at startup.
-DBCStorage <MapDifficultyEntry> sMapDifficultyStore(MapDifficultyEntryfmt); // only for loading
 MapDifficultyMap sMapDifficultyMap;
 
 DBCStorage <MovieEntry> sMovieStore(MovieEntryfmt);
@@ -366,14 +365,14 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sLiquidTypeStore,             dbcPath, "LiquidType.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sLockStore,                   dbcPath, "Lock.dbc");
 
-    LoadDBC(availableDbcLocales, bad_dbc_files, sMailTemplateStore,           dbcPath, "MailTemplate.dbc");
+    LoadDBC(availableDbcLocales, bad_dbc_files, sMailTemplateStore, dbcPath, "MailTemplate.dbc");
     sDBCMgr->LoadMapStore();
-    LoadDBC(availableDbcLocales, bad_dbc_files, sMapDifficultyStore,          dbcPath, "MapDifficulty.dbc");
+    sDBCMgr->LoadMapDifficultyStore();
     // fill data
-    for (uint32 i = 1; i < sMapDifficultyStore.GetNumRows(); ++i)
-        if (MapDifficultyEntry const* entry = sMapDifficultyStore.LookupEntry(i))
+    for (uint32 i = 1; i < sDBCMgr->MapDifficultyStore.size(); ++i)
+        if (MapDifficultyEntry const* entry = sDBCMgr->GetMapDifficultyEntry(i))
             sMapDifficultyMap[MAKE_PAIR32(entry->MapId, entry->Difficulty)] = MapDifficulty(entry->resetTime, entry->maxPlayers, entry->areaTriggerText[0] != '\0');
-    sMapDifficultyStore.Clear();
+    sDBCMgr->MapDifficultyStore.clear();
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sMovieStore,                  dbcPath, "Movie.dbc");
 
@@ -1518,6 +1517,34 @@ void DBCMgr::LoadMapStore()
     } while (result->NextRow());
 
     TC_LOG_ERROR("misc", ">> Loaded %lu map entries in %u ms", (unsigned long)MapStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void DBCMgr::LoadMapDifficultyStore()
+{
+    uint32 oldMSTime = getMSTime();
+    MapDifficultyStore.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT Id, MapId, Difficulty, AreaTriggerText, ResetTime, MaxPlayers FROM mapdifficultydbc ORDER BY Id ASC");
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 mapdifficulty entry. DB table `mapdifficultydbc` is empty.");
+        return;
+    }
+
+    do {
+        Field* fields = result->Fetch();
+
+        MapDifficultyEntry* newMapDifficulty = new MapDifficultyEntry;
+        newMapDifficulty->MapId = fields[1].GetUInt32();
+        newMapDifficulty->Difficulty = fields[2].GetUInt32();
+        newMapDifficulty->areaTriggerText = (char*)fields[3].GetCString();
+        newMapDifficulty->resetTime = fields[4].GetUInt32();
+        newMapDifficulty->maxPlayers = fields[5].GetUInt32();
+        MapDifficultyStore[fields[0].GetUInt32()] = newMapDifficulty;
+
+    } while (result->NextRow());
+
+    TC_LOG_ERROR("misc", ">> Loaded %lu mapdifficulty entries in %u ms", (unsigned long)MapDifficultyStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void DBCMgr::LoadSpellDifficultyStore()
