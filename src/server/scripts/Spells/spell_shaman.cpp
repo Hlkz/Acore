@@ -34,6 +34,7 @@ enum ShamanSpells
     SPELL_SHAMAN_BIND_SIGHT                     = 6277,
     SPELL_SHAMAN_CLEANSING_TOTEM_EFFECT         = 52025,
     SPELL_SHAMAN_EARTH_SHIELD_HEAL              = 379,
+    SPELL_SHAMAN_ELEMENTAL_MASTERY              = 16166,
     SPELL_SHAMAN_EXHAUSTION                     = 57723,
     SPELL_SHAMAN_FIRE_NOVA_R1                   = 1535,
     SPELL_SHAMAN_FIRE_NOVA_TRIGGERED_R1         = 8349,
@@ -309,6 +310,13 @@ class spell_sha_earth_shield : public SpellScriptLoader
                 {
                     amount = caster->SpellHealingBonusDone(GetUnitOwner(), GetSpellInfo(), amount, HEAL);
                     amount = GetUnitOwner()->SpellHealingBonusTaken(caster, GetSpellInfo(), amount, HEAL);
+
+                    //! WORKAROUND
+                    // If target is affected by healing reduction, modifier is guaranteed to be negative
+                    // value (e.g. -50). To revert the effect, multiply amount with reciprocal of relative value:
+                    // (100 / ((-1) * modifier)) * 100 = (-1) * 100 * 100 / modifier = -10000 / modifier
+                    if (int32 modifier = GetUnitOwner()->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HEALING_PCT))
+                        ApplyPct(amount, -10000.0f / float(modifier));
 
                     // Glyph of Earth Shield
                     //! WORKAROUND
@@ -742,7 +750,7 @@ class spell_sha_item_mana_surge : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                return eventInfo.GetDamageInfo()->GetSpellInfo();
+                return eventInfo.GetDamageInfo()->GetSpellInfo() != nullptr;
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
