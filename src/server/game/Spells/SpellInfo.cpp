@@ -876,6 +876,7 @@ SpellInfo::SpellInfo(Field* fields)
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         Effects[i] = SpellEffectInfo(this, i, fields);
     ChainEntry = NULL;
+    ExplicitTargetMask = 0;
 }
 
 SpellInfo::~SpellInfo()
