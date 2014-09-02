@@ -38,7 +38,7 @@ CREATE TABLE `battlemasterlistdbc` (
   `Name_loc2` varchar(300) CHARACTER SET utf8 DEFAULT NULL,
   `Nameflags` int(4) NOT NULL DEFAULT '0',
   `MaxGroupSize` int(4) NOT NULL DEFAULT '0',
-  `HolydayWorldStateId` int(4) NOT NULL DEFAULT '0',
+  `HolidayWorldStateId` int(4) NOT NULL DEFAULT '0',
   `MinLevel` int(4) NOT NULL DEFAULT '0',
   `MaxLevel` int(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`),

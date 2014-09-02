@@ -34,6 +34,7 @@ CREATE TABLE `mapdifficultydbc` (
   `DifficultyString` varchar(300) CHARACTER SET utf8 NOT NULL DEFAULT '',
   PRIMARY KEY (`Id`),
   UNIQUE KEY `Id` (`Id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

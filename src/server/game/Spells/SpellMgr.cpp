@@ -2665,8 +2665,10 @@ void SpellMgr::LoadSpellInfoStore()
 
     PreparedStatement* stmt;
     stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SPELLDBC_SIZE);
-    uint32 spellInfoMapSize = WorldDatabase.Query(stmt)->Fetch()[0].GetUInt32()+1;
-    mSpellInfoMap.resize(spellInfoMapSize, NULL);
+    PreparedQueryResult resultCount = WorldDatabase.Query(stmt);
+    if (!resultCount)
+        TC_LOG_ERROR("sql.sql", "DB table `spelldbc` is empty. Execute world update sql files.");
+    mSpellInfoMap.resize(resultCount->Fetch()[0].GetUInt32() + 1, NULL);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SPELLDBC);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
