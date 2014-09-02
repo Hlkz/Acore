@@ -21,7 +21,6 @@
 #include "SharedDefines.h"
 #include "SpellMgr.h"
 #include "TransportMgr.h"
-#include "DBCfmt.h"
 #include "Timer.h"
 #include "ObjectDefines.h"
 #include "SpellMgr.h"
@@ -229,9 +228,7 @@ void LoadDBCStores(const std::string& dataPath)
     sDBCMgr->LoadGemPropertiesStore();
     sDBCMgr->LoadGlyphPropertiesStore();
     sDBCMgr->LoadGlyphSlotStore();
-
     sDBCMgr->LoadHolidaysStore();
-
     sDBCMgr->LoadItemBagFamilyStore();
     //sDBCMgr->LoadItemDisplayInfoStore();
     //sDBCMgr->LoadItemCondExtCostsStore();
@@ -240,12 +237,10 @@ void LoadDBCStores(const std::string& dataPath)
     sDBCMgr->LoadItemRandomPropertiesStore();
     sDBCMgr->LoadItemRandomSuffixStore();
     sDBCMgr->LoadItemSetStore();
-
     sDBCMgr->LoadLFGDungeonStore();
     sDBCMgr->LoadLightStore();
     sDBCMgr->LoadLiquidTypeStore();
     sDBCMgr->LoadLockStore();
-
     sDBCMgr->LoadMailTemplateStore();
     sDBCMgr->LoadMapStore();
     sDBCMgr->LoadMapDifficultyStore();
@@ -254,11 +249,8 @@ void LoadDBCStores(const std::string& dataPath)
     if (MapDifficultyEntry const* entry = sDBCMgr->GetMapDifficultyEntry(i))
         sMapDifficultyMap[MAKE_PAIR32(entry->MapId, entry->Difficulty)] = MapDifficulty(entry->resetTime, entry->maxPlayers, entry->areaTriggerText[0] != '\0');
     sDBCMgr->MapDifficultyStore.clear();
-
     sDBCMgr->LoadMovieStore();
-
     sDBCMgr->LoadOverrideSpellDataStore();
-
     sDBCMgr->LoadPowerDisplayStore();
     sDBCMgr->LoadPvPDifficultyStore();
     for (PvPDifficultyContainer::const_iterator itr = sDBCMgr->PvPDifficultyStore.begin(); itr != sDBCMgr->PvPDifficultyStore.end(); ++itr)
@@ -269,9 +261,7 @@ void LoadDBCStores(const std::string& dataPath)
     sDBCMgr->LoadQuestXPStore();
     sDBCMgr->LoadQuestFactionRewStore();
     sDBCMgr->LoadQuestSortStore();
-
     sDBCMgr->LoadRandomPropertiesPointsStore();
-
     sDBCMgr->LoadScalingStatDistributionStore();
     sDBCMgr->LoadScalingStatValuesStore();
     sDBCMgr->LoadSkillLineStore();
@@ -290,41 +280,31 @@ void LoadDBCStores(const std::string& dataPath)
     sDBCMgr->LoadSpellShapeshiftStore();
     sDBCMgr->LoadStableSlotPricesStore();
     sDBCMgr->LoadSummonPropertiesStore();
-
     sDBCMgr->LoadTalentStore();
-
     // create talent spells set
     for (TalentContainer::const_iterator itr = sDBCMgr->TalentStore.begin(); itr != sDBCMgr->TalentStore.end(); ++itr)
-    {
-        TalentEntry const* talentInfo = itr->second;
-        if (!talentInfo)
-            continue;
-
-        for (int j = 0; j < MAX_TALENT_RANK; j++)
-        if (talentInfo->RankID[j])
-            sTalentSpellPosMap[talentInfo->RankID[j]] = TalentSpellPos(itr->first, j);
-    }
-
+        if (TalentEntry const* talentInfo = itr->second)
+            for (int j = 0; j < MAX_TALENT_RANK; j++)
+                if (talentInfo->RankID[j])
+                    sTalentSpellPosMap[talentInfo->RankID[j]] = TalentSpellPos(itr->first, j);
     sDBCMgr->LoadTalentTabStore();
 
     // prepare fast data access to bit pos of talent ranks for use at inspecting
+    // now have all max ranks (and then bit amount used for store talent ranks in inspect)
+    for (uint32 talentTabId = 1; talentTabId < sDBCMgr->TalentTabStore.size(); ++talentTabId)
     {
-        // now have all max ranks (and then bit amount used for store talent ranks in inspect)
-        for (uint32 talentTabId = 1; talentTabId < sDBCMgr->TalentTabStore.size(); ++talentTabId)
-        {
-            TalentTabEntry const* talentTabInfo = sDBCMgr->GetTalentTabEntry(talentTabId);
-            if (!talentTabInfo)
-                continue;
+        TalentTabEntry const* talentTabInfo = sDBCMgr->GetTalentTabEntry(talentTabId);
+        if (!talentTabInfo)
+            continue;
 
-            // prevent memory corruption; otherwise cls will become 12 below
-            if ((talentTabInfo->ClassMask & CLASSMASK_ALL_PLAYABLE) == 0)
-                continue;
-
-            // store class talent tab pages
-            for (uint32 cls = 1; cls < MAX_CLASSES; ++cls)
-            if (talentTabInfo->ClassMask & (1 << (cls - 1)))
-                sTalentTabPages[cls][talentTabInfo->tabpage] = talentTabId;
-        }
+        // prevent memory corruption; otherwise cls will become 12 below
+        if ((talentTabInfo->ClassMask & CLASSMASK_ALL_PLAYABLE) == 0)
+            continue;
+        
+        // store class talent tab pages
+        for (uint32 cls = 1; cls < MAX_CLASSES; ++cls)
+        if (talentTabInfo->ClassMask & (1 << (cls - 1)))
+            sTalentTabPages[cls][talentTabInfo->tabpage] = talentTabId;
     }
 
     sDBCMgr->LoadTaxiNodesStore();
@@ -332,9 +312,7 @@ void LoadDBCStores(const std::string& dataPath)
     for (uint32 i = 1; i < sDBCMgr->TaxiPathStore.size(); ++i)
     if (TaxiPathEntry const* entry = sDBCMgr->GetTaxiPathEntry(i))
         sTaxiPathSetBySource[entry->from][entry->to] = TaxiPathBySourceAndDestination(entry->ID, entry->price);
-
-    //## TaxiPathNode.dbc ## Loaded only for initialization different structures
-    sDBCMgr->LoadTaxiPathNodeStore();
+    sDBCMgr->LoadTaxiPathNodeStore(); // Loaded only for initialization different structures
     // Calculate path nodes count
     std::vector<uint32> pathLength;
     pathLength.resize(pathCount);                           // 0 and some other indexes not used
@@ -357,24 +335,12 @@ void LoadDBCStores(const std::string& dataPath)
     sDBCMgr->LoadTotemCategoryStore();
     sDBCMgr->LoadTransportAnimationStore();
     for (TransportAnimationContainer::const_iterator itr = sDBCMgr->TransportAnimationStore.begin(); itr != sDBCMgr->TransportAnimationStore.end(); ++itr)
-    {
-        TransportAnimationEntry const* anim = itr->second;
-        if (!anim)
-            continue;
-
-        sTransportMgr->AddPathNodeToTransport(anim->TransportEntry, anim->TimeSeg, anim);
-    }
-
+        if (TransportAnimationEntry const* anim = itr->second)
+            sTransportMgr->AddPathNodeToTransport(anim->TransportEntry, anim->TimeSeg, anim);
     sDBCMgr->LoadTransportRotationStore();
     for (TransportRotationContainer::const_iterator itr = sDBCMgr->TransportRotationStore.begin(); itr != sDBCMgr->TransportRotationStore.end(); ++itr)
-    {
-        TransportRotationEntry const* rot = itr->second;
-        if (!rot)
-            continue;
-
-        sTransportMgr->AddPathRotationToTransport(rot->TransportEntry, rot->TimeSeg, rot);
-    }
-
+        if (TransportRotationEntry const* rot = itr->second)
+            sTransportMgr->AddPathRotationToTransport(rot->TransportEntry, rot->TimeSeg, rot);
     sDBCMgr->LoadVehicleStore();
     sDBCMgr->LoadVehicleSeatStore();
 
