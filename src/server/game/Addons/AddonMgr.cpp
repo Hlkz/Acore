@@ -70,7 +70,7 @@ void LoadFromDB()
     if (result)
     {
         uint32 count = 0;
-        uint32 dbcMaxBannedAddon = sBannedAddOnsStore.GetNumRows();
+        uint32 dbcMaxBannedAddon = sDBCMgr->BannedAddOnsStore.size();
 
         do
         {

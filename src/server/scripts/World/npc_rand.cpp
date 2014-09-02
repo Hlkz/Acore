@@ -15,12 +15,12 @@ public:
         if ((itemProto->RandomProperty) && (itemProto->RandomSuffix)) return 0;
         if (itemProto->RandomProperty) {
             uint32 randomPropId = choix;
-            ItemRandomPropertiesEntry const* random_id = sItemRandomPropertiesStore.LookupEntry(randomPropId);
+            ItemRandomPropertiesEntry const* random_id = sDBCMgr->GetItemRandomPropertiesEntry(randomPropId);
             if (!random_id) return 0;
             return random_id->ID; }
         else {
             uint32 randomPropId = choix;
-            ItemRandomSuffixEntry const* random_id = sItemRandomSuffixStore.LookupEntry(randomPropId);
+            ItemRandomSuffixEntry const* random_id = sDBCMgr->GetItemRandomSuffixEntry(randomPropId);
             if (!random_id) return 0;
             return -int32(random_id->ID); }
     }

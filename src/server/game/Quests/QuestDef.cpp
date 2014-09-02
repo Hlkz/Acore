@@ -169,7 +169,7 @@ uint32 Quest::XPValue(Player* player) const
     if (player)
     {
         int32 quest_level = (Level == -1 ? player->getLevel() : Level);
-        const QuestXPEntry* xpentry = sQuestXPStore.LookupEntry(quest_level);
+        const QuestXPEntry* xpentry = sDBCMgr->GetQuestXPEntry(quest_level);
         if (!xpentry)
             return 0;
 
@@ -248,19 +248,19 @@ bool Quest::IsAllowedInRaid(Difficulty difficulty) const
 
 uint32 Quest::CalculateHonorGain(uint8 level) const
 {
-    if (level > GT_MAX_LEVEL)
-        level = GT_MAX_LEVEL;
+    //if (level > GT_MAX_LEVEL)
+    //    level = GT_MAX_LEVEL;
 
     uint32 honor = 0;
 
     if (GetRewHonorAddition() > 0 || GetRewHonorMultiplier() > 0.0f)
     {
         // values stored from 0.. for 1...
-        TeamContributionPointsEntry const* tc = sTeamContributionPointsStore.LookupEntry(level);
-        if (!tc)
-            return 0;
+        //TeamContributionPointsEntry const* tc = sDBCMgr->GetTeamContributionPointsEntry(level);
+        //if (!tc)
+        //    return 0;
 
-        honor = uint32(tc->value * GetRewHonorMultiplier() * 0.1f);
+        honor = uint32(30 * GetRewHonorMultiplier() * 0.1f); // tofix, honor calculation (30 is fake)
         honor += GetRewHonorAddition();
     }
 

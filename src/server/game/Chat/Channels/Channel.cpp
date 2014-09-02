@@ -37,7 +37,7 @@ Channel::Channel(std::string const& name, uint32 channelId, uint32 team):
     _password("")
 {
     // set special flags if built-in channel
-    if (ChatChannelsEntry const* ch = sChatChannelsStore.LookupEntry(channelId)) // check whether it's a built-in channel
+    if (ChatChannelsEntry const* ch = sDBCMgr->GetChatChannelsEntry(channelId)) // check whether it's a built-in channel
     {
         _announce = false;                                 // no join/leave announces
         _ownership = false;                                // no ownership handout

@@ -942,7 +942,7 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
 
     TC_LOG_INFO("network", "PLAYER: Buy bank bag slot, slot number = %u", slot);
 
-    BankBagSlotPricesEntry const* slotEntry = sBankBagSlotPricesStore.LookupEntry(slot);
+    BankBagSlotPricesEntry const* slotEntry = sDBCMgr->GetBankBagSlotPricesEntry(slot);
 
     WorldPacket data(SMSG_BUY_BANK_SLOT_RESULT, 4);
 
@@ -1274,7 +1274,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
 
     GemPropertiesEntry const* GemProps[MAX_GEM_SOCKETS];
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)                //get geminfo from dbc storage
-        GemProps[i] = (Gems[i]) ? sGemPropertiesStore.LookupEntry(Gems[i]->GetTemplate()->GemProperties) : NULL;
+        GemProps[i] = (Gems[i]) ? sDBCMgr->GetGemPropertiesEntry(Gems[i]->GetTemplate()->GemProperties) : NULL;
 
     // Find first prismatic socket
     int32 firstPrismatic = 0;
@@ -1341,7 +1341,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
                 }
                 else if (OldEnchants[j])
                 {
-                    if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(OldEnchants[j]))
+                    if (SpellItemEnchantmentEntry const* enchantEntry = sDBCMgr->GetSpellItemEnchantmentEntry(OldEnchants[j]))
                     {
                         if (iGemProto->ItemId == enchantEntry->GemID)
                         {
@@ -1357,7 +1357,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
         int32 limit_newcount = 0;
         if (iGemProto->ItemLimitCategory)
         {
-            if (ItemLimitCategoryEntry const* limitEntry = sItemLimitCategoryStore.LookupEntry(iGemProto->ItemLimitCategory))
+            if (ItemLimitCategoryEntry const* limitEntry = sDBCMgr->GetItemLimitCategoryEntry(iGemProto->ItemLimitCategory))
             {
                 // NOTE: limitEntry->mode is not checked because if item has limit then it is applied in equip case
                 for (int j = 0; j < MAX_GEM_SOCKETS; ++j)
@@ -1371,7 +1371,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
                     else if (OldEnchants[j])
                     {
                         // existing gem
-                        if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(OldEnchants[j]))
+                        if (SpellItemEnchantmentEntry const* enchantEntry = sDBCMgr->GetSpellItemEnchantmentEntry(OldEnchants[j]))
                             if (ItemTemplate const* jProto = sObjectMgr->GetItemTemplate(enchantEntry->GemID))
                                 if (iGemProto->ItemLimitCategory == jProto->ItemLimitCategory)
                                     ++limit_newcount;

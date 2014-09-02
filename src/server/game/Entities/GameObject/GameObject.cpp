@@ -1791,7 +1791,7 @@ void GameObject::SendCustomAnim(uint32 anim)
 
 bool GameObject::IsInRange(float x, float y, float z, float radius) const
 {
-    GameObjectDisplayInfoEntry const* info = sGameObjectDisplayInfoStore.LookupEntry(m_goInfo->displayId);
+    GameObjectDisplayInfoEntry const* info = sDBCMgr->GetGameObjectDisplayInfoEntry(m_goInfo->displayId);
     if (!info)
         return IsWithinDist3d(x, y, z, radius);
 
@@ -1950,7 +1950,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
             SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
 
             uint32 modelId = m_goInfo->building.damagedDisplayId;
-            if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
+            if (DestructibleModelDataEntry const* modelData = sDBCMgr->GetDestructibleModelDataEntry(m_goInfo->building.destructibleData))
                 if (modelData->DamagedDisplayId)
                     modelId = modelData->DamagedDisplayId;
             SetDisplayId(modelId);
@@ -1978,7 +1978,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
             SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
 
             uint32 modelId = m_goInfo->building.destroyedDisplayId;
-            if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
+            if (DestructibleModelDataEntry const* modelData = sDBCMgr->GetDestructibleModelDataEntry(m_goInfo->building.destructibleData))
                 if (modelData->DestroyedDisplayId)
                     modelId = modelData->DestroyedDisplayId;
             SetDisplayId(modelId);
@@ -1996,7 +1996,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
             RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_DESTROYED);
 
             uint32 modelId = m_goInfo->displayId;
-            if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
+            if (DestructibleModelDataEntry const* modelData = sDBCMgr->GetDestructibleModelDataEntry(m_goInfo->building.destructibleData))
                 if (modelData->RebuildingDisplayId)
                     modelId = modelData->RebuildingDisplayId;
             SetDisplayId(modelId);

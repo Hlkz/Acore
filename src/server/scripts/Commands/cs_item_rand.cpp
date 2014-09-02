@@ -10,7 +10,7 @@ int32 ItemRandChoix(int32 item_id, int choix)
     if (!itemProto)
         return NULL;
     uint32 randomPropId = choix;
-    ItemRandomPropertiesEntry const* random_id = sItemRandomPropertiesStore.LookupEntry(randomPropId);
+    ItemRandomPropertiesEntry const* random_id = sDBCMgr->GetItemRandomPropertiesEntry(randomPropId);
     if (!random_id)
         return NULL;
     return random_id->ID;

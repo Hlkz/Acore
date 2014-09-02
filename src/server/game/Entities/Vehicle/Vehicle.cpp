@@ -40,7 +40,7 @@ UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry
     for (uint32 i = 0; i < MAX_VEHICLE_SEATS; ++i)
     {
         if (uint32 seatId = _vehicleInfo->m_seatID[i])
-            if (VehicleSeatEntry const* veSeat = sVehicleSeatStore.LookupEntry(seatId))
+            if (VehicleSeatEntry const* veSeat = sDBCMgr->GetVehicleSeatEntry(seatId))
             {
                 Seats.insert(std::make_pair(i, VehicleSeat(veSeat)));
                 if (veSeat->CanEnterOrExit())
@@ -78,7 +78,7 @@ void Vehicle::Install()
 {
     if (_me->GetTypeId() == TYPEID_UNIT)
     {
-        if (PowerDisplayEntry const* powerDisplay = sPowerDisplayStore.LookupEntry(_vehicleInfo->m_powerDisplayId))
+        if (PowerDisplayEntry const* powerDisplay = sDBCMgr->GetPowerDisplayEntry(_vehicleInfo->m_powerDisplayId))
             _me->setPowerType(Powers(powerDisplay->PowerType));
         else if (_me->getClass() == CLASS_ROGUE)
             _me->setPowerType(POWER_ENERGY);

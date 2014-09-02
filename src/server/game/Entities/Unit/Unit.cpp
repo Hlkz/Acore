@@ -3062,7 +3062,7 @@ void Unit::UpdateUnderwaterState(Map* m, float x, float y, float z)
 
     if (uint32 liqEntry = liquid_status.entry)
     {
-        LiquidTypeEntry const* liquid = sLiquidTypeStore.LookupEntry(liqEntry);
+        LiquidTypeEntry const* liquid = sDBCMgr->GetLiquidTypeEntry(liqEntry);
         if (_lastLiquid && _lastLiquid->SpellId && _lastLiquid->Id != liqEntry)
             RemoveAurasDueToSpell(_lastLiquid->SpellId);
 
@@ -6621,7 +6621,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
 
                     Item* addWeapon = player->GetWeaponForAttack(attType == BASE_ATTACK ? OFF_ATTACK : BASE_ATTACK, true);
                     uint32 enchant_id_add = addWeapon ? addWeapon->GetEnchantmentId(EnchantmentSlot(TEMP_ENCHANTMENT_SLOT)) : 0;
-                    SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id_add);
+                    SpellItemEnchantmentEntry const* pEnchant = sDBCMgr->GetSpellItemEnchantmentEntry(enchant_id_add);
                     if (pEnchant && pEnchant->spellid[0] == dummySpell->Id)
                         chance += 14;
 
@@ -12955,7 +12955,7 @@ uint32 Unit::GetCreatureType() const
     if (GetTypeId() == TYPEID_PLAYER)
     {
         ShapeshiftForm form = GetShapeshiftForm();
-        SpellShapeshiftEntry const* ssEntry = sSpellShapeshiftStore.LookupEntry(form);
+        SpellShapeshiftEntry const* ssEntry = sDBCMgr->GetSpellShapeshiftEntry(form);
         if (ssEntry && ssEntry->creatureType > 0)
             return ssEntry->creatureType;
         else
@@ -12986,7 +12986,7 @@ bool Unit::IsInDisallowedMountForm() const
 {
     if (ShapeshiftForm form = GetShapeshiftForm())
     {
-        SpellShapeshiftEntry const* shapeshift = sSpellShapeshiftStore.LookupEntry(form);
+        SpellShapeshiftEntry const* shapeshift = sDBCMgr->GetSpellShapeshiftEntry(form);
         if (!shapeshift)
             return true;
 
@@ -12997,16 +12997,16 @@ bool Unit::IsInDisallowedMountForm() const
     if (GetDisplayId() == GetNativeDisplayId())
         return false;
 
-    CreatureDisplayInfoEntry const* display = sCreatureDisplayInfoStore.LookupEntry(GetDisplayId());
+    CreatureDisplayInfoEntry const* display = sDBCMgr->GetCreatureDisplayInfoEntry(GetDisplayId());
     if (!display)
         return true;
 
-    CreatureDisplayInfoExtraEntry const* displayExtra = sCreatureDisplayInfoExtraStore.LookupEntry(display->ExtraId);
+    CreatureDisplayInfoExtraEntry const* displayExtra = sDBCMgr->GetCreatureDisplayInfoExtraEntry(display->ExtraId);
     if (!displayExtra)
         return true;
 
-    CreatureModelDataEntry const* model = sCreatureModelDataStore.LookupEntry(display->ModelId);
-    ChrRacesEntry const* race = sChrRacesStore.LookupEntry(displayExtra->Race);
+    CreatureModelDataEntry const* model = sDBCMgr->GetCreatureModelDataEntry(display->ModelId);
+    ChrRacesEntry const* race = sDBCMgr->GetChrRacesEntry(displayExtra->Race);
 
     if (model && !(model->Flags & 0x80))
         if (race && !(race->Flags & 0x4))
@@ -15906,7 +15906,7 @@ Unit* Unit::GetRedirectThreatTarget()
 
 bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry)
 {
-    VehicleEntry const* vehInfo = sVehicleStore.LookupEntry(id);
+    VehicleEntry const* vehInfo = sDBCMgr->GetVehicleEntry(id);
     if (!vehInfo)
         return false;
 
@@ -16518,7 +16518,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
     }
 
     uint32 modelid = 0;
-    SpellShapeshiftEntry const* formEntry = sSpellShapeshiftStore.LookupEntry(form);
+    SpellShapeshiftEntry const* formEntry = sDBCMgr->GetSpellShapeshiftEntry(form);
     if (formEntry && formEntry->modelID_A)
     {
         // Take the alliance modelid as default

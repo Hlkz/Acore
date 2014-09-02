@@ -127,7 +127,7 @@ uint32 GenerateEnchSuffixFactor(uint32 item_id)
     if (!itemProto->RandomSuffix)
         return 0;
 
-    RandomPropertiesPointsEntry const* randomProperty = sRandomPropertiesPointsStore.LookupEntry(itemProto->ItemLevel);
+    RandomPropertiesPointsEntry const* randomProperty = sDBCMgr->GetRandomPropertiesPointsEntry(itemProto->ItemLevel);
     if (!randomProperty)
         return 0;
 
@@ -205,7 +205,7 @@ std::string* RandItemSuffix(int32 item_id, int32 loc) {
         if (tab == RandomItemEnch.end()) return randitemsuffix;
         EnchStoreList::const_iterator ench_iter = tab->second.begin();
         for (EnchStoreList::const_iterator ench_iter = tab->second.begin(); ench_iter != tab->second.end(); ++ench_iter) {
-            const ItemRandomPropertiesEntry* random_id = sItemRandomPropertiesStore.LookupEntry(ench_iter->ench);
+            const ItemRandomPropertiesEntry* random_id = sDBCMgr->GetItemRandomPropertiesEntry(ench_iter->ench);
             if ((count <= 31) && (ench_iter->ench != 0)) {
                 randitemsuffix[count] = random_id->nameSuffix[2]; }
             count++; } }
@@ -214,7 +214,7 @@ std::string* RandItemSuffix(int32 item_id, int32 loc) {
         if (tab == RandomItemEnch.end()) return randitemsuffix;
         EnchStoreList::const_iterator ench_iter = tab->second.begin();
         for (EnchStoreList::const_iterator ench_iter = tab->second.begin(); ench_iter != tab->second.end(); ++ench_iter) {
-            const ItemRandomSuffixEntry* random_id = sItemRandomSuffixStore.LookupEntry(ench_iter->ench);
+            const ItemRandomSuffixEntry* random_id = sDBCMgr->GetItemRandomSuffixEntry(ench_iter->ench);
             if ((count <= 31) && (ench_iter->ench != 0)) {
                 randitemsuffix[count] = random_id->nameSuffix[2]; }
             count++; } }

@@ -10,7 +10,7 @@ int32 ItemSuffixChoix(int32 item_id, int choix)
     if (!itemProto)
         return NULL;
     uint32 randomPropId = choix;
-    ItemRandomSuffixEntry const* random_id = sItemRandomSuffixStore.LookupEntry(randomPropId);
+    ItemRandomSuffixEntry const* random_id = sDBCMgr->GetItemRandomSuffixEntry(randomPropId);
     if (!random_id)
         return NULL;
     return -int32(random_id->ID);

@@ -210,7 +210,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
     uint32 lockId = proto->LockID;
     if (lockId)
     {
-        LockEntry const* lockInfo = sLockStore.LookupEntry(lockId);
+        LockEntry const* lockInfo = sDBCMgr->GetLockEntry(lockId);
 
         if (!lockInfo)
         {

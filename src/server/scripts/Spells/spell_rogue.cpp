@@ -206,7 +206,7 @@ class spell_rog_deadly_poison : public SpellScriptLoader
                     // item combat enchantments
                     for (uint8 slot = 0; slot < MAX_ENCHANTMENT_SLOT; ++slot)
                     {
-                        SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(item->GetEnchantmentId(EnchantmentSlot(slot)));
+                        SpellItemEnchantmentEntry const* enchant = sDBCMgr->GetSpellItemEnchantmentEntry(item->GetEnchantmentId(EnchantmentSlot(slot)));
                         if (!enchant)
                             continue;
 

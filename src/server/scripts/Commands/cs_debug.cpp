@@ -116,7 +116,7 @@ public:
 
         uint32 id = atoi((char*)args);
 
-        if (!sCinematicSequencesStore.LookupEntry(id))
+        if (!sDBCMgr->GetCinematicSequencesEntry(id))
         {
             handler->PSendSysMessage(LANG_CINEMATIC_NOT_EXIST, id);
             handler->SetSentErrorMessage(true);
@@ -140,7 +140,7 @@ public:
 
         uint32 id = atoi((char*)args);
 
-        if (!sMovieStore.LookupEntry(id))
+        if (!sDBCMgr->GetMovieEntry(id))
         {
             handler->PSendSysMessage(LANG_MOVIE_NOT_EXIST, id);
             handler->SetSentErrorMessage(true);
@@ -165,7 +165,7 @@ public:
 
         uint32 soundId = atoi((char*)args);
 
-        if (!sSoundEntriesStore.LookupEntry(soundId))
+        if (!sDBCMgr->GetSoundEntriesEntry(soundId))
         {
             handler->PSendSysMessage(LANG_SOUND_NOT_EXIST, soundId);
             handler->SetSentErrorMessage(true);
@@ -917,7 +917,7 @@ public:
         if (!ci)
             return false;
 
-        VehicleEntry const* ve = sVehicleStore.LookupEntry(id);
+        VehicleEntry const* ve = sDBCMgr->GetVehicleEntry(id);
 
         if (!ve)
             return false;

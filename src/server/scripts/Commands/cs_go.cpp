@@ -183,7 +183,7 @@ public:
         if (!graveyardId)
             return false;
 
-        WorldSafeLocsEntry const* gy = sWorldSafeLocsStore.LookupEntry(graveyardId);
+        WorldSafeLocsEntry const* gy = sDBCMgr->GetWorldSafeLocsEntry(graveyardId);
         if (!gy)
         {
             handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDNOEXIST, graveyardId);
@@ -329,7 +329,7 @@ public:
         if (!nodeId)
             return false;
 
-        TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(nodeId);
+        TaxiNodesEntry const* node = sDBCMgr->GetTaxiNodesEntry(nodeId);
         if (!node)
         {
             handler->PSendSysMessage(LANG_COMMAND_GOTAXINODENOTFOUND, nodeId);
@@ -375,7 +375,7 @@ public:
         if (!areaTriggerId)
             return false;
 
-        AreaTriggerEntry const* at = sAreaTriggerStore.LookupEntry(areaTriggerId);
+        AreaTriggerEntry const* at = sDBCMgr->GetAreaTriggerEntry(areaTriggerId);
         if (!at)
         {
             handler->PSendSysMessage(LANG_COMMAND_GOAREATRNOTFOUND, areaTriggerId);

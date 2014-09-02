@@ -101,9 +101,9 @@ public:
         wstrToLower(wNamePart);
 
         // Search in AreaTable.dbc
-        for (uint32 areaflag = 0; areaflag < sDBCMgr->AreaTableStore.size(); ++areaflag)
+        for (AreaTableContainer::const_iterator itr = sDBCMgr->AreaTableStore.begin(); itr != sDBCMgr->AreaTableStore.end(); ++itr)
         {
-            AreaTableEntry const* areaEntry = sDBCMgr->GetAreaTableEntry(areaflag);
+            AreaTableEntry const* areaEntry = itr->second;
             if (areaEntry)
             {
                 int locale = handler->GetSessionDbcLocale();
@@ -311,10 +311,9 @@ public:
         uint32 count = 0;
         uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
-        for (uint32 id = 0; id < sDBCMgr->FactionStore.size(); ++id)
+        for (FactionContainer::const_iterator itr = sDBCMgr->FactionStore.begin(); itr != sDBCMgr->FactionStore.end(); ++itr)
         {
-            FactionEntry const* factionEntry = sDBCMgr->GetFactionEntry(id);
-            if (factionEntry)
+            if (FactionEntry const* factionEntry = itr->second)
             {
                 FactionState const* factionState = target ? target->GetReputationMgr().GetState(factionEntry) : NULL;
 
@@ -352,9 +351,9 @@ public:
                     // or              "id - [faction] [no reputation]" format
                     std::ostringstream ss;
                     if (handler->GetSession())
-                        ss << id << " - |cffffffff|Hfaction:" << id << "|h[" << name << ' ' << localeNames[locale] << "]|h|r";
+                        ss << itr->first << " - |cffffffff|Hfaction:" << itr->first << "|h[" << name << ' ' << localeNames[locale] << "]|h|r";
                     else
-                        ss << id << " - " << name << ' ' << localeNames[locale];
+                        ss << itr->first << " - " << name << ' ' << localeNames[locale];
 
                     if (factionState) // and then target != NULL also
                     {
@@ -493,9 +492,9 @@ public:
         uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
         // Search in ItemSet.dbc
-        for (uint32 id = 0; id < sItemSetStore.GetNumRows(); id++)
+        for (ItemSetContainer::const_iterator itr = sDBCMgr->ItemSetStore.begin(); itr != sDBCMgr->ItemSetStore.end(); ++itr)
         {
-            ItemSetEntry const* set = sItemSetStore.LookupEntry(id);
+            ItemSetEntry const* set = itr->second;
             if (set)
             {
                 int locale = handler->GetSessionDbcLocale();
@@ -530,9 +529,9 @@ public:
 
                     // send item set in "id - [namedlink locale]" format
                     if (handler->GetSession())
-                        handler->PSendSysMessage(LANG_ITEMSET_LIST_CHAT, id, id, name.c_str(), localeNames[locale]);
+                        handler->PSendSysMessage(LANG_ITEMSET_LIST_CHAT, itr->first, itr->first, name.c_str(), localeNames[locale]);
                     else
-                        handler->PSendSysMessage(LANG_ITEMSET_LIST_CONSOLE, id, name.c_str(), localeNames[locale]);
+                        handler->PSendSysMessage(LANG_ITEMSET_LIST_CONSOLE, itr->first, name.c_str(), localeNames[locale]);
 
                     if (!found)
                         found = true;
@@ -774,11 +773,13 @@ public:
         uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
         // Search in SkillLine.dbc
-        for (uint32 id = 0; id < sSkillLineStore.GetNumRows(); id++)
+        for (SkillLineContainer::const_iterator itr = sDBCMgr->SkillLineStore.begin(); itr != sDBCMgr->SkillLineStore.end(); ++itr)
         {
-            SkillLineEntry const* skillInfo = sSkillLineStore.LookupEntry(id);
+            SkillLineEntry const* skillInfo = itr->second;
             if (skillInfo)
             {
+                uint32 id = itr->first;
+
                 int locale = handler->GetSessionDbcLocale();
                 std::string name = skillInfo->name[locale];
                 if (name.empty())
@@ -1041,9 +1042,9 @@ public:
         uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
         // Search in TaxiNodes.dbc
-        for (uint32 id = 0; id < sTaxiNodesStore.GetNumRows(); id++)
+        for (TaxiNodesContainer::const_iterator itr = sDBCMgr->TaxiNodesStore.begin(); itr != sDBCMgr->TaxiNodesStore.end(); ++itr)
         {
-            TaxiNodesEntry const* nodeEntry = sTaxiNodesStore.LookupEntry(id);
+            TaxiNodesEntry const* nodeEntry = itr->second;
             if (nodeEntry)
             {
                 int locale = handler->GetSessionDbcLocale();
@@ -1078,10 +1079,10 @@ public:
 
                     // send taxinode in "id - [name] (Map:m X:x Y:y Z:z)" format
                     if (handler->GetSession())
-                        handler->PSendSysMessage(LANG_TAXINODE_ENTRY_LIST_CHAT, id, id, name.c_str(), localeNames[locale],
+                        handler->PSendSysMessage(LANG_TAXINODE_ENTRY_LIST_CHAT, itr->first, itr->first, name.c_str(), localeNames[locale],
                             nodeEntry->map_id, nodeEntry->x, nodeEntry->y, nodeEntry->z);
                     else
-                        handler->PSendSysMessage(LANG_TAXINODE_ENTRY_LIST_CONSOLE, id, name.c_str(), localeNames[locale],
+                        handler->PSendSysMessage(LANG_TAXINODE_ENTRY_LIST_CONSOLE, itr->first, name.c_str(), localeNames[locale],
                             nodeEntry->map_id, nodeEntry->x, nodeEntry->y, nodeEntry->z);
 
                     if (!found)
@@ -1178,15 +1179,16 @@ public:
         uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
         // Search in CharTitles.dbc
-        for (uint32 id = 0; id < sDBCMgr->CharTitlesStore.size(); id++)
+        for (CharTitlesContainer::const_iterator itr = sDBCMgr->CharTitlesStore.begin(); itr != sDBCMgr->CharTitlesStore.end(); ++itr)
         {
-            CharTitlesEntry const* titleInfo = sDBCMgr->GetCharTitlesEntry(id);
+            CharTitlesEntry const* titleInfo = itr->second;
             if (titleInfo)
             {
                 int locale = handler->GetSessionDbcLocale();
                 std::string name = titleInfo->name[locale];
                 if (name.empty())
                     continue;
+                uint32 id = itr->first;
 
                 if (!Utf8FitTo(name, wNamePart))
                 {
@@ -1256,9 +1258,9 @@ public:
         uint8 locale = handler->GetSession() ? handler->GetSession()->GetSessionDbcLocale() : sWorld->GetDefaultDbcLocale();
 
         // search in Map.dbc
-        for (uint32 id = 0; id < sDBCMgr->MapStore.size(); id++)
+        for (MapContainer::const_iterator itr = sDBCMgr->MapStore.begin(); itr != sDBCMgr->MapStore.end(); ++itr)
         {
-            if (MapEntry const* mapInfo = sDBCMgr->GetMapEntry(id))
+            if (MapEntry const* mapInfo = itr->second)
             {
                 std::string name = mapInfo->name[locale];
                 if (name.empty())
@@ -1273,7 +1275,7 @@ public:
                     }
 
                     std::ostringstream ss;
-                    ss << id << " - [" << name << ']';
+                    ss << itr->first << " - [" << name << ']';
 
                     if (mapInfo->IsContinent())
                         ss << handler->GetTrinityString(LANG_CONTINENT);

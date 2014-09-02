@@ -1013,7 +1013,7 @@ public:
         else
             return false;
 
-        WorldSafeLocsEntry const* graveyard = sWorldSafeLocsStore.LookupEntry(graveyardId);
+        WorldSafeLocsEntry const* graveyard = sDBCMgr->GetWorldSafeLocsEntry(graveyardId);
 
         if (!graveyard)
         {
@@ -1435,7 +1435,7 @@ public:
             return false;
         }
 
-        SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(skill);
+        SkillLineEntry const* skillLine = sDBCMgr->GetSkillLineEntry(skill);
         if (!skillLine)
         {
             handler->PSendSysMessage(LANG_INVALID_SKILL_ID, skill);
@@ -3038,7 +3038,7 @@ public:
 
         uint32 soundId = atoi((char*)args);
 
-        if (!sSoundEntriesStore.LookupEntry(soundId))
+        if (!sDBCMgr->GetSoundEntriesEntry(soundId))
         {
             handler->PSendSysMessage(LANG_SOUND_NOT_EXIST, soundId);
             handler->SetSentErrorMessage(true);

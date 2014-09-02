@@ -33,7 +33,7 @@ void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
 
     if (channelId)
     {
-        ChatChannelsEntry const* channel = sChatChannelsStore.LookupEntry(channelId);
+        ChatChannelsEntry const* channel = sDBCMgr->GetChatChannelsEntry(channelId);
         if (!channel)
             return;
 

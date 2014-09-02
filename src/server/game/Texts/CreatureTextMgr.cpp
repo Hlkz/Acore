@@ -112,7 +112,7 @@ void CreatureTextMgr::LoadCreatureTexts()
 
         if (temp.sound)
         {
-            if (!sSoundEntriesStore.LookupEntry(temp.sound))
+            if (!sDBCMgr->GetSoundEntriesEntry(temp.sound))
             {
                 TC_LOG_ERROR("sql.sql", "CreatureTextMgr:  Entry %u, Group %u in table `creature_text` has Sound %u but sound does not exist.", temp.entry, temp.group, temp.sound);
                 temp.sound = 0;
@@ -133,7 +133,7 @@ void CreatureTextMgr::LoadCreatureTexts()
 
         if (temp.emote)
         {
-            if (!sEmotesStore.LookupEntry(temp.emote))
+            if (!sDBCMgr->GetEmotesEntry(temp.emote))
             {
                 TC_LOG_ERROR("sql.sql", "CreatureTextMgr:  Entry %u, Group %u in table `creature_text` has Emote %u but emote does not exist.", temp.entry, temp.group, uint32(temp.emote));
                 temp.emote = EMOTE_ONESHOT_NONE;

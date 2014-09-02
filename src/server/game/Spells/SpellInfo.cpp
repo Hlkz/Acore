@@ -350,7 +350,7 @@ SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, uint8 effIndex, Fie
     Mechanic            = Mechanics(fields[104+effIndex].GetUInt32());
     TargetA             = SpellImplicitTargetInfo(fields[107+effIndex].GetUInt32());
     TargetB             = SpellImplicitTargetInfo(fields[110+effIndex].GetUInt32());
-    RadiusEntry         = fields[113+effIndex].GetUInt32() ? sSpellRadiusStore.LookupEntry(fields[113+effIndex].GetUInt32()) : NULL; 
+    RadiusEntry         = fields[113+effIndex].GetUInt32() ? sDBCMgr->GetSpellRadiusEntry(fields[113+effIndex].GetUInt32()) : NULL; 
     ChainTarget         = fields[125+effIndex].GetUInt32();
     ItemType            = fields[128+effIndex].GetUInt32();
     TriggerSpell        = fields[137+effIndex].GetUInt32();
@@ -503,13 +503,13 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
                     break;
             }
 
-            if (canEffectScale)
+            /*if (canEffectScale)
             {
-                GtNPCManaCostScalerEntry const* spellScaler = sGtNPCManaCostScalerStore.LookupEntry(_spellInfo->SpellLevel - 1);
-                GtNPCManaCostScalerEntry const* casterScaler = sGtNPCManaCostScalerStore.LookupEntry(caster->getLevel() - 1);
+                GtNPCManaCostScalerEntry const* spellScaler = sDBCMgr->GetGtNPCManaCostScalerEntry(_spellInfo->SpellLevel - 1);
+                GtNPCManaCostScalerEntry const* casterScaler = sDBCMgr->GetGtNPCManaCostScalerEntry(caster->getLevel() - 1);
                 if (spellScaler && casterScaler)
                     value *= casterScaler->ratio / spellScaler->ratio;
-            }
+            }*/
         }
     }
 
@@ -785,7 +785,7 @@ SpellInfo::SpellInfo(Field* fields)
         87     "TotemCategory1, TotemCategory2, AreaGroupId, SchoolMask, runeCostID, "
     */
     Id                   = fields[0].GetUInt32();
-    CategoryEntry        = fields[1].GetUInt32() ? sSpellCategoryStore.LookupEntry(fields[1].GetUInt32()) : NULL;
+    CategoryEntry        = fields[1].GetUInt32() ? sDBCMgr->GetSpellCategoryEntry(fields[1].GetUInt32()) : NULL;
     Dispel               = fields[2].GetUInt32();
     Mechanic             = fields[3].GetUInt32();
     Attributes           = fields[4].GetUInt32();
@@ -810,7 +810,7 @@ SpellInfo::SpellInfo(Field* fields)
     TargetAuraSpell      = fields[23].GetUInt32();
     ExcludeCasterAuraSpell   = fields[24].GetUInt32();
     ExcludeTargetAuraSpell   = fields[25].GetUInt32();
-    CastTimeEntry            = fields[26].GetUInt32() ? sSpellCastTimesStore.LookupEntry(fields[26].GetUInt32()) : NULL;
+    CastTimeEntry            = fields[26].GetUInt32() ? sDBCMgr->GetSpellCastTimesEntry(fields[26].GetUInt32()) : NULL;
     RecoveryTime             = fields[27].GetUInt32();
     CategoryRecoveryTime     = fields[28].GetUInt32();
     InterruptFlags           = fields[29].GetUInt32();
@@ -822,13 +822,13 @@ SpellInfo::SpellInfo(Field* fields)
     MaxLevel                 = fields[35].GetUInt32();
     BaseLevel                = fields[36].GetUInt32();
     SpellLevel               = fields[37].GetUInt32();
-    DurationEntry            = fields[38].GetUInt32() ? sSpellDurationStore.LookupEntry(fields[38].GetUInt32()) : NULL;
+    DurationEntry            = fields[38].GetUInt32() ? sDBCMgr->GetSpellDurationEntry(fields[38].GetUInt32()) : NULL;
     PowerType                = fields[39].GetUInt32();
     ManaCost                 = fields[40].GetUInt32();
     ManaCostPerlevel         = fields[41].GetUInt32();
     ManaPerSecond            = fields[42].GetUInt32();
     ManaPerSecondPerLevel    = fields[43].GetUInt32();
-    RangeEntry               = fields[44].GetUInt32() ? sSpellRangeStore.LookupEntry(fields[44].GetUInt32()) : NULL;
+    RangeEntry               = fields[44].GetUInt32() ? sDBCMgr->GetSpellRangeEntry(fields[44].GetUInt32()) : NULL;
     Speed                    = fields[45].GetFloat();
     StackAmount              = fields[46].GetUInt32();
     Totem[0]                 = fields[47].GetUInt32();
@@ -1342,7 +1342,7 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
     SpellShapeshiftEntry const* shapeInfo = NULL;
     if (form > 0)
     {
-        shapeInfo = sSpellShapeshiftStore.LookupEntry(form);
+        shapeInfo = sDBCMgr->GetSpellShapeshiftEntry(form);
         if (!shapeInfo)
         {
             TC_LOG_ERROR("spells", "GetErrorAtShapeshiftedCast: unknown shapeshift %u", form);
@@ -1383,7 +1383,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     if (AreaGroupId > 0)
     {
         bool found = false;
-        AreaGroupEntry const* groupEntry = sAreaGroupStore.LookupEntry(AreaGroupId);
+        AreaGroupEntry const* groupEntry = sDBCMgr->GetAreaGroupEntry(AreaGroupId);
         while (groupEntry)
         {
             for (uint8 i = 0; i < MAX_GROUP_AREA_IDS; ++i)
@@ -1392,7 +1392,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
             if (found || !groupEntry->nextGroup)
                 break;
             // Try search in next group
-            groupEntry = sAreaGroupStore.LookupEntry(groupEntry->nextGroup);
+            groupEntry = sDBCMgr->GetAreaGroupEntry(groupEntry->nextGroup);
         }
 
         if (!found)
@@ -1708,7 +1708,7 @@ SpellCastResult SpellInfo::CheckVehicle(Unit const* caster) const
         {
             if (Effects[effIndex].ApplyAuraName == SPELL_AURA_MOD_SHAPESHIFT)
             {
-                SpellShapeshiftEntry const* shapeShiftEntry = sSpellShapeshiftStore.LookupEntry(Effects[effIndex].MiscValue);
+                SpellShapeshiftEntry const* shapeShiftEntry = sDBCMgr->GetSpellShapeshiftEntry(Effects[effIndex].MiscValue);
                 if (shapeShiftEntry && (shapeShiftEntry->flags1 & 1) == 0)  // unk flag
                     checkMask |= VEHICLE_SEAT_FLAG_UNCONTROLLED;
                 break;
@@ -1734,7 +1734,7 @@ SpellCastResult SpellInfo::CheckVehicle(Unit const* caster) const
                 if (Effects[i].Effect != SPELL_EFFECT_SUMMON)
                     continue;
 
-                SummonPropertiesEntry const* props = sSummonPropertiesStore.LookupEntry(Effects[i].MiscValueB);
+                SummonPropertiesEntry const* props = sDBCMgr->GetSummonPropertiesEntry(Effects[i].MiscValueB);
                 if (props && props->Category != SUMMON_CATEGORY_WILD)
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
             }
@@ -2208,7 +2208,7 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) c
     if (AttributesEx4 & SPELL_ATTR4_SPELL_VS_EXTEND_COST)
     {
         uint32 speed = 0;
-        if (SpellShapeshiftEntry const* ss = sSpellShapeshiftStore.LookupEntry(caster->GetShapeshiftForm()))
+        if (SpellShapeshiftEntry const* ss = sDBCMgr->GetSpellShapeshiftEntry(caster->GetShapeshiftForm()))
             speed = ss->attackSpeed;
         else
         {
@@ -2228,13 +2228,13 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) c
 
     if (!caster->IsControlledByPlayer())
     {
-        if (Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION)
+        /*if (Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION)
         {
-            GtNPCManaCostScalerEntry const* spellScaler = sGtNPCManaCostScalerStore.LookupEntry(SpellLevel - 1);
-            GtNPCManaCostScalerEntry const* casterScaler = sGtNPCManaCostScalerStore.LookupEntry(caster->getLevel() - 1);
+            GtNPCManaCostScalerEntry const* spellScaler = sDBCMgr->GetGtNPCManaCostScalerEntry(SpellLevel - 1);
+            GtNPCManaCostScalerEntry const* casterScaler = sDBCMgr->GetGtNPCManaCostScalerEntry(caster->getLevel() - 1);
             if (spellScaler && casterScaler)
                 powerCost *= casterScaler->ratio / spellScaler->ratio;
-        }
+        }*/
     }
 
     // PCT mod from user auras by school

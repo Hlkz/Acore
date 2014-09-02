@@ -2035,7 +2035,7 @@ inline ZLiquidStatus GridMap::getLiquidStatus(float x, float y, float z, uint8 R
     uint32 entry = 0;
     if (_liquidEntry)
     {
-        if (LiquidTypeEntry const* liquidEntry = sLiquidTypeStore.LookupEntry(_liquidEntry[idx]))
+        if (LiquidTypeEntry const* liquidEntry = sDBCMgr->GetLiquidTypeEntry(_liquidEntry[idx]))
         {
             entry = liquidEntry->Id;
             type &= MAP_LIQUID_TYPE_DARK_WATER;
@@ -2052,7 +2052,7 @@ inline ZLiquidStatus GridMap::getLiquidStatus(float x, float y, float z, uint8 R
                             overrideLiquid = area->LiquidTypeOverride[liquidEntry->Type];
                     }
 
-                    if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(overrideLiquid))
+                    if (LiquidTypeEntry const* liq = sDBCMgr->GetLiquidTypeEntry(overrideLiquid))
                     {
                         entry = overrideLiquid;
                         liqTypeIdx = liq->Type;
@@ -2313,7 +2313,7 @@ ZLiquidStatus Map::getLiquidStatus(float x, float y, float z, uint8 ReqLiquidTyp
                     liquid_type = 15;
 
                 uint32 liquidFlagType = 0;
-                if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(liquid_type))
+                if (LiquidTypeEntry const* liq = sDBCMgr->GetLiquidTypeEntry(liquid_type))
                     liquidFlagType = liq->Type;
 
                 if (liquid_type && liquid_type < 21)
@@ -2328,7 +2328,7 @@ ZLiquidStatus Map::getLiquidStatus(float x, float y, float z, uint8 ReqLiquidTyp
                                 overrideLiquid = area->LiquidTypeOverride[liquidFlagType];
                         }
 
-                        if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(overrideLiquid))
+                        if (LiquidTypeEntry const* liq = sDBCMgr->GetLiquidTypeEntry(overrideLiquid))
                         {
                             liquid_type = overrideLiquid;
                             liquidFlagType = liq->Type;

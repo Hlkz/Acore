@@ -766,7 +766,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         else
         {
             uint32 startId = fields[5].GetUInt32();
-            if (WorldSafeLocsEntry const* start = sWorldSafeLocsStore.LookupEntry(startId))
+            if (WorldSafeLocsEntry const* start = sDBCMgr->GetWorldSafeLocsEntry(startId))
             {
                 data.Team1StartLocX = start->x;
                 data.Team1StartLocY = start->y;
@@ -780,7 +780,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
             }
 
             startId = fields[7].GetUInt32();
-            if (WorldSafeLocsEntry const* start = sWorldSafeLocsStore.LookupEntry(startId))
+            if (WorldSafeLocsEntry const* start = sDBCMgr->GetWorldSafeLocsEntry(startId))
             {
                 data.Team2StartLocX = start->x;
                 data.Team2StartLocY = start->y;

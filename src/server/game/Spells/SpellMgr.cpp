@@ -32,7 +32,7 @@
 
 bool IsPrimaryProfessionSkill(uint32 skill)
 {
-    SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(skill);
+    SkillLineEntry const* pSkill = sDBCMgr->GetSkillLineEntry(skill);
     if (!pSkill)
         return false;
 
@@ -2082,9 +2082,9 @@ void SpellMgr::LoadSkillLineAbilityMap()
 
     uint32 count = 0;
 
-    for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); ++i)
+    for (SkillLineAbilityContainer::const_iterator itr = sDBCMgr->SkillLineAbilityStore.begin(); itr != sDBCMgr->SkillLineAbilityStore.end(); ++itr)
     {
-        SkillLineAbilityEntry const* SkillInfo = sSkillLineAbilityStore.LookupEntry(i);
+        SkillLineAbilityEntry const* SkillInfo = itr->second;
         if (!SkillInfo)
             continue;
 
@@ -2160,7 +2160,7 @@ void SpellMgr::LoadEnchantCustomAttr()
 {
     uint32 oldMSTime = getMSTime();
 
-    uint32 size = sSpellItemEnchantmentStore.GetNumRows();
+    uint32 size = sDBCMgr->SpellItemEnchantmentStore.size();
     mEnchantCustomAttr.resize(size);
 
     for (uint32 i = 0; i < size; ++i)
@@ -2182,7 +2182,7 @@ void SpellMgr::LoadEnchantCustomAttr()
             if (spellInfo->Effects[j].Effect == SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY)
             {
                 uint32 enchId = spellInfo->Effects[j].MiscValue;
-                SpellItemEnchantmentEntry const* ench = sSpellItemEnchantmentStore.LookupEntry(enchId);
+                SpellItemEnchantmentEntry const* ench = sDBCMgr->GetSpellItemEnchantmentEntry(enchId);
                 if (!ench)
                     continue;
                 mEnchantCustomAttr[enchId] = true;
@@ -2216,7 +2216,7 @@ void SpellMgr::LoadSpellEnchantProcData()
 
         uint32 enchantId = fields[0].GetUInt32();
 
-        SpellItemEnchantmentEntry const* ench = sSpellItemEnchantmentStore.LookupEntry(enchantId);
+        SpellItemEnchantmentEntry const* ench = sDBCMgr->GetSpellItemEnchantmentEntry(enchantId);
         if (!ench)
         {
             TC_LOG_ERROR("sql.sql", "Enchancment %u listed in `spell_enchant_proc_data` does not exist", enchantId);
@@ -2297,10 +2297,10 @@ void SpellMgr::LoadPetLevelupSpellMap()
     uint32 count = 0;
     uint32 family_count = 0;
 
-    for (uint32 i = 0; i < sCreatureFamilyStore.GetNumRows(); ++i)
+    for (CreatureFamilyContainer::const_iterator itr = sDBCMgr->CreatureFamilyStore.begin(); itr != sDBCMgr->CreatureFamilyStore.end(); ++itr)
     {
-        CreatureFamilyEntry const* creatureFamily = sCreatureFamilyStore.LookupEntry(i);
-        if (!creatureFamily)                                     // not exist
+        CreatureFamilyEntry const* creatureFamily = itr->second;
+        if (!creatureFamily)
             continue;
 
         for (uint8 j = 0; j < 2; ++j)
@@ -2308,9 +2308,9 @@ void SpellMgr::LoadPetLevelupSpellMap()
             if (!creatureFamily->skillLine[j])
                 continue;
 
-            for (uint32 k = 0; k < sSkillLineAbilityStore.GetNumRows(); ++k)
+            for (SkillLineAbilityContainer::const_iterator itr = sDBCMgr->SkillLineAbilityStore.begin(); itr != sDBCMgr->SkillLineAbilityStore.end(); ++itr)
             {
-                SkillLineAbilityEntry const* skillLine = sSkillLineAbilityStore.LookupEntry(k);
+                SkillLineAbilityEntry const* skillLine = itr->second;
                 if (!skillLine)
                     continue;
 
@@ -2409,7 +2409,7 @@ void SpellMgr::LoadPetDefaultSpells()
             continue;
 
         // for creature with PetSpellDataId get default pet spells from dbc
-        CreatureSpellDataEntry const* spellDataEntry = sCreatureSpellDataStore.LookupEntry(itr->second.PetSpellDataId);
+        CreatureSpellDataEntry const* spellDataEntry = sDBCMgr->GetCreatureSpellDataEntry(itr->second.PetSpellDataId);
         if (!spellDataEntry)
             continue;
 
@@ -2775,7 +2775,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                     if (IsPartOfSkillLine(SKILL_ENCHANTING, i))
                     {
                         uint32 enchantId = spellInfo->Effects[j].MiscValue;
-                        SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(enchantId);
+                        SpellItemEnchantmentEntry const* enchant = sDBCMgr->GetSpellItemEnchantmentEntry(enchantId);
                         if (!enchant)
                             break;
 
@@ -3072,11 +3072,11 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo();
                 break;
             case 31344: // Howl of Azgalor
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS); // 100yards instead of 50000?!
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_100_YARDS); // 100yards instead of 50000?!
                 break;
             case 42818: // Headless Horseman - Wisp Flight Port
             case 42821: // Headless Horseman - Wisp Flight Missile
-                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6); // 100 yards
+                spellInfo->RangeEntry = sDBCMgr->GetSpellRangeEntry(6); // 100 yards
                 break;
             case 36350: // They Must Burn Bomb Aura (self)
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 36325; // They Must Burn Bomb Drop (DND)
@@ -3121,7 +3121,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 59725: // Improved Spell Reflection - aoe aura
                 // Target entry seems to be wrong for this spell :/
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER_AREA_PARTY);
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS_2);
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_10_YARDS_2);
                 break;
             case 44978: // Wild Magic
             case 45001:
@@ -3234,7 +3234,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].Amplitude = 3000;
                 break;
             case 29809: // Desecration Arm - 36 instead of 37 - typo? :/
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_7_YARDS);
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_7_YARDS);
                 break;
             // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
             // To prevent aura staying on target after talent unlearned
@@ -3269,7 +3269,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 16834: // Natural shapeshifter
             case 16835:
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21);
+                spellInfo->DurationEntry = sDBCMgr->GetSpellDurationEntry(21);
                 break;
             case 51735: // Ebon Plague
             case 51734:
@@ -3287,7 +3287,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 27915: // Anchor to Skulls
             case 27931: // Anchor to Skulls
             case 27937: // Anchor to Skulls
-                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13);
+                spellInfo->RangeEntry = sDBCMgr->GetSpellRangeEntry(13);
                 break;
             // target allys instead of enemies, target A is src_caster, spells with effect like that have ally target
             // this is the only known exception, probably just wrong data
@@ -3376,7 +3376,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 19975: // Entangling Roots (Rank 1) -- Nature's Grasp Proc
             case 27010: // Entangling Roots (Rank 7) -- Nature's Grasp Proc
             case 53313: // Entangling Roots (Rank 8) -- Nature's Grasp Proc
-                spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(1);
+                spellInfo->CastTimeEntry = sDBCMgr->GetSpellCastTimesEntry(1);
                 break;
             case 59414: // Pulsing Shockwave Aura (Loken)
                 // this flag breaks movement, remove it
@@ -3398,7 +3398,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             // ULDUAR SPELLS
             //
             case 62374: // Pursued (Flame Leviathan)
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS);   // 50000yd
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_50000_YARDS);   // 50000yd
                 break;
             case 63342: // Focused Eyebeam Summon Trigger (Kologarn)
                 spellInfo->MaxAffectedTargets = 1;
@@ -3425,7 +3425,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 64386: // Terrifying Screech (Auriaya)
             case 64389: // Sentinel Blast (Auriaya)
             case 64678: // Sentinel Blast (Auriaya)
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(28); // 5 seconds, wrong DBC data?
+                spellInfo->DurationEntry = sDBCMgr->GetSpellDurationEntry(28); // 5 seconds, wrong DBC data?
                 break;
             case 64321: // Potent Pheromones (Freya)
                 // spell should dispel area aura, but doesn't have the attribute
@@ -3452,7 +3452,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 62311: // Cosmic Smash (Algalon the Observer)
             case 64596: // Cosmic Smash (Algalon the Observer)
-                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6);  // 100yd
+                spellInfo->RangeEntry = sDBCMgr->GetSpellRangeEntry(6);  // 100yd
                 break;
             case 64014: // Expedition Base Camp Teleport
             case 64024: // Conservatory Teleport
@@ -3473,12 +3473,12 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 67901: // Infernal Eruption (25N)
                 // increase duration from 15 to 18 seconds because caster is already
                 // unsummoned when spell missile hits the ground so nothing happen in result
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(85);
+                spellInfo->DurationEntry = sDBCMgr->GetSpellDurationEntry(85);
                 break;
             // ENDOF TRIAL OF THE CRUSADER SPELLS
             //
             case 72830: // Achievement Check
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
                 break;
             // ICECROWN CITADEL SPELLS
             //
@@ -3496,7 +3496,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 69055: // Bone Slice (Lord Marrowgar)
             case 70814: // Bone Slice (Lord Marrowgar)
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_5_YARDS); // 5yd
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_5_YARDS); // 5yd
                 break;
             case 69075: // Bone Storm (Lord Marrowgar)
             case 70834: // Bone Storm (Lord Marrowgar)
@@ -3506,35 +3506,35 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 71160: // Plague Stench (Stinky)
             case 71161: // Plague Stench (Stinky)
             case 71123: // Decimate (Stinky & Precious)
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS); // 100yd
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_100_YARDS); // 100yd
                 break;
             case 71169: // Shadow's Fate
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 72378: // Blood Nova (Deathbringer Saurfang)
             case 73058: // Blood Nova (Deathbringer Saurfang)
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);
-                spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_200_YARDS);
+                spellInfo->Effects[EFFECT_1].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_200_YARDS);
                 break;
             case 72769: // Scent of Blood (Deathbringer Saurfang)
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_200_YARDS);
                 // no break
             case 72771: // Scent of Blood (Deathbringer Saurfang)
-                spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);
+                spellInfo->Effects[EFFECT_1].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_200_YARDS);
                 break;
             case 72723: // Resistant Skin (Deathbringer Saurfang adds)
                 // this spell initially granted Shadow damage immunity, however it was removed but the data was left in client
                 spellInfo->Effects[EFFECT_2].Effect = 0;
                 break;
             case 70460: // Coldflame Jets (Traps after Saurfang)
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1); // 10 seconds
+                spellInfo->DurationEntry = sDBCMgr->GetSpellDurationEntry(1); // 10 seconds
                 break;
             case 71412: // Green Ooze Summon (Professor Putricide)
             case 71415: // Orange Ooze Summon (Professor Putricide)
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
                 break;
             case 71159: // Awaken Plagued Zombies
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21);
+                spellInfo->DurationEntry = sDBCMgr->GetSpellDurationEntry(21);
                 break;
             case 70530: // Volatile Ooze Beam Protection (Professor Putricide)
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AURA; // for an unknown reason this was SPELL_EFFECT_APPLY_AREA_AURA_RAID
@@ -3550,7 +3550,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 72464: // Mutated Plague (Professor Putricide)
             case 72506: // Mutated Plague (Professor Putricide)
             case 72507: // Mutated Plague (Professor Putricide)
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
                 break;
             case 70911: // Unbound Plague (Professor Putricide) (needs target selection script)
             case 72854: // Unbound Plague (Professor Putricide) (needs target selection script)
@@ -3561,7 +3561,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 71518: // Unholy Infusion Quest Credit (Professor Putricide)
             case 72934: // Blood Infusion Quest Credit (Blood-Queen Lana'thel)
             case 72289: // Frost Infusion Quest Credit (Sindragosa)
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // another missing radius
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_200_YARDS); // another missing radius
                 break;
             case 71708: // Empowered Flare (Blood Prince Council)
             case 72785: // Empowered Flare (Blood Prince Council)
@@ -3578,14 +3578,14 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 70715: // Column of Frost (visual marker)
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(32); // 6 seconds (missing)
+                spellInfo->DurationEntry = sDBCMgr->GetSpellDurationEntry(32); // 6 seconds (missing)
                 break;
             case 71085: // Mana Void (periodic aura)
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(9); // 30 seconds (missing)
+                spellInfo->DurationEntry = sDBCMgr->GetSpellDurationEntry(9); // 30 seconds (missing)
                 break;
             case 72015: // Frostbolt Volley (only heroic)
             case 72016: // Frostbolt Volley (only heroic)
-                spellInfo->Effects[EFFECT_2].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_40_YARDS);
+                spellInfo->Effects[EFFECT_2].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_40_YARDS);
                 break;
             case 70936: // Summon Suppressor (needs target selection script)
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
@@ -3593,7 +3593,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 72706: // Achievement Check (Valithria Dreamwalker)
             case 71357: // Order Whelp
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS);   // 200yd
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_200_YARDS);   // 200yd
                 break;
             case 70598: // Sindragosa's Fury
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
@@ -3605,71 +3605,71 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Mechanic = MECHANIC_STUN;
                 break;
             case 72762: // Defile
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(559); // 53 seconds
+                spellInfo->DurationEntry = sDBCMgr->GetSpellDurationEntry(559); // 53 seconds
                 break;
             case 72743: // Defile
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(22); // 45 seconds
+                spellInfo->DurationEntry = sDBCMgr->GetSpellDurationEntry(22); // 45 seconds
                 break;
             case 72754: // Defile
             case 73708: // Defile
             case 73709: // Defile
             case 73710: // Defile
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
-                spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_200_YARDS); // 200yd
+                spellInfo->Effects[EFFECT_1].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_200_YARDS); // 200yd
                 break;
             case 69030: // Val'kyr Target Search
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
-                spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_200_YARDS); // 200yd
+                spellInfo->Effects[EFFECT_1].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_200_YARDS); // 200yd
                 break;
             case 69198: // Raging Spirit Visual
-                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13); // 50000yd
+                spellInfo->RangeEntry = sDBCMgr->GetSpellRangeEntry(13); // 50000yd
                 break;
             case 73654: // Harvest Souls
             case 74295: // Harvest Souls
             case 74296: // Harvest Souls
             case 74297: // Harvest Souls
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
-                spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
-                spellInfo->Effects[EFFECT_2].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
+                spellInfo->Effects[EFFECT_1].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
+                spellInfo->Effects[EFFECT_2].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
                 break;
             case 73655: // Harvest Soul
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
             case 73540: // Summon Shadow Trap
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(23); // 90 seconds
+                spellInfo->DurationEntry = sDBCMgr->GetSpellDurationEntry(23); // 90 seconds
                 break;
             case 73530: // Shadow Trap (visual)
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(28); // 5 seconds
+                spellInfo->DurationEntry = sDBCMgr->GetSpellDurationEntry(28); // 5 seconds
                 break;
             case 73529: // Shadow Trap
-                spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS); // 10yd
+                spellInfo->Effects[EFFECT_1].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_10_YARDS); // 10yd
                 break;
             case 74282: // Shadow Trap (searcher)
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS); // 3yd
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_3_YARDS); // 3yd
                 break;
             case 72595: // Restore Soul
             case 73650: // Restore Soul
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_200_YARDS); // 200yd
                 break;
             case 74086: // Destroy Soul
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_200_YARDS); // 200yd
                 break;
             case 74302: // Summon Spirit Bomb
             case 74342: // Summon Spirit Bomb
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_200_YARDS); // 200yd
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 74341: // Summon Spirit Bomb
             case 74343: // Summon Spirit Bomb
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_200_YARDS); // 200yd
                 spellInfo->MaxAffectedTargets = 3;
                 break;
             case 73579: // Summon Spirit Bomb
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_25_YARDS); // 25yd
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_25_YARDS); // 25yd
                 break;
             case 72350: // Fury of Frostmourne
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
-                spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
+                spellInfo->Effects[EFFECT_1].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
                 break;
             case 75127: // Kill Frostmourne Players
             case 72351: // Fury of Frostmourne
@@ -3677,31 +3677,31 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 72429: // Mass Resurrection
             case 73159: // Play Movie
             case 73582: // Trigger Vile Spirit (Inside, Heroic)
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
                 break;
             case 72376: // Raise Dead
                 spellInfo->MaxAffectedTargets = 3;
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
                 break;
             case 71809: // Jump
-                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(3); // 20yd
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_25_YARDS); // 25yd
+                spellInfo->RangeEntry = sDBCMgr->GetSpellRangeEntry(3); // 20yd
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_25_YARDS); // 25yd
                 break;
             case 72405: // Broken Frostmourne
-                spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
+                spellInfo->Effects[EFFECT_1].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_200_YARDS); // 200yd
                 break;
             // ENDOF ICECROWN CITADEL SPELLS
             //
             // RUBY SANCTUM SPELLS
             //
             case 74799: // Soul Consumption
-                spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_12_YARDS);
+                spellInfo->Effects[EFFECT_1].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_12_YARDS);
                 break;
             case 74769: // Twilight Cutter
             case 77844: // Twilight Cutter
             case 77845: // Twilight Cutter
             case 77846: // Twilight Cutter
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS); // 100yd
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sDBCMgr->GetSpellRadiusEntry(EFFECT_RADIUS_100_YARDS); // 100yd
                 break;
             case 75509: // Twilight Mending
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
@@ -3767,7 +3767,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             // ISLE OF CONQUEST SPELLS
             //
             case 66551: // Teleport
-                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13); // 50000yd
+                spellInfo->RangeEntry = sDBCMgr->GetSpellRangeEntry(13); // 50000yd
                 break;
             // ENDOF ISLE OF CONQUEST SPELLS
             //
@@ -3790,9 +3790,9 @@ void SpellMgr::LoadSpellInfoCorrections()
         }
     }
 
-    if (SummonPropertiesEntry* properties = const_cast<SummonPropertiesEntry*>(sSummonPropertiesStore.LookupEntry(121)))
+    if (SummonPropertiesEntry* properties = const_cast<SummonPropertiesEntry*>(sDBCMgr->GetSummonPropertiesEntry(121)))
         properties->Type = SUMMON_TYPE_TOTEM;
-    if (SummonPropertiesEntry* properties = const_cast<SummonPropertiesEntry*>(sSummonPropertiesStore.LookupEntry(647))) // 52893
+    if (SummonPropertiesEntry* properties = const_cast<SummonPropertiesEntry*>(sDBCMgr->GetSummonPropertiesEntry(647))) // 52893
         properties->Type = SUMMON_TYPE_TOTEM;
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo corrections in %u ms", GetMSTimeDiffToNow(oldMSTime));

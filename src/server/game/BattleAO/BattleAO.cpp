@@ -531,7 +531,7 @@ WorldSafeLocsEntry const* BattleAO::GetClosestGraveYard(Player* player)
         float mindist = 999999.0f;
         for (uint8 i = 0; i < graveyards.size(); ++i)
         {
-            WorldSafeLocsEntry const*entry = sWorldSafeLocsStore.LookupEntry(BAO_GraveyardIds[graveyards[i]]);
+            WorldSafeLocsEntry const*entry = sDBCMgr->GetWorldSafeLocsEntry(BAO_GraveyardIds[graveyards[i]]);
             if (!entry)
                 continue;
             float dist = (entry->x - plr_x)*(entry->x - plr_x)+(entry->y - plr_y)*(entry->y - plr_y);
@@ -546,7 +546,7 @@ WorldSafeLocsEntry const* BattleAO::GetClosestGraveYard(Player* player)
     if (!good_entry)
     {
         TC_LOG_ERROR("misc", "BAO aucun cimetière trouvé");
-        good_entry = sWorldSafeLocsStore.LookupEntry(BAO_GraveyardIds[BAO_NODE_A2+teamIndex]); // base gy
+        good_entry = sDBCMgr->GetWorldSafeLocsEntry(BAO_GraveyardIds[BAO_NODE_A2+teamIndex]); // base gy
     }
     return good_entry;
 }

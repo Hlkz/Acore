@@ -145,7 +145,7 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
             // Validate random property
             if (id > 0)
             {
-                _property = sItemRandomPropertiesStore.LookupEntry(id);
+                _property = sDBCMgr->GetItemRandomPropertiesEntry(id);
                 if (!_property)
                 {
                     TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): got invalid item property id %u in |item command", iss.str().c_str(), id);
@@ -154,7 +154,7 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
             }
             else if (id < 0)
             {
-                _suffix = sItemRandomSuffixStore.LookupEntry(-id);
+                _suffix = sDBCMgr->GetItemRandomSuffixEntry(-id);
                 if (!_suffix)
                 {
                     TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): got invalid item suffix id %u in |item command", iss.str().c_str(), -id);
@@ -299,7 +299,7 @@ bool SpellChatLink::ValidateName(char* buffer, const char* context)
             TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): skill line ability not found for spell %u", context, _spell->Id);
             return false;
         }
-        SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(skillInfo->skillId);
+        SkillLineEntry const* skillLine = sDBCMgr->GetSkillLineEntry(skillInfo->skillId);
         if (!skillLine)
         {
             TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): skill line not found for skill %u", context, skillInfo->skillId);
@@ -521,7 +521,7 @@ bool GlyphChatLink::Initialize(std::istringstream& iss)
         return false;
     }
     // Validate glyph
-    _glyph = sGlyphPropertiesStore.LookupEntry(glyphId);
+    _glyph = sDBCMgr->GetGlyphPropertiesEntry(glyphId);
     if (!_glyph)
     {
         TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): got invalid glyph id %u in |glyph command", iss.str().c_str(), glyphId);

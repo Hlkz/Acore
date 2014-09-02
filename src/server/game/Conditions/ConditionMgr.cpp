@@ -1617,7 +1617,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_SKILL:
         {
-            SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(cond->ConditionValue1);
+            SkillLineEntry const* pSkill = sDBCMgr->GetSkillLineEntry(cond->ConditionValue1);
             if (!pSkill)
             {
                 TC_LOG_ERROR("sql.sql", "Skill condition specifies non-existing skill (%u), skipped", cond->ConditionValue1);

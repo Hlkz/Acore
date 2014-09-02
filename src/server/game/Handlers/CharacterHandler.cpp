@@ -300,7 +300,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
         }
     }
 
-    ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(class_);
+    ChrClassesEntry const* classEntry = sDBCMgr->GetChrClassesEntry(class_);
     if (!classEntry)
     {
         data << uint8(CHAR_CREATE_FAILED);
@@ -309,7 +309,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
         return;
     }
 
-    ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(race_);
+    ChrRacesEntry const* raceEntry = sDBCMgr->GetChrRacesEntry(race_);
     if (!raceEntry)
     {
         data << uint8(CHAR_CREATE_FAILED);
@@ -881,11 +881,11 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     {
         pCurrChar->setCinematic(1);
 
-        if (ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(pCurrChar->getClass()))
+        if (ChrClassesEntry const* cEntry = sDBCMgr->GetChrClassesEntry(pCurrChar->getClass()))
         {
             if (cEntry->CinematicSequence)
                 pCurrChar->SendCinematicStart(cEntry->CinematicSequence);
-            else if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(pCurrChar->getRace()))
+            else if (ChrRacesEntry const* rEntry = sDBCMgr->GetChrRacesEntry(pCurrChar->getRace()))
                 pCurrChar->SendCinematicStart(rEntry->CinematicSequence);
 
             // send new char string if not empty
@@ -1285,17 +1285,17 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
     uint32 Hair, Color, FacialHair, SkinColor;
     recvData >> Hair >> Color >> FacialHair >> SkinColor;
 
-    BarberShopStyleEntry const* bs_hair = sBarberShopStyleStore.LookupEntry(Hair);
+    BarberShopStyleEntry const* bs_hair = sDBCMgr->GetBarberShopStyleEntry(Hair);
 
     if (!bs_hair || bs_hair->type != 0 || bs_hair->race != _player->getRace() || bs_hair->gender != _player->getGender())
         return;
 
-    BarberShopStyleEntry const* bs_facialHair = sBarberShopStyleStore.LookupEntry(FacialHair);
+    BarberShopStyleEntry const* bs_facialHair = sDBCMgr->GetBarberShopStyleEntry(FacialHair);
 
     if (!bs_facialHair || bs_facialHair->type != 2 || bs_facialHair->race != _player->getRace() || bs_facialHair->gender != _player->getGender())
         return;
 
-    BarberShopStyleEntry const* bs_skinColor = sBarberShopStyleStore.LookupEntry(SkinColor);
+    BarberShopStyleEntry const* bs_skinColor = sDBCMgr->GetBarberShopStyleEntry(SkinColor);
 
     if (bs_skinColor && (bs_skinColor->type != 3 || bs_skinColor->race != _player->getRace() || bs_skinColor->gender != _player->getGender()))
         return;
@@ -1363,7 +1363,7 @@ void WorldSession::HandleRemoveGlyph(WorldPacket& recvData)
 
     if (uint32 glyph = _player->GetGlyph(slot))
     {
-        if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyph))
+        if (GlyphPropertiesEntry const* gp = sDBCMgr->GetGlyphPropertiesEntry(glyph))
         {
             _player->RemoveAurasDueToSpell(gp->SpellId);
             _player->SetGlyph(slot, 0);

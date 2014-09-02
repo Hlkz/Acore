@@ -249,7 +249,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
             }
             return true;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_HOLIDAY:
-            if (!sHolidaysStore.LookupEntry(holiday.id))
+            if (!sDBCMgr->GetHolidaysEntry(holiday.id))
             {
                 TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_HOLIDAY (%u) has unknown holiday in value1 (%u), ignored.",
                     criteria->ID, criteria->requiredType, dataType, holiday.id);
@@ -1183,7 +1183,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA:
             {
-                WorldMapOverlayEntry const* worldOverlayEntry = sWorldMapOverlayStore.LookupEntry(achievementCriteria->explore_area.areaReference);
+                WorldMapOverlayEntry const* worldOverlayEntry = sDBCMgr->GetWorldMapOverlayEntry(achievementCriteria->explore_area.areaReference);
                 if (!worldOverlayEntry)
                     break;
 
@@ -2169,9 +2169,9 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
     }
 
     uint32 loaded = 0;
-    for (uint32 entryId = 0; entryId < sDBCMgr->AchievementCriteriaStore.size(); ++entryId)
+    for (AchievementCriteriaContainer::const_iterator itr = sDBCMgr->AchievementCriteriaStore.begin(); itr != sDBCMgr->AchievementCriteriaStore.end(); ++itr)
     {
-        AchievementCriteriaEntry const* criteria = sAchievementMgr->GetAchievementCriteria(entryId);
+        AchievementCriteriaEntry const* criteria = itr->second;
         if (!criteria)
             continue;
 
@@ -2199,9 +2199,9 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
 
     uint32 count = 0;
 
-    for (uint32 entryId = 0; entryId < sDBCMgr->AchievementStore.size(); ++entryId)
+    for (AchievementContainer::const_iterator itr = sDBCMgr->AchievementStore.begin(); itr != sDBCMgr->AchievementStore.end(); ++itr)
     {
-        AchievementEntry const* achievement = sAchievementMgr->GetAchievement(entryId);
+        AchievementEntry const* achievement = itr->second;
         if (!achievement || !achievement->refAchievement)
             continue;
 
@@ -2275,9 +2275,9 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
     while (result->NextRow());
 
     // post loading checks
-    for (uint32 entryId = 0; entryId < sDBCMgr->AchievementCriteriaStore.size(); ++entryId)
+    for (AchievementCriteriaContainer::const_iterator itr = sDBCMgr->AchievementCriteriaStore.begin(); itr != sDBCMgr->AchievementCriteriaStore.end(); ++itr)
     {
-        AchievementCriteriaEntry const* criteria = sDBCMgr->GetAchievementCriteriaEntry(entryId);
+        AchievementCriteriaEntry const* criteria = itr->second;
         if (!criteria)
             continue;
 
@@ -2354,7 +2354,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
                 continue;
         }
 
-        if (!GetCriteriaDataSet(criteria) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_ACHIEVEMENT_CRITERIA, entryId, NULL))
+        if (!GetCriteriaDataSet(criteria) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_ACHIEVEMENT_CRITERIA, itr->first, NULL))
             TC_LOG_ERROR("sql.sql", "Table `achievement_criteria_data` does not have expected data for criteria (Entry: %u Type: %u) for achievement %u.", criteria->ID, criteria->requiredType, criteria->referredAchievement);
     }
 

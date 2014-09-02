@@ -162,7 +162,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
                 }
                 case SMART_SCRIPT_TYPE_AREATRIGGER:
                 {
-                    if (!sAreaTriggerStore.LookupEntry((uint32)temp.entryOrGuid))
+                    if (!sDBCMgr->GetAreaTriggerEntry((uint32)temp.entryOrGuid))
                     {
                         TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: AreaTrigger entry (%u) does not exist, skipped loading.", uint32(temp.entryOrGuid));
                         continue;
@@ -699,7 +699,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                         TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has ModelID set with also set CreatureId, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                         return false;
                     }
-                    else if (!sCreatureDisplayInfoStore.LookupEntry(e.action.morphOrMount.model))
+                    else if (!sDBCMgr->GetCreatureDisplayInfoEntry(e.action.morphOrMount.model))
                     {
                         TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Model id %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.morphOrMount.model);
                         return false;
@@ -723,7 +723,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             break;
         case SMART_ACTION_ACTIVATE_TAXI:
             {
-                if (!sTaxiPathStore.LookupEntry(e.action.taxi.id))
+                if (!sDBCMgr->GetTaxiPathEntry(e.action.taxi.id))
                 {
                     TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses invalid Taxi path ID %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.taxi.id);
                     return false;

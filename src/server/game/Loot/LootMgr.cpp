@@ -1753,8 +1753,8 @@ void LoadLootTemplates_Mail()
     uint32 count = LootTemplates_Mail.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    for (uint32 i = 1; i < sMailTemplateStore.GetNumRows(); ++i)
-        if (sMailTemplateStore.LookupEntry(i))
+    for (uint32 i = 1; i < sDBCMgr->MailTemplateStore.size(); ++i)
+        if (sDBCMgr->GetMailTemplateEntry(i))
             if (lootIdSet.find(i) != lootIdSet.end())
                 lootIdSet.erase(i);
 

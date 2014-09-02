@@ -1545,7 +1545,7 @@ class SmartAIMgr
 
         bool IsTextEmoteValid(SmartScriptHolder const& e, uint32 entry)
         {
-            if (!sEmotesTextStore.LookupEntry(entry))
+            if (!sDBCMgr->GetEmotesTextEntry(entry))
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Text Emote entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
                 return false;
@@ -1555,7 +1555,7 @@ class SmartAIMgr
 
         bool IsEmoteValid(SmartScriptHolder const& e, uint32 entry)
         {
-            if (!sEmotesStore.LookupEntry(entry))
+            if (!sDBCMgr->GetEmotesEntry(entry))
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Emote entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
                 return false;
@@ -1565,7 +1565,7 @@ class SmartAIMgr
 
         bool IsAreaTriggerValid(SmartScriptHolder const& e, uint32 entry)
         {
-            if (!sAreaTriggerStore.LookupEntry(entry))
+            if (!sDBCMgr->GetAreaTriggerEntry(entry))
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent AreaTrigger entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
                 return false;
@@ -1575,7 +1575,7 @@ class SmartAIMgr
 
         bool IsSoundValid(SmartScriptHolder const& e, uint32 entry)
         {
-            if (!sSoundEntriesStore.LookupEntry(entry))
+            if (!sDBCMgr->GetSoundEntriesEntry(entry))
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Sound entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
                 return false;

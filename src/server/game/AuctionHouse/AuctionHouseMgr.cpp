@@ -331,7 +331,7 @@ void AuctionHouseMgr::Update()
 AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTemplateId)
 {
     factionTemplateId = 7;  // goblin auction house
-    return sAuctionHouseStore.LookupEntry(factionTemplateId);
+    return sDBCMgr->GetAuctionHouseEntry(factionTemplateId);
 }
 
 void AuctionHouseObject::AddAuction(AuctionEntry* auction)
@@ -498,7 +498,7 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
                 // Append the suffix to the name (ie: of the Monkey) if one exists
                 // These are found in ItemRandomProperties.dbc, not ItemRandomSuffix.dbc
                 //  even though the DBC names seem misleading
-                const ItemRandomPropertiesEntry* itemRandProp = sItemRandomPropertiesStore.LookupEntry(propRefID);
+                const ItemRandomPropertiesEntry* itemRandProp = sDBCMgr->GetItemRandomPropertiesEntry(propRefID);
 
                 if (itemRandProp)
                 {

@@ -133,7 +133,7 @@ public:
             return false;
         }
 
-        if (objectInfo->displayId && !sGameObjectDisplayInfoStore.LookupEntry(objectInfo->displayId))
+        if (objectInfo->displayId && !sDBCMgr->GetGameObjectDisplayInfoEntry(objectInfo->displayId))
         {
             // report to DB errors log as in loading case
             TC_LOG_ERROR("sql.sql", "Gameobject (Entry %u GoType: %u) have invalid displayId (%u), not spawned.", objectId, objectInfo->type, objectInfo->displayId);

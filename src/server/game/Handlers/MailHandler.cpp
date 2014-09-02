@@ -673,7 +673,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
     // in mail template case we need create new item text
     if (m->mailTemplateId)
     {
-        MailTemplateEntry const* mailTemplateEntry = sMailTemplateStore.LookupEntry(m->mailTemplateId);
+        MailTemplateEntry const* mailTemplateEntry = sDBCMgr->GetMailTemplateEntry(m->mailTemplateId);
         if (!mailTemplateEntry)
         {
             player->SendMailResult(mailId, MAIL_MADE_PERMANENT, MAIL_ERR_INTERNAL_ERROR);

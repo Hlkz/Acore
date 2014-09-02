@@ -161,7 +161,7 @@ void LFGMgr::LoadRewards()
 
 LFGDungeonData const* LFGMgr::GetLFGDungeon(uint32 id)
 {
-    LFGDungeonContainer::const_iterator itr = LfgDungeonStore.find(id);
+    LFGDungeonDataContainer::const_iterator itr = LfgDungeonStore.find(id);
     if (itr != LfgDungeonStore.end())
         return &(itr->second);
 
@@ -175,9 +175,9 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
     LfgDungeonStore.clear();
 
     // Initialize Dungeon map with data from dbcs
-    for (uint32 i = 0; i < sLFGDungeonStore.GetNumRows(); ++i)
+    for (LFGDungeonContainer::const_iterator itr = sDBCMgr->LFGDungeonStore.begin(); itr != sDBCMgr->LFGDungeonStore.end(); ++itr)
     {
-        LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(i);
+        LFGDungeonEntry const* dungeon = itr->second;
         if (!dungeon)
             continue;
 
@@ -207,7 +207,7 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
     {
         Field* fields = result->Fetch();
         uint32 dungeonId = fields[0].GetUInt32();
-        LFGDungeonContainer::iterator dungeonItr = LfgDungeonStore.find(dungeonId);
+        LFGDungeonDataContainer::iterator dungeonItr = LfgDungeonStore.find(dungeonId);
         if (dungeonItr == LfgDungeonStore.end())
         {
             TC_LOG_ERROR("sql.sql", "table `lfg_entrances` contains coordinates for wrong dungeon %u", dungeonId);
@@ -227,7 +227,7 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
     TC_LOG_INFO("server.loading", ">> Loaded %u lfg entrance positions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
     // Fill all other teleport coords from areatriggers
-    for (LFGDungeonContainer::iterator itr = LfgDungeonStore.begin(); itr != LfgDungeonStore.end(); ++itr)
+    for (LFGDungeonDataContainer::iterator itr = LfgDungeonStore.begin(); itr != LfgDungeonStore.end(); ++itr)
     {
         LFGDungeonData& dungeon = itr->second;
 
@@ -1972,7 +1972,7 @@ uint32 LFGMgr::GetLFGDungeonEntry(uint32 id)
 LfgDungeonSet LFGMgr::GetRandomAndSeasonalDungeons(uint8 level, uint8 expansion)
 {
     LfgDungeonSet randomDungeons;
-    for (lfg::LFGDungeonContainer::const_iterator itr = LfgDungeonStore.begin(); itr != LfgDungeonStore.end(); ++itr)
+    for (lfg::LFGDungeonDataContainer::const_iterator itr = LfgDungeonStore.begin(); itr != LfgDungeonStore.end(); ++itr)
     {
         lfg::LFGDungeonData const& dungeon = itr->second;
         if ((dungeon.type == lfg::LFG_TYPE_RANDOM || (dungeon.seasonal && sLFGMgr->IsSeasonActive(dungeon.id)))

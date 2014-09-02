@@ -70,7 +70,7 @@ public:
             creature->MonsterWhisper("Un enchantement de bouclier ne va pas sur ce type d'arme.", player);
             player->CLOSE_GOSSIP_MENU();
             return; } }
-        SpellItemEnchantmentEntry const* enchant_id = sSpellItemEnchantmentStore.LookupEntry(enchid);
+        SpellItemEnchantmentEntry const* enchant_id = sDBCMgr->GetSpellItemEnchantmentEntry(enchid);
         if (!enchant_id) {
             creature->MonsterWhisper("L'enchantement sélectionné n'est pas un enchantement, prévenez un administrateur.", player);
             player->CLOSE_GOSSIP_MENU();

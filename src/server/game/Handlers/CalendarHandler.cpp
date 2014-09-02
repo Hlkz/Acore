@@ -152,7 +152,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
     data << uint32(holidayCount);
     for (uint32 i = 0; i < holidayCount; ++i)
     {
-        HolidaysEntry const* holiday = sHolidaysStore.LookupEntry(666);
+        HolidaysEntry const* holiday = sDBCMgr->GetHolidaysEntry(666);
 
         data << uint32(holiday->Id);                        // m_ID
         data << uint32(holiday->Region);                    // m_region, might be looping

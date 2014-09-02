@@ -154,14 +154,14 @@ public:
 
     static bool HandleLearnAllMySpellsCommand(ChatHandler* handler, char const* /*args*/)
     {
-        ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(handler->GetSession()->GetPlayer()->getClass());
+        ChrClassesEntry const* classEntry = sDBCMgr->GetChrClassesEntry(handler->GetSession()->GetPlayer()->getClass());
         if (!classEntry)
             return true;
         uint32 family = classEntry->spellfamily;
 
-        for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); ++i)
+        for (SkillLineAbilityContainer::const_iterator itr = sDBCMgr->SkillLineAbilityStore.begin(); itr != sDBCMgr->SkillLineAbilityStore.end(); ++itr)
         {
-            SkillLineAbilityEntry const* entry = sSkillLineAbilityStore.LookupEntry(i);
+            SkillLineAbilityEntry const* entry = itr->second;
             if (!entry)
                 continue;
 
@@ -208,7 +208,7 @@ public:
             if (!talentInfo)
                 continue;
 
-            TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
+            TalentTabEntry const* talentTabInfo = sDBCMgr->GetTalentTabEntry(talentInfo->TalentTab);
             if (!talentTabInfo)
                 continue;
 
@@ -264,7 +264,7 @@ public:
             return false;
         }
 
-        CreatureFamilyEntry const* petFamily = sCreatureFamilyStore.LookupEntry(creatureInfo->family);
+        CreatureFamilyEntry const* petFamily = sDBCMgr->GetCreatureFamilyEntry(creatureInfo->family);
         if (!petFamily)
         {
             handler->SendSysMessage(LANG_WRONG_PET_TYPE);
@@ -285,7 +285,7 @@ public:
             if (!talentInfo)
                 continue;
 
-            TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
+            TalentTabEntry const* talentTabInfo = sDBCMgr->GetTalentTabEntry(talentInfo->TalentTab);
             if (!talentTabInfo)
                 continue;
 
@@ -347,9 +347,9 @@ public:
 
     static bool HandleLearnAllCraftsCommand(ChatHandler* handler, char const* /*args*/)
     {
-        for (uint32 i = 0; i < sSkillLineStore.GetNumRows(); ++i)
+        for (SkillLineContainer::const_iterator itr = sDBCMgr->SkillLineStore.begin(); itr != sDBCMgr->SkillLineStore.end(); ++itr)
         {
-            SkillLineEntry const* skillInfo = sSkillLineStore.LookupEntry(i);
+            SkillLineEntry const* skillInfo = itr->second;
             if (!skillInfo)
                 continue;
 
@@ -390,9 +390,9 @@ public:
         std::string name;
 
         SkillLineEntry const* targetSkillInfo = NULL;
-        for (uint32 i = 1; i < sSkillLineStore.GetNumRows(); ++i)
+        for (uint32 i = 1; i < sDBCMgr->SkillLineStore.size(); ++i)
         {
-            SkillLineEntry const* skillInfo = sSkillLineStore.LookupEntry(i);
+            SkillLineEntry const* skillInfo = sDBCMgr->GetSkillLineEntry(i);
             if (!skillInfo)
                 continue;
 
@@ -445,9 +445,9 @@ public:
     {
         uint32 classmask = player->getClassMask();
 
-        for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
+        for (SkillLineAbilityContainer::const_iterator itr = sDBCMgr->SkillLineAbilityStore.begin(); itr != sDBCMgr->SkillLineAbilityStore.end(); ++itr)
         {
-            SkillLineAbilityEntry const* skillLine = sSkillLineAbilityStore.LookupEntry(j);
+            SkillLineAbilityEntry const* skillLine = itr->second;
             if (!skillLine)
                 continue;
 

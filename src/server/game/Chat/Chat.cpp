@@ -1006,7 +1006,7 @@ uint32 ChatHandler::extractSpellIdFromLink(char* text)
         {
             uint32 glyph_prop_id = param1_str ? (uint32)atol(param1_str) : 0;
 
-            GlyphPropertiesEntry const* glyphPropEntry = sGlyphPropertiesStore.LookupEntry(glyph_prop_id);
+            GlyphPropertiesEntry const* glyphPropEntry = sDBCMgr->GetGlyphPropertiesEntry(glyph_prop_id);
             if (!glyphPropEntry)
                 return 0;
 
