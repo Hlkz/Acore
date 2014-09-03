@@ -75,7 +75,17 @@ public:
     {
         boss_baron_rivendareAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = me->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            ShadowBolt_Timer = 5000;
+            Cleave_Timer = 8000;
+            MortalStrike_Timer = 12000;
+            //        RaiseDead_Timer = 30000;
+            SummonSkeletons_Timer = 34000;
         }
 
         InstanceScript* instance;
@@ -88,19 +98,15 @@ public:
 
         void Reset() override
         {
-            ShadowBolt_Timer = 5000;
-            Cleave_Timer = 8000;
-            MortalStrike_Timer = 12000;
-            //        RaiseDead_Timer = 30000;
-            SummonSkeletons_Timer = 34000;
-            if (instance && instance->GetData(TYPE_RAMSTEIN) == DONE)
+            Initialize();
+            if (instance->GetData(TYPE_RAMSTEIN) == DONE)
                 instance->SetData(TYPE_BARON, NOT_STARTED);
         }
 
         void AttackStart(Unit* who) override
         {
-            if (instance)//can't use entercombat(), boss' dmg aura sets near players in combat, before entering the room's door
-                instance->SetData(TYPE_BARON, IN_PROGRESS);
+            //can't use entercombat(), boss' dmg aura sets near players in combat, before entering the room's door
+            instance->SetData(TYPE_BARON, IN_PROGRESS);
             ScriptedAI::AttackStart(who);
         }
 
@@ -111,10 +117,9 @@ public:
         }
 
         void JustDied(Unit* /*killer*/) override
-         {
-             if (instance)
-                 instance->SetData(TYPE_BARON, DONE);
-         }
+        {
+            instance->SetData(TYPE_BARON, DONE);
+        }
 
         void UpdateAI(uint32 diff) override
         {
