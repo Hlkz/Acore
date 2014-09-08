@@ -604,6 +604,9 @@ GM.WhisperingTo = 2
 #    GM.InGMList.Level : Maximum GM level shown in GM list (if enabled) in non-GM state (.gm off).
 GM.InGMList.Level = 4
 
+# GM.FreezeAuraDuration - Allows to set a default duration to the Freeze Aura (Default: 0)
+GM.FreezeAuraDuration = 0
+
 #    GM.InWhoList.Level : Max GM level showed in who list (if visible).
 GM.InWhoList.Level = 4
 
