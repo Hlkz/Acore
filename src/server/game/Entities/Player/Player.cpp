@@ -2056,7 +2056,7 @@ uint8 Player::GetChatTag() const
 void Player::SendTeleportAckPacket()
 {
     WorldPacket data(MSG_MOVE_TELEPORT_ACK, 41);
-    data.append(GetPackGUID());
+    data << GetPackGUID();
     data << uint32(0);                                     // this value increments every time
     BuildMovementPacket(&data);
     GetSession()->SendPacket(&data);
@@ -4948,7 +4948,7 @@ void Player::SetMovement(PlayerMovementType pType)
             TC_LOG_ERROR("entities.player", "Player::SetMovement: Unsupported move type (%d), data not sent to client.", pType);
             return;
     }
-    data.append(GetPackGUID());
+    data << GetPackGUID();
     data << uint32(0);
     GetSession()->SendPacket(&data);
 }
@@ -4960,7 +4960,7 @@ void Player::SetMovement(PlayerMovementType pType)
 void Player::BuildPlayerRepop()
 {
     WorldPacket data(SMSG_PRE_RESURRECT, GetPackGUID().size());
-    data.append(GetPackGUID());
+    data << GetPackGUID();
     GetSession()->SendPacket(&data);
 
     if (getRace() == RACE_NIGHTELF)
@@ -19906,7 +19906,7 @@ void Player::SendAttackSwingBadFacingAttack()
 void Player::SendAutoRepeatCancel(Unit* target)
 {
     WorldPacket data(SMSG_CANCEL_AUTO_REPEAT, target->GetPackGUID().size());
-    data.append(target->GetPackGUID());                     // may be it's target guid
+    data << target->GetPackGUID();                     // may be it's target guid
     GetSession()->SendPacket(&data);
 }
 
@@ -22473,11 +22473,11 @@ void Player::SendComboPoints()
         if (m_mover != this)
         {
             data.Initialize(SMSG_PET_UPDATE_COMBO_POINTS, m_mover->GetPackGUID().size()+combotarget->GetPackGUID().size()+1);
-            data.append(m_mover->GetPackGUID());
+            data << m_mover->GetPackGUID();
         }
         else
             data.Initialize(SMSG_UPDATE_COMBO_POINTS, combotarget->GetPackGUID().size()+1);
-        data.append(combotarget->GetPackGUID());
+        data << combotarget->GetPackGUID();
         data << uint8(m_comboPoints);
         GetSession()->SendPacket(&data);
     }
@@ -22657,7 +22657,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     if (HasAuraType(SPELL_AURA_MOD_ROOT))
     {
         WorldPacket data2(SMSG_FORCE_MOVE_ROOT, 10);
-        data2.append(GetPackGUID());
+        data2 << GetPackGUID();
         data2 << (uint32)2;
         SendMessageToSet(&data2, true);
     }
@@ -23054,7 +23054,7 @@ void Player::SendAurasForTarget(Unit* target)
         target->SetHover(true, true);
 
     WorldPacket data(SMSG_AURA_UPDATE_ALL);
-    data.append(target->GetPackGUID());
+    data << target->GetPackGUID();
 
     Unit::VisibleAuraMap const* visibleAuras = target->GetVisibleAuras();
     for (Unit::VisibleAuraMap::const_iterator itr = visibleAuras->begin(); itr != visibleAuras->end(); ++itr)
@@ -23752,7 +23752,7 @@ void Player::ResurectUsingRequestData()
 void Player::SetClientControl(Unit* target, bool allowMove)
 {
     WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE, target->GetPackGUID().size()+1);
-    data.append(target->GetPackGUID());
+    data << target->GetPackGUID();
     data << uint8(allowMove ? 1 : 0);
     GetSession()->SendPacket(&data);
 
@@ -26260,12 +26260,12 @@ bool Player::SetDisableGravity(bool disable, bool packetOnly /*= false*/)
         return false;
 
     WorldPacket data(disable ? SMSG_MOVE_GRAVITY_DISABLE : SMSG_MOVE_GRAVITY_ENABLE, 12);
-    data.append(GetPackGUID());
+    data << GetPackGUID();
     data << uint32(0);          //! movement counter
     SendDirectMessage(&data);
 
     data.Initialize(MSG_MOVE_GRAVITY_CHNG, 64);
-    data.append(GetPackGUID());
+    data << GetPackGUID();
     BuildMovementPacket(&data);
     SendMessageToSet(&data, false);
     return true;
@@ -26277,12 +26277,12 @@ bool Player::SetCanFly(bool apply)
         return false;
 
     WorldPacket data(apply ? SMSG_MOVE_SET_CAN_FLY : SMSG_MOVE_UNSET_CAN_FLY, 12);
-    data.append(GetPackGUID());
+    data << GetPackGUID();
     data << uint32(0);          //! movement counter
     SendDirectMessage(&data);
 
     data.Initialize(MSG_MOVE_UPDATE_CAN_FLY, 64);
-    data.append(GetPackGUID());
+    data << GetPackGUID();
     BuildMovementPacket(&data);
     SendMessageToSet(&data, false);
     return true;
@@ -26294,12 +26294,12 @@ bool Player::SetHover(bool apply, bool packetOnly /*= false*/)
         return false;
 
     WorldPacket data(apply ? SMSG_MOVE_SET_HOVER : SMSG_MOVE_UNSET_HOVER, 12);
-    data.append(GetPackGUID());
+    data << GetPackGUID();
     data << uint32(0);          //! movement counter
     SendDirectMessage(&data);
 
     data.Initialize(MSG_MOVE_HOVER, 64);
-    data.append(GetPackGUID());
+    data << GetPackGUID();
     BuildMovementPacket(&data);
     SendMessageToSet(&data, false);
     return true;
@@ -26311,12 +26311,12 @@ bool Player::SetWaterWalking(bool apply, bool packetOnly /*= false*/)
         return false;
 
     WorldPacket data(apply ? SMSG_MOVE_WATER_WALK : SMSG_MOVE_LAND_WALK, 12);
-    data.append(GetPackGUID());
+    data << GetPackGUID();
     data << uint32(0);          //! movement counter
     SendDirectMessage(&data);
 
     data.Initialize(MSG_MOVE_WATER_WALK, 64);
-    data.append(GetPackGUID());
+    data << GetPackGUID();
     BuildMovementPacket(&data);
     SendMessageToSet(&data, false);
     return true;
@@ -26328,12 +26328,12 @@ bool Player::SetFeatherFall(bool apply, bool packetOnly /*= false*/)
         return false;
 
     WorldPacket data(apply ? SMSG_MOVE_FEATHER_FALL : SMSG_MOVE_NORMAL_FALL, 12);
-    data.append(GetPackGUID());
+    data << GetPackGUID();
     data << uint32(0);          //! movement counter
     SendDirectMessage(&data);
 
     data.Initialize(MSG_MOVE_FEATHER_FALL, 64);
-    data.append(GetPackGUID());
+    data << GetPackGUID();
     BuildMovementPacket(&data);
     SendMessageToSet(&data, false);
     return true;
