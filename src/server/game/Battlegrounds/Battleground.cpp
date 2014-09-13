@@ -1753,6 +1753,11 @@ bool Battleground::CheckAchievementCriteriaMeet(uint32 criteriaId, Player const*
     return false;
 }
 
+uint8 Battleground::GetUniqueBracketId() const
+{
+    return GetMinLevel() / 10;
+}
+
 void Battleground::SetPlayerReady(uint64 guid)
 {
     if (ObjectAccessor::FindPlayer(guid))

@@ -476,6 +476,9 @@ class Battleground
 
         virtual uint32 GetPrematureWinner();
 
+        // because BattleGrounds with different types and same level range has different m_BracketId
+        uint8 GetUniqueBracketId() const;
+
         void SetPlayerReady(uint64 guid);
 
     protected:
