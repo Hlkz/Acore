@@ -88,7 +88,6 @@ public:
             { "creature_queststarter",        SEC_ADMINISTRATOR, true,  &HandleReloadCreatureQuestStarterCommand,       "", NULL },
             { "creature_summon_groups",       SEC_GAMEMASTER,    true,  &HandleReloadCreatureSummonGroupsCommand,       "", NULL },
             { "creature_template",            SEC_GAMEMASTER,    true,  &HandleReloadCreatureTemplateCommand,           "", NULL },
-            //{ "db_script_string",             SEC_GAMEMASTER,    true,  &HandleReloadDbScriptStringCommand,            "", NULL },
             { "disables",                     SEC_GAMEMASTER,    true,  &HandleReloadDisablesCommand,                   "", NULL },
             { "disenchant_loot_template",     SEC_GAMEMASTER,    true,  &HandleReloadLootTemplatesDisenchantCommand,    "", NULL },
             { "event_scripts",                SEC_GAMEMASTER,    true,  &HandleReloadEventScriptsCommand,               "", NULL },
@@ -266,7 +265,6 @@ public:
         HandleReloadEventScriptsCommand(handler, "a");
         HandleReloadSpellScriptsCommand(handler, "a");
         handler->SendGlobalGMSysMessage("DB tables `*_scripts` reloaded.");
-        HandleReloadDbScriptStringCommand(handler, "a");
         HandleReloadWpScriptsCommand(handler, "a");
         HandleReloadWpCommand(handler, "a");
         return true;
@@ -965,14 +963,6 @@ public:
         if (*args != 'a')
             handler->SendGlobalGMSysMessage("DB table `spell_scripts` reloaded.");
 
-        return true;
-    }
-
-    static bool HandleReloadDbScriptStringCommand(ChatHandler* handler, const char* /*args*/)
-    {
-        TC_LOG_INFO("misc", "Re-Loading Script strings from `db_script_string`...");
-        sObjectMgr->LoadDbScriptStrings();
-        handler->SendGlobalGMSysMessage("DB table `db_script_string` reloaded.");
         return true;
     }
 
