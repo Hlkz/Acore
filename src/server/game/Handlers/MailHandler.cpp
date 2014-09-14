@@ -29,14 +29,14 @@
 #include "Item.h"
 #include "AccountMgr.h"
 
-bool WorldSession::CanOpenMailBox(uint64 guid)
+bool WorldSession::CanOpenMailBox(ObjectGuid guid)
 {
     if (IS_GAMEOBJECT_GUID(guid))
     {
         if (!_player->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_MAILBOX))
             return false;
     }
-    else if (IS_CRE_OR_VEH_OR_PET_GUID(guid))
+    else if (guid.IsAnyTypeCreature())
     {
         if (!_player->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_MAILBOX))
             return false;
@@ -49,14 +49,14 @@ bool WorldSession::CanOpenMailBox(uint64 guid)
 
 void WorldSession::HandleSendMail(WorldPacket& recvData)
 {
-    uint64 mailbox, unk3;
+    ObjectGuid mailbox, unk3;
     std::string receiverName, subject, body;
-    uint32 unk1, unk2, money, COD;
+    uint32 stationery, package, money, COD;
     uint8 unk4;
     uint8 items_count;
     recvData >> mailbox >> receiverName >> subject >> body
-             >> unk1                                       // stationery?
-             >> unk2                                       // 0x00000000
+             >> stationery                                 // stationery?
+             >> package                                    // 0x00000000
              >> items_count;                               // attached items count
 
     if (items_count > MAX_MAIL_ITEMS)                      // client limit
@@ -66,7 +66,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         return;
     }
 
-    uint64 itemGUIDs[MAX_MAIL_ITEMS];
+    ObjectGuid itemGUIDs[MAX_MAIL_ITEMS];
 
     for (uint8 i = 0; i < items_count; ++i)
     {
@@ -88,7 +88,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     Player* player = _player;
 
-    uint64 receiverGuid = 0;
+    ObjectGuid receiverGuid;
     if (normalizePlayerName(receiverName))
         receiverGuid = sObjectMgr->GetPlayerGUIDByName(receiverName);
 
@@ -97,15 +97,15 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         TC_LOG_INFO("network", "Player %u is sending mail to %s (GUID: not existed!) with subject %s "
             "and body %s includes %u items, %u copper and %u COD copper with unk1 = %u, unk2 = %u",
             player->GetGUIDLow(), receiverName.c_str(), subject.c_str(), body.c_str(),
-            items_count, money, COD, unk1, unk2);
+            items_count, money, COD, stationery, package);
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_RECIPIENT_NOT_FOUND);
         return;
     }
 
-    TC_LOG_INFO("network", "Player %u is sending mail to %s (GUID: %u) with subject %s and body %s "
+    TC_LOG_INFO("network", "Player %u is sending mail to %s (%s) with subject %s and body %s "
         "includes %u items, %u copper and %u COD copper with unk1 = %u, unk2 = %u",
-        player->GetGUIDLow(), receiverName.c_str(), GUID_LOPART(receiverGuid), subject.c_str(),
-        body.c_str(), items_count, money, COD, unk1, unk2);
+        player->GetGUIDLow(), receiverName.c_str(), receiverGuid.ToString().c_str(), subject.c_str(),
+        body.c_str(), items_count, money, COD, stationery, package);
 
     if (player->GetGUID() == receiverGuid)
     {
@@ -149,7 +149,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         receiverTeam = sObjectMgr->GetPlayerTeamByGUID(receiverGuid);
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_COUNT);
-        stmt->setUInt32(0, GUID_LOPART(receiverGuid));
+        stmt->setUInt32(0, receiverGuid.GetCounter());
 
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
         if (result)
@@ -159,7 +159,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         }
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_LEVEL);
-        stmt->setUInt32(0, GUID_LOPART(receiverGuid));
+        stmt->setUInt32(0, receiverGuid.GetCounter());
 
         result = CharacterDatabase.Query(stmt);
         if (result)
@@ -296,7 +296,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     draft
         .AddMoney(money)
         .AddCOD(COD)
-        .SendMailTo(trans, MailReceiver(receiver, GUID_LOPART(receiverGuid)), MailSender(player), body.empty() ? MAIL_CHECK_MASK_COPIED : MAIL_CHECK_MASK_HAS_BODY, deliver_delay);
+        .SendMailTo(trans, MailReceiver(receiver, receiverGuid.GetCounter()), MailSender(player), body.empty() ? MAIL_CHECK_MASK_COPIED : MAIL_CHECK_MASK_HAS_BODY, deliver_delay);
 
     player->SaveInventoryAndGoldToDB(trans);
     CharacterDatabase.CommitTransaction(trans);
@@ -305,7 +305,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 //called when mail is read
 void WorldSession::HandleMailMarkAsRead(WorldPacket& recvData)
 {
-    uint64 mailbox;
+    ObjectGuid mailbox;
     uint32 mailId;
     recvData >> mailbox;
     recvData >> mailId;
@@ -328,7 +328,7 @@ void WorldSession::HandleMailMarkAsRead(WorldPacket& recvData)
 //called when client deletes mail
 void WorldSession::HandleMailDelete(WorldPacket& recvData)
 {
-    uint64 mailbox;
+    ObjectGuid mailbox;
     uint32 mailId;
     recvData >> mailbox;
     recvData >> mailId;
@@ -356,7 +356,7 @@ void WorldSession::HandleMailDelete(WorldPacket& recvData)
 
 void WorldSession::HandleMailReturnToSender(WorldPacket& recvData)
 {
-    uint64 mailbox;
+    ObjectGuid mailbox;
     uint32 mailId;
     recvData >> mailbox;
     recvData >> mailId;
@@ -420,7 +420,7 @@ void WorldSession::HandleMailReturnToSender(WorldPacket& recvData)
 //called when player takes item attached in mail
 void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
 {
-    uint64 mailbox;
+    ObjectGuid mailbox;
     uint32 mailId;
     uint32 itemId;
     recvData >> mailbox;
@@ -465,7 +465,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
 
         if (m->COD > 0)                                     //if there is COD, take COD money from player and send them to sender by mail
         {
-            uint64 sender_guid = MAKE_NEW_GUID(m->sender, 0, HIGHGUID_PLAYER);
+            ObjectGuid sender_guid(HIGHGUID_PLAYER, m->sender);
             Player* receiver = ObjectAccessor::FindPlayer(sender_guid);
 
             uint32 sender_accId = 0;
@@ -504,7 +504,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
 
 void WorldSession::HandleMailTakeMoney(WorldPacket& recvData)
 {
-    uint64 mailbox;
+    ObjectGuid mailbox;
     uint32 mailId;
     recvData >> mailbox;
     recvData >> mailId;
@@ -543,7 +543,7 @@ void WorldSession::HandleMailTakeMoney(WorldPacket& recvData)
 //called when player lists his received mails
 void WorldSession::HandleGetMailList(WorldPacket& recvData)
 {
-    uint64 mailbox;
+    ObjectGuid mailbox;
     recvData >> mailbox;
 
     if (!CanOpenMailBox(mailbox))
@@ -596,7 +596,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
         switch ((*itr)->messageType)
         {
             case MAIL_NORMAL:                               // sender guid
-                data << uint64(MAKE_NEW_GUID((*itr)->sender, 0, HIGHGUID_PLAYER));
+                data << ObjectGuid(HIGHGUID_PLAYER, (*itr)->sender);
                 break;
             case MAIL_CREATURE:
             case MAIL_GAMEOBJECT:
@@ -663,7 +663,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
 //used when player copies mail body to his inventory
 void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
 {
-    uint64 mailbox;
+    ObjectGuid mailbox;
     uint32 mailId;
 
     recvData >> mailbox;
@@ -703,7 +703,9 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
     else
         bodyItem->SetText(m->body);
 
-    bodyItem->SetUInt32Value(ITEM_FIELD_CREATOR, m->sender);
+    if (m->messageType == MAIL_NORMAL)
+        bodyItem->SetGuidValue(ITEM_FIELD_CREATOR, ObjectGuid(HIGHGUID_PLAYER, m->sender));
+
     bodyItem->SetFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_MAIL_TEXT_MASK);
 
     TC_LOG_INFO("network", "HandleMailCreateTextItem mailid=%u", mailId);
@@ -757,7 +759,7 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recvData*/)
             if (sentSenders.count(m->sender))
                 continue;
 
-            data << uint64(m->messageType == MAIL_NORMAL ? m->sender : 0);  // player guid
+            data << uint64(m->messageType == MAIL_NORMAL ? ObjectGuid(HIGHGUID_PLAYER, m->sender) : ObjectGuid::Empty);  // player guid
             data << uint32(m->messageType != MAIL_NORMAL ? m->sender : 0);  // non-player entries
             data << uint32(m->messageType);
             data << uint32(m->stationery);

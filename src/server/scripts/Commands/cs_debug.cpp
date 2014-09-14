@@ -557,10 +557,10 @@ public:
                         for (uint8 j = 0; j < bag->GetBagSize(); ++j)
                             if (Item* item2 = bag->GetItemByPos(j))
                                 if (item2->GetState() == state)
-                                    handler->PSendSysMessage("bag: 255 slot: %d guid: %d owner: %d", item2->GetSlot(), item2->GetGUIDLow(), GUID_LOPART(item2->GetOwnerGUID()));
+                                    handler->PSendSysMessage("bag: 255 slot: %d guid: %d owner: %d", item2->GetSlot(), item2->GetGUIDLow(), item2->GetOwnerGUID().GetCounter());
                     }
                     else if (item->GetState() == state)
-                        handler->PSendSysMessage("bag: 255 slot: %d guid: %d owner: %d", item->GetSlot(), item->GetGUIDLow(), GUID_LOPART(item->GetOwnerGUID()));
+                        handler->PSendSysMessage("bag: 255 slot: %d guid: %d owner: %d", item->GetSlot(), item->GetGUIDLow(), item->GetOwnerGUID().GetCounter());
                 }
             }
         }
@@ -622,7 +622,7 @@ public:
 
                 if (item->GetOwnerGUID() != player->GetGUID())
                 {
-                    handler->PSendSysMessage("The item with slot %d and itemguid %d does have non-matching owner guid (%d) and player guid (%d) !", item->GetSlot(), item->GetGUIDLow(), GUID_LOPART(item->GetOwnerGUID()), player->GetGUIDLow());
+                    handler->PSendSysMessage("The item with slot %d and itemguid %d does have non-matching owner guid (%d) and player guid (%d) !", item->GetSlot(), item->GetGUIDLow(), item->GetOwnerGUID().GetCounter(), player->GetGUIDLow());
                     error = true;
                     continue;
                 }
@@ -682,7 +682,7 @@ public:
 
                         if (item2->GetOwnerGUID() != player->GetGUID())
                         {
-                            handler->PSendSysMessage("The item in bag %d at slot %d and with itemguid %d, the owner's guid (%d) and the player's guid (%d) don't match!", bag->GetSlot(), item2->GetSlot(), item2->GetGUIDLow(), GUID_LOPART(item2->GetOwnerGUID()), player->GetGUIDLow());
+                            handler->PSendSysMessage("The item in bag %d at slot %d and with itemguid %d, the owner's guid (%d) and the player's guid (%d) don't match!", bag->GetSlot(), item2->GetSlot(), item2->GetGUIDLow(), item2->GetOwnerGUID().GetCounter(), player->GetGUIDLow());
                             error = true;
                             continue;
                         }
@@ -744,14 +744,14 @@ public:
 
                 if (item->GetOwnerGUID() != player->GetGUID())
                 {
-                    handler->PSendSysMessage("queue(" SIZEFMTD "): For the item with guid %d, the owner's guid (%d) and the player's guid (%d) don't match!", i, item->GetGUIDLow(), GUID_LOPART(item->GetOwnerGUID()), player->GetGUIDLow());
+                    handler->PSendSysMessage("queue(%zu): For the item with guid %d, the owner's guid (%d) and the player's guid (%d) don't match!", i, item->GetGUIDLow(), item->GetOwnerGUID().GetCounter(), player->GetGUIDLow());
                     error = true;
                     continue;
                 }
 
                 if (item->GetQueuePos() != i)
                 {
-                    handler->PSendSysMessage("queue(" SIZEFMTD "): For the item with guid %d, the queuepos doesn't match it's position in the queue!", i, item->GetGUIDLow());
+                    handler->PSendSysMessage("queue(%zu): For the item with guid %d, the queuepos doesn't match it's position in the queue!", i, item->GetGUIDLow());
                     error = true;
                     continue;
                 }
@@ -763,14 +763,14 @@ public:
 
                 if (test == NULL)
                 {
-                    handler->PSendSysMessage("queue(" SIZEFMTD "): The bag(%d) and slot(%d) values for the item with guid %d are incorrect, the player doesn't have any item at that position!", i, item->GetBagSlot(), item->GetSlot(), item->GetGUIDLow());
+                    handler->PSendSysMessage("queue(%zu): The bag(%d) and slot(%d) values for the item with guid %d are incorrect, the player doesn't have any item at that position!", i, item->GetBagSlot(), item->GetSlot(), item->GetGUIDLow());
                     error = true;
                     continue;
                 }
 
                 if (test != item)
                 {
-                    handler->PSendSysMessage("queue(" SIZEFMTD "): The bag(%d) and slot(%d) values for the item with guid %d are incorrect, an item which guid is %d is there instead!", i, item->GetBagSlot(), item->GetSlot(), item->GetGUIDLow(), test->GetGUIDLow());
+                    handler->PSendSysMessage("queue(%zu): The bag(%d) and slot(%d) values for the item with guid %d are incorrect, an item which guid is %d is there instead!", i, item->GetBagSlot(), item->GetSlot(), item->GetGUIDLow(), test->GetGUIDLow());
                     error = true;
                     continue;
                 }
@@ -908,7 +908,7 @@ public:
         handler->GetSession()->GetPlayer()->GetClosePoint(x, y, z, handler->GetSession()->GetPlayer()->GetObjectSize());
 
         if (!i)
-            return handler->GetSession()->GetPlayer()->SummonCreature(entry, x, y, z, o);
+            return handler->GetSession()->GetPlayer()->SummonCreature(entry, x, y, z, o) != nullptr;
 
         uint32 id = (uint32)atoi(i);
 
@@ -971,7 +971,7 @@ public:
         uint32 guid = (uint32)atoi(e);
         uint32 index = (uint32)atoi(f);
 
-        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(MAKE_NEW_GUID(guid, 0, HIGHGUID_ITEM));
+        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid(HIGHGUID_ITEM, 0, guid));
 
         if (!i)
             return false;
@@ -1002,7 +1002,7 @@ public:
         uint32 index = (uint32)atoi(f);
         uint32 value = (uint32)atoi(g);
 
-        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(MAKE_NEW_GUID(guid, 0, HIGHGUID_ITEM));
+        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid(HIGHGUID_ITEM, 0, guid));
 
         if (!i)
             return false;
@@ -1026,7 +1026,7 @@ public:
 
         uint32 guid = (uint32)atoi(e);
 
-        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(MAKE_NEW_GUID(guid, 0, HIGHGUID_ITEM));
+        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid(HIGHGUID_ITEM, guid));
 
         if (!i)
             return false;
@@ -1045,6 +1045,13 @@ public:
 
         uint32 animId = atoi((char*)args);
         handler->GetSession()->GetPlayer()->HandleEmoteCommand(animId);
+        return true;
+    }
+
+    static bool HandleDebugLoSCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        //if (Unit* unit = handler->getSelectedUnit())
+        //    handler->PSendSysMessage("Unit %s (GuidLow: %u) is %sin LoS", unit->GetName().c_str(), unit->GetGUIDLow(), handler->GetSession()->GetPlayer()->IsWithinLOSInMap(unit) ? "" : "not ");
         return true;
     }
 
@@ -1098,30 +1105,30 @@ public:
             return false;
         }
 
-        uint64 guid = target->GetGUID();
+        ObjectGuid guid = target->GetGUID();
 
-        uint32 opcode = (uint32)atoi(x);
-        if (opcode >= target->GetValuesCount())
+        uint32 field = (uint32)atoi(x);
+        if (field >= target->GetValuesCount())
         {
-            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, opcode, GUID_LOPART(guid), target->GetValuesCount());
+            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, field, guid.GetCounter(), target->GetValuesCount());
             return false;
         }
 
         bool isInt32 = true;
         if (z)
-            isInt32 = (bool)atoi(z);
+            isInt32 = atoi(z) != 0;
 
         if (isInt32)
         {
             uint32 value = (uint32)atoi(y);
-            target->SetUInt32Value(opcode, value);
-            handler->PSendSysMessage(LANG_SET_UINT_FIELD, GUID_LOPART(guid), opcode, value);
+            target->SetUInt32Value(field, value);
+            handler->PSendSysMessage(LANG_SET_UINT_FIELD, guid.GetCounter(), field, value);
         }
         else
         {
             float value = (float)atof(y);
-            target->SetFloatValue(opcode, value);
-            handler->PSendSysMessage(LANG_SET_FLOAT_FIELD, GUID_LOPART(guid), opcode, value);
+            target->SetFloatValue(field, value);
+            handler->PSendSysMessage(LANG_SET_FLOAT_FIELD, guid.GetCounter(), field, value);
         }
 
         return true;
@@ -1146,28 +1153,28 @@ public:
             return false;
         }
 
-        uint64 guid = target->GetGUID();
+        ObjectGuid guid = target->GetGUID();
 
         uint32 opcode = (uint32)atoi(x);
         if (opcode >= target->GetValuesCount())
         {
-            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, opcode, GUID_LOPART(guid), target->GetValuesCount());
+            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, opcode, guid.GetCounter(), target->GetValuesCount());
             return false;
         }
 
         bool isInt32 = true;
         if (z)
-            isInt32 = (bool)atoi(z);
+            isInt32 = atoi(z) != 0;
 
         if (isInt32)
         {
             uint32 value = target->GetUInt32Value(opcode);
-            handler->PSendSysMessage(LANG_GET_UINT_FIELD, GUID_LOPART(guid), opcode, value);
+            handler->PSendSysMessage(LANG_GET_UINT_FIELD, guid.GetCounter(), opcode, value);
         }
         else
         {
             float value = target->GetFloatValue(opcode);
-            handler->PSendSysMessage(LANG_GET_FLOAT_FIELD, GUID_LOPART(guid), opcode, value);
+            handler->PSendSysMessage(LANG_GET_FLOAT_FIELD, guid.GetCounter(), opcode, value);
         }
 
         return true;
@@ -1308,15 +1315,15 @@ public:
                                                     MOVEMENTFLAG_WALKING | MOVEMENTFLAG_SWIMMING |
                                                     MOVEMENTFLAG_SPLINE_ENABLED;
 
-            bool unhandledFlag = (moveFlags ^ target->GetUnitMovementFlags()) & ~FlagsWithHandlers;
+            bool unhandledFlag = ((moveFlags ^ target->GetUnitMovementFlags()) & ~FlagsWithHandlers) != 0;
 
-            target->SetWalk(moveFlags & MOVEMENTFLAG_WALKING);
-            target->SetDisableGravity(moveFlags & MOVEMENTFLAG_DISABLE_GRAVITY);
-            target->SetSwim(moveFlags & MOVEMENTFLAG_SWIMMING);
-            target->SetCanFly(moveFlags & MOVEMENTFLAG_CAN_FLY);
-            target->SetWaterWalking(moveFlags & MOVEMENTFLAG_WATERWALKING);
-            target->SetFeatherFall(moveFlags & MOVEMENTFLAG_FALLING_SLOW);
-            target->SetHover(moveFlags & MOVEMENTFLAG_HOVER);
+            target->SetWalk((moveFlags & MOVEMENTFLAG_WALKING) != 0);
+            target->SetDisableGravity((moveFlags & MOVEMENTFLAG_DISABLE_GRAVITY) != 0);
+            target->SetSwim((moveFlags & MOVEMENTFLAG_SWIMMING) != 0);
+            target->SetCanFly((moveFlags & MOVEMENTFLAG_CAN_FLY) != 0);
+            target->SetWaterWalking((moveFlags & MOVEMENTFLAG_WATERWALKING) != 0);
+            target->SetFeatherFall((moveFlags & MOVEMENTFLAG_FALLING_SLOW) != 0);
+            target->SetHover((moveFlags & MOVEMENTFLAG_HOVER) != 0);
 
             if (moveFlags & (MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_CAN_FLY))
                 moveFlags &= ~MOVEMENTFLAG_FALLING;

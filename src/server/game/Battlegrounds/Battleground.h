@@ -315,7 +315,7 @@ class Battleground
         bool isBattleground() const { return !m_IsArena; }
         bool isRated() const        { return m_IsRated; }
 
-        typedef std::map<uint64, BattlegroundPlayer> BattlegroundPlayerMap;
+        typedef std::map<ObjectGuid, BattlegroundPlayer> BattlegroundPlayerMap;
         BattlegroundPlayerMap const& GetPlayers() const { return m_Players; }
         uint32 GetPlayersSize() const { return m_Players.size(); }
 
@@ -323,7 +323,7 @@ class Battleground
         uint32 GetPlayerScoresSize() const { return PlayerScores.size(); }
 
         /// Relocate all players in ReviveQueue to the closest graveyard
-        void RelocateDeadPlayers(uint64 queueIndex);
+        void RelocateDeadPlayers(ObjectGuid guideGuid);
 
         void StartBattleground();
 
@@ -416,7 +416,7 @@ class Battleground
         virtual void ProcessEvent(WorldObject* /*obj*/, uint32 /*eventId*/, WorldObject* /*invoker*/ = NULL) { }
 
         // this function can be used by spell to interact with the BG map
-        virtual void DoAction(uint32 /*action*/, uint64 /*var*/) { }
+        virtual void DoAction(uint32 /*action*/, ObjectGuid /*var*/) { }
 
         virtual void HandlePlayerResurrect(Player* /*player*/) { }
 
@@ -427,17 +427,15 @@ class Battleground
 
         void AddOrSetPlayerToCorrectBgGroup(Player* player, uint32 team);
 
-        virtual void RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPacket);
+        virtual void RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool SendPacket);
                                                             // can be extended in in BG subclass
 
-        void HandleTriggerBuff(uint64 go_guid);
+        void HandleTriggerBuff(ObjectGuid go_guid);
         void SetHoliday(bool is_holiday);
 
         /// @todo make this protected:
-        typedef std::vector<uint64> BGObjects;
-        typedef std::vector<uint64> BGCreatures;
-        BGObjects BgObjects;
-        BGCreatures BgCreatures;
+        GuidVector BgObjects;
+        GuidVector BgCreatures;
         void SpawnBGObject(uint32 type, uint32 respawntime);
         virtual bool AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime = 0);
         bool AddObject(uint32 type, uint32 entry, Position const& pos, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime = 0);
@@ -447,7 +445,7 @@ class Battleground
         bool DelObject(uint32 type);
         virtual bool AddSpiritGuide(uint32 type, float x, float y, float z, float o, TeamId teamId = TEAM_NEUTRAL);
         bool AddSpiritGuide(uint32 type, Position const& pos, TeamId teamId = TEAM_NEUTRAL);
-        int32 GetObjectType(uint64 guid);
+        int32 GetObjectType(ObjectGuid guid);
 
         void DoorOpen(uint32 type);
         void DoorClose(uint32 type);
@@ -457,9 +455,9 @@ class Battleground
         virtual bool HandlePlayerUnderMap(Player* /*player*/) { return false; }
 
         // since arenas can be AvA or Hvh, we have to get the "temporary" team of a player
-        uint32 GetPlayerTeam(uint64 guid) const;
+        uint32 GetPlayerTeam(ObjectGuid guid) const;
         uint32 GetOtherTeam(uint32 teamId) const;
-        bool IsPlayerInBattleground(uint64 guid) const;
+        bool IsPlayerInBattleground(ObjectGuid guid) const;
 
         bool ToBeDeleted() const { return m_SetDeleteThis; }
         void SetDeleteThis() { m_SetDeleteThis = true; }
@@ -467,8 +465,8 @@ class Battleground
         void RewardXPAtKill(Player* killer, Player* victim);
         bool CanAwardArenaPoints() const { return m_LevelMin >= BG_AWARD_ARENA_POINTS_MIN_LEVEL; }
 
-        virtual uint64 GetFlagPickerGUID(int32 /*team*/ = -1) const { return 0; }
-        virtual void SetDroppedFlagGUID(uint64 /*guid*/, int32 /*team*/ = -1) { }
+        virtual ObjectGuid GetFlagPickerGUID(int32 /*team*/ = -1) const { return ObjectGuid::Empty; }
+        virtual void SetDroppedFlagGUID(ObjectGuid /*guid*/, int32 /*team*/ = -1) { }
         virtual void HandleQuestComplete(uint32 /*questid*/, Player* /*player*/) { }
         virtual bool CanActivateGO(int32 /*entry*/, uint32 /*team*/) const { return true; }
         virtual bool IsSpellAllowed(uint32 /*spellId*/, Player const* /*player*/) const { return true; }
@@ -486,7 +484,7 @@ class Battleground
         void EndNow();
         void PlayerAddedToBGCheckIfBGIsRunning(Player* player);
 
-        Player* _GetPlayer(uint64 guid, bool offlineRemove, const char* context) const;
+        Player* _GetPlayer(ObjectGuid guid, bool offlineRemove, const char* context) const;
         Player* _GetPlayer(BattlegroundPlayerMap::iterator itr, const char* context) { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime, context); }
         Player* _GetPlayer(BattlegroundPlayerMap::const_iterator itr, const char* context) const { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime, context); }
         Player* _GetPlayerForTeam(uint32 teamId, BattlegroundPlayerMap::const_iterator itr, const char* context) const;
@@ -500,10 +498,10 @@ class Battleground
         // Scorekeeping
         BattlegroundScoreMap PlayerScores;                // Player scores
         // must be implemented in BG subclass
-        virtual void RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/) { }
+        virtual void RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/) { }
 
         // Player lists, those need to be accessible by inherited classes
-        BattlegroundPlayerMap  m_Players;
+        BattlegroundPlayerMap m_Players;
 
         // these are important variables used for starting messages
         uint8 m_Events;
@@ -573,7 +571,7 @@ class Battleground
         virtual void PostUpdateImpl(uint32 /* diff */) { }
 
         // Player lists
-        std::deque<uint64> m_OfflineQueue;                  // Player GUID
+        GuidDeque m_OfflineQueue;                           // Player GUID
 
         // Invited counters are useful for player invitation to BG - do not allow, if BG is started to one faction to have 2 more players than another faction
         // Invited counters will be changed only when removing already invited player from queue, removing player from battleground and inviting player to BG

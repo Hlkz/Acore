@@ -501,7 +501,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
     }
 
     uint32 text_emote, emoteNum;
-    uint64 guid;
+    ObjectGuid guid;
 
     recvData >> text_emote;
     recvData >> emoteNum;
@@ -552,7 +552,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
 {
-    uint64 iguid;
+    ObjectGuid iguid;
     uint8 unk;
     //TC_LOG_DEBUG("network", "WORLD: Received CMSG_CHAT_IGNORED");
 

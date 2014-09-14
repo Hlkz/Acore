@@ -126,7 +126,7 @@ public:
         npc_air_force_botsAI(Creature* creature) : ScriptedAI(creature)
         {
             SpawnAssoc = NULL;
-            SpawnedGUID = 0;
+            SpawnedGUID.Clear();
 
             // find the correct spawnhandling
             static uint32 entryCount = sizeof(spawnAssociations) / sizeof(SpawnAssociation);
@@ -156,7 +156,7 @@ public:
         }
 
         SpawnAssociation* SpawnAssoc;
-        uint64 SpawnedGUID;
+        ObjectGuid SpawnedGUID;
 
         void Reset() override { }
 
@@ -599,7 +599,7 @@ public:
 
         void Initialize()
         {
-            PlayerGUID = 0;
+            PlayerGUID.Clear();
 
             SummonPatientTimer = 10000;
             SummonPatientCount = 0;
@@ -612,7 +612,7 @@ public:
             Event = false;
         }
 
-        uint64 PlayerGUID;
+        ObjectGuid PlayerGUID;
 
         uint32 SummonPatientTimer;
         uint32 SummonPatientCount;
@@ -621,7 +621,7 @@ public:
 
         bool Event;
 
-        std::list<uint64> Patients;
+        GuidList Patients;
         std::vector<Location*> Coordinates;
 
         void Reset() override
@@ -692,10 +692,9 @@ public:
                     {
                         if (!Patients.empty())
                         {
-                            std::list<uint64>::const_iterator itr;
-                            for (itr = Patients.begin(); itr != Patients.end(); ++itr)
+                            for (GuidList::const_iterator itr = Patients.begin(); itr != Patients.end(); ++itr)
                             {
-                                if (Creature* patient = ObjectAccessor::GetCreature((*me), *itr))
+                                if (Creature* patient = ObjectAccessor::GetCreature(*me, *itr))
                                     patient->setDeathState(JUST_DIED);
                             }
                         }
@@ -751,11 +750,11 @@ public:
 
         void Initialize()
         {
-            DoctorGUID = 0;
+            DoctorGUID.Clear();
             Coord = NULL;
         }
 
-        uint64 DoctorGUID;
+        ObjectGuid DoctorGUID;
         Location* Coord;
 
         void Reset() override
@@ -952,7 +951,7 @@ public:
             Reset();
         }
 
-        uint64 CasterGUID;
+        ObjectGuid CasterGUID;
 
         bool IsHealed;
         bool CanRun;
@@ -961,7 +960,7 @@ public:
 
         void Reset() override
         {
-            CasterGUID = 0;
+            CasterGUID.Clear();
 
             IsHealed = false;
             CanRun = false;
@@ -2262,7 +2261,7 @@ public:
         void Initialize()
         {
             inLove = false;
-            rabbitGUID = 0;
+            rabbitGUID.Clear();
             jumpTimer = urand(5000, 10000);
             bunnyTimer = urand(10000, 20000);
             searchTimer = urand(5000, 10000);
@@ -2272,7 +2271,7 @@ public:
         uint32 jumpTimer;
         uint32 bunnyTimer;
         uint32 searchTimer;
-        uint64 rabbitGUID;
+        ObjectGuid rabbitGUID;
 
         void Reset() override
         {
@@ -2384,7 +2383,7 @@ public:
     {
         npc_imp_in_a_ballAI(Creature* creature) : ScriptedAI(creature)
         {
-            summonerGUID = 0;
+            summonerGUID.Clear();
         }
 
         void IsSummonedBy(Unit* summoner) override
@@ -2412,7 +2411,7 @@ public:
 
     private:
         EventMap events;
-        uint64 summonerGUID;
+        ObjectGuid summonerGUID;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

@@ -205,8 +205,8 @@ void SocialMgr::GetFriendInfo(Player* player, uint32 friendGUID, FriendInfo &fri
     friendInfo.Level = 0;
     friendInfo.Class = 0;
 
-    Player* pFriend = ObjectAccessor::FindPlayer(friendGUID);
-    if (!pFriend)
+    Player* target = ObjectAccessor::FindPlayer(ObjectGuid(HIGHGUID_PLAYER, friendGUID));
+    if (!target)
         return;
 
     uint32 team = player->GetTeam();
@@ -216,17 +216,17 @@ void SocialMgr::GetFriendInfo(Player* player, uint32 friendGUID, FriendInfo &fri
     if (itr != player->GetSocial()->m_playerSocialMap.end())
         friendInfo.Note = itr->second.Note;
 
-    if (pFriend && (!AccountMgr::IsPlayerAccount(security) || (pFriend->GetSession()->GetSecurity() < SEC_ADMINISTRATOR)) &&
-        pFriend->IsVisibleGloballyFor(player))
+    if (target && (!AccountMgr::IsPlayerAccount(security) || (target->GetSession()->GetSecurity() < SEC_ADMINISTRATOR)) &&
+        target->IsVisibleGloballyFor(player))
     {
         friendInfo.Status = FRIEND_STATUS_ONLINE;
-        if (pFriend->isAFK())
+        if (target->isAFK())
             friendInfo.Status = FRIEND_STATUS_AFK;
-        if (pFriend->isDND())
+        if (target->isDND())
             friendInfo.Status = FRIEND_STATUS_DND;
-        friendInfo.Area = pFriend->GetZoneId();
-        friendInfo.Level = pFriend->getLevel();
-        friendInfo.Class = pFriend->getClass();
+        friendInfo.Area = target->GetZoneId();
+        friendInfo.Level = target->getLevel();
+        friendInfo.Class = target->getClass();
     }
 }
 
@@ -280,10 +280,10 @@ void SocialMgr::BroadcastToFriendListers(Player* player, WorldPacket* packet)
 
     for (SocialMap::const_iterator itr = m_socialMap.begin(); itr != m_socialMap.end(); ++itr)
     {
-        PlayerSocialMap::const_iterator itr2 = itr->second.m_playerSocialMap.find(player->GetGUID());
+        PlayerSocialMap::const_iterator itr2 = itr->second.m_playerSocialMap.find(player->GetGUIDLow());
         if (itr2 != itr->second.m_playerSocialMap.end() && (itr2->second.Flags & SOCIAL_FLAG_FRIEND))
         {
-            Player* target = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER));
+            Player* target = ObjectAccessor::FindPlayer(ObjectGuid(HIGHGUID_PLAYER, 0, itr->first));
             if (!target || !target->IsInWorld())
                 continue;
 

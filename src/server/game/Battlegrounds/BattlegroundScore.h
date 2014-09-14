@@ -58,11 +58,10 @@ struct BattlegroundScore
     friend class Arena;
     friend class Battleground;
 
-    public:
-        BattlegroundScore(uint64 playerGuid) : PlayerGuid(playerGuid), KillingBlows(0), Deaths(0),
+    protected:
+        BattlegroundScore(ObjectGuid playerGuid) : PlayerGuid(playerGuid), KillingBlows(0), Deaths(0),
             HonorableKills(0), BonusHonor(0), DamageDone(0), HealingDone(0) { }
 
-    protected:
         virtual ~BattlegroundScore() { }
 
         virtual void UpdateScore(uint32 type, uint32 value)
@@ -112,7 +111,7 @@ struct BattlegroundScore
         // For Logging purpose
         virtual std::string ToString() const { return ""; }
 
-        uint64 PlayerGuid;
+        ObjectGuid PlayerGuid;
 
         // Default score, present in every type
         uint32 KillingBlows;

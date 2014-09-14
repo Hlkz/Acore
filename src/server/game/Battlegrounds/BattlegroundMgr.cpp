@@ -237,7 +237,7 @@ void BattlegroundMgr::BuildPlaySoundPacket(WorldPacket* data, uint32 soundid)
     *data << uint32(soundid);
 }
 
-void BattlegroundMgr::BuildPlayerLeftBattlegroundPacket(WorldPacket* data, uint64 guid)
+void BattlegroundMgr::BuildPlayerLeftBattlegroundPacket(WorldPacket* data, ObjectGuid guid)
 {
     data->Initialize(SMSG_BATTLEGROUND_PLAYER_LEFT, 8);
     *data << uint64(guid);
@@ -630,7 +630,7 @@ void BattlegroundMgr::InitAutomaticArenaPointDistribution()
     TC_LOG_DEBUG("bg.battleground", "Automatic Arena Point Distribution initialized.");
 }
 
-void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid, Player* player, BattlegroundTypeId bgTypeId, uint8 fromWhere)
+void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid guid, Player* player, BattlegroundTypeId bgTypeId, uint8 fromWhere)
 {
     if (!player)
         return;
