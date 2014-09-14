@@ -15409,7 +15409,7 @@ void Unit::SetControlled(bool apply, UnitState state)
             case UNIT_STATE_STUNNED:
                 SetStunned(true);
                 // i need to stop fear on stun and root or i will get teleport to destination issue as MVMGEN for fear keeps going on
-                if (HasUnitState(UNIT_STATE_FLEEING))   
+                if (HasUnitState(UNIT_STATE_FLEEING))
                     SetFeared(false);
                 CastStop();
                 break;
