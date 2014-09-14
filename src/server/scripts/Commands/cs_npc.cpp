@@ -1325,11 +1325,11 @@ public:
             return false;
         }
 
-        uint64 receiver_guid = atol(receiver_str);
+        ObjectGuid receiver_guid(HIGHGUID_PLAYER, uint32(atol(receiver_str)));
 
         // check online security
         Player* receiver = ObjectAccessor::FindPlayer(receiver_guid);
-        if (handler->HasLowerSecurity(receiver, 0))
+        if (handler->HasLowerSecurity(receiver, ObjectGuid::Empty))
             return false;
 
         creature->Whisper(text, LANG_UNIVERSAL, receiver);

@@ -80,7 +80,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         CharTitlesEntry const* titleInfo = sDBCMgr->GetCharTitlesEntry(id);
@@ -125,7 +125,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         CharTitlesEntry const* titleInfo = sDBCMgr->GetCharTitlesEntry(id);
@@ -171,7 +171,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         CharTitlesEntry const* titleInfo = sDBCMgr->GetCharTitlesEntry(id);
@@ -219,7 +219,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         uint64 titles2 = titles;

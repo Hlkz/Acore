@@ -238,7 +238,7 @@ public:
             return false;
 
         SellResult msg = SellResult(atoi(args));
-        handler->GetSession()->GetPlayer()->SendSellError(msg, 0, 0, 0);
+        handler->GetSession()->GetPlayer()->SendSellError(msg, nullptr, ObjectGuid::Empty, 0);
         return true;
     }
 
@@ -248,7 +248,7 @@ public:
             return false;
 
         BuyResult msg = BuyResult(atoi(args));
-        handler->GetSession()->GetPlayer()->SendBuyError(msg, 0, 0, 0);
+        handler->GetSession()->GetPlayer()->SendBuyError(msg, nullptr, 0, 0);
         return true;
     }
 
