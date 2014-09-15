@@ -227,7 +227,7 @@ class instance_deadmines : public InstanceMapScript
                         return uiSmiteChestGUID;
                 }
 
-                return 0;
+                return ObjectGuid::Empty;
             }
         };
 
