@@ -7263,8 +7263,7 @@ WorldObjectSpellTargetCheck::WorldObjectSpellTargetCheck(Unit* caster, Unit* ref
 
 WorldObjectSpellTargetCheck::~WorldObjectSpellTargetCheck()
 {
-    if (_condSrcInfo)
-        delete _condSrcInfo;
+    delete _condSrcInfo;
 }
 
 bool WorldObjectSpellTargetCheck::operator()(WorldObject* target)

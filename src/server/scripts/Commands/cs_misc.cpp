@@ -229,10 +229,12 @@ public:
         else
             handler->PSendSysMessage(LANG_GPS_NO_VMAP);
 
+        char const* unknown = handler->GetTrinityString(LANG_UNKNOWN);
+
         handler->PSendSysMessage(LANG_MAP_POSITION,
-            mapId, (mapEntry ? mapEntry->name[handler->GetSessionDbcLocale()] : handler->GetTrinityString(LANG_UNKNOWN)),
-            zoneId, (zoneEntry ? zoneEntry->area_name[handler->GetSessionDbcLocale()] : handler->GetTrinityString(LANG_UNKNOWN)),
-            areaId, (areaEntry ? areaEntry->area_name[handler->GetSessionDbcLocale()] : handler->GetTrinityString(LANG_UNKNOWN)),
+            mapId, (mapEntry ? mapEntry->name[handler->GetSessionDbcLocale()] : unknown),
+            zoneId, (zoneEntry ? zoneEntry->area_name[handler->GetSessionDbcLocale()] : unknown),
+            areaId, (areaEntry ? areaEntry->area_name[handler->GetSessionDbcLocale()] : unknown),
             object->GetPhaseMask(),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation(),
             cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
@@ -1775,7 +1777,9 @@ public:
         }
 
         if (target)
-            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->name[locale], (!zoneName.empty() ? zoneName.c_str() : handler->GetTrinityString(LANG_UNKNOWN)), (!areaName.empty() ? areaName.c_str() : handler->GetTrinityString(LANG_UNKNOWN)));
+            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->name[locale],
+                (!zoneName.empty() ? zoneName.c_str() : handler->GetTrinityString(LANG_UNKNOWN)),
+                (!areaName.empty() ? areaName.c_str() : handler->GetTrinityString(LANG_UNKNOWN)));
 
         // Guild Data - an own query, because it may not happen.
         PreparedStatement* stmt3 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER_EXTENDED);
@@ -2254,7 +2258,7 @@ public:
     {
         Player* target = NULL;
 
-        if (args && strlen(args) > 0)
+        if (args && args[0] != '\0')
         {
             target = sObjectAccessor->FindPlayerByName(args);
             if (!target)

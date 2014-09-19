@@ -14416,7 +14416,7 @@ void Player::SendPreparedQuest(ObjectGuid guid)
             {
                 qe._Delay = 0;                              //TEXTEMOTE_MESSAGE;              //zyg: player emote
                 qe._Emote = 0;                              //TEXTEMOTE_HELLO;                //zyg: NPC emote
-                title = "";
+                title.clear();
             }
             else
             {
@@ -16734,7 +16734,7 @@ float Player::GetFloatValueFromArray(Tokenizer const& data, uint16 index)
     return result;
 }
 
-bool Player::isBeingLoaded() const
+bool Player::IsLoading() const
 {
     return GetSession()->PlayerLoading();
 }
@@ -26697,11 +26697,6 @@ bool Player::IsDeserter(uint32 team)
         TC_LOG_ERROR("entities.player", "Player %u has wrong team id %u", GUID_LOPART(GetGUID()), team);
         return true;
     }
-}
-
-bool Player::IsLoading() const
-{
-    return GetSession()->PlayerLoading();
 }
 
 void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell)

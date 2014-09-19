@@ -72,8 +72,7 @@ GameObject::~GameObject()
 
 bool GameObject::AIM_Initialize()
 {
-    if (m_AI)
-        delete m_AI;
+    delete m_AI;
 
     m_AI = FactorySelector::SelectGameObjectAI(this);
 
