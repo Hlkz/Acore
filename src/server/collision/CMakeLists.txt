@@ -77,6 +77,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Models
   ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
+  ${VALGRIND_INCLUDE_DIR}
 )
 
 add_library(collision STATIC
