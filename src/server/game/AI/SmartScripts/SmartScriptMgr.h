@@ -1603,10 +1603,12 @@ class SmartAIMgr
         CacheSpellContainerBounds GetSummonCreatureSpellContainerBounds(uint32 creatureEntry) const;
         CacheSpellContainerBounds GetSummonGameObjectSpellContainerBounds(uint32 gameObjectEntry) const;
         CacheSpellContainerBounds GetKillCreditSpellContainerBounds(uint32 killCredit) const;
+        CacheSpellContainerBounds GetCreditItemSpellContainerBounds(uint32 itemId) const;
 
         CacheSpellContainer SummonCreatureSpellStore;
         CacheSpellContainer SummonGameObjectSpellStore;
         CacheSpellContainer KillCreditSpellStore;
+        CacheSpellContainer CreateItemSpellStore;
 };
 
 #define sSmartScriptMgr ACE_Singleton<SmartAIMgr, ACE_Null_Mutex>::instance()
