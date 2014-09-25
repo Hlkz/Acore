@@ -27,19 +27,19 @@ CREATE TABLE `chrclassesdbc` (
   `Unused` int(10) NOT NULL DEFAULT '0',
   `PowerType` int(10) NOT NULL DEFAULT '0',
   `DispayPower` int(10) NOT NULL DEFAULT '0',
-  `Name` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '',
-  `Name_loc2` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '',
-  `Female` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
-  `Female_loc2` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
-  `Male` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
-  `Male_loc2` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
-  `FileName` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `Name` varchar(200) NOT NULL DEFAULT '',
+  `Name_loc2` varchar(200) NOT NULL DEFAULT '',
+  `Female` varchar(100) NOT NULL DEFAULT '',
+  `Female_loc2` varchar(100) NOT NULL DEFAULT '',
+  `Male` varchar(100) NOT NULL DEFAULT '',
+  `Male_loc2` varchar(100) NOT NULL DEFAULT '',
+  `FileName` varchar(100) NOT NULL DEFAULT '',
   `SpellFamily` int(10) unsigned NOT NULL DEFAULT '0',
   `Flags` int(10) NOT NULL DEFAULT '0',
   `CinematicSequence` int(10) NOT NULL DEFAULT '0',
   `Expansion` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`),
-  UNIQUE KEY `ID` (`Id`)
+  UNIQUE KEY `Id` (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -56,13 +56,13 @@ UNLOCK TABLES;
 -- Records of `chrclassesdbc`
 --
 
-INSERT INTO `chrclassesdbc` VALUES ('1', '0', '1', '1', 'Warrior', 'Guerrier', '', 'Guerrière', 'Warrior', 'Guerrier', 'WARRIOR', '4', '50', '0', '0');
-INSERT INTO `chrclassesdbc` VALUES ('2', '0', '0', '1', 'Paladin', 'Paladin', '', '', 'Paladin', 'Paladin', 'PALADIN', '10', '58', '0', '0');
-INSERT INTO `chrclassesdbc` VALUES ('3', '1', '0', '1', 'Hunter', 'Chasseur', '', 'Chasseresse', 'Hunter', 'Chasseur', 'HUNTER', '9', '22', '0', '0');
-INSERT INTO `chrclassesdbc` VALUES ('4', '1', '3', '1', 'Rogue', 'Voleur', '', 'Voleuse', 'Rogue', 'Voleur', 'ROGUE', '8', '2', '0', '0');
-INSERT INTO `chrclassesdbc` VALUES ('5', '0', '0', '1', 'Priest', 'Prêtre', '', 'Prêtresse', 'Priest', 'Prêtre', 'PRIEST', '6', '2', '0', '0');
-INSERT INTO `chrclassesdbc` VALUES ('6', '9', '6', '1', 'Death Knight', 'Chevalier de la mort', '', '', 'Death Knight', 'Chevalier de la mort', 'DEATHKNIGHT', '15', '122', '165', '2');
-INSERT INTO `chrclassesdbc` VALUES ('7', '1', '0', '1', 'Shaman', 'Chaman', '', 'Chamane', 'Shaman', 'Chaman', 'SHAMAN', '11', '26', '0', '0');
-INSERT INTO `chrclassesdbc` VALUES ('8', '0', '0', '1', 'Mage', 'Mage', '', 'Mage', 'Mage', 'Mage', 'MAGE', '3', '2', '0', '0');
-INSERT INTO `chrclassesdbc` VALUES ('9', '0', '0', '189', 'Warlock', 'Démoniste', '', 'Démoniste', 'Warlock', 'Démoniste', 'WARLOCK', '5', '6', '0', '0');
-INSERT INTO `chrclassesdbc` VALUES ('11', '0', '0', '1', 'Druid', 'Druide', '', 'Druidesse', 'Druid', 'Druide', 'DRUID', '7', '10', '0', '0');
+INSERT INTO `chrclassesdbc` VALUES ('1', '0', '1', '1', 'Warrior', 'Guerrier', '', 'Guerrière', '', 'Guerrier', 'WARRIOR', '4', '50', '0', '0');
+INSERT INTO `chrclassesdbc` VALUES ('2', '0', '0', '1', 'Paladin', 'Paladin', '', '', '', 'Paladin', 'PALADIN', '10', '58', '0', '0');
+INSERT INTO `chrclassesdbc` VALUES ('3', '1', '0', '1', 'Hunter', 'Chasseur', '', 'Chasseresse', '', 'Chasseur', 'HUNTER', '9', '22', '0', '0');
+INSERT INTO `chrclassesdbc` VALUES ('4', '1', '3', '1', 'Rogue', 'Voleur', '', 'Voleuse', '', 'Voleur', 'ROGUE', '8', '2', '0', '0');
+INSERT INTO `chrclassesdbc` VALUES ('5', '0', '0', '1', 'Priest', 'Prêtre', '', 'Prêtresse', '', 'Prêtre', 'PRIEST', '6', '2', '0', '0');
+INSERT INTO `chrclassesdbc` VALUES ('6', '9', '6', '1', 'Death Knight', 'Chevalier de la mort', '', '', '', 'Chevalier de la mort', 'DEATHKNIGHT', '15', '122', '165', '2');
+INSERT INTO `chrclassesdbc` VALUES ('7', '1', '0', '1', 'Shaman', 'Chaman', '', 'Chamane', '', 'Chaman', 'SHAMAN', '11', '26', '0', '0');
+INSERT INTO `chrclassesdbc` VALUES ('8', '0', '0', '1', 'Mage', 'Mage', '', 'Mage', '', 'Mage', 'MAGE', '3', '2', '0', '0');
+INSERT INTO `chrclassesdbc` VALUES ('9', '0', '0', '126', 'Warlock', 'Démoniste', '', 'Démoniste', '', 'Démoniste', 'WARLOCK', '5', '6', '0', '0');
+INSERT INTO `chrclassesdbc` VALUES ('11', '0', '0', '1', 'Druid', 'Druide', '', 'Druidesse', '', 'Druide', 'DRUID', '7', '10', '0', '0');

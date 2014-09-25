@@ -27,8 +27,8 @@ CREATE TABLE `auctionhousedbc` (
   `Faction` int(10) NOT NULL DEFAULT '0',
   `DepositPercent` int(10) NOT NULL DEFAULT '0',
   `CutPercent` int(10) NOT NULL DEFAULT '0',
-  `Name` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
-  `Name_loc2` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `Name` varchar(100) NOT NULL DEFAULT '',
+  `Name_loc2` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`HouseId`),
   UNIQUE KEY `ID` (`HouseId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='';

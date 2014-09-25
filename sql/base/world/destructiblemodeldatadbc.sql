@@ -43,7 +43,7 @@ CREATE TABLE `destructiblemodeldatadbc` (
   `Unk4` int(10) NOT NULL DEFAULT '0',
   `Unk5` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`),
-  UNIQUE KEY `ID` (`Id`)
+  UNIQUE KEY `Id` (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='';
 /*!40101 SET character_set_client = @saved_cs_client */;
 

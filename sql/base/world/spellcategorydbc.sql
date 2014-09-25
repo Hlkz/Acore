@@ -1,4 +1,4 @@
--- MySQL dump 10.13  Distrib 5.6.9-rc, for Win64 \x86_64\
+-- MySQL dump 10.13  Distrib 5.6.9-rc, for Win64 (x86_64)
 --
 -- Host: localhost    Database: world
 -- ------------------------------------------------------
@@ -26,7 +26,7 @@ CREATE TABLE `spellcategorydbc` (
   `Id` int(10) NOT NULL DEFAULT '0',
   `Flags` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`),
-  UNIQUE KEY `ID` (`Id`)
+  UNIQUE KEY `Id` (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='';
 /*!40101 SET character_set_client = @saved_cs_client */;
 

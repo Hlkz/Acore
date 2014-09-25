@@ -24,9 +24,9 @@ DROP TABLE IF EXISTS `durabilityqualitydbc`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `durabilityqualitydbc` (
   `Id` int(10) NOT NULL DEFAULT '0',
-  `QualityMod` float DEFAULT NULL,
+  `QualityMod` float NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`),
-  UNIQUE KEY `ID` (`Id`)
+  UNIQUE KEY `Id` (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -43,19 +43,19 @@ UNLOCK TABLES;
 -- Records of `durabilityqualitydbc`
 --
 
-INSERT INTO `durabilityqualitydbc` VALUES ('1', '1065350000');
-INSERT INTO `durabilityqualitydbc` VALUES ('2', '1058640000');
-INSERT INTO `durabilityqualitydbc` VALUES ('3', '1065350000');
-INSERT INTO `durabilityqualitydbc` VALUES ('4', '1062000000');
-INSERT INTO `durabilityqualitydbc` VALUES ('5', '1065350000');
-INSERT INTO `durabilityqualitydbc` VALUES ('6', '1065350000');
-INSERT INTO `durabilityqualitydbc` VALUES ('7', '1067030000');
-INSERT INTO `durabilityqualitydbc` VALUES ('8', '1067450000');
-INSERT INTO `durabilityqualitydbc` VALUES ('9', '1069040000');
-INSERT INTO `durabilityqualitydbc` VALUES ('10', '1075840000');
-INSERT INTO `durabilityqualitydbc` VALUES ('11', '1071460000');
-INSERT INTO `durabilityqualitydbc` VALUES ('12', '1077940000');
+INSERT INTO `durabilityqualitydbc` VALUES ('1', '1');
+INSERT INTO `durabilityqualitydbc` VALUES ('2', '0.6');
+INSERT INTO `durabilityqualitydbc` VALUES ('3', '1');
+INSERT INTO `durabilityqualitydbc` VALUES ('4', '0.8');
+INSERT INTO `durabilityqualitydbc` VALUES ('5', '1');
+INSERT INTO `durabilityqualitydbc` VALUES ('6', '1');
+INSERT INTO `durabilityqualitydbc` VALUES ('7', '1.2');
+INSERT INTO `durabilityqualitydbc` VALUES ('8', '1.25');
+INSERT INTO `durabilityqualitydbc` VALUES ('9', '1.44');
+INSERT INTO `durabilityqualitydbc` VALUES ('10', '2.5');
+INSERT INTO `durabilityqualitydbc` VALUES ('11', '1.728');
+INSERT INTO `durabilityqualitydbc` VALUES ('12', '3');
 INSERT INTO `durabilityqualitydbc` VALUES ('13', '0');
 INSERT INTO `durabilityqualitydbc` VALUES ('14', '0');
-INSERT INTO `durabilityqualitydbc` VALUES ('15', '1067030000');
-INSERT INTO `durabilityqualitydbc` VALUES ('16', '1067450000');
+INSERT INTO `durabilityqualitydbc` VALUES ('15', '1.2');
+INSERT INTO `durabilityqualitydbc` VALUES ('16', '1.25');

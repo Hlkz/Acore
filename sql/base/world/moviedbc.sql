@@ -24,10 +24,10 @@ DROP TABLE IF EXISTS `moviedbc`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `moviedbc` (
   `Id` int(10) NOT NULL DEFAULT '0',
-  `Filename` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `Filename` varchar(100) NOT NULL DEFAULT '0',
   `Unk` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`),
-  UNIQUE KEY `ID` (`Id`)
+  UNIQUE KEY `Id` (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -44,7 +44,7 @@ UNLOCK TABLES;
 -- Records of `moviedbc`
 --
 
-INSERT INTO `moviedbc` VALUES ('1', '1', '100');
-INSERT INTO `moviedbc` VALUES ('2', '27', '100');
-INSERT INTO `moviedbc` VALUES ('14', '0', '100');
-INSERT INTO `moviedbc` VALUES ('16', '0', '100');
+INSERT INTO `moviedbc` VALUES ('1', 'Interface\\Cinematics\\Logo', '100');
+INSERT INTO `moviedbc` VALUES ('2', 'Interface\\Cinematics\\WOW_Intro', '100');
+INSERT INTO `moviedbc` VALUES ('14', '', '100');
+INSERT INTO `moviedbc` VALUES ('16', '', '100');

@@ -24,8 +24,8 @@ DROP TABLE IF EXISTS `lfgdungeonsdbc`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `lfgdungeonsdbc` (
   `Id` int(10) NOT NULL DEFAULT '0',
-  `Name` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
-  `Name_loc2` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `Name` varchar(100) NOT NULL DEFAULT '',
+  `Name_loc2` varchar(100) NOT NULL DEFAULT '',
   `MinLevel` int(10) NOT NULL DEFAULT '0',
   `MaxLevel` int(10) NOT NULL DEFAULT '0',
   `RecLevel` int(10) NOT NULL DEFAULT '0',
@@ -36,14 +36,14 @@ CREATE TABLE `lfgdungeonsdbc` (
   `Flags` int(10) NOT NULL DEFAULT '0',
   `Type` int(10) NOT NULL DEFAULT '0',
   `Unk` int(10) NOT NULL DEFAULT '0',
-  `IconName` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `IconName` varchar(100) NOT NULL DEFAULT '',
   `Expansion` int(10) NOT NULL DEFAULT '0',
   `Unk2` int(10) NOT NULL DEFAULT '0',
   `GroupType` int(10) NOT NULL DEFAULT '0',
-  `Description` varchar(300) CHARACTER SET utf8 NOT NULL DEFAULT '',
-  `Description_loc2` varchar(300) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `Description` varchar(300) NOT NULL DEFAULT '',
+  `Description_loc2` varchar(300) NOT NULL DEFAULT '',
   PRIMARY KEY (`Id`),
-  UNIQUE KEY `ID` (`Id`)
+  UNIQUE KEY `Id` (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='';
 /*!40101 SET character_set_client = @saved_cs_client */;
 

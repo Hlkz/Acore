@@ -26,7 +26,7 @@ CREATE TABLE `bankbagslotpricesdbc` (
   `Id` int(10) NOT NULL DEFAULT '0',
   `Price` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`),
-  UNIQUE KEY `ID` (`Id`)
+  UNIQUE KEY `Id` (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -50,8 +50,8 @@ INSERT INTO `bankbagslotpricesdbc` VALUES ('4', '250000');
 INSERT INTO `bankbagslotpricesdbc` VALUES ('5', '250000');
 INSERT INTO `bankbagslotpricesdbc` VALUES ('6', '250000');
 INSERT INTO `bankbagslotpricesdbc` VALUES ('7', '250000');
-INSERT INTO `bankbagslotpricesdbc` VALUES ('8', '1000000000');
-INSERT INTO `bankbagslotpricesdbc` VALUES ('9', '1000000000');
-INSERT INTO `bankbagslotpricesdbc` VALUES ('10', '1000000000');
-INSERT INTO `bankbagslotpricesdbc` VALUES ('11', '1000000000');
-INSERT INTO `bankbagslotpricesdbc` VALUES ('12', '1000000000');
+INSERT INTO `bankbagslotpricesdbc` VALUES ('8', '999999999');
+INSERT INTO `bankbagslotpricesdbc` VALUES ('9', '999999999');
+INSERT INTO `bankbagslotpricesdbc` VALUES ('10', '999999999');
+INSERT INTO `bankbagslotpricesdbc` VALUES ('11', '999999999');
+INSERT INTO `bankbagslotpricesdbc` VALUES ('12', '999999999');

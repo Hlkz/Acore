@@ -24,10 +24,10 @@ DROP TABLE IF EXISTS `questsortdbc`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `questsortdbc` (
   `Id` int(10) NOT NULL DEFAULT '0',
-  `Name` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
-  `Name_loc2` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `Name` varchar(100) NOT NULL DEFAULT '',
+  `Name_loc2` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`Id`),
-  UNIQUE KEY `ID` (`Id`)
+  UNIQUE KEY `Id` (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='';
 /*!40101 SET character_set_client = @saved_cs_client */;
 

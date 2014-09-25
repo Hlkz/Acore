@@ -43,9 +43,9 @@ CREATE TABLE `creaturedisplayinfoextradbc` (
   `TabardDisplayId` int(10) NOT NULL DEFAULT '0',
   `CloakDisplayId` int(10) NOT NULL DEFAULT '0',
   `CanEquip` int(10) NOT NULL DEFAULT '0',
-  `Texture` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `Texture` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`Id`),
-  UNIQUE KEY `ID` (`Id`)
+  UNIQUE KEY `Id` (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='';
 /*!40101 SET character_set_client = @saved_cs_client */;
 

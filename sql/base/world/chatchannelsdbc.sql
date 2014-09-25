@@ -25,10 +25,11 @@ DROP TABLE IF EXISTS `chatchannelsdbc`;
 CREATE TABLE `chatchannelsdbc` (
   `ChannelId` int(10) NOT NULL DEFAULT '0',
   `Flags` int(10) NOT NULL DEFAULT '0',
-  `Pattern` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
-  `Patern_loc2` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
-  `Name` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
-  `Name_loc2` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `FactionGroup` int(10) NOT NULL DEFAULT '0',
+  `Pattern` varchar(100) NOT NULL DEFAULT '',
+  `Pattern_loc2` varchar(100) NOT NULL DEFAULT '',
+  `Name` varchar(100) NOT NULL DEFAULT '',
+  `Name_loc2` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`ChannelId`),
   UNIQUE KEY `ID` (`ChannelId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='';
@@ -47,9 +48,9 @@ UNLOCK TABLES;
 -- Records of `chatchannelsdbc`
 --
 
-INSERT INTO `chatchannelsdbc` VALUES ('1', '524291', 'General - %s', 'Général - %s', 'General', 'Général');
-INSERT INTO `chatchannelsdbc` VALUES ('2', '59', 'Trade - %s', 'Commerce - %s', 'Trade', 'Commerce');
-INSERT INTO `chatchannelsdbc` VALUES ('22', '65539', 'LocalDefense - %s', 'DéfenseLocale - %s', 'LocalDefense', 'DéfenseLocale');
-INSERT INTO `chatchannelsdbc` VALUES ('23', '65540', 'WorldDefense', 'DéfenseUniverselle', 'WorldDefense', 'DéfenseUniverselle');
-INSERT INTO `chatchannelsdbc` VALUES ('25', '131122', 'GuildRecruitment - %s', 'RecrutementDeGuilde - %s', 'GuildRecruitment', 'RecrutementDeGuilde');
-INSERT INTO `chatchannelsdbc` VALUES ('26', '262201', 'LookingForGroup', 'RechercheDeGroupe', 'LookingForGroup', 'RechercheDeGroupe');
+INSERT INTO `chatchannelsdbc` VALUES ('1', '524291', '0', 'General - %s', 'Général - %s', 'General', 'Général');
+INSERT INTO `chatchannelsdbc` VALUES ('2', '59', '0', 'Trade - %s', 'Commerce - %s', 'Trade', 'Commerce');
+INSERT INTO `chatchannelsdbc` VALUES ('22', '65539', '0', 'LocalDefense - %s', 'DéfenseLocale - %s', 'LocalDefense', 'DéfenseLocale');
+INSERT INTO `chatchannelsdbc` VALUES ('23', '65540', '0', 'WorldDefense', 'DéfenseUniverselle', 'WorldDefense', 'DéfenseUniverselle');
+INSERT INTO `chatchannelsdbc` VALUES ('25', '131122', '0', 'GuildRecruitment - %s', 'RecrutementDeGuilde - %s', 'GuildRecruitment', 'RecrutementDeGuilde');
+INSERT INTO `chatchannelsdbc` VALUES ('26', '262201', '0', 'LookingForGroup', 'RechercheDeGroupe', 'LookingForGroup', 'RechercheDeGroupe');

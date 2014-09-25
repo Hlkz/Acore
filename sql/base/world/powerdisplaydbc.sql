@@ -25,12 +25,12 @@ DROP TABLE IF EXISTS `powerdisplaydbc`;
 CREATE TABLE `powerdisplaydbc` (
   `Id` int(10) NOT NULL DEFAULT '0',
   `PowerType` int(10) NOT NULL DEFAULT '0',
-  `Name` int(10) NOT NULL DEFAULT '0',
-  `R` int(10) NOT NULL DEFAULT '0',
-  `G` int(10) NOT NULL DEFAULT '0',
-  `B` int(10) NOT NULL DEFAULT '0',
+  `Name` varchar(100) NOT NULL DEFAULT '',
+  `R` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `G` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `B` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`),
-  UNIQUE KEY `ID` (`Id`)
+  UNIQUE KEY `Id` (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -47,10 +47,10 @@ UNLOCK TABLES;
 -- Records of `powerdisplaydbc`
 --
 
-INSERT INTO `powerdisplaydbc` VALUES ('1', '0', '0', '0', '256', '8453888');
-INSERT INTO `powerdisplaydbc` VALUES ('41', '3', '0', '0', '2560', '-3538944');
-INSERT INTO `powerdisplaydbc` VALUES ('61', '3', '0', '0', '7168', '-218959360');
-INSERT INTO `powerdisplaydbc` VALUES ('101', '3', '0', '0', '11520', '8257280');
-INSERT INTO `powerdisplaydbc` VALUES ('121', '3', '0', '0', '15616', '16761088');
-INSERT INTO `powerdisplaydbc` VALUES ('141', '3', '0', '0', '19712', '-16729088');
-INSERT INTO `powerdisplaydbc` VALUES ('142', '3', '0', '0', '25600', '11599616');
+INSERT INTO `powerdisplaydbc` VALUES ('1', '0', 'AMMOSLOT', '255', '128', '0');
+INSERT INTO `powerdisplaydbc` VALUES ('41', '3', 'POWER_TYPE_PYRITE', '0', '202', '255');
+INSERT INTO `powerdisplaydbc` VALUES ('61', '3', 'POWER_TYPE_STEAM', '242', '242', '242');
+INSERT INTO `powerdisplaydbc` VALUES ('101', '3', 'POWER_TYPE_HEAT', '255', '125', '0');
+INSERT INTO `powerdisplaydbc` VALUES ('121', '3', 'POWER_TYPE_OOZE', '193', '255', '0');
+INSERT INTO `powerdisplaydbc` VALUES ('141', '3', 'POWER_TYPE_BLOOD_POWER', '188', '0', '255');
+INSERT INTO `powerdisplaydbc` VALUES ('142', '3', 'POWER_TYPE_WRATH', '255', '176', '0');

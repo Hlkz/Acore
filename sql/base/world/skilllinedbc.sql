@@ -26,16 +26,16 @@ CREATE TABLE `skilllinedbc` (
   `Id` int(10) NOT NULL DEFAULT '0',
   `CategoryId` int(10) NOT NULL DEFAULT '0',
   `SkillCostId` int(10) NOT NULL DEFAULT '0',
-  `Name` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
-  `Name_loc2` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
-  `Description` varchar(400) CHARACTER SET utf8 NOT NULL DEFAULT '',
-  `Description_loc2` varchar(400) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `Name` varchar(100) NOT NULL DEFAULT '',
+  `Name_loc2` varchar(100) NOT NULL DEFAULT '',
+  `Description` varchar(400) NOT NULL DEFAULT '',
+  `Description_loc2` varchar(400) NOT NULL DEFAULT '',
   `SpellIcon` int(10) NOT NULL DEFAULT '0',
-  `AlternateVerb` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
-  `AlternateVerb_loc2` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `AlternateVerb` varchar(100) NOT NULL DEFAULT '',
+  `AlternateVerb_loc2` varchar(100) NOT NULL DEFAULT '',
   `CanLink` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`),
-  UNIQUE KEY `ID` (`Id`)
+  UNIQUE KEY `Id` (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='';
 /*!40101 SET character_set_client = @saved_cs_client */;
 

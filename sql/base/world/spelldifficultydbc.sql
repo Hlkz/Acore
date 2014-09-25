@@ -23,13 +23,13 @@ DROP TABLE IF EXISTS `spelldifficultydbc`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `spelldifficultydbc` (
-  `id` int(4) NOT NULL DEFAULT '0',
-  `spellid0` int(4) DEFAULT '0',
-  `spellid1` int(4) DEFAULT '0',
-  `spellid2` int(4) DEFAULT '0',
-  `spellid3` int(4) DEFAULT '0',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`)
+  `Id` int(4) NOT NULL DEFAULT '0',
+  `SpellId0` int(4) DEFAULT '0',
+  `SpellId1` int(4) DEFAULT '0',
+  `SpellId2` int(4) DEFAULT '0',
+  `SpellId3` int(4) DEFAULT '0',
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `Id` (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
