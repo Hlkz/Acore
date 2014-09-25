@@ -662,6 +662,7 @@ struct ChatChannelsEntry
 {
     uint32  ChannelID;                                      // 0
     uint32  flags;                                          // 1
+    //uint32  FactionGroup;                                 // 2
     char*   pattern[16];                                    // 3-18
                                                             // 19 string flags, unused
     //char*       name[16];                                 // 20-35 unused

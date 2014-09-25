@@ -1345,7 +1345,7 @@ void DBCMgr::LoadChatChannelsStore()
     uint32 oldMSTime = getMSTime();
     ChatChannelsStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT ChannelId, Flags, Pattern, Patern_loc2 FROM chatchannelsdbc");
+    QueryResult result = WorldDatabase.Query("SELECT ChannelId, Flags, Pattern, Pattern_loc2 FROM chatchannelsdbc");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 ChatChannels entry. DB table `ChatChannels dbc` is empty.");
@@ -1522,7 +1522,7 @@ void DBCMgr::LoadCreatureDisplayInfoStore()
     uint32 oldMSTime = getMSTime();
     CreatureDisplayInfoStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT DisplayId, ModelId, ExtraId, Scale FROM creaturedisplayinfodbc");
+    QueryResult result = WorldDatabase.Query("SELECT Id, ModelId, ExtraId, Scale FROM creaturedisplayinfodbc");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 CreatureDisplayInfo entry. DB table `CreatureDisplayInfo dbc` is empty.");
@@ -1850,7 +1850,7 @@ void DBCMgr::LoadEmotesTextStore()
     uint32 oldMSTime = getMSTime();
     EmotesTextStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT Id, Textid FROM emotestextdbc");
+    QueryResult result = WorldDatabase.Query("SELECT Id, EmoteId FROM emotestextdbc");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 EmotesText entry. DB table `EmotesText dbc` is empty.");
@@ -1950,7 +1950,7 @@ void DBCMgr::LoadGameObjectDisplayInfoStore()
     uint32 oldMSTime = getMSTime();
     GameObjectDisplayInfoStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT DisplayId, MinX, MinY, MinZ, MaxX, MaxY, MaxZ FROM gameobjectdisplayinfodbc");
+    QueryResult result = WorldDatabase.Query("SELECT Id, MinX, MinY, MinZ, MaxX, MaxY, MaxZ FROM gameobjectdisplayinfodbc");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 GameObjectDisplayInfo entry. DB table `GameObjectDisplayInfo dbc` is empty.");
@@ -2648,7 +2648,7 @@ void DBCMgr::LoadQuestFactionRewStore()
     uint32 oldMSTime = getMSTime();
     QuestFactionRewStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT Id, QuestRewFactionValue1, QuestRewFactionValue2, QuestRewFactionValue3, QuestRewFactionValue4, QuestRewFactionValue5, QuestRewFactionValue6, QuestRewFactionValue7, QuestRewFactionValue8, QuestRewFactionValue9, QuestRewFactionValue10 FROM questfactionrewdbc");
+    QueryResult result = WorldDatabase.Query("SELECT Id, QuestRewFactionValue1, QuestRewFactionValue2, QuestRewFactionValue3, QuestRewFactionValue4, QuestRewFactionValue5, QuestRewFactionValue6, QuestRewFactionValue7, QuestRewFactionValue8, QuestRewFactionValue9, QuestRewFactionValue10 FROM questfactionrewarddbc");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 QuestFactionRew entry. DB table `QuestFactionRew dbc` is empty.");
@@ -2674,7 +2674,7 @@ void DBCMgr::LoadRandomPropertiesPointsStore()
     uint32 oldMSTime = getMSTime();
     RandomPropertiesPointsStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT Id, ItemLevel, EpicPropertiesPoints1, EpicPropertiesPoints2, EpicPropertiesPoints3, EpicPropertiesPoints4, EpicPropertiesPoints5, RarePropertiesPoints1, RarePropertiesPoints2, RarePropertiesPoints3, RarePropertiesPoints4, RarePropertiesPoints5, UncommonPropertiesPoints1, UncommonPropertiesPoints2, UncommonPropertiesPoints3, UncommonPropertiesPoints4, UncommonPropertiesPoints5 FROM randproppointsdbc");
+    QueryResult result = WorldDatabase.Query("SELECT ItemLevel, EpicPropertiesPoints1, EpicPropertiesPoints2, EpicPropertiesPoints3, EpicPropertiesPoints4, EpicPropertiesPoints5, RarePropertiesPoints1, RarePropertiesPoints2, RarePropertiesPoints3, RarePropertiesPoints4, RarePropertiesPoints5, UncommonPropertiesPoints1, UncommonPropertiesPoints2, UncommonPropertiesPoints3, UncommonPropertiesPoints4, UncommonPropertiesPoints5 FROM randproppointsdbc");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 RandomPropertiesPoints entry. DB table `RandomPropertiesPoints dbc` is empty.");
@@ -2685,14 +2685,14 @@ void DBCMgr::LoadRandomPropertiesPointsStore()
         Field* fields = result->Fetch();
 
         RandomPropertiesPointsEntry* newRandomPropertiesPoints = new RandomPropertiesPointsEntry;
-        newRandomPropertiesPoints->itemLevel = fields[1].GetUInt32();
+        newRandomPropertiesPoints->itemLevel = fields[0].GetUInt32();
         for (uint8 i = 0; i < 5; i++)
-            newRandomPropertiesPoints->EpicPropertiesPoints[i] = fields[2 + i].GetUInt32();
+            newRandomPropertiesPoints->EpicPropertiesPoints[i] = fields[1 + i].GetUInt32();
         for (uint8 i = 0; i < 5; i++)
-            newRandomPropertiesPoints->RarePropertiesPoints[i] = fields[7 + i].GetUInt32();
+            newRandomPropertiesPoints->RarePropertiesPoints[i] = fields[6 + i].GetUInt32();
         for (uint8 i = 0; i < 5; i++)
-            newRandomPropertiesPoints->UncommonPropertiesPoints[i] = fields[12 + i].GetUInt32();
-        RandomPropertiesPointsStore[fields[0].GetUInt32()] = newRandomPropertiesPoints; // tocheck
+            newRandomPropertiesPoints->UncommonPropertiesPoints[i] = fields[11 + i].GetUInt32();
+        RandomPropertiesPointsStore[newRandomPropertiesPoints->itemLevel] = newRandomPropertiesPoints; // tocheck
 
     } while (result->NextRow());
 
@@ -3142,7 +3142,7 @@ void DBCMgr::LoadSpellShapeshiftStore()
     uint32 oldMSTime = getMSTime();
     SpellShapeshiftStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT Id, Flags1, CreatureType, AttackSpeed, ModelIdAlliance, ModelIdHorde, StanceSpell1, StanceSpell2, StanceSpell3, StanceSpell4, StanceSpell5, StanceSpell6, StanceSpell7, StanceSpell8 FROM spellshapesshiftdbc");
+    QueryResult result = WorldDatabase.Query("SELECT Id, Flags1, CreatureType, AttackSpeed, ModelIdAlliance, ModelIdHorde, StanceSpell1, StanceSpell2, StanceSpell3, StanceSpell4, StanceSpell5, StanceSpell6, StanceSpell7, StanceSpell8 FROM spellshapeshiftformdbc");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 SpellShapeshift entry. DB table `SpellShapeshift dbc` is empty.");
@@ -3227,7 +3227,7 @@ void DBCMgr::LoadTalentStore()
     uint32 oldMSTime = getMSTime();
     TalentStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT TalentID, TalentTab, Row, Col, Rank1, Rank2, Rank3, Rank4, Rank5, DependsOn, DependsOnRank FROM talentdbc");
+    QueryResult result = WorldDatabase.Query("SELECT Id, TalentTab, Row, Col, Rank1, Rank2, Rank3, Rank4, Rank5, DependsOn, DependsOnRank FROM talentdbc");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 talent entry. DB table `talentdbc` is empty.");
@@ -3651,7 +3651,7 @@ void DBCMgr::LoadWorldMapAreaStore()
     uint32 oldMSTime = getMSTime();
     WorldMapAreaStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT Id, MapId, AreaId, Y1, Y2, X1, X2, VirtualMapId FROM worldmapareadbc");
+    QueryResult result = WorldDatabase.Query("SELECT Id, Map, Area, LocLeft, LocRight, LocTop, LocBottom, DisplayMap FROM worldmapareadbc");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 WorldMapArea entry. DB table `WorldMapArea dbc` is empty.");
