@@ -34,9 +34,8 @@ CREATE TABLE `battlemasterlistdbc` (
   `Instance8` int(4) NOT NULL DEFAULT '0',
   `InstanceType` int(4) NOT NULL DEFAULT '0',
   `JoinAsGroup` int(4) NOT NULL DEFAULT '0',
-  `Name` varchar(300) DEFAULT NULL,
-  `Name_loc2` varchar(300) DEFAULT NULL,
-  `Nameflags` int(4) NOT NULL DEFAULT '0',
+  `Name` varchar(300) DEFAULT '',
+  `Name_loc2` varchar(300) DEFAULT '',
   `MaxGroupSize` int(4) NOT NULL DEFAULT '0',
   `HolidayWorldStateId` int(4) NOT NULL DEFAULT '0',
   `MinLevel` int(4) NOT NULL DEFAULT '0',
@@ -59,16 +58,16 @@ UNLOCK TABLES;
 -- Records of `battlemasterlistdbc`
 --
 
-INSERT INTO `battlemasterlistdbc` VALUES ('1', '30', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '3', '1', 'Alterac Valley', 'Vallée d\'Alterac', '0', '5', '1941', '51', '80');
-INSERT INTO `battlemasterlistdbc` VALUES ('2', '489', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '3', '1', 'Warsong Gulch', 'Goulet des Chanteguerres', '0', '10', '1942', '10', '80');
-INSERT INTO `battlemasterlistdbc` VALUES ('3', '529', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '3', '1', 'Arathi Basin', 'Bassin d\'Arathi', '0', '15', '1943', '20', '80');
-INSERT INTO `battlemasterlistdbc` VALUES ('4', '559', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '4', '1', 'Nagrand Arena', 'Arène de Nagrand', '0', '5', '0', '10', '80');
-INSERT INTO `battlemasterlistdbc` VALUES ('5', '562', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '4', '1', 'Blade\'s Edge Arena', 'Arène des Tranchantes', '0', '5', '0', '10', '80');
-INSERT INTO `battlemasterlistdbc` VALUES ('6', '559', '562', '572', '617', '618', '-1', '-1', '-1', '4', '1', 'All Arenas', 'Toutes les arènes', '0', '5', '0', '10', '80');
-INSERT INTO `battlemasterlistdbc` VALUES ('7', '566', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '3', '1', 'Eye of the Storm', 'L\'Œil du cyclone', '0', '15', '2851', '61', '80');
-INSERT INTO `battlemasterlistdbc` VALUES ('8', '572', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '4', '1', 'Ruins of Lordaeron', 'Ruines de Lordaeron', '0', '5', '0', '10', '80');
-INSERT INTO `battlemasterlistdbc` VALUES ('9', '607', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '3', '1', 'Strand of the Ancients', 'Rivage des Anciens', '0', '15', '3695', '71', '80');
-INSERT INTO `battlemasterlistdbc` VALUES ('10', '617', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '4', '1', 'Dalaran Sewers', 'Egouts de Dalaran', '0', '5', '0', '10', '80');
-INSERT INTO `battlemasterlistdbc` VALUES ('11', '618', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '4', '1', 'The Ring of Valor', 'L\'arène des valeureux', '0', '5', '0', '10', '80');
-INSERT INTO `battlemasterlistdbc` VALUES ('30', '628', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '3', '1', 'Isle of Conquest', 'Île des Conquérants', '0', '5', '4273', '71', '80');
-INSERT INTO `battlemasterlistdbc` VALUES ('32', '30', '489', '529', '566', '607', '628', '-1', '-1', '3', '1', 'Random Battleground', 'Champ de bataille aléatoire', '0', '5', '0', '0', '0');
+INSERT INTO `battlemasterlistdbc` VALUES ('1', '30', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '3', '1', 'Alterac Valley', 'Vallée d\'Alterac', '5', '1941', '51', '80');
+INSERT INTO `battlemasterlistdbc` VALUES ('2', '489', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '3', '1', 'Warsong Gulch', 'Goulet des Chanteguerres', '10', '1942', '10', '80');
+INSERT INTO `battlemasterlistdbc` VALUES ('3', '529', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '3', '1', 'Arathi Basin', 'Bassin d\'Arathi', '15', '1943', '20', '80');
+INSERT INTO `battlemasterlistdbc` VALUES ('4', '559', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '4', '1', 'Nagrand Arena', 'Arène de Nagrand', '5', '0', '10', '80');
+INSERT INTO `battlemasterlistdbc` VALUES ('5', '562', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '4', '1', 'Blade\'s Edge Arena', 'Arène des Tranchantes', '5', '0', '10', '80');
+INSERT INTO `battlemasterlistdbc` VALUES ('6', '559', '562', '572', '617', '618', '-1', '-1', '-1', '4', '1', 'All Arenas', 'Toutes les arènes', '5', '0', '10', '80');
+INSERT INTO `battlemasterlistdbc` VALUES ('7', '566', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '3', '1', 'Eye of the Storm', 'L\'Œil du cyclone', '15', '2851', '61', '80');
+INSERT INTO `battlemasterlistdbc` VALUES ('8', '572', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '4', '1', 'Ruins of Lordaeron', 'Ruines de Lordaeron', '5', '0', '10', '80');
+INSERT INTO `battlemasterlistdbc` VALUES ('9', '607', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '3', '1', 'Strand of the Ancients', 'Rivage des Anciens', '15', '3695', '71', '80');
+INSERT INTO `battlemasterlistdbc` VALUES ('10', '617', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '4', '1', 'Dalaran Sewers', 'Egouts de Dalaran', '5', '0', '10', '80');
+INSERT INTO `battlemasterlistdbc` VALUES ('11', '618', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '4', '1', 'The Ring of Valor', 'L\'arène des valeureux', '5', '0', '10', '80');
+INSERT INTO `battlemasterlistdbc` VALUES ('30', '628', '-1', '-1', '-1', '-1', '-1', '-1', '-1', '3', '1', 'Isle of Conquest', 'Île des Conquérants', '5', '4273', '71', '80');
+INSERT INTO `battlemasterlistdbc` VALUES ('32', '30', '489', '529', '566', '607', '628', '-1', '-1', '3', '1', 'Random Battleground', 'Champ de bataille aléatoire', '5', '0', '0', '0');

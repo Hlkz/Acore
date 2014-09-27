@@ -1,0 +1,56 @@
+-- MySQL dump 10.13  Distrib 5.6.9-rc, for Win64 (x86_64)
+--
+-- Host: localhost    Database: unused
+-- ------------------------------------------------------
+-- Server version	5.6.9-rc
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `filedata`
+--
+
+DROP TABLE IF EXISTS `filedata`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `filedata` (
+  `Id` int(10) NOT NULL DEFAULT '0',
+  `FileName` varchar(100) NOT NULL DEFAULT '',
+  `FilePath` varchar(100) NOT NULL DEFAULT '',
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `Id` (`Id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `filedata`
+--
+
+LOCK TABLES `filedata` WRITE;
+/*!40000 ALTER TABLE `filedata` DISABLE KEYS */;
+/*!40000 ALTER TABLE `filedata` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Records of `filedata`
+--
+
+INSERT INTO `filedata` VALUES ('1', 'LOGO_800.AVI', 'INTERFACE\\CINEMATICS\\');
+INSERT INTO `filedata` VALUES ('2', 'WOW_INTRO_800.AVI', 'INTERFACE\\CINEMATICS\\');
+INSERT INTO `filedata` VALUES ('21', 'LOGO_1024.AVI', 'INTERFACE\\CINEMATICS\\');
+INSERT INTO `filedata` VALUES ('22', 'WOW_INTRO_1024.AVI', 'INTERFACE\\CINEMATICS\\');
+INSERT INTO `filedata` VALUES ('220062', 'WOW_WRATHGATE_1024.AVI', 'INTERFACE\\CINEMATICS\\');
+INSERT INTO `filedata` VALUES ('220063', 'WOW_WRATHGATE_800.AVI', 'INTERFACE\\CINEMATICS\\');
+INSERT INTO `filedata` VALUES ('268110', 'WOW_INTRO_LK_1024.AVI', 'INTERFACE\\CINEMATICS\\');
+INSERT INTO `filedata` VALUES ('268111', 'WOW_INTRO_LK_800.AVI', 'INTERFACE\\CINEMATICS\\');
+INSERT INTO `filedata` VALUES ('356943', 'WOW_FOTLK_1024.AVI', 'INTERFACE\\CINEMATICS\\');
+INSERT INTO `filedata` VALUES ('356944', 'WOW_FOTLK_800.AVI', 'INTERFACE\\CINEMATICS\\');

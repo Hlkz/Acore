@@ -24,10 +24,10 @@ DROP TABLE IF EXISTS `charstartoutfitdbc`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `charstartoutfitdbc` (
   `Id` int(10) NOT NULL DEFAULT '0',
-  `Race` int(10) NOT NULL DEFAULT '0',
-  `Class` int(10) NOT NULL DEFAULT '0',
-  `Gender` int(10) NOT NULL DEFAULT '0',
-  `Unused` int(10) NOT NULL DEFAULT '0',
+  `Race` tinyint(3) NOT NULL DEFAULT '0',
+  `Class` tinyint(3) NOT NULL DEFAULT '0',
+  `Gender` tinyint(3) NOT NULL DEFAULT '0',
+  `Unused` tinyint(3) NOT NULL DEFAULT '0',
   `ItemId1` int(10) NOT NULL DEFAULT '0',
   `ItemId2` int(10) NOT NULL DEFAULT '0',
   `ItemId3` int(10) NOT NULL DEFAULT '0',
