@@ -127,14 +127,6 @@ void stripLineInvisibleChars(std::string &str)
 
 }
 
-#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
-struct tm* localtime_r(const time_t* time, struct tm *result)
-{
-    localtime_s(result, time);
-    return result;
-}
-#endif
-
 std::string secsToTimeString(uint64 timeInSecs, bool shortText, bool hoursOnly)
 {
     uint64 secs    = timeInSecs % MINUTE;
@@ -275,7 +267,7 @@ uint32 CreatePIDFile(const std::string& filename)
     pid_t pid = getpid();
 #endif
 
-    fprintf(pid_file, "%d", pid );
+    fprintf(pid_file, "%u", pid );
     fclose(pid_file);
 
     return (uint32)pid;
@@ -518,6 +510,9 @@ void vutf8printf(FILE* out, const char *str, va_list* ap)
     wchar_t wtemp_buf[32*1024];
 
     size_t temp_len = vsnprintf(temp_buf, 32*1024, str, *ap);
+    //vsnprintf returns -1 if the buffer is too small
+    if (temp_len == size_t(-1))
+        temp_len = 32*1024-1;
 
     size_t wtemp_len = 32*1024-1;
     Utf8toWStr(temp_buf, temp_len, wtemp_buf, wtemp_len);

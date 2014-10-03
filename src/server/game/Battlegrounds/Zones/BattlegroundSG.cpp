@@ -381,7 +381,7 @@ void BattlegroundSG::EraseCreep(uint64 guid, uint8 lane, uint8 teamid)
 void BattlegroundSG::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUIDLow()] = new BattlegroundScore(player->GetGUID());
+    PlayerScores[player->GetGUIDLow()] = new BattlegroundSGScore(player->GetGUID());
 
     uint32 team = player->GetBGTeam();
     if (team == ALLIANCE)

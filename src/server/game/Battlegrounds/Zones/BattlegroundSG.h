@@ -60,6 +60,24 @@ const uint32 BG_SG_GraveyardIds[BG_TEAMS_COUNT] = { 1954, 1955 };
 
 typedef std::map<uint64, Creature*> SGCreepMap;
 
+struct BattlegroundSGScore final : public BattlegroundScore
+{
+    friend class BattlegroundSG;
+
+    protected:
+        BattlegroundSGScore(uint64 playerGuid) : BattlegroundScore(playerGuid) { }
+
+        void UpdateScore(uint32 type, uint32 value) override
+        {
+            BattlegroundScore::UpdateScore(type, value);
+        }
+
+        void BuildObjectivesBlock(WorldPacket& data) final
+        {
+            data << uint32(0);
+        }
+};
+
 class BattlegroundSG : public Battleground
 {
     public:
