@@ -106,4 +106,6 @@ void WorldDatabaseConnection::DoPrepareStatements()
         /* 143 */   "EffectSpellClassMaskA1, EffectSpellClassMaskA2, EffectSpellClassMaskA3, EffectSpellClassMaskB1, EffectSpellClassMaskB2, EffectSpellClassMaskB3, EffectSpellClassMaskC1, EffectSpellClassMaskC2, EffectSpellClassMaskC3, "
         /* 152 */   "EffectDamageMultiplier1, EffectDamageMultiplier2, EffectDamageMultiplier3, EffectBonusMultiplier1, EffectBonusMultiplier2, EffectBonusMultiplier3 FROM spelldbc ORDER BY Entry", CONNECTION_SYNCH);
     PrepareStatement(WORLD_SEL_SPELLDBC_SIZE, "SELECT Entry FROM spelldbc ORDER BY Entry DESC LIMIT 1", CONNECTION_SYNCH);
+    PrepareStatement(WORLD_UPD_CREATURE_ZONE_AREA_DATA, "UPDATE creature SET zoneId = ?, areaId = ? WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(WORLD_UPD_GAMEOBJECT_ZONE_AREA_DATA, "UPDATE gameobject SET zoneId = ?, areaId = ? WHERE guid = ?", CONNECTION_ASYNC);
 }
