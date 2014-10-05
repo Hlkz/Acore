@@ -114,8 +114,8 @@ MaxOverspeedPings = 3
 GridUnload = 1
 
 #    SocketTimeOutTime : Time (in ms) after which a connection being idle on the character
-#                        selection screen is disconnected. (Default: 90000, 90 seconds)
-SocketTimeOutTime = 90000
+#                        selection screen is disconnected. (Default: 900000, 15 minutes)
+SocketTimeOutTime = 900000
 
 #    SessionAddDelay : Time (in microsecs) that a network thread will sleep after authentication
 #                     protocol handling before adding a connection to the world session map.
@@ -131,8 +131,8 @@ MapUpdateInterval = 100
 #    ChangeWeatherInterval : Time (in ms) for weather update interval. (Default, 600000, 10 min)
 ChangeWeatherInterval = 600000
 
-#    PlayerSaveInterval : Time (in ms) for player save interval. (Default: 900000, 15 min)
-PlayerSaveInterval = 900000
+#    PlayerSaveInterval : Time (in ms) for player save interval. (Default: 900000, 90 seconds)
+PlayerSaveInterval = 90000
 
 #    PlayerSave.Stats.SaveOnlyOnLogout : Save player stats only on logout.
 #        Default: 1 (Enabled, Only save on logout), 0 (Disabled, Save on every player save)
