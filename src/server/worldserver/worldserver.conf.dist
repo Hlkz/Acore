@@ -114,8 +114,8 @@ MaxOverspeedPings = 3
 GridUnload = 1
 
 #    SocketTimeOutTime : Time (in ms) after which a connection being idle on the character
-#                        selection screen is disconnected. (Default: 900000, 15 minutes)
-SocketTimeOutTime = 900000
+#                        selection screen is disconnected. (Default: 90000, 90 seconds)
+SocketTimeOutTime = 90000
 
 #    SessionAddDelay : Time (in microsecs) that a network thread will sleep after authentication
 #                     protocol handling before adding a connection to the world session map.
@@ -138,7 +138,7 @@ PlayerSaveInterval = 900000
 #        Default: 1 (Enabled, Only save on logout), 0 (Disabled, Save on every player save)
 PlayerSave.Stats.SaveOnlyOnLogout = 1
 
-#    mmap.enablePathFinding : Enable/Disable pathfinding using mmaps - experimental
+#    mmap.enablePathFinding : Enable/Disable pathfinding using mmaps - recommended
 mmap.enablePathFinding = 0
 
 #    vmap.enableLOS : VMmap support for line of sight and height calculation.
@@ -764,8 +764,8 @@ AutoBroadcast.On = 0
 #    AutoBroadcast.Center : Auto broadcasting display method. (0 Announce, 1 Notify, 2 Both)
 AutoBroadcast.Center = 0
 
-#    AutoBroadcast.Timer : Timer (in milliseconds) for auto broadcasts. (Default: 60000)
-AutoBroadcast.Timer = 60000
+#    AutoBroadcast.Timer : Timer (in milliseconds) for auto broadcasts. (Default: 600000 - 10 min)
+AutoBroadcast.Timer = 600000
 
 #
 ###################################################################################################
