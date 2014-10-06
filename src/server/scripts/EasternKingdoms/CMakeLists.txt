@@ -93,22 +93,6 @@ set(scripts_STAT_SRCS
   EasternKingdoms/Uldaman/instance_uldaman.cpp
   EasternKingdoms/Uldaman/boss_archaedas.cpp
   EasternKingdoms/zone_swamp_of_sorrows.cpp
-  EasternKingdoms/BlackrockSpire/boss_pyroguard_emberseer.cpp
-  EasternKingdoms/BlackrockSpire/boss_drakkisath.cpp
-  EasternKingdoms/BlackrockSpire/boss_warmaster_voone.cpp
-  EasternKingdoms/BlackrockSpire/boss_mother_smolderweb.cpp
-  EasternKingdoms/BlackrockSpire/boss_quartermaster_zigris.cpp
-  EasternKingdoms/BlackrockSpire/boss_halycon.cpp
-  EasternKingdoms/BlackrockSpire/boss_overlord_wyrmthalak.cpp
-  EasternKingdoms/BlackrockSpire/boss_shadow_hunter_voshgajin.cpp
-  EasternKingdoms/BlackrockSpire/boss_gyth.cpp
-  EasternKingdoms/BlackrockSpire/boss_rend_blackhand.cpp
-  EasternKingdoms/BlackrockSpire/boss_highlord_omokk.cpp
-  EasternKingdoms/BlackrockSpire/boss_the_beast.cpp
-  EasternKingdoms/BlackrockSpire/boss_gizrul_the_slavener.cpp
-  EasternKingdoms/BlackrockSpire/boss_urok_doomhowl.cpp
-  EasternKingdoms/BlackrockSpire/blackrock_spire.h
-  EasternKingdoms/BlackrockSpire/instance_blackrock_spire.cpp
   EasternKingdoms/zone_stranglethorn_vale.cpp
   EasternKingdoms/Deadmines/deadmines.h
   EasternKingdoms/Deadmines/deadmines.cpp

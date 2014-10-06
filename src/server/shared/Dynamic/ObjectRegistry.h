@@ -20,11 +20,10 @@
 #define TRINITY_OBJECTREGISTRY_H
 
 #include "Define.h"
-#include <ace/Singleton.h>
 
 #include <string>
-#include <vector>
 #include <map>
+#include <vector>
 
 /** ObjectRegistry holds all registry item of the same type
  */
@@ -32,7 +31,13 @@ template<class T, class Key = std::string>
 class ObjectRegistry
 {
     public:
-        typedef std::map<Key, T *> RegistryMapType;
+        typedef std::map<Key, T*> RegistryMapType;
+
+        static ObjectRegistry<T, Key>* instance()
+        {
+            static ObjectRegistry<T, Key> instance;
+            return &instance;
+        }
 
         /// Returns a registry item
         const T* GetRegistryItem(Key key) const

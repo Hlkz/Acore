@@ -26,10 +26,6 @@ typedef std::promise<QueryResult> QueryResultPromise;
 typedef std::future<PreparedQueryResult> PreparedQueryResultFuture;
 typedef std::promise<PreparedQueryResult> PreparedQueryResultPromise;
 
-/*! A simple template using ACE_Future to manage callbacks from the thread and object that
-    issued the request. <ParamType> is variable type of parameter that is used as parameter
-    for the callback function.
-*/
 #define CALLBACK_STAGE_INVALID uint8(-1)
 
 template <typename Result, typename ParamType, bool chain = false>
@@ -39,7 +35,7 @@ class QueryCallback
         QueryCallback() : _param(), _stage(chain ? 0 : CALLBACK_STAGE_INVALID)  { }
 
         //! The parameter of this function should be a resultset returned from either .AsyncQuery or .AsyncPQuery
-        void SetFutureResult(std::future<Result>& value)
+        void SetFutureResult(std::future<Result> value)
         {
             _result = std::move(value);
         }
@@ -51,7 +47,7 @@ class QueryCallback
 
         int IsReady()
         {
-            return _result.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+            return _result.valid() && _result.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
         }
 
         void GetResult(Result& res)
@@ -122,7 +118,7 @@ class QueryCallback_2
         QueryCallback_2() : _stage(chain ? 0 : CALLBACK_STAGE_INVALID) { }
 
         //! The parameter of this function should be a resultset returned from either .AsyncQuery or .AsyncPQuery
-        void SetFutureResult(std::future<Result>& value)
+        void SetFutureResult(std::future<Result> value)
         {
             _result = std::move(value);
         }
@@ -134,7 +130,7 @@ class QueryCallback_2
 
         int IsReady()
         {
-            return _result.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+            return _result.valid() && _result.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
         }
 
         void GetResult(Result& res)
