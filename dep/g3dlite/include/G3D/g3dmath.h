@@ -31,7 +31,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && (_MSC_VER < 1000)
     // Visual Studio is missing inttypes.h
 #   ifndef PRId64
 #       define PRId64 "I64d"
