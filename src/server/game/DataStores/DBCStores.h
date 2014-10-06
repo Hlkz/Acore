@@ -189,13 +189,14 @@ typedef std::unordered_map<uint32, const WorldSafeLocsEntry*> WorldSafeLocsConta
 
 class DBCMgr
 {
-    friend class ACE_Singleton<DBCMgr, ACE_Null_Mutex>;
-    private:
-        DBCMgr() { }
-        ~DBCMgr() { }
+    public:
+        static DBCMgr* instance()
+        {
+            static DBCMgr instance;
+            return &instance;
+        }
 
     public:
-
         void LoadAchievementStore();
         void LoadAchievementCriteriaStore();
         void LoadAreaPOIStore();
@@ -481,6 +482,5 @@ class DBCMgr
         WorldSafeLocsContainer WorldSafeLocsStore;
 };
 
-#define sDBCMgr ACE_Singleton<DBCMgr, ACE_Null_Mutex>::instance()
-
+#define sDBCMgr DBCMgr::instance()
 #endif
