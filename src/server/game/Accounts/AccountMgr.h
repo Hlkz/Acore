@@ -19,8 +19,6 @@
 #ifndef _ACCMGR_H
 #define _ACCMGR_H
 
-#include <ace/Singleton.h>
-
 enum AccountOpResult
 {
     AOR_OK,
@@ -36,13 +34,17 @@ enum AccountOpResult
 
 class AccountMgr
 {
-    friend class ACE_Singleton<AccountMgr, ACE_Null_Mutex>;
-
     private:
         AccountMgr();
         ~AccountMgr();
 
     public:
+        static AccountMgr* instance()
+        {
+            static AccountMgr instance;
+            return &instance;
+        }
+
         AccountOpResult CreateAccount(std::string username, std::string password, std::string email);
         static AccountOpResult DeleteAccount(uint32 accountId);
         static AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword);
@@ -65,5 +67,5 @@ class AccountMgr
         static bool HasPermission(uint32 accountId, uint32 permission, uint32 realmId);
 };
 
-#define sAccountMgr ACE_Singleton<AccountMgr, ACE_Null_Mutex>::instance()
+#define sAccountMgr AccountMgr::instance()
 #endif
