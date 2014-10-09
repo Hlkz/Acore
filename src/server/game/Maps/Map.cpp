@@ -20,6 +20,7 @@
 #include "Battleground.h"
 #include "MMapFactory.h"
 #include "CellImpl.h"
+#include "DisableMgr.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "GridStates.h"
@@ -122,7 +123,7 @@ bool Map::ExistVMap(uint32 mapid, int gx, int gy)
 
 void Map::LoadMMap(int gx, int gy)
 {
-    if (!MMAP::MMapFactory::IsPathfindingEnabled(GetId()))
+    if (!DisableMgr::IsPathfindingEnabled(GetId()))
         return;
 
     bool mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap((sWorld->GetDataPath() + "mmaps").c_str(), GetId(), gx, gy);
