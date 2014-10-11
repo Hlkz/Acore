@@ -578,7 +578,7 @@ class World
         void ShutdownMsg(bool show = false, Player* player = NULL, const std::string& reason = std::string());
         static uint8 GetExitCode() { return m_ExitCode; }
         static void StopNow(uint8 exitcode) { m_stopEvent = true; m_ExitCode = exitcode; }
-        static bool IsStopped() { return m_stopEvent.value(); }
+        static bool IsStopped() { return m_stopEvent; }
 
         void Update(uint32 diff);
 
