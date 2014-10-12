@@ -1591,7 +1591,7 @@ GridMap::~GridMap()
     unloadData();
 }
 
-bool GridMap::loadData(char* filename)
+bool GridMap::loadData(const char* filename)
 {
     // Unload old data if exist
     unloadData();
