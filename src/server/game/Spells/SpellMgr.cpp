@@ -3284,6 +3284,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 16835:
                 spellInfo->DurationEntry = sDBCMgr->GetSpellDurationEntry(21);
                 break;
+            case 65142: // Ebon Plague
+                spellInfo->AttributesEx3 &= ~SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
             case 51735: // Ebon Plague
             case 51734:
             case 51726:
@@ -3313,6 +3316,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_MODIFY_THREAT_PERCENT;
                 spellInfo->Effects[EFFECT_1].BasePoints = -6; // -5%
                 break;
+            case 50526: // Wandering Plague
             case 63675: // Improved Devouring Plague
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
@@ -3413,7 +3417,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             case 51798: // Brewfest - Relay Race - Intro - Quest Complete
             case 47134: // Quest Complete
-                //! HACK: This spell break quest complete for alliance and on retail not used °_O
+                //! HACK: This spell break quest complete for alliance and on retail not used Â°_O
                 spellInfo->Effects[EFFECT_0].Effect = 0;
                 break;
             // ULDUAR SPELLS
