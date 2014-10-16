@@ -82,7 +82,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
 
     uint32 bidderAccId = 0;
     ObjectGuid bidderGuid(HIGHGUID_PLAYER, auction->bidder);
-    Player* bidder = ObjectAccessor::FindPlayer(bidderGuid);
+    Player* bidder = ObjectAccessor::FindConnectedPlayer(bidderGuid);
 
     if (bidder)
         bidderAccId = bidder->GetSession()->GetAccountId();
@@ -121,7 +121,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
 void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry* auction, SQLTransaction& trans)
 {
     ObjectGuid owner_guid(HIGHGUID_PLAYER, auction->owner);
-    Player* owner = ObjectAccessor::FindPlayer(owner_guid);
+    Player* owner = ObjectAccessor::FindConnectedPlayer(owner_guid);
     uint32 owner_accId = sObjectMgr->GetPlayerAccountIdByGUID(owner_guid);
     // owner exist (online or offline)
     if (owner || owner_accId)
@@ -133,7 +133,7 @@ void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry* auction, SQLTrans
 void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry* auction, SQLTransaction& trans)
 {
     ObjectGuid owner_guid(HIGHGUID_PLAYER, auction->owner);
-    Player* owner = ObjectAccessor::FindPlayer(owner_guid);
+    Player* owner = ObjectAccessor::FindConnectedPlayer(owner_guid);
     uint32 owner_accId = sObjectMgr->GetPlayerAccountIdByGUID(owner_guid);
     // owner exist
     if (owner || owner_accId)
@@ -164,7 +164,7 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry* auction, SQLTransacti
         return;
 
     ObjectGuid owner_guid(HIGHGUID_PLAYER, auction->owner);
-    Player* owner = ObjectAccessor::FindPlayer(owner_guid);
+    Player* owner = ObjectAccessor::FindConnectedPlayer(owner_guid);
     uint32 owner_accId = sObjectMgr->GetPlayerAccountIdByGUID(owner_guid);
     // owner exist
     if (owner || owner_accId)
@@ -187,7 +187,7 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry* auction, SQLTransacti
 void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry* auction, uint32 newPrice, Player* newBidder, SQLTransaction& trans)
 {
     ObjectGuid oldBidder_guid(HIGHGUID_PLAYER, auction->bidder);
-    Player* oldBidder = ObjectAccessor::FindPlayer(oldBidder_guid);
+    Player* oldBidder = ObjectAccessor::FindConnectedPlayer(oldBidder_guid);
 
     uint32 oldBidder_accId = 0;
     if (!oldBidder)
@@ -209,7 +209,7 @@ void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry* auction, uint32 new
 void AuctionHouseMgr::SendAuctionCancelledToBidderMail(AuctionEntry* auction, SQLTransaction& trans)
 {
     ObjectGuid bidder_guid = ObjectGuid(HIGHGUID_PLAYER, auction->bidder);
-    Player* bidder = ObjectAccessor::FindPlayer(bidder_guid);
+    Player* bidder = ObjectAccessor::FindConnectedPlayer(bidder_guid);
 
     uint32 bidder_accId = 0;
     if (!bidder)

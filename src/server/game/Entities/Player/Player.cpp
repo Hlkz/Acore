@@ -4740,11 +4740,8 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                 {
                     if (Player* pFriend = ObjectAccessor::FindPlayer(ObjectGuid(HIGHGUID_PLAYER, 0, (*resultFriends)[0].GetUInt32())))
                     {
-                        if (pFriend->IsInWorld())
-                        {
-                            pFriend->GetSocial()->RemoveFromSocialList(guid, false);
-                            sSocialMgr->SendFriendStatus(pFriend, FRIEND_REMOVED, guid, false);
-                        }
+                        pFriend->GetSocial()->RemoveFromSocialList(guid, false);
+                        sSocialMgr->SendFriendStatus(pFriend, FRIEND_REMOVED, guid, false);
                     }
                 } while (resultFriends->NextRow());
             }
@@ -20795,7 +20792,7 @@ void Player::RemovePetitionsAndSigns(ObjectGuid guid, uint32 type)
             ObjectGuid petitionguid = ObjectGuid(HIGHGUID_ITEM, fields[1].GetUInt32());
 
             // send update if charter owner in game
-            Player* owner = ObjectAccessor::FindPlayer(ownerguid);
+            Player* owner = ObjectAccessor::FindConnectedPlayer(ownerguid);
             if (owner)
                 owner->GetSession()->SendPetitionQueryOpcode(petitionguid);
         } while (result->NextRow());
