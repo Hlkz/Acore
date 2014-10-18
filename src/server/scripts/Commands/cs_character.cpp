@@ -821,7 +821,7 @@ public:
         ObjectGuid characterGuid;
         uint32 accountId;
 
-        Player* player = sObjectAccessor->FindPlayerByName(characterName);
+        Player* player = ObjectAccessor::FindPlayerByName(characterName);
         if (player)
         {
             characterGuid = player->GetGUID();
