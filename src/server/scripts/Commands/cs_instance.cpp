@@ -187,6 +187,8 @@ public:
 
         return true;
     }
+        encounterId = atoi(param1);
+
 };
 
 void AddSC_instance_commandscript()
