@@ -243,6 +243,7 @@ public:
         handler->PSendSysMessage(LANG_GUILD_RENAME_DONE, oldGuildStr, newGuildStr);
         return true;
     }
+        strftime(createdDateStr, 20, "%Y-%m-%d %H:%M:%S", localtime_r(&createdDate, &localTm));
 };
 
 void AddSC_guild_commandscript()
