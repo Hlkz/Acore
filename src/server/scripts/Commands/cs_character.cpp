@@ -273,17 +273,17 @@ public:
         char const* knownStr = handler->GetTrinityString(LANG_KNOWN);
 
         // Search in CharTitles.dbc
-        for (CharTitlesContainer::const_iterator itr = sDBCMgr->CharTitlesStore.begin(); itr != sDBCMgr->CharTitlesStore.end(); ++itr)
+        for (uint32 id = 0; id < sDBCMgr->CharTitlesStore.size(); id++)
         {
-            CharTitlesEntry const* titleInfo = itr->second;
+            CharTitlesEntry const* titleInfo = sDBCMgr->GetCharTitlesEntry(id);
+
             if (titleInfo && target->HasTitle(titleInfo))
             {
-                std::string name = titleInfo->name[loc];
+                std::string name = target->getGender() == GENDER_MALE ? titleInfo->nameMale[loc] : titleInfo->nameFemale[loc];
                 if (name.empty())
                     continue;
-                uint32 id = itr->first;
 
-                char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->bit_index
+                char const* activeStr = target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->bit_index
                 ? handler->GetTrinityString(LANG_ACTIVE)
                 : "";
 
@@ -292,9 +292,9 @@ public:
 
                 // send title in "id (idx:idx) - [namedlink locale]" format
                 if (handler->GetSession())
-                    handler->PSendSysMessage(LANG_TITLE_LIST_CHAT, itr->first, titleInfo->bit_index, itr->first, titleNameStr, localeNames[loc], knownStr, activeStr);
+                    handler->PSendSysMessage(LANG_TITLE_LIST_CHAT, id, titleInfo->bit_index, id, titleNameStr, localeNames[loc], knownStr, activeStr);
                 else
-                    handler->PSendSysMessage(LANG_TITLE_LIST_CONSOLE, itr->first, titleInfo->bit_index, name.c_str(), localeNames[loc], knownStr, activeStr);
+                    handler->PSendSysMessage(LANG_TITLE_LIST_CONSOLE, id, titleInfo->bit_index, name.c_str(), localeNames[loc], knownStr, activeStr);
             }
         }
 

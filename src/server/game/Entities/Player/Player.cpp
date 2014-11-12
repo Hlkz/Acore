@@ -20259,40 +20259,40 @@ void Player::TextEmote(std::string const& text, WorldObject const* /*= nullptr*/
     SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true);
 }
 
-void Player::Whisper(const std::string& text, uint32 language, ObjectGuid receiver)
+void Player::Whisper(std::string const& text, Language language, Player* target, bool /*= false*/)
 {
+    ASSERT(target);
+
     bool isAddonMessage = language == LANG_ADDON;
 
     if (!isAddonMessage)                                    // if not addon data
         language = LANG_UNIVERSAL;                          // whispers should always be readable
 
-    Player* rPlayer = ObjectAccessor::FindPlayer(receiver);
-
     std::string _text(text);
-    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, language, _text, rPlayer);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, language, _text, target);
 
     WorldPacket data;
     ChatHandler::BuildChatPacket(data, CHAT_MSG_WHISPER, Language(language), this, this, _text);
-    rPlayer->GetSession()->SendPacket(&data);
+    target->GetSession()->SendPacket(&data);
 
     // rest stuff shouldn't happen in case of addon message
     if (isAddonMessage)
         return;
 
-    ChatHandler::BuildChatPacket(data, CHAT_MSG_WHISPER_INFORM, Language(language), rPlayer, rPlayer, _text);
+    ChatHandler::BuildChatPacket(data, CHAT_MSG_WHISPER_INFORM, Language(language), target, target, _text);
     GetSession()->SendPacket(&data);
 
-    if (!isAcceptWhispers() && !IsGameMaster() && !rPlayer->IsGameMaster())
+    if (!isAcceptWhispers() && !IsGameMaster() && !target->IsGameMaster())
     {
         SetAcceptWhispers(true);
         ChatHandler(GetSession()).SendSysMessage(LANG_COMMAND_WHISPERON);
     }
 
     // announce afk or dnd message
-    if (rPlayer->isAFK())
-        ChatHandler(GetSession()).PSendSysMessage(LANG_PLAYER_AFK, rPlayer->GetName().c_str(), rPlayer->autoReplyMsg.c_str());
-    else if (rPlayer->isDND())
-        ChatHandler(GetSession()).PSendSysMessage(LANG_PLAYER_DND, rPlayer->GetName().c_str(), rPlayer->autoReplyMsg.c_str());
+    if (target->isAFK())
+        ChatHandler(GetSession()).PSendSysMessage(LANG_PLAYER_AFK, target->GetName().c_str(), target->autoReplyMsg.c_str());
+    else if (target->isDND())
+        ChatHandler(GetSession()).PSendSysMessage(LANG_PLAYER_DND, target->GetName().c_str(), target->autoReplyMsg.c_str());
 }
 
 Item* Player::GetMItem(uint32 id)

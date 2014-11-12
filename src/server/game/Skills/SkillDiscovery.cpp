@@ -101,7 +101,7 @@ void LoadSkillDiscoveryTable()
             {
                 if (reportedReqSpells.find(absReqSkillOrSpell) == reportedReqSpells.end())
                 {
-                    TC_LOG_ERROR("sql.sql", "Spell (ID: %u) not have MECHANIC_DISCOVERY (28) value in Mechanic field in `spells` table"
+                    TC_LOG_ERROR("sql.sql", "Spell (ID: %u) not have MECHANIC_DISCOVERY (28) value in Mechanic field in `spelldbc`"
                         " and not 100%% chance random discovery ability but listed for spellId %u (and maybe more) in `skill_discovery_template` table",
                         absReqSkillOrSpell, spellId);
                     reportedReqSpells.insert(absReqSkillOrSpell);
@@ -140,12 +140,12 @@ void LoadSkillDiscoveryTable()
     // report about empty data for explicit discovery spells
     for (uint32 spell_id = 1; spell_id < sSpellMgr->GetSpellInfoStoreSize(); ++spell_id)
     {
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
-        if (!spellInfo)
+        SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(spell_id);
+        if (!spellEntry)
             continue;
 
         // skip not explicit discovery spells
-        if (!spellInfo->IsExplicitDiscovery())
+        if (!spellEntry->IsExplicitDiscovery())
             continue;
 
         if (SkillDiscoveryStore.find(int32(spell_id)) == SkillDiscoveryStore.end())

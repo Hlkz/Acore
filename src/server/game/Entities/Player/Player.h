@@ -1295,7 +1295,7 @@ class Player : public Unit, public GridObject<Player>
         /// Outputs an universal text which is supposed to be an action.
         void TextEmote(std::string const& text, WorldObject const* = nullptr, bool = false) override;
         /// Handles whispers from Addons and players based on sender, receiver's guid and language.
-        void Whisper(std::string const& text, const uint32 language, ObjectGuid receiver);
+        void Whisper(std::string const& text, Language language, Player* receiver, bool = false) override;
 
         /*********************************************************/
         /***                    STORAGE SYSTEM                 ***/

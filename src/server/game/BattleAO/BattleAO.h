@@ -172,8 +172,7 @@ class Unit;
 class BattleAO;
 class BAOGraveyard;
 
-typedef std::set<uint64> GuidSet;
-typedef std::map<uint64, time_t> PlayerTimerMap;
+typedef std::map<ObjectGuid, time_t> PlayerTimerMap;
 
 class BattleAO : public ZoneScript
 {
@@ -192,10 +191,10 @@ class BattleAO : public ZoneScript
         bool SetupBattleAO();
         bool Update(uint32 diff);
 
-        typedef std::map<uint64, BattleAOPlayer> BattleAOPlayerMap;
+        typedef std::map<ObjectGuid, BattleAOPlayer> BattleAOPlayerMap;
         BattleAOPlayerMap const& GetPlayers() const { return m_Players; }
         bool HasPlayer(Player* player) const { return m_Players.find(player->GetGUID()) != m_Players.end(); }
-        bool HasPlayerByGuid(uint64 guid) const { return m_Players.find(guid) != m_Players.end(); }
+        bool HasPlayerByGuid(ObjectGuid guid) const { return m_Players.find(guid) != m_Players.end(); }
 
         // Players
         static TeamId GetTeamIndexByTeamId(uint32 Team) { return Team == ALLIANCE ? TEAM_ALLIANCE : Team == HORDE ? TEAM_HORDE : TEAM_NEUTRAL; }
@@ -209,9 +208,9 @@ class BattleAO : public ZoneScript
         void SetBalanceTag(bool balancetag) { m_balancetag = balancetag; }
 
         void AddPlayer(Player* player);
-        void RemovePlayer(uint64 guid, bool teleport=true);
+        void RemovePlayer(ObjectGuid guid, bool teleport = true);
         Group* GetFreeBAORaid(TeamId TeamId);
-        Group* GetGroupPlayer(uint64 guid, TeamId TeamId);
+        Group* GetGroupPlayer(ObjectGuid guid, TeamId TeamId);
         bool AddOrSetPlayerToCorrectBAOGroup(Player* player);
 
         void UpdatePlayerScore(Player* Source, uint32 type, uint32 value);
@@ -236,14 +235,14 @@ class BattleAO : public ZoneScript
         void EventPlayerLoggedOut(Player* player);
 
         // Objects
-        typedef std::vector<uint64> AOCreatures;
+        typedef std::vector<ObjectGuid> AOCreatures;
         AOCreatures AoCreatures;
         Creature* GetAOCreature(uint32 type);
         Creature* AddCreature(uint32 entry, uint32 type, uint32 teamval, float x, float y, float z, float o, uint32 respawntime = 0);
         bool AddSpiritGuide(uint32 type, float x, float y, float z, float o, uint32 team); // tofix:guard
         bool DelCreature(uint32 type);
 
-        typedef std::vector<uint64> AOObjects;
+        typedef std::vector<ObjectGuid> AOObjects;
         AOObjects AoObjects;
         GameObject* GetAOObject(uint32 type);
         bool AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime = 0);
@@ -272,14 +271,14 @@ class BattleAO : public ZoneScript
         BattleAOPlayerMap m_Players;
         int32 m_PlayersCount[BAO_TEAMS_COUNT];
         GuidSet m_Groups[BG_TEAMS_COUNT];
-        std::deque<uint64> m_OfflineQueue;
+        std::deque<ObjectGuid> m_OfflineQueue;
         bool m_playerscantag;
         bool m_balancetag;
 
         AO_Node m_Nodes[BAO_NODES_COUNT];
         uint32 m_lastTick[BG_TEAMS_COUNT];
 
-        Player* _GetPlayer(uint64 guid, bool offlineRemove, char const* context) const {
+        Player* _GetPlayer(ObjectGuid guid, bool offlineRemove, char const* context) const {
             Player* player = NULL;
             if (!offlineRemove)
                 player = ObjectAccessor::FindPlayer(guid);

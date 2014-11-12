@@ -3,7 +3,6 @@
 
 #include "BattleAO.h"
 #include "BattleAOQueue.h"
-#include "ace/Singleton.h"
 
 typedef std::map<uint32, BattleAO*> BattleAOContainer;
 typedef std::set<uint32> BattleAOClientIdsContainer;

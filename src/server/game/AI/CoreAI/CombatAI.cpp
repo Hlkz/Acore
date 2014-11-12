@@ -232,11 +232,11 @@ TurretAI::TurretAI(Creature* c) : CreatureAI(c)
     me->m_SightDistance = me->m_CombatDistance;
 }
 
-bool TurretAI::CanAIAttack(const Unit* who) const
+bool TurretAI::CanAIAttack(const Unit* /*who*/) const
 {
     /// @todo use one function to replace it
-    if (!me->IsWithinCombatRange(who, me->m_CombatDistance)
-        || (m_minRange && me->IsWithinCombatRange(who, m_minRange)))
+    if (!me->IsWithinCombatRange(me->GetVictim(), me->m_CombatDistance)
+        || (m_minRange && me->IsWithinCombatRange(me->GetVictim(), m_minRange)))
         return false;
     return true;
 }
@@ -308,7 +308,7 @@ void VehicleAI::CheckConditions(uint32 diff)
     {
         if (!conditions.empty())
         {
-            if( Vehicle* vehicleKit = me->GetVehicleKit())
+            if (Vehicle* vehicleKit = me->GetVehicleKit())
                 for (SeatMap::iterator itr = vehicleKit->Seats.begin(); itr != vehicleKit->Seats.end(); ++itr)
                     if (Unit* passenger = ObjectAccessor::GetUnit(*me, itr->second.Passenger.Guid))
                     {

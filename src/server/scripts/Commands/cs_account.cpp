@@ -50,13 +50,13 @@ public:
         };
         static ChatCommand accountCommandTable[] =
         {
-            { "addon",          SEC_ANIMATOR,       false, &HandleAccountAddonCommand,        "", NULL },
+            { "addon",          SEC_GAMEMASTER,     false, &HandleAccountAddonCommand,        "", NULL },
             { "create",         SEC_ADMINISTRATOR,  true,  &HandleAccountCreateCommand,       "", NULL },
             { "delete",         SEC_ADMINISTRATOR,  true,  &HandleAccountDeleteCommand,       "", NULL },
             { "onlinelist",     SEC_ADMINISTRATOR,  true,  &HandleAccountOnlineListCommand,   "", NULL },
-            { "lock",           SEC_ANIMATOR,       false, NULL,           "", accountLockCommandTable },
+            { "lock",           SEC_GAMEMASTER,     false, NULL,           "", accountLockCommandTable },
             { "set",            SEC_ADMINISTRATOR,  true,  NULL,            "", accountSetCommandTable },
-            { "password",       SEC_ANIMATOR,       false, &HandleAccountPasswordCommand,     "", NULL },
+            { "password",       SEC_ADMINISTRATOR,  false, &HandleAccountPasswordCommand,     "", NULL },
             { "",               SEC_PLAYER,         false, &HandleAccountCommand,             "", NULL },
             { NULL,             SEC_PLAYER,         false, NULL,                              "", NULL }
         };
