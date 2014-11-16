@@ -104,7 +104,16 @@ namespace VMAP
 
             printf("Creating map tree for map %u...\n", map_iter->first);
             BIH pTree;
-            pTree.build(mapSpawns, BoundsTrait<ModelSpawn*>::getBounds);
+
+            try
+            {
+                pTree.build(mapSpawns, BoundsTrait<ModelSpawn*>::getBounds);
+            }
+            catch (std::exception& e)
+            {
+                printf("Exception ""%s"" when calling pTree.build", e.what());
+                return false;
+            }
 
             // ===> possibly move this code to StaticMapTree class
             std::map<uint32, uint32> modelNodeIdx;
@@ -231,7 +240,7 @@ namespace VMAP
             MapData::iterator map_iter = mapData.find(mapID);
             if (map_iter == mapData.end())
             {
-                printf("spawning Map %d\n", mapID);
+                printf("spawning Map %u\n", mapID);
                 mapData[mapID] = current = new MapSpawns();
             }
             else current = (*map_iter).second;
