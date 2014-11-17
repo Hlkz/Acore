@@ -183,7 +183,6 @@ namespace Trinity
                 // xp rates here
                 }
 
-                xpMod *= sWorld->getRate(RATE_XP_KILL);
                 gain = uint32(gain * xpMod);
             }
 

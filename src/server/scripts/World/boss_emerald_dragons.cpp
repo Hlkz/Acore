@@ -156,7 +156,7 @@ class boss_emeriss : public CreatureScript
                         me->SetDisableGravity(true);
                         me->AddUnitState(UNIT_STATE_IN_FLIGHT);
                         if (WMScript* data = me->GetWMScript())
-                            if (Unit* trigger = ObjectAccessor::FindUnit(data->GetData64(1000046)))
+                            if (Unit* trigger = ObjectAccessor::FindUnit(data->GetGuidData(1000046)))
                                 me->GetMotionMaster()->MoveFollow(trigger, 0.0f, 0.0f);
                         ini = true;
                     }

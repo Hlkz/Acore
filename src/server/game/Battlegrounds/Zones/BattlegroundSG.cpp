@@ -76,9 +76,9 @@ public:
                 attackable = me->IsWithinDist(iwp->GetFirstCreep(laneid, iwp->GetOtherTeam(teamid)), 10.0f);
                 timer = 5000;
                 if (attackable)
-                    me->MonsterSay("Attaquable !", 0, NULL);
+                    me->Say("Attaquable !", NULL);
                 else
-                    me->MonsterSay("Non attaquable !", 0, NULL);
+                    me->Say("Non attaquable !", NULL);
             }
         }
 
@@ -372,7 +372,7 @@ void BattlegroundSG::SpawnCreeps(uint32 count)
     }
 }
 
-void BattlegroundSG::EraseCreep(uint64 guid, uint8 lane, uint8 teamid)
+void BattlegroundSG::EraseCreep(ObjectGuid guid, uint8 lane, uint8 teamid)
 {
     m_Creeps[lane][teamid].erase(guid);
     m_CreepsCount[teamid]--;
@@ -403,7 +403,7 @@ void BattlegroundSG::EndBattleground(uint32 winner)
     Battleground::EndBattleground(winner);
 }
 
-void BattlegroundSG::RemovePlayer(Player* player, uint64 /*guid*/, uint32 /*team*/)
+void BattlegroundSG::RemovePlayer(Player* player, ObjectGuid /*guid*/, uint32 /*team*/)
 {
     if (!player)
     {

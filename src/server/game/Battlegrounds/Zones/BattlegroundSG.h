@@ -3,6 +3,7 @@
 
 #include "Battleground.h"
 #include "BattlegroundScore.h"
+#include "Object.h"
 
 enum BG_SG_CreatureEntry
 {
@@ -58,14 +59,14 @@ const float BG_SG_ObjectPos[BG_SG_OB_MAX][4] =
 
 const uint32 BG_SG_GraveyardIds[BG_TEAMS_COUNT] = { 1954, 1955 };
 
-typedef std::map<uint64, Creature*> SGCreepMap;
+typedef std::map<ObjectGuid, Creature*> SGCreepMap;
 
 struct BattlegroundSGScore final : public BattlegroundScore
 {
     friend class BattlegroundSG;
 
     protected:
-        BattlegroundSGScore(uint64 playerGuid) : BattlegroundScore(playerGuid) { }
+        BattlegroundSGScore(ObjectGuid playerGuid) : BattlegroundScore(playerGuid) { }
 
         void UpdateScore(uint32 type, uint32 value) override
         {
@@ -88,7 +89,7 @@ class BattlegroundSG : public Battleground
         void StartingEventCloseDoors();
         void StartingEventOpenDoors();
 
-        void RemovePlayer(Player* player, uint64 guid, uint32 team);
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team);
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
         bool SetupBattleground();
         void ResetBGSubclass();
@@ -103,7 +104,7 @@ class BattlegroundSG : public Battleground
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
         void CrushWall();
-        void EraseCreep(uint64 guid, uint8 lane, uint8 teamid);
+        void EraseCreep(ObjectGuid guid, uint8 lane, uint8 teamid);
         Creature* GetFirstCreep(uint8 lane, uint8 teamid) { return m_Creeps[lane][teamid].begin()->second; }
 
         /*variables*/

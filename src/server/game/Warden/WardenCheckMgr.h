@@ -20,6 +20,8 @@
 #define _WARDENCHECKMGR_H
 
 #include <map>
+#include <boost/thread/locks.hpp>
+#include <boost/thread/shared_mutex.hpp>
 #include "Cryptography/BigNumber.h"
 
 enum WardenActions
@@ -55,8 +57,8 @@ class WardenCheckMgr
     public:
         static WardenCheckMgr* instance()
         {
-            static WardenCheckMgr* instance = new WardenCheckMgr();
-            return instance;
+            static WardenCheckMgr instance;
+            return &instance;
         }
 
         // We have a linear key without any gaps, so we use vector for fast access
@@ -72,7 +74,7 @@ class WardenCheckMgr
         void LoadWardenChecks();
         void LoadWardenOverrides();
 
-        ACE_RW_Mutex _checkStoreLock;
+        boost::shared_mutex _checkStoreLock;
 
     private:
         CheckContainer CheckStore;

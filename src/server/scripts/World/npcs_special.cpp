@@ -2347,7 +2347,7 @@ public:
                             if (player->IsInRange(me, 0.0f, 1.0f, false))
                                     player->AddAura(58984, player);
                             else if (player->IsInRange(me, 1.1f, 1.2f, false))
-                                player->RemoveAura(58984, AURA_REMOVE_BY_DEFAULT);
+                                player->RemoveAurasDueToSpell(58984, ObjectGuid::Empty, NULL, AURA_REMOVE_BY_DEFAULT);
                         }
                         return;
                 }

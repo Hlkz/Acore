@@ -21,16 +21,16 @@ uint32 Breath_Timer; uint32 Aoe_Timer; uint32 Flamme_Timer; uint32 Fear_Timer;
 
 void KilledUnit(Unit *) {
     me->InterruptNonMeleeSpells(true);
-    me->MonsterYell("Faiblit ! Offrez vous à moi !", LANG_DRACONIC, NULL);
+    me->Yell("Faiblit ! Offrez vous à moi !", LANG_DRACONIC, NULL);
     DoCast(me, SPELL_FURY_STACK);
     DoCast(me, SPELL_FURY_STACK); }
 
 void JustDied(Unit *) {
-    me->MonsterYell("I-Ils arrivent, ils vous achèveront... Garrr !", LANG_DRACONIC, NULL); }
+    me->Yell("I-Ils arrivent, ils vous achèveront... Garrr !", LANG_DRACONIC, NULL); }
 
 void EnterCombat(Unit* victim) {
     BossAI::EnterCombat(victim);
-    me->MonsterYell("Que peuvent faire ces insectes sur mon chemin ?", LANG_DRACONIC, NULL);
+    me->Yell("Que peuvent faire ces insectes sur mon chemin ?", LANG_DRACONIC, NULL);
     Phase = 1;
     Auto_Timer = 4000; Auto2_Timer = 6000;
     Breath_Timer = 2000; Aoe_Timer = 8000; Fear_Timer = 16000; }
@@ -45,7 +45,7 @@ void UpdateAI(uint32 diff)
         return;
 
     if ((Phase == 1) && (!HealthAbovePct(75))) {
-    me->MonsterYell("Moucherons ! Vous n'êtes rien !", LANG_DRACONIC, NULL);
+    me->Yell("Moucherons ! Vous n'êtes rien !", LANG_DRACONIC, NULL);
     me->InterruptNonMeleeSpells(true);
     DoCast(me, SPELL_FURY_STACK); DoCast(me, SPELL_FURY_STACK);
     Phase = 2;
@@ -53,7 +53,7 @@ void UpdateAI(uint32 diff)
     Breath_Timer = 2000; Aoe_Timer = 8000; Fear_Timer = 16000; }
 
     if ((Phase == 2) && (!HealthAbovePct(50))) {
-    me->MonsterYell("Brûlez ! Sentez vos coeurs s'assécher !", LANG_DRACONIC, NULL);
+    me->Yell("Brûlez ! Sentez vos coeurs s'assécher !", LANG_DRACONIC, NULL);
     me->InterruptNonMeleeSpells(true);
     DoCast(me, SPELL_FURY_STACK); DoCast(me, SPELL_FURY_STACK);
     DoCast(me, SPELL_JUSTICE);
@@ -62,7 +62,7 @@ void UpdateAI(uint32 diff)
     Breath_Timer = 2000; Aoe_Timer = 8000; Fear_Timer = 12000; }
 
     if ((Phase == 3) && (!HealthAbovePct(25))) {
-    me->MonsterYell("C'est trop ! Laissez vous massacrer !", LANG_DRACONIC, NULL);
+    me->Yell("C'est trop ! Laissez vous massacrer !", LANG_DRACONIC, NULL);
     me->InterruptNonMeleeSpells(true);
     DoCast(me, SPELL_FURY_STACK); DoCast(me, SPELL_FURY_STACK);
     DoCast(me, SPELL_ENRAGE);

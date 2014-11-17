@@ -95,7 +95,7 @@ bool World::DistributeRanks()
 
     int8 i = 0;
     do {
-        uint64 guid = result->Fetch()[i, 0].GetUInt32();
+        uint64 guid = result->Fetch()[i, 0].GetUInt64();
         uint32 rank = result->Fetch()[i, 1].GetUInt32();
         uint32 total = result->Fetch()[i, 2].GetUInt32();
         uint32 last = result->Fetch()[i, 3].GetUInt32();
@@ -105,7 +105,7 @@ bool World::DistributeRanks()
         PreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PVP_POINTS);
         stmt2->setUInt32(0, (uint32)points > PvpPointsFloor[rank] && rank != 6);
         stmt2->setUInt32(1, points);
-        stmt2->setUInt32(2, GUID_LOPART(guid));
+        stmt2->setUInt64(2, guid);
         trans2->Append(stmt2);
         CharacterDatabase.CommitTransaction(trans2);
 
@@ -125,12 +125,12 @@ bool World::DistributeRanks()
 
         uint8 i = 0;
         do {
-            uint64 guid = result->Fetch()[i].GetUInt32();
+            uint64 guid = result->Fetch()[i].GetUInt64();
             SQLTransaction trans4 = CharacterDatabase.BeginTransaction();
             PreparedStatement* stmt4 = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PVP_RANK);
             stmt4->setUInt32(0, rankid);
             stmt4->setUInt32(1, i>=PvpRankEff[rankid-1]);
-            stmt4->setUInt32(2, GUID_LOPART(guid));
+            stmt4->setUInt64(2, guid);
             trans4->Append(stmt4);
             CharacterDatabase.CommitTransaction(trans4);
             ++i;
@@ -232,7 +232,7 @@ public:
             return false;
         WorldSession* session = handler->GetSession();
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_RANKS_INFO);
-        stmt->setUInt32(0, GUID_LOPART(handler->GetSession()->GetPlayer()->GetGUID()));
+        stmt->setUInt64(0, handler->GetSession()->GetPlayer()->GetGUID());
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
         if (!result)
             return false;

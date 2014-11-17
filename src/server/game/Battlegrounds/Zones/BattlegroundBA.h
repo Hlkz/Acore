@@ -3,6 +3,7 @@
 
 #include "Battleground.h"
 #include "BattlegroundScore.h"
+#include "Object.h"
 
 enum BG_BA_SpellEntry
 {
@@ -109,7 +110,7 @@ struct BattlegroundBAScore final : public BattlegroundScore
     friend class BattlegroundBA;
 
     protected:
-        BattlegroundBAScore(uint64 playerGuid) : BattlegroundScore(playerGuid), CreepsKilled(0), ArcaneFrag(0) { }
+        BattlegroundBAScore(ObjectGuid playerGuid) : BattlegroundScore(playerGuid), CreepsKilled(0), ArcaneFrag(0) { }
 
         void UpdateScore(uint32 type, uint32 value) override
         {
@@ -148,7 +149,7 @@ class BattlegroundBA : public Battleground
         void StartingEventCloseDoors();
         void StartingEventOpenDoors();
 
-        void RemovePlayer(Player* player, uint64 guid, uint32 team);
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team);
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
         bool SetupBattleground();
         void ResetBGSubclass();

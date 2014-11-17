@@ -191,7 +191,6 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
 
     //add GroupInfo to m_QueuedGroups
     {
-        //ACE_Guard<ACE_Recursive_Thread_Mutex> guard(m_Lock);
         m_QueuedGroups[bracketId][index].push_back(ginfo);
 
         //announce to world, this code needs mutex
@@ -232,7 +231,7 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
                             else {
                                 if (bg->GetTypeID() == 12)
                                     sWorld->SendWorldText(697, qAlliance, MinPlayers, qHorde, MinPlayers);
-                                else  sWorld->SendWorldText(LANG_BG_QUEUE_ANNOUNCE_WORLD, bgName, qAlliance, MinPlayers, qHorde, MinPlayers);
+                                else  sWorld->SendWorldText(LANG_BG_QUEUE_ANNOUNCE_WORLD, bg->GetName().c_str(), qAlliance, MinPlayers, qHorde, MinPlayers);
                             }
                         }
                     }

@@ -277,23 +277,11 @@ class BattleAO : public ZoneScript
 
         AO_Node m_Nodes[BAO_NODES_COUNT];
         uint32 m_lastTick[BG_TEAMS_COUNT];
-
-        Player* _GetPlayer(ObjectGuid guid, bool offlineRemove, char const* context) const {
-            Player* player = NULL;
-            if (!offlineRemove)
-                player = ObjectAccessor::FindPlayer(guid);
-            return player; }
-        Player* _GetPlayer(BattleAOPlayerMap::iterator itr, char const* context) { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime, context); }
-        Player* _GetPlayer(BattleAOPlayerMap::const_iterator itr, char const* context) const { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime, context); }
-        Player* _GetPlayerForTeam(uint32 teamId, BattleAOPlayerMap::const_iterator itr, char const* context) const {
-            Player* player = _GetPlayer(itr, context);
-            if (player) {
-                uint32 team = itr->second.Team;
-                if (!team)
-                    team = player->GetTeam();
-                if (team != teamId)
-                    player = NULL; }
-            return player; }
+        
+        Player* _GetPlayer(ObjectGuid guid, bool offlineRemove, const char* context) const;
+        Player* _GetPlayer(BattleAOPlayerMap::iterator itr, const char* context) { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime != 0, context); }
+        Player* _GetPlayer(BattleAOPlayerMap::const_iterator itr, const char* context) const { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime != 0, context); }
+        Player* _GetPlayerForTeam(uint32 teamId, BattleAOPlayerMap::const_iterator itr, const char* context) const;
 };
 
 #endif

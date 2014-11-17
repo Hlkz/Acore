@@ -18,7 +18,7 @@ public:
 
     static bool HandleTalentCommand(ChatHandler* handler, const char* /*args*/)
     {
-        handler->GetSession()->GetPlayer()->resetTalents();
+        handler->GetSession()->GetPlayer()->ResetTalents(true);
         handler->GetSession()->GetPlayer()->SendTalentsInfoData(false);
         return true;
     }

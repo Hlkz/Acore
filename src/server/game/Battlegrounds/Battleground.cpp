@@ -1216,7 +1216,7 @@ bool Battleground::UpdatePlayerScore(Player* player, uint32 type, uint32 value, 
 void Battleground::RelocateDeadPlayers(ObjectGuid guideGuid)
 {
     // Those who are waiting to resurrect at this node are taken to the closest own node's graveyard
-    GuidVector& ghostList = sWorld->GetShReviveQueue(queueIndex);
+    GuidVector& ghostList = sWorld->GetShReviveQueue(guideGuid);
     if (!ghostList.empty())
     {
         WorldSafeLocsEntry const* closestGrave = NULL;
@@ -1763,7 +1763,7 @@ uint8 Battleground::GetUniqueBracketId() const
     return GetMinLevel() / 10;
 }
 
-void Battleground::SetPlayerReady(uint64 guid)
+void Battleground::SetPlayerReady(ObjectGuid guid)
 {
     if (ObjectAccessor::FindPlayer(guid))
     {

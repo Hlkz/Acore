@@ -476,7 +476,7 @@ class Battleground
         // because BattleGrounds with different types and same level range has different m_BracketId
         uint8 GetUniqueBracketId() const;
 
-        void SetPlayerReady(uint64 guid);
+        void SetPlayerReady(ObjectGuid guid);
 
     protected:
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground

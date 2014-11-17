@@ -35,7 +35,7 @@ public:
     {
         if (player->GetPet())
         {
-            creature->MonsterWhisper(player->GetSession()->GetTrinityString(12001), player);
+            creature->Whisper(12001, player);
             player->PlayerTalkClass->SendCloseGossip();
             return;
         }
@@ -62,7 +62,7 @@ public:
         pet->InitTalentForLevel();
         player->PetSpellInitialize();
         player->PlayerTalkClass->SendCloseGossip();
-        creature->MonsterWhisper(player->GetSession()->GetTrinityString(12002), player);
+        creature->Whisper(12002, player);
     }
 
     bool OnGossipHello(Player *player, Creature * creature)

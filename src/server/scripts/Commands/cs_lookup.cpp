@@ -1185,7 +1185,7 @@ public:
             if (titleInfo)
             {
                 int locale = handler->GetSessionDbcLocale();
-                std::string name = titleInfo->name[locale];
+                std::string name = titleInfo->nameMale[locale];
                 if (name.empty())
                     continue;
                 uint32 id = itr->first;
@@ -1198,7 +1198,7 @@ public:
                         if (locale == handler->GetSessionDbcLocale())
                             continue;
 
-                        name = titleInfo->name[locale];
+                        name = titleInfo->nameMale[locale];
                         if (name.empty())
                             continue;
 

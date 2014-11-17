@@ -36,25 +36,25 @@ public:
             OnGossipHello(player, creature);
             player->UpdateSkillsToMaxSkillsForLevel();
             if (player->HasSpell(17877)) {
-                player->learnSpell(18867, false);
-                player->learnSpell(18868, false); } // brulure de l'ombre
+                player->LearnSpell(18867, false);
+                player->LearnSpell(18868, false); } // brulure de l'ombre
             if (player->HasSpell(11366)) {
-                player->learnSpell(12505, false);
-                player->learnSpell(12522, false);
-                player->learnSpell(12523, false); } // explosion pyrotechnique
+                player->LearnSpell(12505, false);
+                player->LearnSpell(12522, false);
+                player->LearnSpell(12523, false); } // explosion pyrotechnique
             if (player->HasSpell(11113)) {
-                player->learnSpell(13018, false); } // vague explosive
+                player->LearnSpell(13018, false); } // vague explosive
             if (player->HasSpell(5570)) {
-                player->learnSpell(24974, false); } // essaim d'insecte
+                player->LearnSpell(24974, false); } // essaim d'insecte
             if (player->HasSpell(19434)) {
-                player->learnSpell(20900, false);
-                player->learnSpell(20901, false); } // visée
+                player->LearnSpell(20900, false);
+                player->LearnSpell(20901, false); } // visée
             if (player->HasSpell(15407)) {
-                player->learnSpell(17311, false);
-                player->learnSpell(17312, false); } // fouet mental
+                player->LearnSpell(17311, false);
+                player->LearnSpell(17312, false); } // fouet mental
             if (player->HasSpell(19236)) {
-                player->learnSpell(19240, false);
-                player->learnSpell(19238, false); } // prière du désespoir
+                player->LearnSpell(19240, false);
+                player->LearnSpell(19238, false); } // prière du désespoir
             player->UpdateSkill(185, 450); // cuisine
             player->UpdateSkill(129, 450); // secourisme
             creature->CastSpell(player, 38588, false);
@@ -75,7 +75,7 @@ public:
 
         case 4:
             OnGossipHello(player, creature);
-            player->resetTalents();
+            player->ResetTalents();
             player->SendTalentsInfoData(false);
             break;
         }

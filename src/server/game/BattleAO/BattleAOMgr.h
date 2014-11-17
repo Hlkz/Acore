@@ -21,9 +21,16 @@ struct BattleAOData
 
 class BattleAOMgr
 {
-  public:
-    BattleAOMgr(); //ctor
-    ~BattleAOMgr(); //dtor
+    private:
+        BattleAOMgr();
+        ~BattleAOMgr();
+
+    public:
+        static BattleAOMgr* instance()
+        {
+            static BattleAOMgr* instance = new BattleAOMgr();
+            return instance;
+        }
 
     // create battleAO events
     void InitBattleAO();
@@ -57,6 +64,6 @@ class BattleAOMgr
     BattleAODataContainer baoDataStore;
 };
 
-#define sBattleAOMgr ACE_Singleton<BattleAOMgr, ACE_Null_Mutex>::instance()
+#define sBattleAOMgr BattleAOMgr::instance()
 
-#endif
+#endif // __BATTLEAOMGR_H

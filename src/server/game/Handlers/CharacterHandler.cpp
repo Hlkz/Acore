@@ -970,7 +970,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     m_playerLoading = false;
 
-    sScriptMgr->OnPlayerLogin(pCurrChar);
+    sScriptMgr->OnPlayerLogin(pCurrChar, firstLogin);
 
     delete holder;
 }

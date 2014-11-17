@@ -20,7 +20,7 @@ struct BAOPlayerQueueInfo
 
 struct BAOGroupQueueInfo
 {
-    std::map<uint64, BAOPlayerQueueInfo*> Players;
+    std::map<ObjectGuid, BAOPlayerQueueInfo*> Players;
     uint32  Team;
     uint32  JoinTime;
     uint32  RemoveInviteTime;
@@ -51,8 +51,8 @@ public:
 
     void FillPlayersToBAO();
     BAOGroupQueueInfo* AddGroup(Player* leader, Group* group, bool isPremade);
-    void RemovePlayer(uint64 guid, bool decreasePlayersCount);
-    bool IsPlayerInvited(uint64 pl_guid, const uint32 removeTime);
+    void RemovePlayer(ObjectGuid guid, bool decreasePlayersCount);
+    bool IsPlayerInvited(ObjectGuid pl_guid, const uint32 removeTime);
     bool GetPlayerGroupInfoData(uint64 guid, BAOGroupQueueInfo* ginfo);
 
     typedef std::map<uint64, BAOPlayerQueueInfo> BAOQueuedPlayersMap;
@@ -83,27 +83,27 @@ private:
 class BAOQueueInviteEvent : public BasicEvent
 {
     public:
-        BAOQueueInviteEvent(uint64 pl_guid, uint32 removeTime) : m_PlayerGuid(pl_guid), m_RemoveTime(removeTime) { }
+        BAOQueueInviteEvent(ObjectGuid pl_guid, uint32 removeTime) : m_PlayerGuid(pl_guid), m_RemoveTime(removeTime) { }
         virtual ~BAOQueueInviteEvent() { }
 
         virtual bool Execute(uint64 e_time, uint32 p_time);
         virtual void Abort(uint64 e_time);
     private:
-        uint64 m_PlayerGuid;
+        ObjectGuid m_PlayerGuid;
         uint32 m_RemoveTime;
 };
 
 class BAOQueueRemoveEvent : public BasicEvent
 {
     public:
-        BAOQueueRemoveEvent(uint64 pl_guid, uint32 removeTime) : m_PlayerGuid(pl_guid), m_RemoveTime(removeTime) { }
+        BAOQueueRemoveEvent(ObjectGuid pl_guid, uint32 removeTime) : m_PlayerGuid(pl_guid), m_RemoveTime(removeTime) { }
 
         virtual ~BAOQueueRemoveEvent() { }
 
         virtual bool Execute(uint64 e_time, uint32 p_time);
         virtual void Abort(uint64 e_time);
     private:
-        uint64 m_PlayerGuid;
+        ObjectGuid m_PlayerGuid;
         uint32 m_RemoveTime;
 };
 

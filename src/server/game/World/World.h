@@ -686,7 +686,7 @@ class World
         void AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid);
         void RemovePlayerFromResurrectQueue(uint64 player_guid);
         void SendAreaSpiritHealerQueryOpcode(Player* player, uint64 guid);
-        std::vector<uint64> GetShReviveQueue(uint64 sh_guid) { return m_ReviveQueue[sh_guid]; }
+        std::vector<ObjectGuid> GetShReviveQueue(ObjectGuid sh_guid) { return m_ReviveQueue[sh_guid]; }
 
     protected:
         void _UpdateGameTime();
@@ -774,8 +774,8 @@ class World
         time_t m_NextRanksDistrib;
 
         time_t m_LastResurrectTime;
-        std::map<uint64, std::vector<uint64> >  m_ReviveQueue; // spirit guid + player list (visual)
-        std::vector<uint64> m_ResurrectQueue; // final player list (resurrect)
+        std::map<ObjectGuid, GuidVector> m_ReviveQueue; // spirit guid + player list (visual)
+        std::vector<ObjectGuid> m_ResurrectQueue; // final player list (resurrect)
 
         // Player Queue
         Queue m_QueuedPlayer;

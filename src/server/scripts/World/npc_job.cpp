@@ -53,60 +53,60 @@ public:
 
             case 1000:
                 player->CLOSE_GOSSIP_MENU();
-                player->learnSpell(SPELL_AL, false);
+                player->LearnSpell(SPELL_AL, false);
                 player->UpdateSkill(SKILL_AL, 300);
                 break;
             case 1001:
                 player->CLOSE_GOSSIP_MENU();
-                player->learnSpell(SPELL_FORGE, false);
+                player->LearnSpell(SPELL_FORGE, false);
                 player->UpdateSkill(SKILL_FORGE, 300);
                 break;
             case 1002:
                 player->CLOSE_GOSSIP_MENU();
-                player->learnSpell(SPELL_EN, false);
+                player->LearnSpell(SPELL_EN, false);
                 player->UpdateSkill(SKILL_EN, 300);
                 break;
             case 1003:
                 player->CLOSE_GOSSIP_MENU();
-                player->learnSpell(SPELL_EG, false);
+                player->LearnSpell(SPELL_EG, false);
                 player->UpdateSkill(SKILL_EG, 300);
                 break;
             case 1004:
                 player->CLOSE_GOSSIP_MENU();
-                player->learnSpell(SPELL_HE, false);
-                player->learnSpell(55501, false);
+                player->LearnSpell(SPELL_HE, false);
+                player->LearnSpell(55501, false);
                 player->UpdateSkill(SKILL_HE, 300);
                 break;
             case 1005:
                 player->CLOSE_GOSSIP_MENU();
-                player->learnSpell(SPELL_IN, false);
+                player->LearnSpell(SPELL_IN, false);
                 player->UpdateSkill(SKILL_IN, 300);
                 break;
             case 1006:
                 player->CLOSE_GOSSIP_MENU();
-                player->learnSpell(SPELL_JOA, false);
+                player->LearnSpell(SPELL_JOA, false);
                 player->UpdateSkill(SKILL_JOA, 300);
                 break;
             case 1007:
                 player->CLOSE_GOSSIP_MENU();
-                player->learnSpell(SPELL_LW, false);
+                player->LearnSpell(SPELL_LW, false);
                 player->UpdateSkill(SKILL_LW, 300);
                 break;
             case 1008:
                 player->CLOSE_GOSSIP_MENU();
-                player->learnSpell(SPELL_MI, false);
-                player->learnSpell(53123, false);
+                player->LearnSpell(SPELL_MI, false);
+                player->LearnSpell(53123, false);
                 player->UpdateSkill(SKILL_MI, 300);
                 break;
             case 1009:
                 player->CLOSE_GOSSIP_MENU();
-                player->learnSpell(SPELL_SK, false);
-                player->learnSpell(53664, false);
+                player->LearnSpell(SPELL_SK, false);
+                player->LearnSpell(53664, false);
                 player->UpdateSkill(SKILL_SK, 300);
                 break;
             case 1010:
                 player->CLOSE_GOSSIP_MENU();
-                player->learnSpell(SPELL_TA, false);
+                player->LearnSpell(SPELL_TA, false);
                 player->UpdateSkill(SKILL_TA, 300);
                 break;
             }
@@ -114,7 +114,7 @@ public:
         else
         {
             player->CLOSE_GOSSIP_MENU();
-            creature->MonsterWhisper(player->GetSession()->GetTrinityString(LANG_NPC_JOB_ERR), player);
+            creature->Whisper(player->GetSession()->GetTrinityString(LANG_NPC_JOB_ERR), LANG_UNIVERSAL, player);
         }
 
         return true;

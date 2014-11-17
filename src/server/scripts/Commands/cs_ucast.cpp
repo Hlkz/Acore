@@ -1,5 +1,6 @@
 #include "ScriptPCH.h"
 #include "Chat.h"
+#include "ObjectGuid.h"
 
 class ucast_commandscript : public CommandScript
 {
@@ -26,9 +27,9 @@ public:
         char* casterguid = strtok(NULL, " ");
         char* casterentry = strtok(NULL, " ");
         uint32 SpellId = (uint32)atof(spellid);
-        uint64 VictimGUID = (uint64)atof(victimguid);
+        ObjectGuid VictimGUID((uint64)atof(victimguid));
         uint32 VictimEntry = (uint64)atof(victimentry);
-        uint64 CasterGUID = (uint64)atof(casterguid);
+        ObjectGuid CasterGUID((uint64)atof(casterguid));
         uint32 CasterEntry = (uint64)atof(casterentry);
         if (!SpellId)
             return false;
@@ -38,7 +39,7 @@ public:
         {
             if (VictimEntry)
             {
-                uint64 UnitGUID = MAKE_NEW_GUID((uint32)VictimGUID, VictimEntry, HIGHGUID_UNIT);
+                ObjectGuid UnitGUID(HIGHGUID_UNIT, VictimEntry, VictimGUID.GetEntry());
                 if (Unit* VictimUnit = ObjectAccessor::FindUnit(UnitGUID))
                     Victim = VictimUnit;
             }
@@ -50,7 +51,7 @@ public:
         {
             if (CasterEntry)
             {
-                uint64 UnitGUID = MAKE_NEW_GUID((uint32)CasterGUID, CasterEntry, HIGHGUID_UNIT);
+                ObjectGuid UnitGUID(HIGHGUID_UNIT, CasterEntry, CasterGUID.GetEntry());
                 if (Unit* CasterUnit = ObjectAccessor::FindUnit(UnitGUID))
                     Caster = CasterUnit;
             }

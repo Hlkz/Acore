@@ -895,7 +895,15 @@ enum TrinityStrings
     LANG_LIST_MAIL_INFO_3               = 1154,
     LANG_LIST_MAIL_INFO_ITEM            = 1155,
     LANG_LIST_MAIL_NOT_FOUND            = 1156,
-    // Room for more level 3              1157-1199 not used
+    //                                    1157-1176 AHBOT
+    LANG_GUILD_INFO_NAME                = 1177,
+    LANG_GUILD_INFO_GUILD_MASTER        = 1178,
+    LANG_GUILD_INFO_CREATION_DATE       = 1179,
+    LANG_GUILD_INFO_MEMBER_COUNT        = 1180,
+    LANG_GUILD_INFO_BANK_GOLD           = 1181,
+    LANG_GUILD_INFO_MOTD                = 1182,
+    LANG_GUILD_INFO_EXTRA_INFO          = 1183,
+    // Room for more level 3              1184-1199 not used
 
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST            = 1200,
@@ -1035,8 +1043,12 @@ enum TrinityStrings
     LANG_COMMAND_INST_STAT_GROUPSBOUND  = 5054,
     LANG_NOT_DUNGEON                    = 5055, // Map is not a dungeon.
     LANG_NO_INSTANCE_DATA               = 5056, // Map has no instance data.
+    LANG_COMMAND_INST_SET_BOSS_STATE    = 5057,
+    LANG_COMMAND_INST_GET_BOSS_STATE    = 5058,
 
-    // Room for more Trinity strings      5057-9999
+    //                                    5059-5061 Mute History
+
+    // Room for more Trinity strings      5062-9999
 
     // Level requirement notifications
     LANG_SAY_REQ                        = 6604,

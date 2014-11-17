@@ -102,7 +102,7 @@ BAOGroupQueueInfo* BattleAOQueue::AddGroup(Player* leader, Group* grp, bool isPr
     return ginfo;
 }
 
-void BattleAOQueue::RemovePlayer(uint64 guid, bool decreasePlayersCount)
+void BattleAOQueue::RemovePlayer(ObjectGuid guid, bool decreasePlayersCount)
 {
     BAOQueuedPlayersMap::iterator itr;
 
@@ -115,21 +115,21 @@ void BattleAOQueue::RemovePlayer(uint64 guid, bool decreasePlayersCount)
 
     uint32 index = (group->Team == HORDE) ? BAO_QUEUE_PREMADE_HORDE : BAO_QUEUE_PREMADE_ALLIANCE;
 
-        for (uint32 j = index; j < BAO_QUEUE_GROUP_TYPES_COUNT; j += BAO_TEAMS_COUNT)
+    for (uint32 j = index; j < BAO_QUEUE_GROUP_TYPES_COUNT; j += BAO_TEAMS_COUNT)
+    {
+        BAOGroupsQueueType::iterator k = m_QueuedGroups[j].begin();
+        for (; k != m_QueuedGroups[j].end(); ++k)
         {
-            BAOGroupsQueueType::iterator k = m_QueuedGroups[j].begin();
-            for (; k != m_QueuedGroups[j].end(); ++k)
+            if ((*k) == group)
             {
-                if ((*k) == group)
-                {
-                    group_itr = k;
-                    index = j;
-                    break;
-                }
+                group_itr = k;
+                index = j;
+                break;
             }
         }
+    }
 
-    std::map<uint64, BAOPlayerQueueInfo*>::iterator pitr = group->Players.find(guid);
+    std::map<ObjectGuid, BAOPlayerQueueInfo*>::iterator pitr = group->Players.find(guid);
     if (pitr != group->Players.end())
         group->Players.erase(pitr);
 
@@ -148,7 +148,7 @@ void BattleAOQueue::RemovePlayer(uint64 guid, bool decreasePlayersCount)
     }
 }
 
-bool BattleAOQueue::IsPlayerInvited(uint64 pl_guid, const uint32 removeTime)
+bool BattleAOQueue::IsPlayerInvited(ObjectGuid pl_guid, const uint32 removeTime)
 {
     BAOQueuedPlayersMap::const_iterator qItr = m_QueuedPlayers.find(pl_guid);
     return (qItr != m_QueuedPlayers.end()
@@ -180,7 +180,7 @@ bool BattleAOQueue::InviteGroupToBAO(BAOGroupQueueInfo* ginfo, uint32 side)
         ginfo->IsInvitedToBAO = true;
         ginfo->RemoveInviteTime = getMSTime() + INVITE_ACCEPT_WAIT_TIME;
 
-        for (std::map<uint64, BAOPlayerQueueInfo*>::iterator itr = ginfo->Players.begin(); itr != ginfo->Players.end(); ++itr)
+        for (std::map<ObjectGuid, BAOPlayerQueueInfo*>::iterator itr = ginfo->Players.begin(); itr != ginfo->Players.end(); ++itr)
         {
             Player* player = ObjectAccessor::FindPlayer(itr->first);
             if (!player)

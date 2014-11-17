@@ -30,7 +30,6 @@
 #include "SpellAuras.h"
 #include "TargetedMovementGenerator.h"
 #include "WeatherMgr.h"
-#include "ace/INET_Addr.h"
 #include "Player.h"
 #include "Pet.h"
 #include "LFG.h"
@@ -559,7 +558,7 @@ public:
             return false;
 
         // check online security
-        if (handler->HasLowerSecurity(target, 0))
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
         Group* group = target->GetGroup();
@@ -573,13 +572,15 @@ public:
             return false;
         }
 
-        Map* gmMap = handler->GetSession()->GetPlayer()->GetMap();
+        Player* gmPlayer = handler->GetSession()->GetPlayer();
+        Group* gmGroup = gmPlayer->GetGroup();
+        Map* gmMap = gmPlayer->GetMap();
         bool toInstance = gmMap->Instanceable();
 
         // we are in instance, and can summon only player in our group with us as lead
         if (toInstance && (
-            !handler->GetSession()->GetPlayer()->GetGroup() || (group->GetLeaderGUID() != handler->GetSession()->GetPlayer()->GetGUID()) ||
-            (handler->GetSession()->GetPlayer()->GetGroup()->GetLeaderGUID() != handler->GetSession()->GetPlayer()->GetGUID())))
+            !gmGroup || group->GetLeaderGUID() != gmPlayer->GetGUID() ||
+            gmGroup->GetLeaderGUID() != gmPlayer->GetGUID()))
             // the last check is a bit excessive, but let it be, just in case
         {
             handler->SendSysMessage(LANG_CANNOT_SUMMON_TO_INST);
@@ -591,16 +592,16 @@ public:
         {
             Player* player = itr->GetSource();
 
-            if (!player || player == handler->GetSession()->GetPlayer() || !player->GetSession())
+            if (!player || player == gmPlayer || !player->GetSession())
                 continue;
 
             // check online security
-            if (handler->HasLowerSecurity(player, 0))
+            if (handler->HasLowerSecurity(player, ObjectGuid::Empty))
                 return false;
 
             std::string plNameLink = handler->GetNameLink(player);
 
-            if (player->IsBeingTeleported() == true)
+            if (player->IsBeingTeleported())
             {
                 handler->PSendSysMessage(LANG_IS_TELEPORTED, plNameLink.c_str());
                 handler->SetSentErrorMessage(true);
@@ -636,8 +637,8 @@ public:
 
             // before GM
             float x, y, z;
-            handler->GetSession()->GetPlayer()->GetClosePoint(x, y, z, player->GetObjectSize());
-            player->TeleportTo(handler->GetSession()->GetPlayer()->GetMapId(), x, y, z, player->GetOrientation());
+            gmPlayer->GetClosePoint(x, y, z, player->GetObjectSize());
+            player->TeleportTo(gmPlayer->GetMapId(), x, y, z, player->GetOrientation());
         }
 
         return true;
@@ -2317,7 +2318,7 @@ public:
     {
         // format: name "subject text" "mail text"
         Player* target;
-        uint64 targetGuid;
+        ObjectGuid targetGuid;
         std::string targetName;
         if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
             return false;
@@ -2348,7 +2349,7 @@ public:
         /// @todo Fix poor design
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
         MailDraft(subject, text)
-            .SendMailTo(trans, MailReceiver(target, GUID_LOPART(targetGuid)), sender);
+            .SendMailTo(trans, MailReceiver(target, targetGuid), sender);
 
         CharacterDatabase.CommitTransaction(trans);
 
@@ -2361,7 +2362,7 @@ public:
     {
         // format: name "subject text" "mail text" item1[:count1] item2[:count2] ... item12[:count12]
         Player* receiver;
-        uint64 receiverGuid;
+        ObjectGuid receiverGuid;
         std::string receiverName;
         if (!handler->extractPlayerTarget((char*)args, &receiver, &receiverGuid, &receiverName))
             return false;
@@ -2457,7 +2458,7 @@ public:
             }
         }
 
-        draft.SendMailTo(trans, MailReceiver(receiver, GUID_LOPART(receiverGuid)), sender);
+        draft.SendMailTo(trans, MailReceiver(receiver, receiverGuid), sender);
         CharacterDatabase.CommitTransaction(trans);
 
         std::string nameLink = handler->playerLink(receiverName);
@@ -2470,7 +2471,7 @@ public:
         /// format: name "subject text" "mail text" money
 
         Player* receiver;
-        uint64 receiverGuid;
+        ObjectGuid receiverGuid;
         std::string receiverName;
         if (!handler->extractPlayerTarget((char*)args, &receiver, &receiverGuid, &receiverName))
             return false;
@@ -2507,7 +2508,7 @@ public:
 
         MailDraft(subject, text)
             .AddMoney(money)
-            .SendMailTo(trans, MailReceiver(receiver, GUID_LOPART(receiverGuid)), sender);
+            .SendMailTo(trans, MailReceiver(receiver, receiverGuid), sender);
 
         CharacterDatabase.CommitTransaction(trans);
 
@@ -2895,7 +2896,7 @@ public:
     {
         Player* player = NULL;
         Group* group = NULL;
-        uint64 guid = 0;
+        ObjectGuid guid;
         char* nameStr = strtok((char*)args, " ");
 
         if (handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid))
@@ -2912,7 +2913,7 @@ public:
     {
         Player* player = NULL;
         Group* group = NULL;
-        uint64 guid = 0;
+        ObjectGuid guid;
         char* nameStr = strtok((char*)args, " ");
 
         if (handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid))
@@ -2926,7 +2927,7 @@ public:
     {
         Player* player = NULL;
         Group* group = NULL;
-        uint64 guid = 0;
+        ObjectGuid guid;
         char* nameStr = strtok((char*)args, " ");
 
         if (handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid, true))
@@ -2945,8 +2946,8 @@ public:
         Player* playerTarget = NULL;
         Group* groupSource = NULL;
         Group* groupTarget = NULL;
-        uint64 guidSource = 0;
-        uint64 guidTarget = 0;
+        ObjectGuid guidSource;
+        ObjectGuid guidTarget;
         char* nameplgrStr = strtok((char*)args, " ");
         char* nameplStr = strtok(NULL, " ");
 
@@ -2993,72 +2994,119 @@ public:
 
     static bool HandleGroupListCommand(ChatHandler* handler, char const* args)
     {
+        // Get ALL the variables!
         Player* playerTarget;
-        uint64 guidTarget;
+        uint32 phase = 0;
+        ObjectGuid guidTarget;
         std::string nameTarget;
+        std::string zoneName;
+        const char* onlineState = "";
 
-        uint32 parseGUID = MAKE_NEW_GUID(atol((char*)args), 0, HIGHGUID_PLAYER);
+        // Parse the guid to uint32...
+        ObjectGuid parseGUID(HIGHGUID_PLAYER, uint32(atol((char*)args)));
 
+        // ... and try to extract a player out of it.
         if (sObjectMgr->GetPlayerNameByGUID(parseGUID, nameTarget))
         {
-            playerTarget = sObjectMgr->GetPlayerByLowGUID(parseGUID);
+            playerTarget = ObjectAccessor::FindPlayer(parseGUID);
             guidTarget = parseGUID;
         }
+        // If not, we return false and end right away.
         else if (!handler->extractPlayerTarget((char*)args, &playerTarget, &guidTarget, &nameTarget))
             return false;
 
+        // Next, we need a group. So we define a group variable.
         Group* groupTarget = NULL;
+
+        // We try to extract a group from an online player.
         if (playerTarget)
             groupTarget = playerTarget->GetGroup();
 
+        // If not, we extract it from the SQL.
         if (!groupTarget)
         {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
-            stmt->setUInt32(0, guidTarget);
+            stmt->setUInt32(0, guidTarget.GetCounter());
             PreparedQueryResult resultGroup = CharacterDatabase.Query(stmt);
             if (resultGroup)
                 groupTarget = sGroupMgr->GetGroupByDbStoreId((*resultGroup)[0].GetUInt32());
         }
 
-        if (groupTarget)
+        // If both fails, players simply has no party. Return false.
+        if (!groupTarget)
         {
-            handler->PSendSysMessage(LANG_GROUP_TYPE, (groupTarget->isRaidGroup() ? "raid" : "party"));
-            Group::MemberSlotList const& members = groupTarget->GetMemberSlots();
-            for (Group::MemberSlotList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
-            {
-                Group::MemberSlot const& slot = *itr;
-
-                std::string flags;
-                if (slot.flags & MEMBER_FLAG_ASSISTANT)
-                    flags = "Assistant";
-
-                if (slot.flags & MEMBER_FLAG_MAINTANK)
-                {
-                    if (!flags.empty())
-                        flags.append(", ");
-                    flags.append("MainTank");
-                }
-
-                if (slot.flags & MEMBER_FLAG_MAINASSIST)
-                {
-                    if (!flags.empty())
-                        flags.append(", ");
-                    flags.append("MainAssist");
-                }
-
-                if (flags.empty())
-                    flags = "None";
-
-                Player* p = ObjectAccessor::FindPlayer((*itr).guid);
-                const char* onlineState = (p && p->IsInWorld()) ? "online" : "offline";
-
-                handler->PSendSysMessage(LANG_GROUP_PLAYER_NAME_GUID, slot.name.c_str(), onlineState,
-                    GUID_LOPART(slot.guid), flags.c_str(), lfg::GetRolesString(slot.roles).c_str());
-            }
-        }
-        else
             handler->PSendSysMessage(LANG_GROUP_NOT_IN_GROUP, nameTarget.c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
 
+        // We get the group members after successfully detecting a group.
+        Group::MemberSlotList const& members = groupTarget->GetMemberSlots();
+
+        // To avoid a cluster fuck, namely trying multiple queries to simply get a group member count...
+        handler->PSendSysMessage(LANG_GROUP_TYPE, (groupTarget->isRaidGroup() ? "raid" : "party"), members.size());
+        // ... we simply move the group type and member count print after retrieving the slots and simply output it's size.
+
+        // While rather dirty codestyle-wise, it saves space (if only a little). For each member, we look several informations up.
+        for (Group::MemberSlotList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
+        {
+            // Define temporary variable slot to iterator.
+            Group::MemberSlot const& slot = *itr;
+
+            // Check for given flag and assign it to that iterator
+            std::string flags;
+            if (slot.flags & MEMBER_FLAG_ASSISTANT)
+                flags = "Assistant";
+
+            if (slot.flags & MEMBER_FLAG_MAINTANK)
+            {
+                if (!flags.empty())
+                    flags.append(", ");
+                flags.append("MainTank");
+            }
+
+            if (slot.flags & MEMBER_FLAG_MAINASSIST)
+            {
+                if (!flags.empty())
+                    flags.append(", ");
+                flags.append("MainAssist");
+            }
+
+            if (flags.empty())
+                flags = "None";
+
+            // Check if iterator is online. If is...
+            Player* p = ObjectAccessor::FindPlayer((*itr).guid);
+            if (p)
+            {
+                // ... than, it prints information like "is online", where he is, etc...
+                onlineState = "online";
+                phase = (!p->IsGameMaster() ? p->GetPhaseMask() : -1);
+                uint32 locale = handler->GetSessionDbcLocale();
+
+                AreaTableEntry const* area = GetAreaEntryByAreaID(p->GetAreaId());
+                if (area)
+                {
+                    AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone);
+                    if (zone)
+                        zoneName = zone->area_name[locale];
+                }
+            }
+            else
+            {
+                // ... else, everything is set to offline or neutral values.
+                zoneName    = "<ERROR>";
+                onlineState = "Offline";
+                phase       = 0;
+            }
+
+            // Now we can print those informations for every single member of each group!
+            handler->PSendSysMessage(LANG_GROUP_PLAYER_NAME_GUID, slot.name.c_str(), onlineState,
+                zoneName.c_str(), phase, slot.guid.GetCounter(), flags.c_str(),
+                lfg::GetRolesString(slot.roles).c_str());
+        }
+
+        // And finish after every iterator is done.
         return true;
     }
 

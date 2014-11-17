@@ -1438,9 +1438,9 @@ void DBCMgr::LoadCharTitlesStore()
         CharTitlesEntry* newCharTitles = new CharTitlesEntry;
         newCharTitles->ID = fields[0].GetUInt32();
         for (uint8 i = 0; i < 16; i++)
-            newCharTitles->name[i] = NULL;
-        newCharTitles->name[0] = (char*)fields[1].GetCString();
-        newCharTitles->name[2] = (char*)fields[2].GetCString();
+            newCharTitles->nameMale[i] = NULL;
+        newCharTitles->nameMale[0] = (char*)fields[1].GetCString();
+        newCharTitles->nameMale[2] = (char*)fields[2].GetCString();
         newCharTitles->bit_index = fields[3].GetUInt32();
         CharTitlesStore[newCharTitles->ID] = newCharTitles;
 

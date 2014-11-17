@@ -20,7 +20,7 @@ namespace Trinity
     class BattleAOChatBuilder
     {
         public:
-            BattleAOChatBuilder(ChatMsg msgtype, int32 textId, Player const* source, va_list* args = NULL)
+            BattleAOChatBuilder(ChatMsg msgtype, uint32 textId, Player const* source, va_list* args = NULL)
                 : _msgtype(msgtype), _textId(textId), _source(source), _args(args) { }
 
             void operator()(WorldPacket& data, LocaleConstant loc_idx)
@@ -28,7 +28,8 @@ namespace Trinity
                 char const* text = sObjectMgr->GetTrinityString(_textId, loc_idx);
                 if (_args)
                 {
-                    va_list ap; // we need copy va_list before use or original va_list will corrupted
+                    // we need copy va_list before use or original va_list will corrupted
+                    va_list ap;
                     va_copy(ap, *_args);
 
                     char str[2048];
@@ -44,20 +45,11 @@ namespace Trinity
         private:
             void do_helper(WorldPacket& data, char const* text)
             {
-                uint64 target_guid = _source ? _source->GetGUID() : 0;
-
-                data << uint8 (_msgtype);
-                data << uint32(LANG_UNIVERSAL);
-                data << uint64(target_guid);                // there 0 for BG messages
-                data << uint32(0);                          // can be chat msg group or something
-                data << uint64(target_guid);
-                data << uint32(strlen(text) + 1);
-                data << text;
-                data << uint8 (_source ? _source->GetChatTag() : 0);
+                ChatHandler::BuildChatPacket(data, _msgtype, LANG_UNIVERSAL, _source, _source, text);
             }
 
             ChatMsg _msgtype;
-            int32 _textId;
+            uint32 _textId;
             Player const* _source;
             va_list* _args;
     };
@@ -102,7 +94,7 @@ template<class Do>
 void BattleAO::BroadcastWorker(Do& _do)
 {
     for (BattleAOPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-        if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER)))
+        if (Player* player = _GetPlayer(itr, "BroadcastWorker"))
             _do(player);
 }
 
@@ -203,7 +195,7 @@ bool BattleAO::Update(uint32 diff)
         if (itr != m_Players.end())
             if (itr->second.OfflineRemoveTime <= sWorld->GetGameTime())
             {
-                TC_LOG_DEBUG("bao", "BAO kick offline player %u", GUID_LOPART(itr->first));
+                TC_LOG_DEBUG("bao", "BAO kick offline player %s", itr->first.ToString().c_str());
                 RemovePlayer(itr->first); // remove player from BG
                 m_OfflineQueue.pop_front(); // remove from offline queue
             }
@@ -214,12 +206,12 @@ bool BattleAO::Update(uint32 diff)
 
 void BattleAO::AddPlayer(Player* player)
 {
-    TC_LOG_DEBUG("bao", "BAO AddPlayer %u", GUID_LOPART(player->GetGUID()));
+    TC_LOG_DEBUG("bao", "BAO AddPlayer %s", player->GetGUID().ToString().c_str());
 
     if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK))
         player->ToggleAFK();
 
-    uint64 guid = player->GetGUID();
+    ObjectGuid guid = player->GetGUID();
     uint32 team = player->IsDeserter() ? TEAM_NEUTRAL : player->GetTeam(true);
 
     BattleAOPlayer bp;
@@ -246,10 +238,10 @@ void BattleAO::AddPlayer(Player* player)
     RemoveAurasFromPlayer(player);
 }
 
-void BattleAO::RemovePlayer(uint64 guid, bool teleport)
+void BattleAO::RemovePlayer(ObjectGuid guid, bool teleport)
 {
     // option quitter, 5 min de déco, tp autre map :
-    TC_LOG_DEBUG("bao", "BAO RemovePlayer %u", GUID_LOPART(guid));
+    TC_LOG_DEBUG("bao", "BAO RemovePlayer %s", guid.ToString().c_str());
     uint32 team = 0;
     bool participant = false;
     BattleAOPlayerMap::iterator itr = m_Players.find(guid);
@@ -322,8 +314,8 @@ void BattleAO::HandlePlayerLeaveZone(Player* player, uint32 /*zoneid*/)
 
 void BattleAO::EventPlayerLoggedIn(Player* player)
 {
-    uint64 guid = player->GetGUID();
-    for (std::deque<uint64>::iterator itr = m_OfflineQueue.begin(); itr != m_OfflineQueue.end(); ++itr)
+    ObjectGuid guid = player->GetGUID();
+    for (std::deque<ObjectGuid>::iterator itr = m_OfflineQueue.begin(); itr != m_OfflineQueue.end(); ++itr)
     {
         if (*itr == guid)
         {
@@ -453,7 +445,7 @@ Group* BattleAO::GetFreeBAORaid(TeamId TeamId)
     return NULL;
 }
 
-Group* BattleAO::GetGroupPlayer(uint64 guid, TeamId TeamId)
+Group* BattleAO::GetGroupPlayer(ObjectGuid guid, TeamId TeamId)
 {
     for (GuidSet::const_iterator itr = m_Groups[TeamId].begin(); itr != m_Groups[TeamId].end(); ++itr)
         if (Group* group = sGroupMgr->GetGroupByGUID(*itr))
@@ -564,7 +556,7 @@ GameObject* BattleAO::GetAOObject(uint32 type)
     GameObject* obj = m_Map->GetGameObject(AoObjects[type]);
     if (obj)
         return obj;
-    TC_LOG_ERROR("bao", "BAO::GetAOObject: gameobject type:%u, GUID:%u not found", type, GUID_LOPART(AoObjects[type]));
+    TC_LOG_ERROR("bao", "BAO::GetAOObject: gameobject type:%u, guid %s not found", type, AoObjects[type].ToString().c_str());
     return NULL;
 }
 
@@ -573,7 +565,7 @@ Creature* BattleAO::GetAOCreature(uint32 type)
     Creature* creature = m_Map->GetCreature(AoCreatures[type]);
     if (creature)
         return creature;
-    TC_LOG_ERROR("bao", "BAO::GetAOCreature: creature type:%u, GUID:%u not found", type, GUID_LOPART(AoCreatures[type]));
+    TC_LOG_ERROR("bao", "BAO::GetAOCreature: creature type:%u, guid %s not found", type, AoCreatures[type].ToString().c_str());
     return NULL;
 }
 
@@ -657,11 +649,11 @@ bool BattleAO::DelCreature(uint32 type)
     if (Creature* creature = m_Map->GetCreature(AoCreatures[type]))
     {
         creature->AddObjectToRemoveList();
-        AoCreatures[type] = 0;
+        AoCreatures[type] = ObjectGuid::Empty;
         return true;
     }
-    TC_LOG_ERROR("bao", "BAO::DelCreature: creature type:%u, GUID:%u not found", type, GUID_LOPART(AoCreatures[type]));
-    AoCreatures[type] = 0;
+    TC_LOG_ERROR("bao", "BAO::DelCreature: creature type:%u, GUID:%u not found", type, AoCreatures[type].ToString().c_str());
+    AoCreatures[type] = ObjectGuid::Empty;
     return false;
 }
 
@@ -673,11 +665,11 @@ bool BattleAO::DelObject(uint32 type)
     {
         obj->SetRespawnTime(0);
         obj->Delete();
-        AoObjects[type] = 0;
+        AoObjects[type] = ObjectGuid::Empty;
         return true;
     }
-    TC_LOG_ERROR("bao", "BAO::DelObject: gameobject type:%u GUID:%u not found", type, GUID_LOPART(AoObjects[type]));
-    AoObjects[type] = 0;
+    TC_LOG_ERROR("bao", "BAO::DelObject: gameobject type:%u GUID:%s not found", type, AoObjects[type].ToString().c_str());
+    AoObjects[type] = ObjectGuid::Empty;
     return false;
 }
 
@@ -821,11 +813,11 @@ void BattleAO::DepopulateNode(uint8 node)
     if (node < BAO_NODE_SPIRIT_FIRST || BAO_NODE_A2 <= node)
         return;
 
-    std::vector<uint64> ghost_list = sWorld->GetShReviveQueue(GetAOCreature(node-BAO_NODE_SPIRIT_FIRST)->GetGUID());
+    std::vector<ObjectGuid> ghost_list = sWorld->GetShReviveQueue(GetAOCreature(node-BAO_NODE_SPIRIT_FIRST)->GetGUID());
     if (!ghost_list.empty())
     {
         WorldSafeLocsEntry const* ClosestGrave = NULL;
-        for (std::vector<uint64>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
+        for (std::vector<ObjectGuid>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
         {
             Player* player = ObjectAccessor::FindPlayer(*itr);
             if (!player)

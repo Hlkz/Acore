@@ -51,7 +51,7 @@ public:
             return false;
         }
         Player* target;
-        uint64 target_guid;
+        ObjectGuid target_guid;
         std::string target_name;
         if (!handler->extractPlayerTarget((char*)args, &target, &target_guid, &target_name))
             return false;

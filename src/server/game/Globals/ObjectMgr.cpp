@@ -6464,7 +6464,6 @@ void ObjectMgr::LoadGameObjectLocales()
             AddLocaleString(i == LOCALE_frFR ? fields[1].GetString() : "", LocaleConstant(i), data.Name);
             AddLocaleString(i == LOCALE_frFR ? fields[2].GetString() : "", LocaleConstant(i), data.CastBarCaption);
         }
-        }
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u gameobject locale strings in %u ms", uint32(_gameObjectLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -7843,14 +7842,14 @@ int32 ObjectMgr::GetBaseReputationOf(FactionEntry const* factionEntry, uint8 rac
 
 SkillRangeType GetSkillRangeType(SkillRaceClassInfoEntry const* rcEntry)
 {
-    SkillLineEntry const* skill = sSkillLineStore.LookupEntry(rcEntry->SkillId);
+    SkillLineEntry const* skill = sDBCMgr->GetSkillLineEntry(rcEntry->SkillLine);
     if (!skill)
         return SKILL_RANGE_NONE;
 
-    if (sSkillTiersStore.LookupEntry(rcEntry->SkillTier))
+    if (sDBCMgr->GetSkillTiersEntry(rcEntry->SkillTier))
         return SKILL_RANGE_RANK;
 
-    if (rcEntry->SkillId == SKILL_RUNEFORGING)
+    if (rcEntry->SkillLine == SKILL_RUNEFORGING)
         return SKILL_RANGE_MONO;
 
     switch (skill->categoryId)
