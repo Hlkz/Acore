@@ -129,23 +129,28 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
             int points = team_points[team];
             if (!points)
                 continue;
+
             m_lastTick[team] += diff;
+
             if (m_lastTick[team] > BG_AB_TickIntervals[points])
             {
                 m_lastTick[team] -= BG_AB_TickIntervals[points];
                 m_TeamScores[team] += BG_AB_TickPoints[points];
                 m_HonorScoreTics[team] += BG_AB_TickPoints[points];
                 m_ReputationScoreTics[team] += BG_AB_TickPoints[points];
+
                 if (m_ReputationScoreTics[team] >= m_ReputationTics)
                 {
                     (team == TEAM_ALLIANCE) ? RewardReputationToTeam(509, 10, ALLIANCE) : RewardReputationToTeam(510, 10, HORDE);
                     m_ReputationScoreTics[team] -= m_ReputationTics;
                 }
+
                 if (m_HonorScoreTics[team] >= m_HonorTics)
                 {
                     RewardHonorToTeam(GetBonusHonorFromKill(1), (team == TEAM_ALLIANCE) ? ALLIANCE : HORDE);
                     m_HonorScoreTics[team] -= m_HonorTics;
                 }
+
                 if (!m_IsInformedNearVictory && m_TeamScores[team] > BG_AB_WARNING_NEAR_VICTORY_SCORE)
                 {
                     if (team == TEAM_ALLIANCE)
@@ -158,9 +163,10 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
 
                 if (m_TeamScores[team] > BG_AB_MAX_TEAM_SCORE)
                     m_TeamScores[team] = BG_AB_MAX_TEAM_SCORE;
+
                 if (team == TEAM_ALLIANCE)
                     UpdateWorldState(BG_AB_OP_RESOURCES_ALLY, m_TeamScores[team]);
-                if (team == TEAM_HORDE)
+                else if (team == TEAM_HORDE)
                     UpdateWorldState(BG_AB_OP_RESOURCES_HORDE, m_TeamScores[team]);
                 // update achievement flags
                 // we increased m_TeamScores[team] so we just need to check if it is 500 more than other teams resources
@@ -173,7 +179,7 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
         // Test win condition
         if (m_TeamScores[TEAM_ALLIANCE] >= BG_AB_MAX_TEAM_SCORE)
             EndBattleground(ALLIANCE);
-        if (m_TeamScores[TEAM_HORDE] >= BG_AB_MAX_TEAM_SCORE)
+        else if (m_TeamScores[TEAM_HORDE] >= BG_AB_MAX_TEAM_SCORE)
             EndBattleground(HORDE);
     }
 }
@@ -409,27 +415,9 @@ void BattlegroundAB::_NodeDeOccupied(uint8 node)
     if (node < BG_AB_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
         DelCreature(node+7);//NULL checks are in DelCreature! 0-6 spirit guides
 
-    // Those who are waiting to resurrect at this node are taken to the closest own node's graveyard
-    std::vector<ObjectGuid> ghost_list = sWorld->GetShReviveQueue(BgCreatures[node]);
-    if (!ghost_list.empty())
-    {
-        WorldSafeLocsEntry const* ClosestGrave = NULL;
-        for (std::vector<ObjectGuid>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
-        {
-            Player* player = ObjectAccessor::FindPlayer(*itr);
-            if (!player)
-                continue;
+    RelocateDeadPlayers(BgCreatures[node]);
 
-            if (!ClosestGrave)                              // cache
-                ClosestGrave = GetClosestGraveYard(player);
-
-            if (ClosestGrave)
-                player->TeleportTo(GetMapId(), ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, player->GetOrientation());
-        }
-    }
-
-    if (BgCreatures[node])
-        DelCreature(node);
+    DelCreature(node);
 
     // buff object isn't despawned
 }
@@ -699,7 +687,7 @@ WorldSafeLocsEntry const* BattlegroundAB::GetClosestGraveYard(Player* player)
     }
     // If not, place ghost on starting location
     if (!good_entry)
-        good_entry = sDBCMgr->GetWorldSafeLocsEntry(BG_AB_GraveyardIds[teamIndex+5]);
+        good_entry = sDBCMgr->GetWorldSafeLocsEntry(BG_AB_GraveyardIds[teamIndex + 5]);
 
     return good_entry;
 }
@@ -732,4 +720,15 @@ bool BattlegroundAB::IsAllNodesControlledByTeam(uint32 team) const
             ++count;
 
     return count == BG_AB_DYNAMIC_NODES_COUNT;
+}
+
+bool BattlegroundAB::CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* player, Unit const* target, uint32 miscvalue)
+{
+    switch (criteriaId)
+    {
+        case BG_CRITERIA_CHECK_RESILIENT_VICTORY:
+            return m_TeamScores500Disadvantage[GetTeamIndexByTeamId(player->GetTeam())];
+    }
+
+    return Battleground::CheckAchievementCriteriaMeet(criteriaId, player, target, miscvalue);
 }

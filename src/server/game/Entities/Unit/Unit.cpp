@@ -425,9 +425,9 @@ void Unit::DisableSpline()
     movespline->_Interrupt();
 }
 
-void Unit::resetAttackTimer(WeaponAttackType attType)
+void Unit::resetAttackTimer(WeaponAttackType type)
 {
-    m_attackTimer[attType] = uint32(GetAttackTime(attType) * (m_modAttackSpeedPct[attType] + (GetTypeId() == TYPEID_PLAYER ? ToPlayer()->GetAttackSpeedPctFromStats() : 0.0f)));
+    m_attackTimer[type] = uint32(GetAttackTime(type) * (m_modAttackSpeedPct[type] + (GetTypeId() == TYPEID_PLAYER ? ToPlayer()->GetAttackSpeedPctFromStats() : 0.0f)));
 }
 
 float Unit::GetMeleeReach() const
@@ -1535,7 +1535,7 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
 
     DamageInfo dmgInfo = DamageInfo(this, victim, damage, spellInfo, schoolMask, damagetype);
 
-    float spellResistance = CalcSpellResistance(victim, schoolMask, spellInfo);
+    uint32 spellResistance = CalcSpellResistance(victim, schoolMask, spellInfo);
     dmgInfo.ResistDamage(CalculatePct(damage, spellResistance));
 
     // Ignore Absorption Auras
@@ -4379,10 +4379,13 @@ uint32 Unit::GetDoTsByCaster(ObjectGuid casterGUID) const
 
 int32 Unit::GetTotalAuraModifier(AuraType auratype) const
 {
+    AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
+    if (mTotalAuraList.empty())
+        return 0;
+
     std::map<SpellGroup, int32> SameEffectSpellGroup;
     int32 modifier = 0;
 
-    AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
         if (!sSpellMgr->AddSameEffectStackRuleSpellGroups((*i)->GetSpellInfo(), (*i)->GetAmount(), SameEffectSpellGroup))
             modifier += (*i)->GetAmount();
@@ -5604,8 +5607,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // if damage is more than need or target die from damage deal finish spell
                 if (triggeredByAura->GetAmount() <= int32(damage) || GetHealth() <= damage)
                 {
-                    // remember guid before aura delete
-                    uint64 casterGuid = triggeredByAura->GetCasterGUID();
+                    // remember caster before aura delete
+                    Unit* caster = triggeredByAura->GetCaster();
 
                     // Remove aura (before cast for prevent infinite loop handlers)
                     RemoveAurasDueToSpell(triggeredByAura->GetId());
@@ -5613,7 +5616,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     uint32 spell = sSpellMgr->GetSpellWithRank(27285, dummySpell->GetRank());
 
                     // Cast finish spell (triggeredByAura already not exist!)
-                    if (Unit* caster = ObjectAccessor::GetUnit(*this, casterGuid))
+                    if (caster)
                         caster->CastSpell(this, spell, true, castItem);
                     return true;                            // no hidden cooldown
                 }
@@ -5628,14 +5631,14 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // if damage is more than need deal finish spell
                 if (triggeredByAura->GetAmount() <= int32(damage))
                 {
-                    // remember guid before aura delete
-                    uint64 casterGuid = triggeredByAura->GetCasterGUID();
+                    // remember caster before aura delete
+                    Unit* caster = triggeredByAura->GetCaster();
 
                     // Remove aura (before cast for prevent infinite loop handlers)
                     RemoveAurasDueToSpell(triggeredByAura->GetId());
 
                     // Cast finish spell (triggeredByAura already not exist!)
-                    if (Unit* caster = ObjectAccessor::GetUnit(*this, casterGuid))
+                    if (caster)
                         caster->CastSpell(this, 32865, true, castItem);
                     return true;                            // no hidden cooldown
                 }
@@ -6771,31 +6774,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     }
                     break;
                 }
-                // Item - Shaman T10 Elemental 2P Bonus
-                case 70811:
-                {
-                    // Lightning Bolt & Chain Lightning
-                    if (procSpell->SpellFamilyFlags[0] & 0x3)
-                    {
-                        if (ToPlayer()->HasSpellCooldown(16166))
-                        {
-                            uint32 newCooldownDelay = ToPlayer()->GetSpellCooldownDelay(16166);
-                            if (newCooldownDelay < 3)
-                                newCooldownDelay = 0;
-                            else
-                                newCooldownDelay -= 2;
-                            ToPlayer()->AddSpellCooldown(16166, 0, uint32(time(NULL) + newCooldownDelay));
-
-                            WorldPacket data(SMSG_MODIFY_COOLDOWN, 4+8+4);
-                            data << uint32(16166);                  // Spell ID
-                            data << uint64(GetGUID());              // Player GUID
-                            data << int32(-2000);                   // Cooldown mod in milliseconds
-                            ToPlayer()->GetSession()->SendPacket(&data);
-                            return true;
-                        }
-                    }
-                    return false;
-                }
                 // Item - Shaman T10 Elemental 4P Bonus
                 case 70817:
                 {
@@ -7466,7 +7444,8 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
             // Blood of the North
             // Reaping
             // Death Rune Mastery
-            if (dummySpell->SpellIconID == 3041 || dummySpell->SpellIconID == 22 || dummySpell->SpellIconID == 2622)
+            /// @todo move those to spell scripts
+            if (dummySpell->SpellIconID == 3041 || (dummySpell->SpellIconID == 22 && dummySpell->Id != 62459) || dummySpell->SpellIconID == 2622)
             {
                 *handled = true;
                 // Convert recently used Blood Rune to Death Rune
@@ -8020,12 +7999,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                     {
                         if (victim != this)
                             return false;
-                        break;
-                    }
-                    // Rogue T10 4P bonus, should proc on victim
-                    case 70803:
-                    {
-                        target = victim;
                         break;
                     }
                 }
@@ -8603,14 +8576,28 @@ ReputationRank Unit::GetReactionTo(Unit const* target) const
     // always friendly to charmer or owner
     if (GetCharmerOrOwnerOrSelf() == target->GetCharmerOrOwnerOrSelf())
         return REP_FRIENDLY;
+    
+    Player const* selfPlayerOwner = GetAffectingPlayer();
+    Player const* targetPlayerOwner = target->GetAffectingPlayer();
+
+    // check forced reputation to support SPELL_AURA_FORCE_REACTION
+    if (selfPlayerOwner)
+    {
+        if (FactionTemplateEntry const* targetFactionTemplateEntry = target->GetFactionTemplateEntry())
+            if (ReputationRank const* repRank = selfPlayerOwner->GetReputationMgr().GetForcedRankIfAny(targetFactionTemplateEntry))
+                return *repRank;
+    }
+    else if (targetPlayerOwner)
+    {
+        if (FactionTemplateEntry const* selfFactionTemplateEntry = GetFactionTemplateEntry())
+            if (ReputationRank const* repRank = targetPlayerOwner->GetReputationMgr().GetForcedRankIfAny(selfFactionTemplateEntry))
+                return *repRank;
+    }
 
     if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE))
     {
         if (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE))
         {
-            Player const* selfPlayerOwner = GetAffectingPlayer();
-            Player const* targetPlayerOwner = target->GetAffectingPlayer();
-
             if (selfPlayerOwner && targetPlayerOwner)
             {
                 // always friendly to other unit controlled by player, or to the player himself
@@ -8773,10 +8760,6 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
 {
     if (!victim || victim == this)
         return false;
-
-    if (Creature* creature = ToCreature())
-        if (creature->IsInEvadeMode())
-            return false;
 
     // dead units can neither attack nor be attacked
     if (!IsAlive() || !victim->IsInWorld() || !victim->IsAlive())
@@ -11754,9 +11737,6 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
     if (target->HasUnitState(UNIT_STATE_UNATTACKABLE)
         || (target->GetTypeId() == TYPEID_PLAYER && target->ToPlayer()->IsGameMaster()))
         return false;
-    if (target->ToCreature())
-        if (target->ToCreature()->IsInEvadeMode())
-            return false;
 
     // can't attack own vehicle or passenger
     if (m_vehicle)
@@ -12048,9 +12028,9 @@ int32 Unit::ModifyPowerPct(Powers power, float pct, bool apply)
     return ModifyPower(power, (int32)amount - (int32)GetMaxPower(power));
 }
 
-uint32 Unit::GetAttackTime(WeaponAttackType attType) const
+uint32 Unit::GetAttackTime(WeaponAttackType att) const
 {
-    float f_BaseAttackTime = GetFloatValue(UNIT_FIELD_BASEATTACKTIME+attType) / (m_modAttackSpeedPct[attType] + (GetTypeId() == TYPEID_PLAYER ? ToPlayer()->GetAttackSpeedPctFromStats() : 0.0f));
+    float f_BaseAttackTime = GetFloatValue(UNIT_FIELD_BASEATTACKTIME+att) / (m_modAttackSpeedPct[att] + (GetTypeId() == TYPEID_PLAYER ? ToPlayer()->GetAttackSpeedPctFromStats() : 0.0f));
     return (uint32)f_BaseAttackTime;
 }
 
@@ -14617,29 +14597,20 @@ Unit* Unit::SelectNearbyTarget(Unit* exclude, float dist) const
     return Trinity::Containers::SelectRandomContainerElement(targets);
 }
 
-void Unit::SetAttackTime(WeaponAttackType attType, uint32 val)
+void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply)
 {
-    if (GetTypeId() == TYPEID_PLAYER)
-        ToPlayer()->SetWeaponAttackDelay(attType, val);
-    SetFloatValue(UNIT_FIELD_BASEATTACKTIME+attType, uint32(val / (m_modAttackSpeedPct[attType] + (GetTypeId()==TYPEID_PLAYER ? ToPlayer()->GetAttackSpeedPctFromStats() : 0.0f))));
-}
-
-void Unit::ApplyAttackTimePercentMod(WeaponAttackType attType, float val, bool apply)
-{
-    float pctFromStats = GetTypeId() == TYPEID_PLAYER ? ToPlayer()->GetAttackSpeedPctFromStats() : 0.0f;
-    float remainingTimePct = (float)m_attackTimer[attType] / (GetAttackTime(attType) * (m_modAttackSpeedPct[attType] + pctFromStats));
-
+    float remainingTimePct = (float)m_attackTimer[att] / (GetAttackTime(att) * m_modAttackSpeedPct[att]);
     if (val > 0)
     {
-        ApplyPercentModFloatVar(m_modAttackSpeedPct[attType], val, !apply);
-        ApplyPercentModFloatValue(UNIT_FIELD_BASEATTACKTIME+attType, val, !apply);
+        ApplyPercentModFloatVar(m_modAttackSpeedPct[att], val, !apply);
+        ApplyPercentModFloatValue(UNIT_FIELD_BASEATTACKTIME+att, val, !apply);
     }
     else
     {
-        ApplyPercentModFloatVar(m_modAttackSpeedPct[attType], -val, apply);
-        ApplyPercentModFloatValue(UNIT_FIELD_BASEATTACKTIME+attType, -val, apply);
+        ApplyPercentModFloatVar(m_modAttackSpeedPct[att], -val, apply);
+        ApplyPercentModFloatValue(UNIT_FIELD_BASEATTACKTIME+att, -val, apply);
     }
-    m_attackTimer[attType] = uint32(GetAttackTime(attType) * (m_modAttackSpeedPct[attType] + pctFromStats) * remainingTimePct);
+    m_attackTimer[att] = uint32(GetAttackTime(att) * m_modAttackSpeedPct[att] * remainingTimePct);
 }
 
 void Unit::ApplyCastTimePercentMod(float val, bool apply)
@@ -14967,7 +14938,7 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const
     }
 
     // Check spellProcEvent data requirements
-    if (!sSpellMgr->IsSpellProcEventCanTriggeredBy(spellProcEvent, EventProcFlag, procSpell, procFlag, procExtra, active))
+    if(!sSpellMgr->IsSpellProcEventCanTriggeredBy(spellProto, spellProcEvent, EventProcFlag, procSpell, procFlag, procExtra, active))
         return false;
     // In most cases req get honor or XP from kill
     if (EventProcFlag & PROC_FLAG_KILL && GetTypeId() == TYPEID_PLAYER)
@@ -15369,7 +15340,7 @@ void Unit::Kill(Unit* victim)
 
     // outdoor pvp things, do these after setting the death state, else the player activity notify won't work... doh...
     // handle player kill only if not suicide (spirit of redemption for example)
-    if (player && this != victim && victim->GetTypeId() == TYPEID_PLAYER)
+    if (player && this != victim)
     {
         if (OutdoorPvP* pvp = player->GetOutdoorPvP())
             pvp->HandleKill(player, victim);
@@ -15759,8 +15730,6 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     if (GetTypeId() == TYPEID_UNIT)
     {
         ToCreature()->AI()->OnCharmed(true);
-        GetMotionMaster()->Clear(false);
-        //StopMoving();
         GetMotionMaster()->MoveIdle();
     }
     else

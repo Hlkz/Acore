@@ -24,7 +24,6 @@
 #include "AchievementMgr.h"
 #include "ArenaTeamMgr.h"
 #include "AuctionHouseMgr.h"
-#include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
 #include "BattleAOMgr.h"
 #include "CalendarMgr.h"
@@ -1557,7 +1556,7 @@ void World::SetInitialWorldSettings()
     //one second is 1000 -(tested on win system)
     /// @todo Get rid of magic numbers
     tm localTm;
-    ACE_OS::localtime_r(&m_gameTime, &localTm);
+    localtime_r(&m_gameTime, &localTm);
     mail_timer = ((((localTm.tm_hour + 20) % 24)* HOUR * IN_MILLISECONDS) / m_timers[WUPDATE_AUCTIONS].GetInterval());
                                                             //1440
     mail_timer_expires = ((DAY * IN_MILLISECONDS) / (m_timers[WUPDATE_AUCTIONS].GetInterval()));
@@ -2417,7 +2416,7 @@ void World::ShutdownMsg(bool show, Player* player, const std::string& reason)
 void World::ShutdownCancel()
 {
     // nothing cancel or too later
-    if (!m_ShutdownTimer || m_stopEvent.value())
+    if (!m_ShutdownTimer || m_stopEvent)
         return;
 
     ServerMessageType msgid = (m_ShutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_CANCELLED : SERVER_MSG_SHUTDOWN_CANCELLED;
@@ -2603,7 +2602,7 @@ void World::InitDailyQuestResetTime()
     // FIX ME: client not show day start time
     time_t curTime = time(NULL);
     tm localTm;
-    ACE_OS::localtime_r(&curTime, &localTm);
+    localtime_r(&curTime, &localTm);
     localTm.tm_hour = 6;
     localTm.tm_min  = 0;
     localTm.tm_sec  = 0;
@@ -2637,7 +2636,7 @@ void World::InitDailyResetTime()
     // generate time by config
     time_t curTime = time(NULL);
     tm localTm;
-    ACE_OS::localtime_r(&curTime, &localTm);
+    localtime_r(&curTime, &localTm);
     localTm.tm_hour = getIntConfig(CONFIG_RANDOM_BG_RESET_HOUR);
     localTm.tm_min = 0;
     localTm.tm_sec = 0;
@@ -2665,7 +2664,7 @@ void World::InitGuildResetTime()
     // generate time by config
     time_t curTime = time(NULL);
     tm localTm;
-    ACE_OS::localtime_r(&curTime, &localTm);
+    localtime_r(&curTime, &localTm);
     localTm.tm_hour = getIntConfig(CONFIG_GUILD_RESET_HOUR);
     localTm.tm_min = 0;
     localTm.tm_sec = 0;
@@ -2777,7 +2776,7 @@ void World::ResetMonthlyQuests()
     // generate time
     time_t curTime = time(NULL);
     tm localTm;
-    ACE_OS::localtime_r(&curTime, &localTm);
+    localtime_r(&curTime, &localTm);
 
     int month   = localTm.tm_mon;
     int year    = localTm.tm_year;
@@ -2867,10 +2866,10 @@ void World::ProcessResurrect(uint32 diff)
     {
         if (m_ReviveQueue.size())
         {
-            for (std::map<uint64, std::vector<uint64> >::iterator itr = m_ReviveQueue.begin(); itr != m_ReviveQueue.end(); ++itr)
+            for (std::map<ObjectGuid, std::vector<ObjectGuid> >::iterator itr = m_ReviveQueue.begin(); itr != m_ReviveQueue.end(); ++itr)
             {
                 Creature* sh = NULL;
-                for (std::vector<uint64>::const_iterator itr2 = (itr->second).begin(); itr2 != (itr->second).end(); ++itr2)
+                for (std::vector<ObjectGuid>::const_iterator itr2 = (itr->second).begin(); itr2 != (itr->second).end(); ++itr2)
                 {
                     Player* player = ObjectAccessor::FindPlayer(*itr2);
                     if (!player)
@@ -2892,7 +2891,7 @@ void World::ProcessResurrect(uint32 diff)
     }
     else if (m_LastResurrectTime > 500)    // Resurrect players only half a second later, to see spirit heal effect on NPC
     {
-        for (std::vector<uint64>::const_iterator itr = m_ResurrectQueue.begin(); itr != m_ResurrectQueue.end(); ++itr)
+        for (std::vector<ObjectGuid>::const_iterator itr = m_ResurrectQueue.begin(); itr != m_ResurrectQueue.end(); ++itr)
         {
             Player* player = ObjectAccessor::FindPlayer(*itr);
             if (!player)
@@ -2906,7 +2905,7 @@ void World::ProcessResurrect(uint32 diff)
     }
 }
 
-void World::AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid)
+void World::AddPlayerToResurrectQueue(ObjectGuid npc_guid, ObjectGuid player_guid)
 {
     RemovePlayerFromResurrectQueue(player_guid);
 
@@ -2919,15 +2918,15 @@ void World::AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid)
     player->CastSpell(player, SPELL_WAITING_FOR_RESURRECT, true);
 }
 
-void World::RemovePlayerFromResurrectQueue(uint64 player_guid)
+void World::RemovePlayerFromResurrectQueue(ObjectGuid player_guid)
 {
     Player* player = ObjectAccessor::FindPlayer(player_guid);
     if (!player)
         return;
 
     if (!player->GetRezTime())
-        for (std::map<uint64, std::vector<uint64> >::iterator itr = m_ReviveQueue.begin(); itr != m_ReviveQueue.end(); ++itr)
-            for (std::vector<uint64>::iterator itr2 = (itr->second).begin(); itr2 != (itr->second).end(); ++itr2)
+        for (std::map<ObjectGuid, std::vector<ObjectGuid> >::iterator itr = m_ReviveQueue.begin(); itr != m_ReviveQueue.end(); ++itr)
+            for (std::vector<ObjectGuid>::iterator itr2 = (itr->second).begin(); itr2 != (itr->second).end(); ++itr2)
                 if (*itr2 == player_guid)
                 {
                     (itr->second).erase(itr2);
@@ -2936,7 +2935,7 @@ void World::RemovePlayerFromResurrectQueue(uint64 player_guid)
     player->RemoveAurasDueToSpell(SPELL_WAITING_FOR_RESURRECT);
 }
 
-void World::SendAreaSpiritHealerQueryOpcode(Player* player, uint64 guid)
+void World::SendAreaSpiritHealerQueryOpcode(Player* player, ObjectGuid guid)
 {
     WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
     uint32 time_ = 30000 - m_LastResurrectTime;      // resurrect every 30 seconds

@@ -4307,7 +4307,7 @@ uint32 Player::ResetTalentsCost() const
 
 bool Player::ResetTalents(bool no_cost)
 {
-    sScriptMgr->OnPlayerTalentsReset(this);
+    sScriptMgr->OnPlayerTalentsReset(this, no_cost);
 
     // not need after this call
     if (HasAtLoginFlag(AT_LOGIN_RESET_TALENTS))
@@ -5487,7 +5487,7 @@ void Player::ProcessResurrect()
                 sh->CastSpell(sh, SPELL_SPIRIT_HEAL, true);
             CastSpell(this, SPELL_RESURRECTION_VISUAL, true);
             m_rezData.ready = true;
-            m_rezData.shguid = 0;
+            m_rezData.shguid = ObjectGuid::Empty;
         }
         else
             m_rezData.rezTime = 6000;
@@ -6822,7 +6822,7 @@ void Player::SetTeam(uint32 team, bool todb)
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TEAM);
         stmt->setUInt32(0, team);
-        stmt->setUInt32(1, GUID_LOPART(GetGUID()));
+        stmt->setUInt64(1, GetGUID());
         trans->Append(stmt);
         CharacterDatabase.CommitTransaction(trans);
     }
@@ -6835,7 +6835,7 @@ uint32 Player::GetTeam(bool fromdb) const
         return m_team;
     uint32 team = 0;
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_TEAM);
-    stmt->setUInt32(0, GUID_LOPART(GetGUID()));
+    stmt->setUInt64(0, GetGUID());
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
         return team;
@@ -14935,7 +14935,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     bool rewarded = (m_RewardedQuests.find(quest_id) != m_RewardedQuests.end());
 
     // Not give XP in case already completed once repeatable quest
-    uint32 XP = rewarded && !quest->IsDFQuest() ? 0 : uint32(quest->XPValue(this);
+    uint32 XP = rewarded && !quest->IsDFQuest() ? 0 : uint32(quest->XPValue(this));
 
     // handle SPELL_AURA_MOD_XP_QUEST_PCT auras
     Unit::AuraEffectList const& ModXPPctAuras = GetAuraEffectsByType(SPELL_AURA_MOD_XP_QUEST_PCT);
@@ -16896,7 +16896,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         setFactionForRace(getRace());
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TEAM);
         stmt->setUInt32(0, m_team);
-        stmt->setUInt32(1, GUID_LOPART(GetGUID()));
+        stmt->setUInt64(1, GetGUID());
         CharacterDatabase.Execute(stmt);
     }
     else
@@ -19679,7 +19679,7 @@ void Player::UpdateStatsMod(uint32 type, bool force, bool fromdb)
     if (type && fromdb)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_STATS);
-        stmt->setUInt32(0, GUID_LOPART(GetGUID()));
+        stmt->setUInt64(0, GetGUID());
         stmt->setUInt32(1, type);
         if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
         {
@@ -21270,7 +21270,7 @@ void Player::InitDisplayIds()
     }
 }
 
-inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int32 price, ItemTemplate const* pProto, uint64 vguid, VendorItem const* crItem, bool bStore)
+inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int32 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore)
 {
     ItemPosCountVec vDest;
     uint16 uiDest = 0;
@@ -21307,13 +21307,10 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
         EquipNewItem(uiDest, item, true);
     if (it)
     {
-        uint32 new_count = -1;
-        if(GetGUID()!=vguid) {
-            Creature* pVendor = GetMap()->GetCreature(vguid);
-            uint32 new_count = pVendor->UpdateVendorItemCurrentCount(crItem, pProto->BuyCount * count); }
+        uint32 new_count = pVendor->UpdateVendorItemCurrentCount(crItem, pProto->BuyCount * count);
 
         WorldPacket data(SMSG_BUY_ITEM, (8+4+4+4));
-        data << uint64(vguid);
+        data << uint64(pVendor->GetGUID());
         data << uint32(vendorslot + 1);                   // numbered from 1 at client
         data << int32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
         data << uint32(count);
@@ -21356,74 +21353,28 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
         return false;
     }
 
-if(GetGUID()==vendorguid) {
-
-    VendorItemData const* vItems = sObjectMgr->GetNpcVendorItemList(GetVendorEntry());
-    if (!vItems || vItems->Empty())
+    if (!(pProto->AllowableClass & getClassMask()) && pProto->Bonding == BIND_WHEN_PICKED_UP && !IsGameMaster())
+    {
+        SendBuyError(BUY_ERR_CANT_FIND_ITEM, NULL, item, 0);
         return false;
-    if (vendorslot >= vItems->GetItemCount())
+    }
+
+    if (!IsGameMaster() && ((pProto->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY && GetTeam() == ALLIANCE) || (pProto->Flags2 == ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && GetTeam() == HORDE)))
         return false;
-    VendorItem const* crItem = vItems->GetItem(vendorslot);
-    if (!crItem || crItem->item != item)
-        return false;
-    if (pProto->RequiredReputationFaction && (uint32(GetReputationRank(pProto->RequiredReputationFaction)) < pProto->RequiredReputationRank))
-        return false;
-
-    if (crItem->ExtendedCost) {
-        ItemExtendedCostEntry const* iece = sDBCMgr->GetItemExtendedCostEntry(crItem->ExtendedCost);
-        if (!iece) {
-            TC_LOG_ERROR("entities.player", "Item %u have wrong ExtendedCost field value %u", pProto->ItemId, crItem->ExtendedCost);
-            return false; }
-
-        if (GetHonorPoints() < (iece->reqhonorpoints * count)) {
-            SendEquipError(EQUIP_ERR_NOT_ENOUGH_HONOR_POINTS, NULL, NULL);
-            return false; }
-        if (GetArenaPoints() < (iece->reqarenapoints * count)) {
-            SendEquipError(EQUIP_ERR_NOT_ENOUGH_ARENA_POINTS, NULL, NULL);
-            return false; }
-
-        for (uint8 i = 0; i < MAX_ITEM_EXTENDED_COST_REQUIREMENTS; ++i) {
-            if (iece->reqitem[i] && !HasItemCount(iece->reqitem[i], (iece->reqitemcount[i] * count))) {
-                SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL);
-                return false; } }
-
-        if (GetMaxPersonalArenaRatingRequirement(iece->reqarenaslot) < iece->reqpersonalarenarating) {
-            SendEquipError(EQUIP_ERR_CANT_EQUIP_RANK, NULL, NULL);
-            return false; } }
-
-    uint32 price = 0;
-    if (crItem->IsGoldRequired(pProto) && pProto->BuyPrice > 0) {
-        uint32 maxCount = MAX_MONEY_AMOUNT / pProto->BuyPrice;
-        if ((uint32)count > maxCount) {
-            TC_LOG_ERROR("entities.player", "Player %s tried to buy %u item id %u, causing overflow", GetName().c_str(), (uint32)count, pProto->ItemId);
-            count = (uint8)maxCount; }
-        price = pProto->BuyPrice * count; //it should not exceed MAX_MONEY_AMOUNT
-
-        if (!HasEnoughMoney(price))
-            return false; }
-
-    if ((bag == NULL_BAG && slot == NULL_SLOT) || IsInventoryPos(bag, slot)) {
-        if (!_StoreOrEquipNewItem(vendorslot, item, count, bag, slot, price, pProto, GetGUID(), crItem, true))
-            return false;  }
-    else if (IsEquipmentPos(bag, slot)) {
-        if (pProto->BuyCount * count != 1) {
-            SendEquipError(EQUIP_ERR_ITEM_CANT_BE_EQUIPPED, NULL, NULL);
-            return false; }
-        if (!_StoreOrEquipNewItem(vendorslot, item, count, bag, slot, price, pProto, GetGUID(), crItem, false))
-            return false; }
-    else {
-        SendEquipError(EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, NULL, NULL);
-        return false; }
-
-    return crItem->maxcount != 0;
-}
-else {
 
     Creature* creature = GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
     if (!creature)
     {
         TC_LOG_DEBUG("network", "WORLD: BuyItemFromVendor - %s not found or you can't interact with him.", vendorguid.ToString().c_str());
         SendBuyError(BUY_ERR_DISTANCE_TOO_FAR, NULL, item, 0);
+        return false;
+    }
+
+    ConditionList conditions = sConditionMgr->GetConditionsForNpcVendorEvent(creature->GetEntry(), item);
+    if (!sConditionMgr->IsObjectMeetToConditions(this, creature, conditions))
+    {
+        TC_LOG_DEBUG("condition", "BuyItemFromVendor: conditions not met for creature entry %u item %u", creature->GetEntry(), item);
+        SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, item, 0);
         return false;
     }
 
@@ -21463,7 +21414,7 @@ else {
         SendBuyError(BUY_ERR_REPUTATION_REQUIRE, creature, item, 0);
         return false;
     }
-
+    
     if (pProto->RequiredPvpRank)
         if ((GetTeam(true) == ALLIANCE && 6 >= pProto->RequiredPvpRank && pProto->RequiredPvpRank >= 1) || (GetTeam(true) == HORDE && 12 >= pProto->RequiredPvpRank && pProto->RequiredPvpRank >= 7))
         {
@@ -21544,7 +21495,7 @@ else {
 
     if ((bag == NULL_BAG && slot == NULL_SLOT) || IsInventoryPos(bag, slot))
     {
-        if (!_StoreOrEquipNewItem(vendorslot, item, count, bag, slot, price, pProto, creature->GetGUID(), crItem, true))
+        if (!_StoreOrEquipNewItem(vendorslot, item, count, bag, slot, price, pProto, creature, crItem, true))
             return false;
     }
     else if (IsEquipmentPos(bag, slot))
@@ -21554,7 +21505,7 @@ else {
             SendEquipError(EQUIP_ERR_ITEM_CANT_BE_EQUIPPED, NULL, NULL);
             return false;
         }
-        if (!_StoreOrEquipNewItem(vendorslot, item, count, bag, slot, price, pProto, creature->GetGUID(), crItem, false))
+        if (!_StoreOrEquipNewItem(vendorslot, item, count, bag, slot, price, pProto, creature, crItem, false))
             return false;
     }
     else
@@ -21564,7 +21515,6 @@ else {
     }
 
     return crItem->maxcount != 0;
-}
 }
 
 uint32 Player::GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const
@@ -22845,7 +22795,7 @@ void Player::ResetSpells(bool myClassOnly)
 
 void Player::LearnCustomSpells()
 {
-    if (!sWorld->getBoolConfig(CONFIG_START_ALL_SPELLS))
+    //if (!sWorld->getBoolConfig(CONFIG_START_ALL_SPELLS))
         return;
 
     // learn default race/class spells
@@ -22911,7 +22861,7 @@ void Player::LearnDefaultSkill(uint32 skillId, uint16 rank)
             if (!rank)
                 break;
 
-            SkillTiersEntry const* tier = sSkillTiersStore.LookupEntry(rcInfo->SkillTier);
+            SkillTiersEntry const* tier = sDBCMgr->GetSkillTiersEntry(rcInfo->SkillTier);
             uint16 maxValue = tier->MaxSkill[std::max<int32>(rank - 1, 0)];
             uint16 skillValue = 1;
             if (rcInfo->Flags & SKILL_FLAG_ALWAYS_MAX_VALUE)
@@ -24743,7 +24693,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
             }
 
             uint16 skillStep = 0;
-            if (SkillTiersEntry const* skillTier = sSkillTiersStore.LookupEntry(rcEntry->SkillTier))
+            if (SkillTiersEntry const* skillTier = sDBCMgr->GetSkillTiersEntry(rcEntry->SkillTier))
             {
                 for (uint32 i = 0; i < MAX_SKILL_STEP; ++i)
                 {
@@ -26592,7 +26542,7 @@ void Player::SetSpectator(bool bSpectator)
 void Player::InitRank()
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PVP_RANK);
-    stmt->setUInt32(0, GUID_LOPART(GetGUID()));
+    stmt->setUInt64(0, GetGUID());
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
         m_PvpRank = 0;
@@ -26624,7 +26574,7 @@ void Player::SetPvpRank(uint32 pvprank)
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PVP_RANK);
     stmt->setUInt32(0, pvprank);
-    stmt->setUInt32(1, GUID_LOPART(GetGUID()));
+    stmt->setUInt64(1, GetGUID());
     trans->Append(stmt);
     CharacterDatabase.CommitTransaction(trans);
     m_PvpRank = pvprank;
@@ -26641,7 +26591,7 @@ void Player::SetPvpRank(uint32 pvprank)
 uint32 Player::GetPvpLast()
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PVP_LAST);
-    stmt->setUInt32(0, GUID_LOPART(GetGUID()));
+    stmt->setUInt64(0, GetGUID());
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
         return m_PvpLast;
@@ -26654,7 +26604,7 @@ void Player::SetPvpLast(uint32 pvplast)
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PVP_LAST);
     stmt->setUInt32(0, pvplast);
-    stmt->setUInt32(1, GUID_LOPART(GetGUID()));
+    stmt->setUInt64(1, GetGUID());
     trans->Append(stmt);
     CharacterDatabase.CommitTransaction(trans);
     m_PvpLast = pvplast;
@@ -26665,7 +26615,7 @@ void Player::SetPvpTotal(uint32 pvptotal)
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PVP_TOTAL);
     stmt->setUInt32(0, pvptotal);
-    stmt->setUInt32(1, GUID_LOPART(GetGUID()));
+    stmt->setUInt64(1, GetGUID());
     trans->Append(stmt);
     CharacterDatabase.CommitTransaction(trans);
 }
@@ -26673,7 +26623,7 @@ void Player::SetPvpTotal(uint32 pvptotal)
 uint32 Player::GetBgWin()
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_BG_WIN);
-    stmt->setUInt32(0, GUID_LOPART(GetGUID()));
+    stmt->setUInt64(0, GetGUID());
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
         return m_BgWin;
@@ -26686,7 +26636,7 @@ void Player::SetBgWin(uint32 bgwin)
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_BG_WIN);
     stmt->setUInt32(0, bgwin);
-    stmt->setUInt32(1, GUID_LOPART(GetGUID()));
+    stmt->setUInt64(1, GetGUID());
     trans->Append(stmt);
     CharacterDatabase.CommitTransaction(trans);
     m_BgWin = bgwin;
@@ -26695,7 +26645,7 @@ void Player::SetBgWin(uint32 bgwin)
 uint32 Player::GetArenaWin()
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ARENA_WIN);
-    stmt->setUInt32(0, GUID_LOPART(GetGUID()));
+    stmt->setUInt64(0, GetGUID());
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
         return m_ArenaWin;
@@ -26708,7 +26658,7 @@ void Player::SetArenaWin(uint32 arenawin)
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ARENA_WIN);
     stmt->setUInt32(0, arenawin);
-    stmt->setUInt32(1, GUID_LOPART(GetGUID()));
+    stmt->setUInt64(1, GetGUID());
     trans->Append(stmt);
     CharacterDatabase.CommitTransaction(trans);
     m_ArenaWin = arenawin;
@@ -26733,7 +26683,7 @@ bool Player::IsDeserter(uint32 team)
         return false;
     else
     {
-        TC_LOG_ERROR("entities.player", "Player %u has wrong team id %u", GUID_LOPART(GetGUID()), team);
+        TC_LOG_ERROR("entities.player", "Player %s has wrong team id %u", GetGUID().ToString().c_str(), team);
         return true;
     }
 }

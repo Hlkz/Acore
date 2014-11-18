@@ -683,9 +683,9 @@ class World
         void   ResetEventSeasonalQuests(uint16 event_id);
         bool   DistributeRanks();
         void   UpdateRanksText();
-        void AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid);
-        void RemovePlayerFromResurrectQueue(uint64 player_guid);
-        void SendAreaSpiritHealerQueryOpcode(Player* player, uint64 guid);
+        void AddPlayerToResurrectQueue(ObjectGuid npc_guid, ObjectGuid player_guid);
+        void RemovePlayerFromResurrectQueue(ObjectGuid player_guid);
+        void SendAreaSpiritHealerQueryOpcode(Player* player, ObjectGuid guid);
         std::vector<ObjectGuid> GetShReviveQueue(ObjectGuid sh_guid) { return m_ReviveQueue[sh_guid]; }
 
     protected:

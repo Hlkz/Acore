@@ -727,12 +727,6 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
                 cInfo->type, cInfo->DifficultyEntry[diff]);
         }
 
-        if (cInfo->type_flags != difficultyInfo->type_flags)
-        {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, type_flags %u) has different `type_flags` in difficulty %u mode (Entry: %u, type_flags %u).",
-                cInfo->Entry, cInfo->type_flags, diff + 1, cInfo->DifficultyEntry[diff], difficultyInfo->type_flags);
-        }
-
         if (!cInfo->VehicleId && difficultyInfo->VehicleId)
         {
             TC_LOG_ERROR("sql.sql", "Creature (Entry: %u, VehicleId %u) has different `VehicleId` in difficulty %u mode (Entry: %u, VehicleId %u).",
@@ -3380,7 +3374,7 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                if (!sSkillLineStore.LookupEntry(skill.SkillId))
+                if (!sDBCMgr->GetSkillLineEntry(skill.SkillId))
                 {
                     TC_LOG_ERROR("sql.sql", "Wrong skill id %u in `playercreateinfo_skills` table, ignoring.", skill.SkillId);
                     continue;
@@ -4976,10 +4970,10 @@ void ObjectMgr::LoadSpellScriptNames()
         Field* fields = result->Fetch();
 
         int32 spellId          = fields[0].GetInt32();
-        const char *scriptName = fields[1].GetCString();
+        char const* scriptName = fields[1].GetCString();
 
         bool allRanks = false;
-        if (spellId <= 0)
+        if (spellId < 0)
         {
             allRanks = true;
             spellId = -spellId;
@@ -4988,7 +4982,7 @@ void ObjectMgr::LoadSpellScriptNames()
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
         if (!spellInfo)
         {
-            TC_LOG_ERROR("sql.sql", "Scriptname:`%s` spell (spell_id:%d) does not exist in `Spells` table.", scriptName, fields[0].GetInt32());
+            TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) does not exist in `Spells` table.", scriptName, fields[0].GetInt32());
             continue;
         }
 
@@ -4996,7 +4990,7 @@ void ObjectMgr::LoadSpellScriptNames()
         {
             if (sSpellMgr->GetFirstSpellInChain(spellId) != uint32(spellId))
             {
-                TC_LOG_ERROR("sql.sql", "Scriptname:`%s` spell (spell_id:%d) is not first rank of spell.", scriptName, fields[0].GetInt32());
+                TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) is not first rank of spell.", scriptName, fields[0].GetInt32());
                 continue;
             }
             while (spellInfo)
@@ -5006,7 +5000,11 @@ void ObjectMgr::LoadSpellScriptNames()
             }
         }
         else
+        {
+            if (spellInfo->IsRanked())
+                TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) is ranked spell. Perhaps not all ranks are assigned to this script.", scriptName, fields[0].GetInt32());
             _spellScriptsStore.insert(SpellScriptsContainer::value_type(spellInfo->Id, GetScriptId(scriptName)));
+        }
         ++count;
     }
     while (result->NextRow());
@@ -5449,7 +5447,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 
     time_t curTime = time(NULL);
     tm lt;
-    ACE_OS::localtime_r(&curTime, &lt);
+    localtime_r(&curTime, &lt);
     uint64 basetime(curTime);
     TC_LOG_INFO("misc", "Returning mails current time: hour: %d, minute: %d, second: %d ", lt.tm_hour, lt.tm_min, lt.tm_sec);
 
@@ -5687,7 +5685,7 @@ void ObjectMgr::LoadAreaTriggerScripts()
         Field* fields = result->Fetch();
 
         uint32 Trigger_ID      = fields[0].GetUInt32();
-        const char *scriptName = fields[1].GetCString();
+        char const* scriptName = fields[1].GetCString();
 
         AreaTriggerEntry const* atEntry = sDBCMgr->GetAreaTriggerEntry(Trigger_ID);
         if (!atEntry)
@@ -7661,6 +7659,10 @@ void ObjectMgr::LoadGameObjectForQuests()
     {
         switch (itr->second.type)
         {
+            case GAMEOBJECT_TYPE_QUESTGIVER:
+                _gameObjectForQuestStore.insert(itr->second.entry);
+                ++count;
+                break;
             case GAMEOBJECT_TYPE_CHEST:
             {
                 // scan GO chest with loot including quest items
@@ -8713,8 +8715,8 @@ void ObjectMgr::LoadBroadcastTextLocales()
         for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
         {
             LocaleConstant locale = LocaleConstant(i);
-            ObjectMgr::AddLocaleString(i == LOCALE_frFR ? fields[1].GetString() : "", locale, bct->second.MaleText);
-            ObjectMgr::AddLocaleString(i == LOCALE_frFR ? fields[1].GetString() : "", locale, bct->second.FemaleText);
+            AddLocaleString(i == LOCALE_frFR ? fields[1].GetString() : "", locale, bct->second.MaleText);
+            AddLocaleString(i == LOCALE_frFR ? fields[1].GetString() : "", locale, bct->second.FemaleText);
         }
 
         ++count;

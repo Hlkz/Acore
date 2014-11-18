@@ -1425,7 +1425,7 @@ void DBCMgr::LoadCharTitlesStore()
     uint32 oldMSTime = getMSTime();
     CharTitlesStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT Id, Male, Male_loc2, InGameOrder FROM chartitlesdbc");
+    QueryResult result = WorldDatabase.Query("SELECT Id, Male, Male_loc2, Female, Female_loc2, InGameOrder FROM chartitlesdbc");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 chartitles entry. DB table `battlemasterlistdbc` is empty.");
@@ -1441,7 +1441,11 @@ void DBCMgr::LoadCharTitlesStore()
             newCharTitles->nameMale[i] = NULL;
         newCharTitles->nameMale[0] = (char*)fields[1].GetCString();
         newCharTitles->nameMale[2] = (char*)fields[2].GetCString();
-        newCharTitles->bit_index = fields[3].GetUInt32();
+        for (uint8 i = 0; i < 16; i++)
+            newCharTitles->nameFemale[i] = NULL;
+        newCharTitles->nameFemale[0] = (char*)fields[3].GetCString();
+        newCharTitles->nameFemale[2] = (char*)fields[4].GetCString();
+        newCharTitles->bit_index = fields[5].GetUInt32();
         CharTitlesStore[newCharTitles->ID] = newCharTitles;
 
     } while (result->NextRow());
@@ -2843,7 +2847,7 @@ void DBCMgr::LoadSkillLineAbilityStore()
         newSkillLineAbility->classmask = fields[4].GetUInt32();
         newSkillLineAbility->req_skill_value = fields[5].GetUInt32();
         newSkillLineAbility->forward_spellid = fields[6].GetUInt32();
-        newSkillLineAbility->learnOnGetSkill = fields[7].GetUInt32();
+        newSkillLineAbility->AutolearnType = fields[7].GetUInt32();
         newSkillLineAbility->max_value = fields[8].GetUInt32();
         newSkillLineAbility->min_value = fields[9].GetUInt32();
         SkillLineAbilityStore[newSkillLineAbility->id] = newSkillLineAbility;

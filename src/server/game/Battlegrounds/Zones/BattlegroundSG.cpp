@@ -76,9 +76,9 @@ public:
                 attackable = me->IsWithinDist(iwp->GetFirstCreep(laneid, iwp->GetOtherTeam(teamid)), 10.0f);
                 timer = 5000;
                 if (attackable)
-                    me->Say("Attaquable !", NULL);
+                    me->Say("Attaquable !", LANG_UNIVERSAL, NULL);
                 else
-                    me->Say("Non attaquable !", NULL);
+                    me->Say("Non attaquable !", LANG_UNIVERSAL, NULL);
             }
         }
 

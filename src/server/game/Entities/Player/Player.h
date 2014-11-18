@@ -1065,10 +1065,10 @@ struct BGData
 
 struct rezData
 {
-    rezData() : rezTime(0), shguid(0), ready(false) { }
+    rezData() : rezTime(0), shguid(), ready(false) { }
 
     uint32 rezTime;
-    uint64 shguid;
+    ObjectGuid shguid;
     bool ready;
 };
 
@@ -1405,7 +1405,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsTwoHandUsed() const;
         void SendNewItem(Item* item, uint32 count, bool received, bool created, bool broadcast = false);
         bool BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot);
-        bool _StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int32 price, ItemTemplate const* pProto, uint64 vguid, VendorItem const* crItem, bool bStore);
+        bool _StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int32 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore);
 
         float GetReputationPriceDiscount(Creature const* creature) const;
 
@@ -2466,7 +2466,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsDeserter(uint32 team = 0);
         uint32 GetRezTime() const { return m_rezData.rezTime; }
         void SetRezTime(uint32 newreztime = 0) { m_rezData.rezTime = newreztime; }
-        void SetSHGUID(uint32 newshguid) { m_rezData.shguid = newshguid; }
+        void SetSHGUID(ObjectGuid newshguid) { m_rezData.shguid = newshguid; }
 
     protected:
         // Gamemaster whisper whitelist

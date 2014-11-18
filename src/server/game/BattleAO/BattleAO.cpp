@@ -104,7 +104,7 @@ BattleAO::BattleAO() //ctor
     m_PlayersCount[TEAM_ALLIANCE] = 0;
     m_PlayersCount[TEAM_HORDE]    = 0;
     m_PlayersCount[TEAM_NEUTRAL]  = 0;
-    m_playerscantag = sWorld->getWorldState(BAO_WS_CANPLAYERSTAG);
+    m_playerscantag = sWorld->getWorldState(BAO_WS_CANPLAYERSTAG) ? true : false;
     m_balancetag = false;
 }
 BattleAO::~BattleAO() { } //dtor

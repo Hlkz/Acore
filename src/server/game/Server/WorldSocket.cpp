@@ -465,7 +465,6 @@ void WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     _worldSession->LoadGlobalAccountData();
     _worldSession->LoadTutorialsData();
     _worldSession->ReadAddonsInfo(recvPacket);
-    _worldSession->LoadPermissions();
 
     // Initialize Warden system only if it is enabled by config
     if (wardenActive)
@@ -511,7 +510,7 @@ void WorldSocket::HandlePing(WorldPacket& recvPacket)
 
             if (maxAllowed && _OverSpeedPings > maxAllowed)
             {
-                if (_worldSession && !_worldSession->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_OVERSPEED_PING))
+                if (_worldSession && !AccountMgr::IsAdminAccount(_worldSession->GetSecurity()))
                 {
                     TC_LOG_ERROR("network", "WorldSocket::HandlePing: %s kicked for over-speed pings (address: %s)",
                         _worldSession->GetPlayerInfo().c_str(), GetRemoteIpAddress().to_string().c_str());

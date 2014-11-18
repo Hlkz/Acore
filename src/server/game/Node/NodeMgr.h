@@ -2,8 +2,6 @@
 #ifndef _NODEMGR_H
 #define _NODEMGR_H
 
-#include <ace/Singleton.h>
-
 #include "Node.h"
 #include <map>
 #include <set>
@@ -31,12 +29,17 @@ enum NodeHostile
 
 class NodeMgr
 {
-    friend class ACE_Singleton<NodeMgr, ACE_Null_Mutex>;
     private:
         NodeMgr();
         ~NodeMgr();
 
     public:
+        static NodeMgr* instance()
+        {
+            static NodeMgr* instance = new NodeMgr();
+            return instance;
+        }
+
         void InitNodes();
 
         void Update(uint32 diff);
@@ -51,6 +54,6 @@ class NodeMgr
 
 };
 
-#define sNodeMgr ACE_Singleton<NodeMgr, ACE_Null_Mutex>::instance()
+#define sNodeMgr NodeMgr::instance()
 
-#endif
+#endif // __NODEMGR_H

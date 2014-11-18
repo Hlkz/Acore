@@ -1400,9 +1400,9 @@ class Unit : public WorldObject
         int32 ModifyPower(Powers power, int32 val);
         int32 ModifyPowerPct(Powers power, float pct, bool apply = true);
 
-        uint32 GetAttackTime(WeaponAttackType attType) const;
-        void SetAttackTime(WeaponAttackType attType, uint32 val);
-        void ApplyAttackTimePercentMod(WeaponAttackType attType, float val, bool apply);
+        uint32 GetAttackTime(WeaponAttackType att) const;
+        void SetAttackTime(WeaponAttackType att, uint32 val) { SetFloatValue(UNIT_FIELD_BASEATTACKTIME+att, val*m_modAttackSpeedPct[att]); }
+        void ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply);
         void ApplyCastTimePercentMod(float val, bool apply);
 
         SheathState GetSheath() const { return SheathState(GetByteValue(UNIT_FIELD_BYTES_2, 0)); }
