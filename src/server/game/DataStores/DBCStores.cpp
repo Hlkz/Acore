@@ -355,10 +355,9 @@ void LoadDBCStores(const std::string& dataPath)
 
     sSpellMgr->LoadSpellInfoStore();
     sDBCMgr->LoadSkillRaceClassInfoStore();
-    for (uint32 i = 0; i < sDBCMgr->SkillRaceClassInfoStore.size(); ++i)
-        if (SkillRaceClassInfoEntry const* entry = sDBCMgr->GetSkillRaceClassInfoEntry(i))
-            if (sDBCMgr->GetSkillLineEntry(entry->SkillLine))
-                SkillRaceClassInfoBySkill.emplace(entry->SkillLine, entry);
+    for (SkillRaceClassInfoContainer::const_iterator itr = sDBCMgr->SkillRaceClassInfoStore.begin(); itr != sDBCMgr->SkillRaceClassInfoStore.end(); ++itr)
+        if (sDBCMgr->GetSkillLineEntry(itr->second->SkillLine))
+            SkillRaceClassInfoBySkill.emplace(itr->second->SkillLine, itr->second);
     sDBCMgr->LoadSkillTiersStore();
 
     for (SkillLineAbilityContainer::const_iterator itr = sDBCMgr->SkillLineAbilityStore.begin(); itr != sDBCMgr->SkillLineAbilityStore.end(); ++itr)
