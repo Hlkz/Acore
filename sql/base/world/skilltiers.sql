@@ -49,7 +49,7 @@ CREATE TABLE `skilltiers` (
   `MaxValue7` int(10) NOT NULL DEFAULT '0',
   `MaxValue8` int(10) NOT NULL DEFAULT '0',
   `MaxValue9` int(10) NOT NULL DEFAULT '0',
-  `MaxValue0` int(10) NOT NULL DEFAULT '0',
+  `MaxValue10` int(10) NOT NULL DEFAULT '0',
   `MaxValue11` int(10) NOT NULL DEFAULT '0',
   `MaxValue12` int(10) NOT NULL DEFAULT '0',
   `MaxValue13` int(10) NOT NULL DEFAULT '0',

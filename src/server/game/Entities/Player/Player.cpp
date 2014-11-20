@@ -22974,9 +22974,9 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
 {
     uint32 raceMask  = getRaceMask();
     uint32 classMask = getClassMask();
-    for (SkillLineContainer::const_iterator itr = sDBCMgr->SkillLineStore.begin(); itr != sDBCMgr->SkillLineStore.end(); ++itr)
+    for (SkillLineAbilityContainer::const_iterator itr = sDBCMgr->SkillLineAbilityStore.begin(); itr != sDBCMgr->SkillLineAbilityStore.end(); ++itr)
     {
-        SkillLineAbilityEntry const* ability = sDBCMgr->GetSkillLineAbilityEntry(itr->first);
+        SkillLineAbilityEntry const* ability = itr->second;
         if (!ability || ability->skillId != skillId)
             continue;
 
