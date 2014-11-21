@@ -22795,10 +22795,7 @@ void Player::ResetSpells(bool myClassOnly)
 
 void Player::LearnCustomSpells()
 {
-    //if (!sWorld->getBoolConfig(CONFIG_START_ALL_SPELLS))
-        return;
-
-    // learn default race/class spells
+    // table `playercreateinfo_spell_custom`
     PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
     for (PlayerCreateInfoSpells::const_iterator itr = info->customSpells.begin(); itr != info->customSpells.end(); ++itr)
     {
