@@ -2896,6 +2896,11 @@ bool Player::IsInSameRaidWith(Player const* p) const
     return p == this || (GetGroup() != NULL && GetGroup() == p->GetGroup());
 }
 
+bool Player::IsInSameGuildWith(Player const* p) const
+{
+    return p == this || (GetGuildId() != 0 && GetGuildId() == p->GetGuildId());
+}
+
 ///- If the player is invited, remove him. If the group if then only 1 person, disband the group.
 /// @todo Shouldn't we also check if there is no other invitees before disbanding the group?
 void Player::UninviteFromGroup()

@@ -2157,6 +2157,19 @@ void Guild::BroadcastPacket(WorldPacket* packet) const
             player->GetSession()->SendPacket(packet);
 }
 
+void Guild::BroadcastGuildUpdate(void)
+{
+    // FG: HACK: force flags update on guild leave - for values update hack
+    // -- not very efficient but safe
+    for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
+        if (Player* player = itr->second->FindPlayer())
+        {
+            player->ForceValuesUpdateAtIndex(UNIT_FIELD_BYTES_2);
+            player->ForceValuesUpdateAtIndex(UNIT_FIELD_FACTIONTEMPLATE);
+            TC_LOG_DEBUG("misc", "-- Forced guild value update for '%s'", player->GetName().c_str());
+        }
+}
+
 void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 maxLevel, uint32 minRank)
 {
     uint32 count = 0;
@@ -2264,11 +2277,15 @@ bool Guild::AddMember(ObjectGuid guid, uint8 rankId)
     // Call scripts if member was succesfully added (and stored to database)
     sScriptMgr->OnGuildAddMember(this, player, rankId);
 
+    BroadcastGuildUpdate();
+
     return true;
 }
 
 void Guild::DeleteMember(ObjectGuid guid, bool isDisbanding, bool isKicked, bool canDeleteGuild)
 {
+    BroadcastGuildUpdate();
+
     uint32 lowguid = guid.GetCounter();
     Player* player = ObjectAccessor::FindConnectedPlayer(guid);
 
