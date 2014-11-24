@@ -2025,11 +2025,13 @@ class Player : public Unit, public GridObject<Player>
 
         void CheckAreaExploreAndOutdoor(void);
 
+        void SetFaction(uint32 faction);
+        uint32 GetFaction() const { return m_faction; }
         static uint32 TeamForRace(uint8 race);
         void SetTeam(uint32 team, bool todb = false);
         uint32 GetTeam(bool fromdb = false) const;
         TeamId GetTeamId() const { return m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
-        void setFactionForRace(uint8 race);
+        void setFactionForRace(uint8 race); // unused
 
         void InitDisplayIds();
 
@@ -2582,6 +2584,7 @@ class Player : public Unit, public GridObject<Player>
         void outDebugValues() const;
         ObjectGuid m_lootGuid;
 
+        uint32 m_faction;
         uint32 m_team;
         uint32 m_nextSave;
         time_t m_speakTime;

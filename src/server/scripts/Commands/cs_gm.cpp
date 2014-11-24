@@ -44,6 +44,7 @@ public:
             { "fly",            SEC_ADMINISTRATOR,  false, &HandleGMFlyCommand,               "", NULL },
             { "ingame",         SEC_PLAYER,         true,  &HandleGMListIngameCommand,        "", NULL },
             { "list",           SEC_ADMINISTRATOR,  true,  &HandleGMListFullCommand,          "", NULL },
+            { "pvp",            SEC_ADMINISTRATOR,  true,  &HandleGMPvPCommand,               "", NULL },
             { "visible",        SEC_ANIMATOR,       false, &HandleGMVisibleCommand,           "", NULL },
             { "",               SEC_ANIMATOR,       false, &HandleGMCommand,                  "", NULL },
             { NULL,             0,                  false, NULL,                              "", NULL }
@@ -191,6 +192,38 @@ public:
         else
             handler->PSendSysMessage(LANG_GMLIST_EMPTY);
         return true;
+    }
+
+    //Enable\Disable PvP state
+    static bool HandleGMPvPCommand(ChatHandler* handler, char const* args)
+    {
+        Player* _player = handler->GetSession()->GetPlayer();
+
+        if (!*args)
+        {
+            //handler->PSendSysMessage(LANG_YOU_ARE, _player->isGMVisible() ? handler->GetTrinityString(LANG_VISIBLE) : handler->GetTrinityString(LANG_INVISIBLE));
+            return true;
+        }
+
+        std::string param = (char*)args;
+
+        if (param == "on")
+        {
+            _player->UpdatePvP(true);
+            //handler->GetSession()->SendNotification(LANG_INVISIBLE_VISIBLE);
+            return true;
+        }
+
+        if (param == "off")
+        {
+            _player->UpdatePvP(false);
+            //handler->GetSession()->SendNotification(LANG_INVISIBLE_INVISIBLE);
+            return true;
+        }
+
+        handler->SendSysMessage(LANG_USE_BOL);
+        handler->SetSentErrorMessage(true);
+        return false;
     }
 
     //Enable\Disable Invisible mode

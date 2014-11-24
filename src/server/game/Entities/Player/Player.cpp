@@ -907,6 +907,8 @@ Player::Player(WorldSession* session): Unit(true)
     m_achievementMgr = new AchievementMgr(this);
     m_reputationMgr = new ReputationMgr(this);
 
+    m_faction = FACTION_PLAYER;
+
     m_ClmSlotid = 0;
     m_ClmSlty = 0;
     m_RandRie = 0;
@@ -1013,7 +1015,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 
     SetObjectScale(1.0f);
 
-    setFactionForRace(createInfo->Race);
+    SetFaction(FACTION_PLAYER);
 
     if (!IsValidGender(createInfo->Gender))
     {
@@ -2818,7 +2820,7 @@ void Player::SetGameMaster(bool on)
         SetPhaseMask(newPhase, false);
 
         m_ExtraFlags &= ~ PLAYER_EXTRA_GM_ON;
-        setFactionForRace(getRace());
+        SetFaction(GetFaction());
         RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_GM);
         RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS);
 
@@ -6799,6 +6801,14 @@ void Player::CheckAreaExploreAndOutdoor()
             TC_LOG_INFO("entities.player", "Player %u discovered a new area: %u", GetGUIDLow(), area);
         }
     }
+}
+
+void Player::SetFaction(uint32 faction)
+{
+    m_faction = faction;
+    setFaction(faction);
+    //ForceValuesUpdateAtIndex(UNIT_FIELD_BYTES_2); // do we need that?
+    //ForceValuesUpdateAtIndex(UNIT_FIELD_FACTIONTEMPLATE);
 }
 
 uint32 Player::TeamForRace(uint8 race)
@@ -16894,6 +16904,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     TC_LOG_DEBUG("entities.player.loading", "Load Basic value of player %s is: ", m_name.c_str());
     outDebugValues();
 
+    SetFaction(FACTION_PLAYER);
+    /*
     //Initiate team if new char
     uint32 team = GetTeam(true);
     if (team != ALLIANCE && team != HORDE)
@@ -16909,7 +16921,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         m_team = team;
         ChrRacesEntry const* rEntry = sDBCMgr->GetChrRacesEntry((team==HORDE)+1);
         setFaction(rEntry ? rEntry->FactionID : 0);
-    }
+    }*/
 
     // load home bind and check in same time class/race pair, it used later for restore broken positions
     if (!_LoadHomeBind(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_HOME_BIND)))
@@ -26668,6 +26680,8 @@ void Player::SetArenaWin(uint32 arenawin)
 
 uint32 Player::CanSwitchTeam()
 {
+    return false;
+
     uint32 team = GetTeam(true);
     if ((int)GetReputation(team==ALLIANCE?FACTION_STORMWIND:FACTION_ORGRIMMAR)<0
      && (int)GetReputation(team==ALLIANCE?FACTION_ORGRIMMAR:FACTION_STORMWIND)>=0)

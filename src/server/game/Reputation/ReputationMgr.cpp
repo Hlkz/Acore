@@ -394,7 +394,7 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
         _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_REVERED_REPUTATION, factionEntry->ID);
         _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_HONORED_REPUTATION, factionEntry->ID);
 
-        if ((factionEntry->ID == FACTION_STORMWIND || factionEntry->ID == FACTION_ORGRIMMAR) && (before?before/abs(before):1) != (standing?standing/abs(standing):1))
+        /*if ((factionEntry->ID == FACTION_STORMWIND || factionEntry->ID == FACTION_ORGRIMMAR) && (before?before/abs(before):1) != (standing?standing/abs(standing):1))
         {
             _player->UpdateTriggerVisibility();
             if (uint32 newteam = _player->CanSwitchTeam()) // switch faction !
@@ -409,7 +409,7 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
                 CharacterDatabase.CommitTransaction(trans);
                 ChatHandler(_player->GetSession()).PSendSysMessage(17938);
             }
-        }
+        }*/
 
         return true;
     }

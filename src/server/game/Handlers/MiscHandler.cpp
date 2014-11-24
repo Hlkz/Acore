@@ -460,6 +460,9 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleTogglePvP(WorldPacket& recvData)
 {
+    if (!AccountMgr::IsGMAccount(GetSecurity()))
+        return;
+
     // this opcode can be used in two ways: Either set explicit new status or toggle old status
     if (recvData.size() == 1)
     {

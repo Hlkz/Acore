@@ -58,11 +58,12 @@ struct FactionState
 
 enum Factions
 {
-    FACTION_STORMWIND                = 72,
-    FACTION_SENTINEL                 = 3804,
-    FACTION_ORGRIMMAR                = 76,
-    FACTION_THUNDERLORD              = 3806,
-    FACTION_LIFEMARKET               = 3800,
+    FACTION_PLAYER                  = 3,
+    FACTION_STORMWIND               = 72,
+    FACTION_SENTINEL                = 3804,
+    FACTION_ORGRIMMAR               = 76,
+    FACTION_THUNDERLORD             = 3806,
+    FACTION_LIFEMARKET              = 3800,
 };
 
 typedef std::map<RepListID, FactionState> FactionStateList;
