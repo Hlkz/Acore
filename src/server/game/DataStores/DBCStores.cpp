@@ -1928,9 +1928,9 @@ void DBCMgr::LoadFactionStore()
         newFaction->spilloverRateOut = fields[20].GetFloat();
         newFaction->spilloverMaxRankIn = fields[21].GetUInt32();
         for (uint8 i = 0; i < 16; i++)
-            newFaction->name[i] = NULL;
-        newFaction->name[0] = (char*)fields[22].GetCString();
-        newFaction->name[2] = (char*)fields[23].GetCString();
+            newFaction->name[i] = "";
+        newFaction->name[0] = fields[22].GetString();
+        newFaction->name[2] = fields[23].GetString();
         FactionStore[newFaction->ID] = newFaction;
 
     } while (result->NextRow());

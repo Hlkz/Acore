@@ -568,14 +568,14 @@ public:
         {
             FactionState const& faction = itr->second;
             FactionEntry const* factionEntry = sDBCMgr->GetFactionEntry(faction.ID);
-            char const* factionName = factionEntry ? factionEntry->name[loc] : "#Not found#";
+            std::string factionName = factionEntry ? factionEntry->name[loc] : "#Not found#";
             ReputationRank rank = target->GetReputationMgr().GetRank(factionEntry);
             std::string rankName = handler->GetTrinityString(ReputationRankStrIndex[rank]);
             std::ostringstream ss;
             if (handler->GetSession())
-                ss << faction.ID << " - |cffffffff|Hfaction:" << faction.ID << "|h[" << factionName << ' ' << localeNames[loc] << "]|h|r";
+                ss << faction.ID << " - |cffffffff|Hfaction:" << faction.ID << "|h[" << factionName.c_str() << ' ' << localeNames[loc] << "]|h|r";
             else
-                ss << faction.ID << " - " << factionName << ' ' << localeNames[loc];
+                ss << faction.ID << " - " << factionName.c_str() << ' ' << localeNames[loc];
 
             ss << ' ' << rankName << " (" << target->GetReputationMgr().GetReputation(factionEntry) << ')';
 
