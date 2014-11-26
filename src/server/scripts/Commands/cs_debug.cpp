@@ -487,7 +487,7 @@ public:
 
     static bool HandleDebugSendQuestPartyMsgCommand(ChatHandler* handler, char const* args)
     {
-        uint32 msg = atol((char*)args);
+        uint32 msg = atoul(args);
         handler->GetSession()->GetPlayer()->SendPushToPartyResponse(handler->GetSession()->GetPlayer(), msg);
         return true;
     }
@@ -506,7 +506,7 @@ public:
 
     static bool HandleDebugSendQuestInvalidMsgCommand(ChatHandler* handler, char const* args)
     {
-        QuestFailedReason msg = static_cast<QuestFailedReason>(atol((char*)args));
+        QuestFailedReason msg = static_cast<QuestFailedReason>(atoul(args));
         handler->GetSession()->GetPlayer()->SendCanTakeQuestResponse(msg);
         return true;
     }

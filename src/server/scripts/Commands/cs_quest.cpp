@@ -67,7 +67,7 @@ public:
         if (!cId)
             return false;
 
-        uint32 entry = atol(cId);
+        uint32 entry = atoul(cId);
 
         Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
 
@@ -112,7 +112,7 @@ public:
         if (!cId)
             return false;
 
-        uint32 entry = atol(cId);
+        uint32 entry = atoul(cId);
 
         Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
 
@@ -165,7 +165,7 @@ public:
         if (!cId)
             return false;
 
-        uint32 entry = atol(cId);
+        uint32 entry = atoul(cId);
 
         Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
 
@@ -258,7 +258,7 @@ public:
         if (!cId)
             return false;
 
-        uint32 entry = atol(cId);
+        uint32 entry = atoul(cId);
 
         Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
 
