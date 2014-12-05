@@ -58,12 +58,24 @@ struct FactionState
 
 enum Factions
 {
-    FACTION_PLAYER                  = 3,
-    FACTION_STORMWIND               = 72,
-    FACTION_SENTINEL                = 3804,
-    FACTION_ORGRIMMAR               = 76,
-    FACTION_THUNDERLORD             = 3806,
-    FACTION_LIFEMARKET              = 3800,
+    FACTION_PLAYER              = 3,
+    // Alliance
+    FACTION_STORMWIND           = 20,
+    FACTION_DARNASSUS           = 21,
+    FACTION_IRONFORGE           = 22,
+    FACTION_GNOMEREGAN          = 23,
+    FACTION_EXODAR              = 24,
+    FACTION_THERAMORE           = 25,
+    // Horde
+    FACTION_ORGRIMMAR           = 40,
+    FACTION_DARKSPEAR           = 41,
+    FACTION_THUNDERBLUFF        = 42,
+    FACTION_UNDERCITY           = 43,
+    FACTION_SILVERMOON          = 44,
+    // Neutral
+    FACTION_CARTEL              = 60,
+    FACTION_LIFEMARKET          = 66,
+    FACTION_VENTURECO           = 67
 };
 
 typedef std::map<RepListID, FactionState> FactionStateList;
@@ -111,6 +123,7 @@ class ReputationMgr
         int32 GetReputation(uint32 faction_id) const;
         int32 GetReputation(FactionEntry const* factionEntry) const;
         int32 GetBaseReputation(FactionEntry const* factionEntry) const;
+        uint32 GetPlayerFactionTemplate(uint32 factionId);
 
         ReputationRank GetRank(FactionEntry const* factionEntry) const;
         ReputationRank GetBaseRank(FactionEntry const* factionEntry) const;

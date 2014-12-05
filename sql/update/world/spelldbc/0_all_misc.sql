@@ -8,6 +8,7 @@
 -- From the core
 --
 
+UPDATE `spelldbc_offi` SET `type` = 300 WHERE `Entry` = 11;
 UPDATE `spelldbc_offi` SET `type` = 300 WHERE `Entry` = 11542;
 UPDATE `spelldbc_offi` SET `type` = 300 WHERE `Entry` = 12158;
 UPDATE `spelldbc_offi` SET `type` = 300 WHERE `Entry` = 13138;

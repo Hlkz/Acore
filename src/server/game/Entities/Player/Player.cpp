@@ -6806,9 +6806,14 @@ void Player::CheckAreaExploreAndOutdoor()
 void Player::SetFaction(uint32 faction)
 {
     m_faction = faction;
-    setFaction(faction);
+    setFaction(GetReputationMgr().GetPlayerFactionTemplate(faction));
     //ForceValuesUpdateAtIndex(UNIT_FIELD_BYTES_2); // do we need that?
     //ForceValuesUpdateAtIndex(UNIT_FIELD_FACTIONTEMPLATE);
+}
+
+void Player::ResetFaction()
+{
+    SetFaction(FACTION_PLAYER);
 }
 
 uint32 Player::TeamForRace(uint8 race)
@@ -7118,6 +7123,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
 
             honor_f = std::ceil(Trinity::Honor::hk_honor_at_level_f(k_level) * (v_level - k_grey) / (k_level - k_grey));
 
+            /*
             // reputation
             if (!plrVictim->IsDeserter())
             {
@@ -7126,6 +7132,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
                 GetReputationMgr().ModifyReputation(sDBCMgr->GetFactionEntry(plrVictim->GetTeam(true)==ALLIANCE?FACTION_THUNDERLORD:FACTION_SENTINEL),3+plrVictim->GetPvpRank());
                 GetReputationMgr().ModifyReputation(sDBCMgr->GetFactionEntry(plrVictim->GetTeam(true)==ALLIANCE?FACTION_SENTINEL:FACTION_THUNDERLORD),-5-plrVictim->GetPvpRank());
             }
+            */
 
             // count the number of playerkills in one day
             ApplyModUInt32Value(PLAYER_FIELD_KILLS, 1, true);

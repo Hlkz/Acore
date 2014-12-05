@@ -111,6 +111,33 @@ int32 ReputationMgr::GetReputation(FactionEntry const* factionEntry) const
     return 0;
 }
 
+uint32 ReputationMgr::GetPlayerFactionTemplate(uint32 factionId)
+{
+    uint32 templateId = FACTION_PLAYER; // PLAYER Faction = PLAYER FactionTemplate
+
+    switch (factionId)
+    {
+        case FACTION_STORMWIND:         templateId = 200;   break;  // Alliance
+        case FACTION_DARNASSUS:         templateId = 210;   break;
+        case FACTION_IRONFORGE:         templateId = 220;   break;
+        case FACTION_GNOMEREGAN:        templateId = 230;   break;
+        case FACTION_EXODAR:            templateId = 240;   break;
+        case FACTION_THERAMORE:         templateId = 250;   break;
+        case FACTION_ORGRIMMAR:         templateId = 400;   break;  // Horde
+        case FACTION_DARKSPEAR:         templateId = 410;   break;
+        case FACTION_THUNDERBLUFF:      templateId = 420;   break;
+        case FACTION_UNDERCITY:         templateId = 430;   break;
+        case FACTION_SILVERMOON:        templateId = 440;   break;
+        case FACTION_CARTEL:            templateId = 600;   break;  // Neutral
+        case FACTION_LIFEMARKET:        templateId = 660;   break;
+        case FACTION_VENTURECO:         templateId = 670;   break;
+    }
+
+    if (sDBCMgr->GetFactionTemplateEntry(templateId))
+        return templateId;
+    return FACTION_PLAYER;
+}
+
 ReputationRank ReputationMgr::GetRank(FactionEntry const* factionEntry) const
 {
     int32 reputation = GetReputation(factionEntry);

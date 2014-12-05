@@ -2026,6 +2026,7 @@ class Player : public Unit, public GridObject<Player>
         void CheckAreaExploreAndOutdoor(void);
 
         void SetFaction(uint32 faction);
+        void ResetFaction();
         uint32 GetFaction() const { return m_faction; }
         static uint32 TeamForRace(uint8 race);
         void SetTeam(uint32 team, bool todb = false);

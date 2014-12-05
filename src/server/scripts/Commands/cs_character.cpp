@@ -631,12 +631,12 @@ public:
         if (!target)
             return false;
 
-        uint32 team = target->GetTeam(true);
+        /*uint32 team = target->GetTeam(true);
         target->GetReputationMgr().SetReputation(sDBCMgr->GetFactionEntry(team==ALLIANCE?FACTION_SENTINEL:FACTION_THUNDERLORD), 3000);
         target->GetReputationMgr().SetReputation(sDBCMgr->GetFactionEntry(team==ALLIANCE?FACTION_THUNDERLORD:FACTION_SENTINEL), -6000);
         target->GetReputationMgr().SetReputation(sDBCMgr->GetFactionEntry(team==ALLIANCE?ALLIANCE:HORDE), 3000);
         target->GetReputationMgr().SetReputation(sDBCMgr->GetFactionEntry(team==ALLIANCE?HORDE:ALLIANCE), -6000);
-        target->GetReputationMgr().SetReputation(sDBCMgr->GetFactionEntry(FACTION_LIFEMARKET), 3000);
+        target->GetReputationMgr().SetReputation(sDBCMgr->GetFactionEntry(FACTION_LIFEMARKET), 3000);*/
         handler->PSendSysMessage(LANG_GM_FACTION_INIT, target->GetName().c_str(), target->GetGUID());
         return true;
     }

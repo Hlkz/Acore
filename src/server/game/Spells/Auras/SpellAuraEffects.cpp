@@ -4726,6 +4726,23 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 case 43827: // Deuillegivre
                     target->SetDisplayId(22235);
                     break;
+                case 92020:
+                case 92021:
+                case 92022:
+                case 92023:
+                case 92024:
+                case 92025:
+                case 92040:
+                case 92041:
+                case 92042:
+                case 92043:
+                case 92044:
+                case 92060:
+                case 92066:
+                case 92067:
+                    if (target->GetTypeId() == TYPEID_PLAYER)
+                        caster->ToPlayer()->SetFaction(GetId() - 92000);
+                    break;
             }
         }
         // AT REMOVE
@@ -4812,6 +4829,23 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                         case 58730: // Restricted Flight Area
                             if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
                                 target->CastSpell(target, 58601, true);
+                            break;
+                        case 92020: // Tabards
+                        case 92021:
+                        case 92022:
+                        case 92023:
+                        case 92024:
+                        case 92025:
+                        case 92040:
+                        case 92041:
+                        case 92042:
+                        case 92043:
+                        case 92044:
+                        case 92060:
+                        case 92066:
+                        case 92067:
+                            if (target->GetTypeId() == TYPEID_PLAYER)
+                                caster->ToPlayer()->ResetFaction();
                             break;
                     }
                     break;
