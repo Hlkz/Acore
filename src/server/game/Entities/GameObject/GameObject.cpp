@@ -49,6 +49,7 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_usetimes = 0;
     m_spellId = 0;
     m_cooldownTime = 0;
+    m_pvpCastTime = 0;
     m_goInfo = NULL;
     m_goData = NULL;
 
@@ -1680,6 +1681,11 @@ void GameObject::Use(Unit* user)
                             if (bg->GetTypeID(true) == BATTLEGROUND_EY)
                                 bg->EventPlayerClickedOnFlag(player, this);
                             break;
+                        case 300102:                        // Top Flag
+                        case 300103:                        // Bot Flag
+                            if (bg->GetTypeID(true) == BATTLEGROUND_SG)
+                                bg->EventPlayerClickedOnFlag(player, this);
+                            break;
                     }
                 }
                 //this cause to call return, all flags must be deleted here!!
@@ -2153,12 +2159,8 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
                 if (GetGoType() == GAMEOBJECT_TYPE_CHEST)
                     if (GetGOInfo()->chest.groupLootRules && !IsLootAllowedFor(target))
                         flags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
-                if (target->IsDeserter())
-                {
-                    if (flags & GO_FLAG_CANTNEUTRAL)
-                        flags |= GO_FLAG_NOT_SELECTABLE;
-                }
-                else if ((target->GetTeam() == ALLIANCE && flags & GO_FLAG_CANTA2) || (target->GetTeam() == HORDE && flags & GO_FLAG_CANTH2))
+                if ((flags & GO_FLAG_CANTA2 && target->GetTeam() == ALLIANCE) || (flags & GO_FLAG_CANTH2 && target->GetTeam() == HORDE)
+                    || (flags & GO_FLAG_CANTNEUTRAL && target->GetTeam() != ALLIANCE && target->GetTeam() != HORDE))
                     flags |= GO_FLAG_NOT_SELECTABLE;
 
                 fieldBuffer << flags;

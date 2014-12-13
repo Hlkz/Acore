@@ -1167,6 +1167,38 @@ enum TrinityStrings
     LANG_BG_BA_NEXUS_VULN_A             = 18006,
     LANG_BG_BA_NEXUS_VULN_H             = 18007,
 
+    LANG_BG_SG_ALLY                     = 650,
+    LANG_BG_SG_HORDE                    = 651,
+    LANG_BG_SG_NODE_TOPCASTLE           = 652,
+    LANG_BG_SG_NODE_TOPLEFT             = 652,
+    LANG_BG_SG_NODE_TOPRIGHT            = 652,
+    LANG_BG_SG_NODE_BOTCASTLE           = 653,
+    LANG_BG_SG_NODE_BOTLEFT             = 653,
+    LANG_BG_SG_NODE_BOTRIGHT            = 653,
+    LANG_BG_SG_NODE_TAKEN               = 657,
+    LANG_BG_SG_NODE_DEFENDED            = 658,
+    LANG_BG_SG_NODE_ASSAULTED           = 659,
+    LANG_BG_SG_NODE_CLAIMED             = 660,
+
+    LANG_BG_SG_START_TWO_MINUTES        = 754,
+    LANG_BG_SG_START_ONE_MINUTE         = 661,
+    LANG_BG_SG_START_HALF_MINUTE        = 662,
+    LANG_BG_SG_HAS_BEGUN                = 663,
+    LANG_BG_SG_A_NEAR_VICTORY           = 664,
+    LANG_BG_SG_H_NEAR_VICTORY           = 665,
+    
+    LANG_BG_SG_CAPTURED_HF              = 605,
+    LANG_BG_SG_CAPTURED_AF              = 606,
+    LANG_BG_SG_DROPPED_HF               = 607,
+    LANG_BG_SG_DROPPED_AF               = 608,
+    LANG_BG_SG_RETURNED_AF              = 609,
+    LANG_BG_SG_RETURNED_HF              = 610,
+    LANG_BG_SG_PICKEDUP_HF              = 611,
+    LANG_BG_SG_PICKEDUP_AF              = 612,
+    LANG_BG_SG_F_PLACED                 = 613,
+    LANG_BG_SG_ALLIANCE_FLAG_RESPAWNED  = 614,
+    LANG_BG_SG_HORDE_FLAG_RESPAWNED     = 615,
+
     LANG_NPCINFO_INHABIT_TYPE                     = 11008,
     LANG_NPCINFO_FLAGS_EXTRA                      = 11009
 };

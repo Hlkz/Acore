@@ -2917,6 +2917,13 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
             // calculate cast time (calculated after first CheckCast check to prevent charge counting for first CheckCast fail)
             m_casttime = m_spellInfo->CalcCastTime(this);
             player->SetSpellModTakingSpell(this, false);
+            // variable casttime (used for banners/flags or chests)
+            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_OPEN_LOCK)
+                    if (m_spellInfo->Effects[i].TargetA.GetTarget() == TARGET_GAMEOBJECT_TARGET)
+                        if (GameObject* go = m_targets.GetGOTarget())
+                        if (go->GetPvPCastTime())
+                            m_casttime = go->GetPvPCastTime() - 1; // -1 to be able to force instant cast
         }
         else
             m_casttime = 0; // Set cast time to 0 if .cheat casttime is enabled.

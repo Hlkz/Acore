@@ -682,7 +682,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
             m_spawnedByDefault = false;                     // all summoned object is despawned after delay
             m_spellId = id;
         }
-        uint32 GetSpellId() const { return m_spellId;}
+        uint32 GetSpellId() const { return m_spellId; }
 
         time_t GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const
@@ -737,6 +737,9 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         void AddLootMode(uint16 lootMode) { m_LootMode |= lootMode; }
         void RemoveLootMode(uint16 lootMode) { m_LootMode &= ~lootMode; }
         void ResetLootMode() { m_LootMode = LOOT_MODE_DEFAULT; }
+
+        uint32 GetPvPCastTime() { return m_pvpCastTime; }
+        void SetPvPCastTime(uint32 pvpCastTime) { m_pvpCastTime = pvpCastTime + 1; }
 
         void AddToSkillupList(uint32 PlayerGuidLow) { m_SkillupList.push_back(PlayerGuidLow); }
         bool IsInSkillupList(uint32 PlayerGuidLow) const
@@ -845,6 +848,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         bool        m_spawnedByDefault;
         time_t      m_cooldownTime;                         // used as internal reaction delay time store (not state change reaction).
                                                             // For traps this: spell casting cooldown, for doors/buttons: reset time.
+        uint32      m_pvpCastTime;                          // if set, override a banner or flag casttime
         std::list<uint32> m_SkillupList;
 
         ObjectGuid m_ritualOwnerGUID;                       // used for GAMEOBJECT_TYPE_SUMMONING_RITUAL where GO is not summoned (no owner)

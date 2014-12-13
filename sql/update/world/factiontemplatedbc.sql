@@ -4,10 +4,14 @@ DELETE FROM `factiontemplatedbc`;
 INSERT INTO `factiontemplatedbc` VALUES ('1', 'FactionA', '1', '72', '3', '2', '12', '0', '0', '0', '0', '0', '0', '0', '0');
 INSERT INTO `factiontemplatedbc` VALUES ('2', 'FactionB', '2', '72', '5', '4', '10', '0', '0', '0', '0', '0', '0', '0', '0');
 INSERT INTO `factiontemplatedbc` VALUES ('3', 'Joueur', '3', '1', '1', '0', '8', '0', '0', '0', '0', '0', '0', '0', '0');
-INSERT INTO `factiontemplatedbc` VALUES ('7', '', '7', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
-INSERT INTO `factiontemplatedbc` VALUES ('14', '', '14', '0', '8', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0');
-INSERT INTO `factiontemplatedbc` VALUES ('15', '', '7', '1', '0', '0', '0', '0', '0', '0', '0', '7', '0', '0', '0');
-INSERT INTO `factiontemplatedbc` VALUES ('16', '', '14', '1', '8', '0', '1', '0', '0', '0', '0', '14', '0', '0', '0');
+INSERT INTO `factiontemplatedbc` VALUES ('7', 'CreatureFFA', '7', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT INTO `factiontemplatedbc` VALUES ('9', 'Civilian', '3', '1', '1', '0', '8', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT INTO `factiontemplatedbc` VALUES ('14', 'MonsterFFA', '14', '0', '8', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT INTO `factiontemplatedbc` VALUES ('15', 'Creature', '7', '1', '0', '0', '0', '0', '0', '0', '0', '7', '0', '0', '0');
+INSERT INTO `factiontemplatedbc` VALUES ('16', 'Monster', '14', '1', '8', '0', '1', '0', '0', '0', '0', '14', '0', '0', '0');
+INSERT INTO `factiontemplatedbc` VALUES ('35', 'Friendly', '8', '0', '0', '1', '0', '0', '0', '0', '0', '31', '0', '0', '0');
+INSERT INTO `factiontemplatedbc` VALUES ('83', 'Alliance Generic', '12', '33', '4', '4', '2', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT INTO `factiontemplatedbc` VALUES ('84', 'Horde Generic', '13', '33', '2', '2', '4', '0', '0', '0', '0', '0', '0', '0', '0');
 
 -- Alliance
 INSERT INTO `factiontemplatedbc` VALUES ('200', 'Stormwind', '20', '0', '1', '0', '8', '0', '0', '0', '0', '0', '0', '0', '0');
