@@ -1176,6 +1176,26 @@ class Player : public Unit, public GridObject<Player>
         explicit Player(WorldSession* session);
         ~Player();
 
+    private:
+        bool m_ForgetBGPlayers;
+        bool m_ForgetInListPlayers;
+        uint8 m_FakeRace;
+        uint8 m_RealRace;
+        uint32 m_FakeMorph;
+    public:
+        typedef std::vector<uint64> FakePlayers;
+        void SendChatMessage(const char *format, ...);
+        void FitPlayerInTeam(bool action, Battleground const* bg = NULL);
+        void DoForgetPlayersInList();
+        void DoForgetPlayersInBG(Battleground const* bg);
+        void SetForgetBGPlayers(bool value) { m_ForgetBGPlayers = value; }
+        bool ShouldForgetBGPlayers() { return m_ForgetBGPlayers; }
+        void SetForgetInListPlayers(bool value) { m_ForgetInListPlayers = value; }
+        bool ShouldForgetInListPlayers() { return m_ForgetInListPlayers; }
+        bool SendBattleGroundChat(uint32 msgtype, std::string message);
+        void MorphFit(bool value);
+        bool SendRealNameQuery();
+        FakePlayers m_FakePlayers;
         void CleanupsBeforeDelete(bool finalCleanup = true) override;
 
         void AddToWorld() override;
@@ -1230,7 +1250,7 @@ class Player : public Unit, public GridObject<Player>
         PlayerSocial *GetSocial() { return m_social; }
 
         PlayerTaxi m_taxi;
-        void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(GetTeam(true), getRace(), getClass(), getLevel()); }
+        void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(GetTeam(true), GetORace(), getClass(), getLevel()); }
         bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = NULL, uint32 spellid = 0);
         bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0);
         void CleanupAfterTaxiFlight();
@@ -1298,6 +1318,8 @@ class Player : public Unit, public GridObject<Player>
         void TextEmote(std::string const& text, WorldObject const* = nullptr, bool = false) override;
         /// Handles whispers from Addons and players based on sender, receiver's guid and language.
         void Whisper(std::string const& text, Language language, Player* receiver, bool = false) override;
+        /// Constructs the player Chat data for the specific functions to use
+        void BuildPlayerChat(WorldPacket* data, uint8 msgtype, std::string const& text, uint32 language) const;
 
         /*********************************************************/
         /***                    STORAGE SYSTEM                 ***/
@@ -2029,10 +2051,18 @@ class Player : public Unit, public GridObject<Player>
         void ResetFaction();
         uint32 GetFaction() const { return m_faction; }
         static uint32 TeamForRace(uint8 race);
-        void SetTeam(uint32 team, bool todb = false);
-        uint32 GetTeam(bool fromdb = false) const;
-        TeamId GetTeamId() const { return m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
-        void setFactionForRace(uint8 race); // unused
+        TeamId GetTeamId() const { return GetTeam() == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
+        // void SetTeam(uint32 team, bool todb = false);
+        // uint32 GetTeam(bool fromdb = false) const;
+        // TeamId GetTeamId() const { return m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
+        void SetORace() { m_RealRace = GetByteValue(UNIT_FIELD_BYTES_0, 0); }; // SHOULD ONLY BE CALLED ON LOGIN
+        void SetFakeRaceAndMorph() { m_FakeRace = m_team == ALLIANCE ? RACE_BLOODELF : RACE_HUMAN; } // SHOULD ONLY BE CALLED ON LOGIN
+        uint32 GetTeam(bool real = false) const { return real ? m_team : m_bgData.bgTeam && GetBattleground() ? m_bgData.bgTeam : m_team; }
+        bool IsPlayingNative() const { return GetTeam() == m_team; }
+        uint32 GetFakeMorph() { return m_FakeMorph; };
+        uint8 GetORace() const { return m_RealRace; }
+        uint8 GetFRace() const { return m_FakeRace; }
+        void setFactionForRace(uint8 race);
 
         void InitDisplayIds();
 
@@ -2173,7 +2203,6 @@ class Player : public Unit, public GridObject<Player>
         void SetBattlegroundEntryPoint();
 
         void SetBGTeam(uint32 team);
-        uint32 GetBGTeam() const;
 
         void LeaveBattleground(bool teleportToEntryPoint = true);
         bool CanJoinToBattleground(Battleground const* bg) const;

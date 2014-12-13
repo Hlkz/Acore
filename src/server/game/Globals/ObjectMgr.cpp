@@ -2157,7 +2157,7 @@ uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid guid) const
         return player->GetTeam(true);
     }
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_TEAM);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_RACE);
 
     stmt->setUInt32(0, guid.GetCounter());
 
@@ -2165,8 +2165,8 @@ uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid guid) const
 
     if (result)
     {
-        uint32 team = (*result)[0].GetUInt32();
-        return team;
+        uint8 race = (*result)[0].GetUInt8();
+        return Player::TeamForRace(race);
     }
 
     return 0;

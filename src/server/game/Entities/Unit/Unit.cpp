@@ -8559,7 +8559,7 @@ FactionTemplateEntry const* Unit::GetFactionTemplateEntry() const
         if (Player const* player = ToPlayer())
             TC_LOG_ERROR("entities.unit", "Player %s has invalid faction (faction template id) #%u", player->GetName().c_str(), getFaction());
         else if (Creature const* creature = ToCreature())
-            TC_LOG_ERROR("entities.unit", "Creature (template id: %u) has invalid faction (faction template id) #%u", creature->GetCreatureTemplate()->Entry, getFaction());
+            ;//TC_LOG_ERROR("entities.unit", "Creature (template id: %u) has invalid faction (faction template id) #%u", creature->GetCreatureTemplate()->Entry, getFaction());
         else
             TC_LOG_ERROR("entities.unit", "Unit (name=%s, type=%u) has invalid faction (faction template id) #%u", GetName().c_str(), uint32(GetTypeId()), getFaction());
     }
@@ -13248,6 +13248,25 @@ void Unit::SetLevel(uint8 lvl)
     }
 }
 
+uint8 Unit::getRace(bool real) const
+{
+    if (GetTypeId() == TYPEID_PLAYER)
+    {
+        Player* player = ((Player*)this);
+
+        if (real)
+            return player->GetORace();
+
+        if (player->InArena())
+            return GetByteValue(UNIT_FIELD_BYTES_0, 0);
+
+        if (!player->IsPlayingNative())
+            return player->GetFRace();
+    }
+
+    return GetByteValue(UNIT_FIELD_BYTES_0, 0);
+}
+
 void Unit::SetHealth(uint32 val)
 {
     if (getDeathState() == JUST_DIED)
@@ -16665,6 +16684,21 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
                     return 19075;
                 case SUMMON_TYPE_TOTEM_AIR:     // air
                     return 19071;
+            }
+            break;
+        }
+        default: // One standard for other races.
+        {
+            switch (totemType)
+            {
+                case SUMMON_TYPE_TOTEM_FIRE:    // fire
+                    return 4589;
+                case SUMMON_TYPE_TOTEM_EARTH:   // earth
+                    return 4588;
+                case SUMMON_TYPE_TOTEM_WATER:   // water
+                    return 4587;
+                case SUMMON_TYPE_TOTEM_AIR:     // air
+                    return 4590;
             }
             break;
         }

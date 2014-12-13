@@ -457,6 +457,7 @@ Warden.BanDuration = 86400
 #    AllowTwoSide.Interaction.Guild : Allow guild joining between factions.
 #    AllowTwoSide.Interaction.Arena : Allow arena team joining between factions.
 #    AllowTwoSide.trade : Allow trades between factions.
+#    AllowTwoSide.battleground : Allow crossfaction battlegrounds.
 #    TalentsInspecting : Allow inspecting characters from the opposing faction.
 AllowTwoSide.Interaction.Calendar = 0
 AllowTwoSide.Interaction.Mail = 0
@@ -464,6 +465,7 @@ AllowTwoSide.Interaction.Group = 0
 AllowTwoSide.Interaction.Guild = 1
 AllowTwoSide.Interaction.Arena = 1
 AllowTwoSide.trade = 0
+AllowTwoSide.battleground = 1
 TalentsInspecting = 1
 
 #    Arena.Spectators.Enable : Arena spectators system state.

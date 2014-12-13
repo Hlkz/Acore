@@ -500,7 +500,7 @@ void BattlegroundBB::AddPlayer(Player* player)
     Battleground::AddPlayer(player);
     PlayerScores[player->GetGUIDLow()] = new BattlegroundBBScore(player->GetGUID());
 
-    uint32 team = player->GetBGTeam();
+    uint32 team = player->GetTeam();
     if (team == ALLIANCE)
     {
         player->GetReputationMgr().SetReputation(sDBCMgr->GetFactionEntry(3801), 3000);

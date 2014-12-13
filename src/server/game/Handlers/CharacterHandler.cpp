@@ -973,6 +973,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     sScriptMgr->OnPlayerLogin(pCurrChar, firstLogin);
 
     delete holder;
+  
+    if (pCurrChar->GetTeam() != pCurrChar->GetTeam(true) || pCurrChar->InBattleground())
+        pCurrChar->FitPlayerInTeam(pCurrChar->GetBattleground() && !pCurrChar->GetBattleground()->isArena() ? true : false, pCurrChar->GetBattleground());
 }
 
 void WorldSession::HandleSetFactionAtWar(WorldPacket& recvData)

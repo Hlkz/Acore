@@ -52,7 +52,7 @@ void World::UpdateRanksText()
     do {
         std::string strName = result->Fetch()[i, 0].GetString(); // name
         uint32 iRank = result->Fetch()[i, 1].GetUInt32(); // rank / 0: unranked
-        uint32 iFaction = result->Fetch()[i, 2].GetUInt32(); // alliance: 469 / horde: 67
+        uint32 iFaction = 469; //result->Fetch()[i, 2].GetUInt32(); // alliance: 469 / horde: 67
 
         if (iRank)
         {
@@ -236,10 +236,10 @@ public:
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
         if (!result)
             return false;
-        uint32 team = result->Fetch()[0].GetUInt32();
-        uint32 rank = result->Fetch()[1].GetUInt32();
-        uint32 total = result->Fetch()[2].GetUInt32();
-        uint32 last = result->Fetch()[3].GetUInt32();
+        uint32 team = 469; //result->Fetch()[0].GetUInt32();
+        uint32 rank = result->Fetch()[0].GetUInt32();
+        uint32 total = result->Fetch()[1].GetUInt32();
+        uint32 last = result->Fetch()[2].GetUInt32();
         uint32 points = floor(10*sqrt((float)total/10)+last);
         handler->PSendSysMessage(LANG_RANKS_INFO_COMMAND, session->GetTrinityString(LANG_RANKS_NAME+rank+6*(team==67)));
         handler->PSendSysMessage(LANG_RANKS_INFO_COMMAND+1, last, total);

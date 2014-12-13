@@ -471,13 +471,13 @@ bool BattlegroundMgr::CreateBattleground(BattlegroundTemplate const* bgTemplate)
                 bg = new BattlegroundDS();
                 break;
             case BATTLEGROUND_BA:
-                bg = new BattlegroundBA;
+                bg = new BattlegroundBA();
                 break;
             case BATTLEGROUND_BB:
-                bg = new BattlegroundBB;
+                bg = new BattlegroundBB();
                 break;
             case BATTLEGROUND_SG:
-                bg = new BattlegroundSG;
+                bg = new BattlegroundSG();
                 break;
             case BATTLEGROUND_AO:
             case BATTLEGROUND_AA:
@@ -699,9 +699,9 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
     if (Battleground* bg = GetBattleground(instanceId, bgTypeId))
     {
         uint32 mapid = bg->GetMapId();
-        uint32 team = player->GetBGTeam();
-        if (team == 0)
-            team = player->GetTeam();
+        uint32 team = player->GetTeam();
+        //if (team == 0)
+        //    team = player->GetTeam();
 
         Position const* pos = bg->GetTeamStartPosition(Battleground::GetTeamIndexByTeamId(team));
         TC_LOG_DEBUG("bg.battleground", "BattlegroundMgr::SendToBattleground: Sending %s to map %u, %s (bgType %u)", player->GetName().c_str(), mapid, pos->ToString().c_str(), bgTypeId);

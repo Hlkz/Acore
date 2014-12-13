@@ -295,7 +295,6 @@ public:
             _player->SetGameMaster(false);
             handler->GetSession()->SendNotification(LANG_GM_OFF);
             _player->UpdateTriggerVisibility();
-            handler->GetSession()->GetPlayer()->SetTeam(handler->GetSession()->GetPlayer()->GetTeam(true));
 #ifdef _DEBUG_VMAPS
             VMAP::IVMapManager* vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
             vMapManager->processCommand("startlog");
