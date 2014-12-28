@@ -3811,9 +3811,6 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             // ENDOF ISLE OF CONQUEST SPELLS
             //
-            case 29866: // Cast Fishing Net
-                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(140); // 6yd
-                break;
             default:
                 break;
         }
