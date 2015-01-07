@@ -49,6 +49,7 @@ struct WMOAreaTableTripple
 };
 
 typedef std::map<WMOAreaTableTripple, WMOAreaTableEntry const*> WMOAreaInfoByTripple;
+typedef std::multimap<uint32, CharSectionsEntry const*> CharSectionsMap;
 
 static AreaFlagByAreaID sAreaFlagByAreaID;
 static AreaFlagByMapID sAreaFlagByMapID;                    // for instances without generated *.map files
@@ -56,6 +57,7 @@ static AreaFlagByMapID sAreaFlagByMapID;                    // for instances wit
 static WMOAreaInfoByTripple sWMOAreaInfoByTripple;
 
 std::map<uint32, CharStartOutfitEntry const*> sCharStartOutfitMap;
+CharSectionsMap sCharSectionMap;
 
 typedef std::map<uint32, SimpleFactionsList> FactionTeamMap;
 static FactionTeamMap sFactionTeamMap;
@@ -181,6 +183,12 @@ void LoadDBCStores(const std::string& dataPath)
     for (CharStartOutfitContainer::const_iterator itr = sDBCMgr->CharStartOutfitStore.begin(); itr != sDBCMgr->CharStartOutfitStore.end(); ++itr)
         if (CharStartOutfitEntry const* outfit = itr->second)
             sCharStartOutfitMap[outfit->Race | (outfit->Class << 8) | (outfit->Gender << 16)] = outfit;
+
+    sDBCMgr->LoadCharSectionsStore();
+    for (CharSectionsContainer::const_iterator itr = sDBCMgr->CharSectionsStore.begin(); itr != sDBCMgr->CharSectionsStore.end(); ++itr)
+        if (CharSectionsEntry const* entry = itr->second)
+            if (entry->Race && ((1 << (entry->Race - 1)) & RACEMASK_ALL_PLAYABLE) != 0) //ignore Nonplayable races
+                sCharSectionMap.emplace(uint8(entry->GenType) | (uint8(entry->Gender) << 8) | (uint8(entry->Race) << 16), entry);
 
     sDBCMgr->LoadCharTitlesStore();
     sDBCMgr->LoadChatChannelsStore();
@@ -732,6 +740,18 @@ CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, ui
         return NULL;
 
     return itr->second;
+}
+
+CharSectionsEntry const* GetCharSectionEntry(uint8 race, CharSectionType genType, uint8 gender, uint8 type, uint8 color)
+{
+    std::pair<CharSectionsMap::const_iterator, CharSectionsMap::const_iterator> eqr = sCharSectionMap.equal_range(uint32(genType) | uint32(gender << 8) | uint32(race << 16));
+    for (CharSectionsMap::const_iterator itr = eqr.first; itr != eqr.second; ++itr)
+    {
+        if (itr->second->Type == type && itr->second->Color == color)
+            return itr->second;
+    }
+
+    return NULL;
 }
 
 /// Returns LFGDungeonEntry for a specific map and difficulty. Will return first found entry if multiple dungeons use the same map (such as Scarlet Monastery)
@@ -1408,6 +1428,35 @@ void DBCMgr::LoadCharStartOutfitStore()
     } while (result->NextRow());
 
     TC_LOG_ERROR("misc", ">> Loaded %lu CharStartOutfit entries in %u ms", (unsigned long)CharStartOutfitStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void DBCMgr::LoadCharSectionsStore()
+{
+    uint32 oldMSTime = getMSTime();
+    CharSectionsStore.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT Race, Gender, GeneralType, Flags, Type, Variations FROM charsectionsdbc");
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 CharSections entry. DB table `CharSections dbc` is empty.");
+        return;
+    }
+
+    do {
+        Field* fields = result->Fetch();
+
+        CharSectionsEntry* newCharSections = new CharSectionsEntry;
+        newCharSections->Race = fields[0].GetUInt32();
+        newCharSections->Gender = fields[1].GetUInt32();
+        newCharSections->GenType = fields[2].GetUInt32();
+        newCharSections->Flags = fields[3].GetUInt32();
+        newCharSections->Type = fields[4].GetUInt32();
+        newCharSections->Color = fields[5].GetUInt32();
+        CharSectionsStore[newCharSections->Race] = newCharSections;
+
+    } while (result->NextRow());
+
+    TC_LOG_ERROR("misc", ">> Loaded %lu CharSections entries in %u ms", (unsigned long)CharSectionsStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void DBCMgr::LoadCharTitlesStore()

@@ -90,19 +90,6 @@ void ClientSelector::NamesFromUnusedDatabase()
 
     if (mFlags & EXTRACT_DATABASE) //if (mFlags & EXTRACT_TEXTURES)
     {
-        // CharSections
-        printf("\n    CharSections");
-        result = UnusedDatabase.Query("SELECT Texture1, Texture2, Texture3 FROM charsections WHERE (NULLIF(Texture1, '') AND NULLIF(Texture2, '') AND NULLIF(Texture3, '')) IS NOT NULL");
-        do {
-            Field* fields = result->Fetch();
-            if (strlen(fields[0].GetCString()))
-                AddExactFile(eBlp_M, fields[0].GetString()); // path/name.blp
-            if (strlen(fields[1].GetCString()))
-                AddExactFile(eBlp_M, fields[1].GetString()); // path/name.blp
-            if (strlen(fields[2].GetCString()))
-                AddExactFile(eBlp_M, fields[2].GetString()); // path/name.blp
-        } while (result->NextRow());
-
         // FootprintTextures
         printf("\n    FootprintTextures");
         result = UnusedDatabase.Query("SELECT FileName FROM footprinttextures WHERE FileName != ''");
@@ -255,6 +242,19 @@ void ClientSelector::NamesFromWorldDatabase()
 
     if (mFlags & EXTRACT_DATABASE) //if(mFlags & EXTRACT_TEXTURES)
     {
+        // CharSections
+        printf("\n    CharSections");
+        result = WorldDatabase.Query("SELECT Texture1, Texture2, Texture3 FROM charsectionsdbc WHERE (NULLIF(Texture1, '') AND NULLIF(Texture2, '') AND NULLIF(Texture3, '')) IS NOT NULL");
+        do {
+            Field* fields = result->Fetch();
+            if (strlen(fields[0].GetCString()))
+                AddExactFile(eBlp_M, fields[0].GetString()); // path/name.blp
+            if (strlen(fields[1].GetCString()))
+                AddExactFile(eBlp_M, fields[1].GetString()); // path/name.blp
+            if (strlen(fields[2].GetCString()))
+                AddExactFile(eBlp_M, fields[2].GetString()); // path/name.blp
+        } while (result->NextRow());
+
         // CreatureDisplayInfoExtra
         printf("\n    CreatureDisplayInfoExtra");
         result = WorldDatabase.Query("SELECT Texture FROM creaturedisplayinfoextradbc WHERE NULLIF(Texture, '') IS NOT NULL");

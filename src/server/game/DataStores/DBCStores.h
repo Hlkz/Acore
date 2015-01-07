@@ -69,6 +69,7 @@ PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 lev
 PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
 
 CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, uint8 gender);
+CharSectionsEntry const* GetCharSectionEntry(uint8 race, CharSectionType genType, uint8 gender, uint8 type, uint8 color);
 
 LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty);
 
@@ -114,6 +115,7 @@ typedef std::unordered_map<uint32, const BannedAddOnsEntry*> BannedAddOnsContain
 typedef std::unordered_map<uint32, const BarberShopStyleEntry*> BarberShopStyleContainer;
 typedef std::unordered_map<uint32, const ChatChannelsEntry*> ChatChannelsContainer;
 typedef std::unordered_map<uint32, const CharStartOutfitEntry*> CharStartOutfitContainer;
+typedef std::unordered_map<uint32, const CharSectionsEntry*> CharSectionsContainer;
 typedef std::unordered_map<uint32, const ChrClassesEntry*> ChrClassesContainer;
 typedef std::unordered_map<uint32, const ChrRacesEntry*> ChrRacesContainer;
 typedef std::unordered_map<uint32, const CinematicSequencesEntry*> CinematicSequencesContainer;
@@ -199,26 +201,19 @@ class DBCMgr
     public:
         void LoadAchievementStore();
         void LoadAchievementCriteriaStore();
+        void LoadAreaGroupStore();
         void LoadAreaPOIStore();
         void LoadAreaTableStore();
-        void LoadBattlemasterListStore();
-        void LoadCharTitlesStore();
-        void LoadFactionStore();
-        void LoadFactionTemplateStore();
-        void LoadItemExtendedCostStore();
-        void LoadMapStore();
-        void LoadMapDifficultyStore();
-        void LoadSpellDifficultyStore();
-        void LoadTalentStore();
-
-        void LoadAreaGroupStore();
         void LoadAreaTriggerStore();
         void LoadAuctionHouseStore();
         void LoadBankBagSlotPricesStore();
+        void LoadBattlemasterListStore();
         void LoadBannedAddOnsStore();
         void LoadBarberShopStyleStore();
         void LoadChatChannelsStore();
+        void LoadCharSectionsStore();
         void LoadCharStartOutfitStore();
+        void LoadCharTitlesStore();
         void LoadChrClassesStore();
         void LoadChrRacesStore();
         void LoadCinematicSequencesStore();
@@ -235,12 +230,15 @@ class DBCMgr
         void LoadDurabilityQualityStore();
         void LoadEmotesStore();
         void LoadEmotesTextStore();
+        void LoadFactionStore();
+        void LoadFactionTemplateStore();
         void LoadGameObjectDisplayInfoStore();
         void LoadGemPropertiesStore();
         void LoadGlyphPropertiesStore();
         void LoadGlyphSlotStore();
         void LoadHolidaysStore();
         void LoadItemBagFamilyStore();
+        void LoadItemExtendedCostStore();
         void LoadItemLimitCategoryStore();
         void LoadItemRandomPropertiesStore();
         void LoadItemRandomSuffixStore();
@@ -250,6 +248,8 @@ class DBCMgr
         void LoadLiquidTypeStore();
         void LoadLockStore();
         void LoadMailTemplateStore();
+        void LoadMapStore();
+        void LoadMapDifficultyStore();
         void LoadMovieStore();
         void LoadOverrideSpellDataStore();
         void LoadPowerDisplayStore();
@@ -267,6 +267,7 @@ class DBCMgr
         void LoadSoundEntriesStore();
         void LoadSpellCastTimesStore();
         void LoadSpellCategoryStore();
+        void LoadSpellDifficultyStore();
         void LoadSpellDurationStore();
         void LoadSpellFocusObjectStore();
         void LoadSpellItemEnchantmentStore();
@@ -277,6 +278,7 @@ class DBCMgr
         void LoadSpellShapeshiftStore();
         void LoadStableSlotPricesStore();
         void LoadSummonPropertiesStore();
+        void LoadTalentStore();
         void LoadTalentTabStore();
         void LoadTaxiNodesStore();
         uint32 LoadTaxiPathStore();
@@ -294,25 +296,19 @@ class DBCMgr
 
         const AchievementEntry* GetAchievementEntry(uint32 ID) const { AchievementContainer::const_iterator itr = AchievementStore.find(ID); if (itr != AchievementStore.end()) return itr->second; return NULL; }
         const AchievementCriteriaEntry* GetAchievementCriteriaEntry(uint32 ID) const { AchievementCriteriaContainer::const_iterator itr = AchievementCriteriaStore.find(ID); if (itr != AchievementCriteriaStore.end()) return itr->second; return NULL; }
+		const AreaGroupEntry* GetAreaGroupEntry(uint32 Id) const { AreaGroupContainer::const_iterator itr = AreaGroupStore.find(Id); if (itr != AreaGroupStore.end()) return itr->second; return NULL; }
         const AreaPOIEntry* GetAreaPOIEntry(uint32 ID) const { AreaPOIContainer::const_iterator itr = AreaPOIStore.find(ID); if (itr != AreaPOIStore.end()) return itr->second; return NULL; }
         const AreaTableEntry* GetAreaTableEntry(uint32 ID) const { AreaTableContainer::const_iterator itr = AreaTableStore.find(ID); if (itr != AreaTableStore.end()) return itr->second; return NULL; }
-        const BattlemasterListEntry* GetBattlemasterListEntry(uint32 ID) const { BattlemasterListContainer::const_iterator itr = BattlemasterListStore.find(ID); if (itr != BattlemasterListStore.end()) return itr->second; return NULL; }
-        const CharTitlesEntry* GetCharTitlesEntry(uint32 ID) const { CharTitlesContainer::const_iterator itr = CharTitlesStore.find(ID); if (itr != CharTitlesStore.end()) return itr->second; return NULL; }
-        const FactionEntry* GetFactionEntry(uint32 ID) const { FactionContainer::const_iterator itr = FactionStore.find(ID); if (itr != FactionStore.end()) return itr->second; return NULL; }
-        const FactionTemplateEntry* GetFactionTemplateEntry(uint32 ID) const { FactionTemplateContainer::const_iterator itr = FactionTemplateStore.find(ID); if (itr != FactionTemplateStore.end()) return itr->second; return NULL; }
-        const ItemExtendedCostEntry* GetItemExtendedCostEntry(uint32 ID) const { ItemExtendedCostContainer::const_iterator itr = ItemExtendedCostStore.find(ID); if (itr != ItemExtendedCostStore.end()) return itr->second; return NULL; }
-        const MapEntry* GetMapEntry(uint32 ID) const { MapContainer::const_iterator itr = MapStore.find(ID); if (itr != MapStore.end()) return itr->second; return NULL; }
-        const MapDifficultyEntry* GetMapDifficultyEntry(uint32 ID) const { MapDifficultyContainer::const_iterator itr = MapDifficultyStore.find(ID); if (itr != MapDifficultyStore.end()) return itr->second; return NULL; }
-        const SpellDifficultyEntry* GetSpellDifficultyEntry(uint32 ID) const { SpellDifficultyContainer::const_iterator itr = SpellDifficultyStore.find(ID); if (itr != SpellDifficultyStore.end()) return itr->second; return NULL; }
-        const TalentEntry* GetTalentEntry(uint32 TalentID) const { TalentContainer::const_iterator itr = TalentStore.find(TalentID); if (itr != TalentStore.end()) return itr->second; return NULL; }
-        const AreaGroupEntry* GetAreaGroupEntry(uint32 Id) const { AreaGroupContainer::const_iterator itr = AreaGroupStore.find(Id); if (itr != AreaGroupStore.end()) return itr->second; return NULL; }
         const AreaTriggerEntry* GetAreaTriggerEntry(uint32 Id) const { AreaTriggerContainer::const_iterator itr = AreaTriggerStore.find(Id); if (itr != AreaTriggerStore.end()) return itr->second; return NULL; }
         const AuctionHouseEntry* GetAuctionHouseEntry(uint32 Id) const { AuctionHouseContainer::const_iterator itr = AuctionHouseStore.find(Id); if (itr != AuctionHouseStore.end()) return itr->second; return NULL; }
         const BankBagSlotPricesEntry* GetBankBagSlotPricesEntry(uint32 Id) const { BankBagSlotPricesContainer::const_iterator itr = BankBagSlotPricesStore.find(Id); if (itr != BankBagSlotPricesStore.end()) return itr->second; return NULL; }
         const BannedAddOnsEntry* GetBannedAddOnsEntry(uint32 Id) const { BannedAddOnsContainer::const_iterator itr = BannedAddOnsStore.find(Id); if (itr != BannedAddOnsStore.end()) return itr->second; return NULL; }
+        const BattlemasterListEntry* GetBattlemasterListEntry(uint32 ID) const { BattlemasterListContainer::const_iterator itr = BattlemasterListStore.find(ID); if (itr != BattlemasterListStore.end()) return itr->second; return NULL; }
         const BarberShopStyleEntry* GetBarberShopStyleEntry(uint32 Id) const { BarberShopStyleContainer::const_iterator itr = BarberShopStyleStore.find(Id); if (itr != BarberShopStyleStore.end()) return itr->second; return NULL; }
         const ChatChannelsEntry* GetChatChannelsEntry(uint32 Id) const { ChatChannelsContainer::const_iterator itr = ChatChannelsStore.find(Id); if (itr != ChatChannelsStore.end()) return itr->second; return NULL; }
+        const CharSectionsEntry* GetCharSectionsEntry(uint32 Id) const { CharSectionsContainer::const_iterator itr = CharSectionsStore.find(Id); if (itr != CharSectionsStore.end()) return itr->second; return NULL; }
         const CharStartOutfitEntry* GetCharStartOutfitEntry(uint32 Id) const { CharStartOutfitContainer::const_iterator itr = CharStartOutfitStore.find(Id); if (itr != CharStartOutfitStore.end()) return itr->second; return NULL; }
+        const CharTitlesEntry* GetCharTitlesEntry(uint32 ID) const { CharTitlesContainer::const_iterator itr = CharTitlesStore.find(ID); if (itr != CharTitlesStore.end()) return itr->second; return NULL; }
         const ChrClassesEntry* GetChrClassesEntry(uint32 Id) const { ChrClassesContainer::const_iterator itr = ChrClassesStore.find(Id); if (itr != ChrClassesStore.end()) return itr->second; return NULL; }
         const ChrRacesEntry* GetChrRacesEntry(uint32 Id) const { ChrRacesContainer::const_iterator itr = ChrRacesStore.find(Id); if (itr != ChrRacesStore.end()) return itr->second; return NULL; }
         const CinematicSequencesEntry* GetCinematicSequencesEntry(uint32 Id) const { CinematicSequencesContainer::const_iterator itr = CinematicSequencesStore.find(Id); if (itr != CinematicSequencesStore.end()) return itr->second; return NULL; }
@@ -329,12 +325,15 @@ class DBCMgr
         const DurabilityQualityEntry* GetDurabilityQualityEntry(uint32 Id) const { DurabilityQualityContainer::const_iterator itr = DurabilityQualityStore.find(Id); if (itr != DurabilityQualityStore.end()) return itr->second; return NULL; }
         const EmotesEntry* GetEmotesEntry(uint32 Id) const { EmotesContainer::const_iterator itr = EmotesStore.find(Id); if (itr != EmotesStore.end()) return itr->second; return NULL; }
         const EmotesTextEntry* GetEmotesTextEntry(uint32 Id) const { EmotesTextContainer::const_iterator itr = EmotesTextStore.find(Id); if (itr != EmotesTextStore.end()) return itr->second; return NULL; }
+        const FactionEntry* GetFactionEntry(uint32 ID) const { FactionContainer::const_iterator itr = FactionStore.find(ID); if (itr != FactionStore.end()) return itr->second; return NULL; }
+        const FactionTemplateEntry* GetFactionTemplateEntry(uint32 ID) const { FactionTemplateContainer::const_iterator itr = FactionTemplateStore.find(ID); if (itr != FactionTemplateStore.end()) return itr->second; return NULL; }
         const GameObjectDisplayInfoEntry* GetGameObjectDisplayInfoEntry(uint32 Id) const { GameObjectDisplayInfoContainer::const_iterator itr = GameObjectDisplayInfoStore.find(Id); if (itr != GameObjectDisplayInfoStore.end()) return itr->second; return NULL; }
         const GemPropertiesEntry* GetGemPropertiesEntry(uint32 Id) const { GemPropertiesContainer::const_iterator itr = GemPropertiesStore.find(Id); if (itr != GemPropertiesStore.end()) return itr->second; return NULL; }
         const GlyphPropertiesEntry* GetGlyphPropertiesEntry(uint32 Id) const { GlyphPropertiesContainer::const_iterator itr = GlyphPropertiesStore.find(Id); if (itr != GlyphPropertiesStore.end()) return itr->second; return NULL; }
         const GlyphSlotEntry* GetGlyphSlotEntry(uint32 Id) const { GlyphSlotContainer::const_iterator itr = GlyphSlotStore.find(Id); if (itr != GlyphSlotStore.end()) return itr->second; return NULL; }
         const HolidaysEntry* GetHolidaysEntry(uint32 Id) const { HolidaysContainer::const_iterator itr = HolidaysStore.find(Id); if (itr != HolidaysStore.end()) return itr->second; return NULL; }
         const ItemBagFamilyEntry* GetItemBagFamilyEntry(uint32 Id) const { ItemBagFamilyContainer::const_iterator itr = ItemBagFamilyStore.find(Id); if (itr != ItemBagFamilyStore.end()) return itr->second; return NULL; }
+        const ItemExtendedCostEntry* GetItemExtendedCostEntry(uint32 ID) const { ItemExtendedCostContainer::const_iterator itr = ItemExtendedCostStore.find(ID); if (itr != ItemExtendedCostStore.end()) return itr->second; return NULL; }
         const ItemLimitCategoryEntry* GetItemLimitCategoryEntry(uint32 Id) const { ItemLimitCategoryContainer::const_iterator itr = ItemLimitCategoryStore.find(Id); if (itr != ItemLimitCategoryStore.end()) return itr->second; return NULL; }
         const ItemRandomPropertiesEntry* GetItemRandomPropertiesEntry(uint32 Id) const { ItemRandomPropertiesContainer::const_iterator itr = ItemRandomPropertiesStore.find(Id); if (itr != ItemRandomPropertiesStore.end()) return itr->second; return NULL; }
         const ItemRandomSuffixEntry* GetItemRandomSuffixEntry(uint32 Id) const { ItemRandomSuffixContainer::const_iterator itr = ItemRandomSuffixStore.find(Id); if (itr != ItemRandomSuffixStore.end()) return itr->second; return NULL; }
@@ -344,6 +343,8 @@ class DBCMgr
         const LightEntry* GetLightEntry(uint32 Id) const { LightContainer::const_iterator itr = LightStore.find(Id); if (itr != LightStore.end()) return itr->second; return NULL; }
         const LockEntry* GetLockEntry(uint32 Id) const { LockContainer::const_iterator itr = LockStore.find(Id); if (itr != LockStore.end()) return itr->second; return NULL; }
         const MailTemplateEntry* GetMailTemplateEntry(uint32 Id) const { MailTemplateContainer::const_iterator itr = MailTemplateStore.find(Id); if (itr != MailTemplateStore.end()) return itr->second; return NULL; }
+        const MapEntry* GetMapEntry(uint32 ID) const { MapContainer::const_iterator itr = MapStore.find(ID); if (itr != MapStore.end()) return itr->second; return NULL; }
+        const MapDifficultyEntry* GetMapDifficultyEntry(uint32 ID) const { MapDifficultyContainer::const_iterator itr = MapDifficultyStore.find(ID); if (itr != MapDifficultyStore.end()) return itr->second; return NULL; }
         const MovieEntry* GetMovieEntry(uint32 Id) const { MovieContainer::const_iterator itr = MovieStore.find(Id); if (itr != MovieStore.end()) return itr->second; return NULL; }
         const OverrideSpellDataEntry* GetOverrideSpellDataEntry(uint32 Id) const { OverrideSpellDataContainer::const_iterator itr = OverrideSpellDataStore.find(Id); if (itr != OverrideSpellDataStore.end()) return itr->second; return NULL; }
         const PowerDisplayEntry* GetPowerDisplayEntry(uint32 Id) const { PowerDisplayContainer::const_iterator itr = PowerDisplayStore.find(Id); if (itr != PowerDisplayStore.end()) return itr->second; return NULL; }
@@ -361,6 +362,7 @@ class DBCMgr
         const SoundEntriesEntry* GetSoundEntriesEntry(uint32 Id) const { SoundEntriesContainer::const_iterator itr = SoundEntriesStore.find(Id); if (itr != SoundEntriesStore.end()) return itr->second; return NULL; }
         const SpellCastTimesEntry* GetSpellCastTimesEntry(uint32 Id) const { SpellCastTimesContainer::const_iterator itr = SpellCastTimesStore.find(Id); if (itr != SpellCastTimesStore.end()) return itr->second; return NULL; }
         const SpellCategoryEntry* GetSpellCategoryEntry(uint32 Id) const { SpellCategoryContainer::const_iterator itr = SpellCategoryStore.find(Id); if (itr != SpellCategoryStore.end()) return itr->second; return NULL; }
+        const SpellDifficultyEntry* GetSpellDifficultyEntry(uint32 ID) const { SpellDifficultyContainer::const_iterator itr = SpellDifficultyStore.find(ID); if (itr != SpellDifficultyStore.end()) return itr->second; return NULL; }
         const SpellDurationEntry* GetSpellDurationEntry(uint32 Id) const { SpellDurationContainer::const_iterator itr = SpellDurationStore.find(Id); if (itr != SpellDurationStore.end()) return itr->second; return NULL; }
         const SpellFocusObjectEntry* GetSpellFocusObjectEntry(uint32 Id) const { SpellFocusObjectContainer::const_iterator itr = SpellFocusObjectStore.find(Id); if (itr != SpellFocusObjectStore.end()) return itr->second; return NULL; }
         const SpellItemEnchantmentEntry* GetSpellItemEnchantmentEntry(uint32 Id) const { SpellItemEnchantmentContainer::const_iterator itr = SpellItemEnchantmentStore.find(Id); if (itr != SpellItemEnchantmentStore.end()) return itr->second; return NULL; }
@@ -371,6 +373,7 @@ class DBCMgr
         const SpellShapeshiftEntry* GetSpellShapeshiftEntry(uint32 Id) const { SpellShapeshiftContainer::const_iterator itr = SpellShapeshiftStore.find(Id); if (itr != SpellShapeshiftStore.end()) return itr->second; return NULL; }
         const StableSlotPricesEntry* GetStableSlotPricesEntry(uint32 Id) const { StableSlotPricesContainer::const_iterator itr = StableSlotPricesStore.find(Id); if (itr != StableSlotPricesStore.end()) return itr->second; return NULL; }
         const SummonPropertiesEntry* GetSummonPropertiesEntry(uint32 Id) const { SummonPropertiesContainer::const_iterator itr = SummonPropertiesStore.find(Id); if (itr != SummonPropertiesStore.end()) return itr->second; return NULL; }
+        const TalentEntry* GetTalentEntry(uint32 TalentID) const { TalentContainer::const_iterator itr = TalentStore.find(TalentID); if (itr != TalentStore.end()) return itr->second; return NULL; }
         const TalentTabEntry* GetTalentTabEntry(uint32 Id) const { TalentTabContainer::const_iterator itr = TalentTabStore.find(Id); if (itr != TalentTabStore.end()) return itr->second; return NULL; }
         const TaxiNodesEntry* GetTaxiNodesEntry(uint32 Id) const { TaxiNodesContainer::const_iterator itr = TaxiNodesStore.find(Id); if (itr != TaxiNodesStore.end()) return itr->second; return NULL; }
         const TaxiPathEntry* GetTaxiPathEntry(uint32 Id) const { TaxiPathContainer::const_iterator itr = TaxiPathStore.find(Id); if (itr != TaxiPathStore.end()) return itr->second; return NULL; }
@@ -388,26 +391,19 @@ class DBCMgr
 
         AchievementContainer AchievementStore;
         AchievementCriteriaContainer AchievementCriteriaStore;
+        AreaGroupContainer AreaGroupStore;
         AreaPOIContainer AreaPOIStore;
         AreaTableContainer AreaTableStore;
-        BattlemasterListContainer BattlemasterListStore;
-        CharTitlesContainer CharTitlesStore;
-        FactionContainer FactionStore;
-        FactionTemplateContainer FactionTemplateStore;
-        ItemExtendedCostContainer ItemExtendedCostStore;
-        MapContainer MapStore;
-        MapDifficultyContainer MapDifficultyStore;
-        SpellDifficultyContainer SpellDifficultyStore;
-        TalentContainer TalentStore;
-
-        AreaGroupContainer AreaGroupStore;
         AreaTriggerContainer AreaTriggerStore;
         AuctionHouseContainer AuctionHouseStore;
         BankBagSlotPricesContainer BankBagSlotPricesStore;
         BannedAddOnsContainer BannedAddOnsStore;
+        BattlemasterListContainer BattlemasterListStore;
         BarberShopStyleContainer BarberShopStyleStore;
         ChatChannelsContainer ChatChannelsStore;
+        CharSectionsContainer CharSectionsStore;
         CharStartOutfitContainer CharStartOutfitStore;
+        CharTitlesContainer CharTitlesStore;
         ChrClassesContainer ChrClassesStore;
         ChrRacesContainer ChrRacesStore;
         CinematicSequencesContainer CinematicSequencesStore;
@@ -424,12 +420,15 @@ class DBCMgr
         DurabilityQualityContainer DurabilityQualityStore;
         EmotesContainer EmotesStore;
         EmotesTextContainer EmotesTextStore;
+        FactionContainer FactionStore;
+        FactionTemplateContainer FactionTemplateStore;
         GameObjectDisplayInfoContainer GameObjectDisplayInfoStore;
         GemPropertiesContainer GemPropertiesStore;
         GlyphPropertiesContainer GlyphPropertiesStore;
         GlyphSlotContainer GlyphSlotStore;
         HolidaysContainer HolidaysStore;
         ItemBagFamilyContainer ItemBagFamilyStore;
+        ItemExtendedCostContainer ItemExtendedCostStore;
         ItemLimitCategoryContainer ItemLimitCategoryStore;
         ItemRandomPropertiesContainer ItemRandomPropertiesStore;
         ItemRandomSuffixContainer ItemRandomSuffixStore;
@@ -439,6 +438,8 @@ class DBCMgr
         LiquidTypeContainer LiquidTypeStore;
         LockContainer LockStore;
         MailTemplateContainer MailTemplateStore;
+        MapContainer MapStore;
+        MapDifficultyContainer MapDifficultyStore;
         MovieContainer MovieStore;
         OverrideSpellDataContainer OverrideSpellDataStore;
         PowerDisplayContainer PowerDisplayStore;
@@ -456,6 +457,7 @@ class DBCMgr
         SoundEntriesContainer SoundEntriesStore;
         SpellCastTimesContainer SpellCastTimesStore;
         SpellCategoryContainer SpellCategoryStore;
+        SpellDifficultyContainer SpellDifficultyStore;
         SpellDurationContainer SpellDurationStore;
         SpellFocusObjectContainer SpellFocusObjectStore;
         SpellItemEnchantmentContainer SpellItemEnchantmentStore;
@@ -466,6 +468,7 @@ class DBCMgr
         SpellShapeshiftContainer SpellShapeshiftStore;
         StableSlotPricesContainer StableSlotPricesStore;
         SummonPropertiesContainer SummonPropertiesStore;
+        TalentContainer TalentStore;
         TalentTabContainer TalentTabStore;
         TaxiNodesContainer TaxiNodesStore;
         TaxiPathContainer TaxiPathStore;
