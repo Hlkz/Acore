@@ -20,7 +20,6 @@
 #include "ReputationMgr.h"
 #include "DBCStores.h"
 #include "Player.h"
-#include "Chat.h"
 #include "WorldPacket.h"
 #include "World.h"
 #include "ObjectMgr.h"
@@ -286,9 +285,9 @@ void ReputationMgr::Initialize()
     _exaltedFactionCount = 0;
     _sendFactionIncreased = false;
 
-    for (unsigned int i = 1; i < sDBCMgr->FactionStore.size(); i++)
+    for (FactionContainer::const_iterator itr = sDBCMgr->FactionStore.begin(); itr != sDBCMgr->FactionStore.end(); ++itr)
     {
-        FactionEntry const* factionEntry = sDBCMgr->GetFactionEntry(i);
+        FactionEntry const* factionEntry = itr->second;
 
         if (factionEntry && (factionEntry->reputationListID >= 0))
         {
@@ -388,9 +387,12 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
     {
         int32 BaseRep = GetBaseReputation(factionEntry);
 
-        int32 before = itr->second.Standing + BaseRep;
         if (incremental)
-            standing += before;
+        {
+            // int32 *= float cause one point loss?
+            standing = int32(floor((float)standing /* * sWorld->getRate(RATE_REPUTATION_GAIN) */ + 0.5f));
+            standing += itr->second.Standing + BaseRep;
+        }
 
         if (standing > Reputation_Cap)
             standing = Reputation_Cap;
@@ -420,23 +422,6 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
         _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_EXALTED_REPUTATION, factionEntry->ID);
         _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_REVERED_REPUTATION, factionEntry->ID);
         _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GAIN_HONORED_REPUTATION, factionEntry->ID);
-
-        /*if ((factionEntry->ID == FACTION_STORMWIND || factionEntry->ID == FACTION_ORGRIMMAR) && (before?before/abs(before):1) != (standing?standing/abs(standing):1))
-        {
-            _player->UpdateTriggerVisibility();
-            if (uint32 newteam = _player->CanSwitchTeam()) // switch faction !
-            {
-                std::string subject = _player->GetSession()->GetTrinityString(17927+2*(newteam==HORDE));
-                std::string text = _player->GetSession()->GetTrinityString(17928+2*(newteam==HORDE));
-                MailDraft draft(subject, text);
-
-                SQLTransaction trans = CharacterDatabase.BeginTransaction();
-
-                draft.SendMailTo(trans, _player, MailSender(MAIL_CREATURE, newteam==ALLIANCE?29611:4949));
-                CharacterDatabase.CommitTransaction(trans);
-                ChatHandler(_player->GetSession()).PSendSysMessage(17938);
-            }
-        }*/
 
         return true;
     }

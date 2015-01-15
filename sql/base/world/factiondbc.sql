@@ -24,7 +24,7 @@ DROP TABLE IF EXISTS `factiondbc`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `factiondbc` (
   `Id` int(10) NOT NULL DEFAULT '0',
-  `ReputationListId` int(10) NOT NULL DEFAULT '0',
+  `ReputationListId` int(3) NOT NULL DEFAULT '-1' COMMENT 'Between -1 and 127',
   `BaseRepRaceMask1` int(10) NOT NULL DEFAULT '0',
   `BaseRepRaceMask2` int(10) NOT NULL DEFAULT '0',
   `BaseRepRaceMask3` int(10) NOT NULL DEFAULT '0',
@@ -42,14 +42,14 @@ CREATE TABLE `factiondbc` (
   `ReputationFlags3` int(10) NOT NULL DEFAULT '0',
   `ReputationFlags4` int(10) NOT NULL DEFAULT '0',
   `Team` int(10) NOT NULL DEFAULT '0',
-  `SpilloverRateIn` float NOT NULL DEFAULT '0',
-  `SpilloverRateOut` float NOT NULL DEFAULT '0',
-  `SpilloverMaxRankIn` int(10) NOT NULL DEFAULT '0',
-  `SpilloverRankUnk` int(10) NOT NULL DEFAULT '0',
+  `SpilloverRateIn` float NOT NULL DEFAULT '1',
+  `SpilloverRateOut` float NOT NULL DEFAULT '1',
+  `SpilloverMaxRankIn` int(10) NOT NULL DEFAULT '5',
+  `SpilloverRankUnk` int(10) NOT NULL DEFAULT '5',
   `Name` varchar(300) NOT NULL DEFAULT '',
   `Name_loc2` varchar(300) NOT NULL DEFAULT '',
-  `Description` varchar(500) NOT NULL DEFAULT '',
-  `Description_loc2` varchar(500) NOT NULL DEFAULT '',
+  `Description` varchar(512) NOT NULL DEFAULT '',
+  `Description_loc2` varchar(512) NOT NULL DEFAULT '',
   PRIMARY KEY (`Id`),
   UNIQUE KEY `Id` (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='';
