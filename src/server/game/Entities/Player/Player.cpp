@@ -37,6 +37,7 @@
 #include "CreatureAI.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
+#include "FactionMgr.h"
 #include "Formulas.h"
 #include "GameEventMgr.h"
 #include "GameObjectAI.h"
@@ -26363,6 +26364,12 @@ Guild* Player::GetGuild()
 {
     uint32 guildId = GetGuildId();
     return guildId ? sGuildMgr->GetGuildById(guildId) : NULL;
+}
+
+Faction* Player::GetSovereign()
+{
+    uint32 sovereignId = GetSovereignId();
+    return sovereignId ? sFactionMgr->GetFactionById(sovereignId) : NULL;
 }
 
 Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 duration)

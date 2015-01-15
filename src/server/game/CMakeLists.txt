@@ -23,6 +23,7 @@ file(GLOB_RECURSE sources_DataStores DataStores/*.cpp DataStores/*.h)
 file(GLOB_RECURSE sources_DungeonFinding DungeonFinding/*.cpp DungeonFinding/*.h)
 file(GLOB_RECURSE sources_Entities Entities/*.cpp Entities/*.h)
 file(GLOB_RECURSE sources_Events Events/*.cpp Events/*.h)
+file(GLOB_RECURSE sources_Factions Factions/*.cpp Factions/*.h)
 file(GLOB_RECURSE sources_Globals Globals/*.cpp Globals/*.h)
 file(GLOB_RECURSE sources_Grids Grids/*.cpp Grids/*.h)
 file(GLOB_RECURSE sources_Groups Groups/*.cpp Groups/*.h)
@@ -34,7 +35,7 @@ file(GLOB_RECURSE sources_Mails Mails/*.cpp Mails/*.h)
 file(GLOB_RECURSE sources_Maps Maps/*.cpp Maps/*.h)
 file(GLOB_RECURSE sources_Miscellaneous Miscellaneous/*.cpp Miscellaneous/*.h)
 file(GLOB_RECURSE sources_Movement Movement/*.cpp Movement/*.h)
-file(GLOB_RECURSE sources_Node Node/*.cpp Node/*.h)
+file(GLOB_RECURSE sources_Nodes Nodes/*.cpp Nodes/*.h)
 file(GLOB_RECURSE sources_OutdoorPvP OutdoorPvP/*.cpp OutdoorPvP/*.h)
 file(GLOB_RECURSE sources_Pools Pools/*.cpp Pools/*.h)
 file(GLOB_RECURSE sources_Quests Quests/*.cpp Quests/*.h)
@@ -74,6 +75,7 @@ set(game_STAT_SRCS
   ${sources_DungeonFinding}
   ${sources_Entities}
   ${sources_Events}
+  ${sources_Factions}
   ${sources_Globals}
   ${sources_Grids}
   ${sources_Groups}
@@ -85,7 +87,7 @@ set(game_STAT_SRCS
   ${sources_Maps}
   ${sources_Miscellaneous}
   ${sources_Movement}
-  ${sources_Node}
+  ${sources_Nodes}
   ${sources_OutdoorPvP}
   ${sources_Pools}
   ${sources_Quests}
@@ -162,6 +164,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities/Vehicle
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities/Transport
   ${CMAKE_CURRENT_SOURCE_DIR}/Events
+  ${CMAKE_CURRENT_SOURCE_DIR}/Factions
   ${CMAKE_CURRENT_SOURCE_DIR}/Globals
   ${CMAKE_CURRENT_SOURCE_DIR}/Grids/Cells
   ${CMAKE_CURRENT_SOURCE_DIR}/Grids/Notifiers
@@ -178,7 +181,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Movement/Spline
   ${CMAKE_CURRENT_SOURCE_DIR}/Movement/MovementGenerators
   ${CMAKE_CURRENT_SOURCE_DIR}/Movement/Waypoints
-  ${CMAKE_CURRENT_SOURCE_DIR}/Node
+  ${CMAKE_CURRENT_SOURCE_DIR}/Nodes
   ${CMAKE_CURRENT_SOURCE_DIR}/OutdoorPvP
   ${CMAKE_CURRENT_SOURCE_DIR}/Pools
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders

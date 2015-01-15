@@ -12,7 +12,7 @@ enum NodeTimeIntervals
     NODE_WAVE_INVERVAL = 10000      // ms
 };
 
-enum NodeType
+enum NodeTypeTypeTypeType
 {
     NODE_DETACHED       = 0,
     NODE_PEDESTRIAN     = 1

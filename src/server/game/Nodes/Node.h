@@ -2,6 +2,43 @@
 #ifndef __NODE_H
 #define __NODE_H
 
+enum NodeType
+{
+    NODE_POINT = 0,
+    NODE_CAMP = 1,
+    NODE_TOWN = 2, // Razor Hill
+    NODE_CITY = 3,
+    NODE_CAPITAL = 4, // Orgrimmar/Theramore etc.
+};
+
+enum NodeStatus
+{
+    NODE_AT_PEACE, // Guild | Faction | FactionGuild
+    NODE_OCCUPIED, // Guild | Faction | FactionGuild
+    NODE_AT_WAR,   // vs FactionEnnemies
+    NODE_CONTESTED
+};
+
+enum NodeLeadType
+{
+    NODE_LEAD_NONE,                 // No leader
+    NODE_LEAD_MONSTER,              // Non-faction monsters (kobold)
+    NODE_LEAD_FACTION,              // Faction (kapitalrisk)
+    NODE_LEAD_GUILD,                // Guild
+    NODE_LEAD_GUILD_IN_FACTION,     // Guild rules for Faction (RazorHill belongs to Orgrimmar but som
+    NODE_LEAD_PLAYER,               // Player
+    NODE_LEAD_PLAYER_IN_FACTION,    // Player rules for Faction (RazorHill belongs to Orgrimmar but som
+    NODE_LEAD_FACTION_IN_GUILD
+};
+
+enum NodeLeading
+{
+    NODE_LEADING_WORLD,         // Server rules (Soldiers+Civilians in lead faction)
+    NODE_LEADING_CHARACTER,     // Character rules (idem)
+    NODE_LEADING_OCCUPATION,    // Only Soldiers in lead faction
+    NODE_LEADING_NONE           // No leader, contested node?
+};
+
 class Node;
 struct NodeRelation
 {
@@ -27,7 +64,10 @@ class Node
         uint32 GetTeam() { return m_Team; }
         void SetBase(Creature* base) { m_Base = base; }
         Creature* GetBase() { return m_Base; }
-        
+
+        void AttackNode(Node* node);
+        void StopAttackNode(Node* node);
+
         typedef std::map<uint64, Creature*> CommanderMap;
         void AddCommander(Creature* commander) { m_Commanders[commander->GetGUID()] = commander; }
         void RemoveCommander(uint64 guid) { CommanderMap::iterator itr = m_Commanders.find(guid); if (itr != m_Commanders.end()) { delete itr->second; m_Commanders.erase(itr); } }

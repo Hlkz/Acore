@@ -44,6 +44,7 @@ class Channel;
 class CharacterCreateInfo;
 class Creature;
 class DynamicObject;
+class Faction;
 class Group;
 class Guild;
 class OutdoorPvP;
@@ -1847,6 +1848,10 @@ class Player : public Unit, public GridObject<Player>
         static uint8 GetRankFromDB(ObjectGuid guid);
         int GetGuildIdInvited() { return m_GuildIdInvited; }
         static void RemovePetitionsAndSigns(ObjectGuid guid, uint32 type);
+        uint32 GetOwnerType() const { return m_AllegianceType; }
+        uint32 GetSovereignId() const { return m_SovereignId; }
+        Faction* GetSovereign();
+        ObjectGuid GetSuzerainGuid() { return m_SuzerainGuid; }
 
         // Arena Team
         void SetInArenaTeam(uint32 ArenaTeamId, uint8 slot, uint8 type);
@@ -2850,6 +2855,11 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_VendorEntry;
 
         bool m_spectator; // sets to true when player uses '.spectate' command
+
+        // Feudalism
+        uint32 m_AllegianceType; // 0 none, 1 faction, 2 player
+        uint32 m_SovereignId;
+        ObjectGuid m_SuzerainGuid;
 
         //Ranks
         uint32 m_PvpRank;

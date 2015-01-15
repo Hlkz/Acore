@@ -1597,8 +1597,12 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Starting BattleAO System");
     sBattleAOMgr->InitBattleAO();
 
+    ///- Initialize Factions
+    //TC_LOG_INFO("server.loading", "Starting Faction System");
+    //sFactionMgr->InitFactions();
+
     ///- Initialize Nodes
-    TC_LOG_INFO("server.loading", "Starting BattleAO System");
+    TC_LOG_INFO("server.loading", "Starting Node System");
     sNodeMgr->InitNodes();
 
     ///- Initialize Transports
