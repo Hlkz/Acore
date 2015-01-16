@@ -3542,7 +3542,7 @@ void DBCMgr::LoadTransportRotationStore()
     uint32 oldMSTime = getMSTime();
     TransportRotationStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT Id, TransportEntry, TimeSeg, X, Y, Z, W FROM transportRotationdbc");
+    QueryResult result = WorldDatabase.Query("SELECT Id, TransportEntry, TimeSeg, X, Y, Z, W FROM transportrotationdbc");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 TransportRotation entry. DB table `TransportRotation dbc` is empty.");
