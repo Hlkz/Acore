@@ -36,7 +36,7 @@
 Transport::Transport() : GameObject(),
     _transportInfo(NULL), _isMoving(true), _pendingStop(false),
     _triggeredArrivalEvent(false), _triggeredDepartureEvent(false),
-    _passengerTeleportItr(_passengers.begin())
+    _passengerTeleportItr(_passengers.begin()), _delayedAddModel(false)
 {
     m_updateFlag = UPDATEFLAG_TRANSPORT | UPDATEFLAG_LOWGUID | UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_ROTATION;
 }
@@ -97,6 +97,8 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
     SetGoAnimProgress(animprogress);
     SetName(goinfo->name);
     UpdateRotationFields(0.0f, 1.0f);
+
+    m_model = GameObjectModel::Create(*this);
     return true;
 }
 
@@ -185,6 +187,14 @@ void Transport::Update(uint32 diff)
                 return; // Update more in new map thread
     }
 
+    // Add model to map after we are fully done with moving maps
+    if (_delayedAddModel)
+    {
+        _delayedAddModel = false;
+        if (m_model)
+            GetMap()->InsertGameObjectModel(*m_model);
+    }
+
     // Set position
     _positionChangeTimer.Update(diff);
     if (_positionChangeTimer.Passed())
@@ -206,8 +216,14 @@ void Transport::Update(uint32 diff)
               3. transport moves from active to inactive grid
               4. the grid that transport is currently in unloads
             */
-            if (_staticPassengers.empty() && GetMap()->IsGridLoaded(GetPositionX(), GetPositionY())) // 2.
+            bool gridActive = GetMap()->IsGridLoaded(GetPositionX(), GetPositionY());
+
+            if (_staticPassengers.empty() && gridActive) // 2.
                 LoadStaticPassengers();
+            else if (!_staticPassengers.empty() && !gridActive)
+                // 4. - if transports stopped on grid edge, some passengers can remain in active grids
+                //      unload all static passengers otherwise passengers won't load correctly when the grid that transport is currently in becomes active
+                UnloadStaticPassengers();
         }
     }
 
@@ -292,7 +308,7 @@ Creature* Transport::CreateNPCPassenger(uint32 guid, CreatureData const* data)
 
     if (!creature->IsPositionValid())
     {
-        TC_LOG_ERROR("entities.transport", "Creature (guidlow %d, entry %d) not created. Suggested coordinates aren't valid (X: %f Y: %f)", creature->GetGUIDLow(), creature->GetEntry(), creature->GetPositionX(), creature->GetPositionY());
+        TC_LOG_ERROR("entities.transport", "Creature (guidlow %d, entry %d) not created. Suggested coordinates aren't valid (X: %f Y: %f)",creature->GetGUIDLow(),creature->GetEntry(),creature->GetPositionX(),creature->GetPositionY());
         delete creature;
         return NULL;
     }
@@ -468,8 +484,10 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
 void Transport::UpdatePosition(float x, float y, float z, float o)
 {
     bool newActive = GetMap()->IsGridLoaded(x, y);
+    Cell oldCell(GetPositionX(), GetPositionY());
 
     Relocate(x, y, z, o);
+    UpdateModelPosition();
 
     UpdatePassengerPositions(_passengers);
 
@@ -481,7 +499,7 @@ void Transport::UpdatePosition(float x, float y, float z, float o)
     */
     if (_staticPassengers.empty() && newActive) // 1.
         LoadStaticPassengers();
-    else if (!_staticPassengers.empty() && !newActive && Cell(x, y).DiffGrid(Cell(GetPositionX(), GetPositionY()))) // 3.
+    else if (!_staticPassengers.empty() && !newActive && oldCell.DiffGrid(Cell(GetPositionX(), GetPositionY()))) // 3.
         UnloadStaticPassengers();
     else
         UpdatePassengerPositions(_staticPassengers);

@@ -178,7 +178,7 @@ typedef std::unordered_map<uint32, const TaxiPathEntry*> TaxiPathContainer;
 typedef std::unordered_map<uint32, const TaxiPathNodeEntry*> TaxiPathNodeContainer;
 typedef std::unordered_map<uint32, const TeamContributionPointsEntry*> TeamContributionPointsContainer;
 typedef std::unordered_map<uint32, const TotemCategoryEntry*> TotemCategoryContainer;
-typedef std::unordered_map<uint32, const TransportAnimationEntry*> TransportAnimationContainer;
+typedef std::unordered_map<uint32, const TransportAnimationEntry*> TransportAnimationEntryContainer;
 typedef std::unordered_map<uint32, const TransportRotationEntry*> TransportRotationContainer;
 typedef std::unordered_map<uint32, const VehicleEntry*> VehicleContainer;
 typedef std::unordered_map<uint32, const VehicleSeatEntry*> VehicleSeatContainer;
@@ -377,7 +377,7 @@ class DBCMgr
         const TaxiPathNodeEntry* GetTaxiPathNodeEntry(uint32 Id) const { TaxiPathNodeContainer::const_iterator itr = TaxiPathNodeStore.find(Id); if (itr != TaxiPathNodeStore.end()) return itr->second; return NULL; }
         const TeamContributionPointsEntry* GetTeamContributionPointsEntry(uint32 Id) const { TeamContributionPointsContainer::const_iterator itr = TeamContributionPointsStore.find(Id); if (itr != TeamContributionPointsStore.end()) return itr->second; return NULL; }
         const TotemCategoryEntry* GetTotemCategoryEntry(uint32 Id) const { TotemCategoryContainer::const_iterator itr = TotemCategoryStore.find(Id); if (itr != TotemCategoryStore.end()) return itr->second; return NULL; }
-        const TransportAnimationEntry* GetTransportAnimationEntry(uint32 Id) const { TransportAnimationContainer::const_iterator itr = TransportAnimationStore.find(Id); if (itr != TransportAnimationStore.end()) return itr->second; return NULL; }
+        const TransportAnimationEntry* GetTransportAnimationEntry(uint32 Id) const { TransportAnimationEntryContainer::const_iterator itr = TransportAnimationStore.find(Id); if (itr != TransportAnimationStore.end()) return itr->second; return NULL; }
         const TransportRotationEntry* GetTransportRotationEntry(uint32 Id) const { TransportRotationContainer::const_iterator itr = TransportRotationStore.find(Id); if (itr != TransportRotationStore.end()) return itr->second; return NULL; }
         const VehicleEntry* GetVehicleEntry(uint32 Id) const { VehicleContainer::const_iterator itr = VehicleStore.find(Id); if (itr != VehicleStore.end()) return itr->second; return NULL; }
         const VehicleSeatEntry* GetVehicleSeatEntry(uint32 Id) const { VehicleSeatContainer::const_iterator itr = VehicleSeatStore.find(Id); if (itr != VehicleSeatStore.end()) return itr->second; return NULL; }
@@ -472,7 +472,7 @@ class DBCMgr
         TaxiPathNodeContainer TaxiPathNodeStore;
         TeamContributionPointsContainer TeamContributionPointsStore;
         TotemCategoryContainer TotemCategoryStore;
-        TransportAnimationContainer TransportAnimationStore;
+        TransportAnimationEntryContainer TransportAnimationStore;
         TransportRotationContainer TransportRotationStore;
         VehicleContainer VehicleStore;
         VehicleSeatContainer VehicleSeatStore;

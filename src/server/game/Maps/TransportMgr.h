@@ -93,7 +93,7 @@ struct TransportAnimation
     G3D::Quat GetAnimRotation(uint32 time) const;
 };
 
-typedef std::map<uint32, TransportAnimation> TransportAnimContainer;
+typedef std::map<uint32, TransportAnimation> TransportAnimationContainer;
 
 class TransportMgr
 {
@@ -102,8 +102,8 @@ class TransportMgr
     public:
         static TransportMgr* instance()
         {
-            static TransportMgr* instance = new TransportMgr();
-            return instance;
+            static TransportMgr instance;
+            return &instance;
         }
 
         void Unload();
@@ -129,7 +129,7 @@ class TransportMgr
 
         TransportAnimation const* GetTransportAnimInfo(uint32 entry) const
         {
-            TransportAnimContainer::const_iterator itr = _transportAnimations.find(entry);
+            TransportAnimationContainer::const_iterator itr = _transportAnimations.find(entry);
             if (itr != _transportAnimations.end())
                 return &itr->second;
 
@@ -158,7 +158,7 @@ class TransportMgr
         // Container storing transport entries to create for instanced maps
         TransportInstanceMap _instanceTransports;
 
-        TransportAnimContainer _transportAnimations;
+        TransportAnimationContainer _transportAnimations;
 };
 
 #define sTransportMgr TransportMgr::instance()

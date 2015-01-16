@@ -335,7 +335,7 @@ void LoadDBCStores(const std::string& dataPath)
     sDBCMgr->LoadTeamContributionPointsStore();
     sDBCMgr->LoadTotemCategoryStore();
     sDBCMgr->LoadTransportAnimationStore();
-    for (TransportAnimationContainer::const_iterator itr = sDBCMgr->TransportAnimationStore.begin(); itr != sDBCMgr->TransportAnimationStore.end(); ++itr)
+    for (TransportAnimationEntryContainer::const_iterator itr = sDBCMgr->TransportAnimationStore.begin(); itr != sDBCMgr->TransportAnimationStore.end(); ++itr)
         if (TransportAnimationEntry const* anim = itr->second)
             sTransportMgr->AddPathNodeToTransport(anim->TransportEntry, anim->TimeSeg, anim);
     sDBCMgr->LoadTransportRotationStore();

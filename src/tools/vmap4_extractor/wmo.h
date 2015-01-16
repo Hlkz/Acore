@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef WMO_H
 #define WMO_H
 #define TILESIZE (533.33333f)
@@ -34,12 +52,10 @@ public:
     float bbcorn1[3];
     float bbcorn2[3];
 
-    WMORoot(std::string &filename);
-    ~WMORoot();
+    WMORoot(std::string& filename);
 
     bool open();
-    bool ConvertToVMAPRootWmo(FILE *output);
-    char outfilename;
+    bool ConvertToVMAPRootWmo(FILE* output);
 };
 
 struct WMOLiquidHeader
@@ -88,18 +104,17 @@ public:
     uint16 nBatchB;
     uint32 nBatchC, fogIdx, liquidType, groupWMOID;
 
-    int mopy_size,moba_size;
+    int mopy_size, moba_size;
     int LiquEx_size;
     unsigned int nVertices; // number when loaded
     int nTriangles; // number when loaded
     uint32 liquflags;
 
-    WMOGroup(std::string &filename);
+    WMOGroup(std::string const& filename);
     ~WMOGroup();
 
     bool open();
-    int ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool pPreciseVectorData);
-    char outfilename;
+    int ConvertToVMAPGroupWmo(FILE* output, WMORoot* rootWMO, bool preciseVectorData);
 };
 
 class WMOInstance
@@ -109,13 +124,13 @@ public:
     std::string MapName;
     int currx;
     int curry;
-    WMOGroup *wmo;
+    WMOGroup* wmo;
     int doodadset;
     Vec3D pos;
     Vec3D pos2, pos3, rot;
-    uint32 indx,id, d2, d3;
+    uint32 indx, id, d2, d3;
 
-    WMOInstance(MPQFile &f,const char* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE *pDirfile);
+    WMOInstance(MPQFile&f , char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile);
 
     static void reset();
 };

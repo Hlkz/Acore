@@ -1196,7 +1196,7 @@ bool Creature::LoadCreatureFromDB(uint32 guid, Map* map, bool addToMap)
         m_deathState = DEAD;
         if (CanFly())
         {
-            float tz = map->GetHeight(data->posX, data->posY, data->posZ, false);
+            float tz = map->GetHeight(GetPhaseMask(), data->posX, data->posY, data->posZ, false);
             if (data->posZ - tz > 0.1f)
                 Relocate(data->posX, data->posY, tz);
         }
@@ -1455,7 +1455,7 @@ void Creature::setDeathState(DeathState s)
 
         CreatureTemplate const* cinfo = GetCreatureTemplate();
         SetUInt32Value(UNIT_NPC_FLAGS, cinfo->npcflag);
-        ClearUnitState(uint32(UNIT_STATE_ALL_STATE));
+        ClearUnitState(uint32(UNIT_STATE_ALL_STATE & ~UNIT_STATE_IGNORE_PATHFINDING));
         SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
         LoadCreaturesAddon(true);
         Motion_Initialize();

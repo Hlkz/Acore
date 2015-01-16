@@ -20,6 +20,8 @@
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "CreatureAISelector.h"
+#include "DynamicTree.h"
+#include "GameObjectModel.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "GroupMgr.h"
@@ -34,7 +36,7 @@
 #include <G3D/Quat.h>
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
-    m_goValue(), m_AI(NULL)
+    m_model(NULL), m_goValue(), m_AI(NULL)
 {
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
@@ -67,6 +69,7 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
 GameObject::~GameObject()
 {
     delete m_AI;
+    delete m_model;
     //if (m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
     //    CleanupsBeforeDelete();
 }
@@ -130,7 +133,15 @@ void GameObject::AddToWorld()
 
         // The state can be changed after GameObject::Create but before GameObject::AddToWorld
         bool toggledState = GetGoType() == GAMEOBJECT_TYPE_CHEST ? getLootState() == GO_READY : (GetGoState() == GO_STATE_READY || IsTransport());
+        if (m_model)
+        {
+            if (Transport* trans = ToTransport())
+                trans->SetDelayedAddModelToMap();
+            else
+                GetMap()->InsertGameObjectModel(*m_model);
+        }
 
+        EnableCollision(toggledState);
         WorldObject::AddToWorld();
     }
 }
@@ -144,6 +155,9 @@ void GameObject::RemoveFromWorld()
             m_zoneScript->OnGameObjectRemove(this);
 
         RemoveFromOwner();
+        if (m_model)
+            if (GetMap()->ContainsGameObjectModel(*m_model))
+                GetMap()->RemoveGameObjectModel(*m_model);
         WorldObject::RemoveFromWorld();
         sObjectAccessor->RemoveObject(this);
     }
@@ -209,6 +223,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
 
     SetDisplayId(goinfo->displayId);
 
+    m_model = GameObjectModel::Create(*this);
     // GAMEOBJECT_BYTES_1, index at 0, 1, 2 and 3
     SetGoType(GameobjectTypes(goinfo->type));
     SetGoState(go_state);
@@ -499,7 +514,7 @@ void GameObject::Update(uint32 diff)
             {
                 case GAMEOBJECT_TYPE_DOOR:
                 case GAMEOBJECT_TYPE_BUTTON:
-                    if (GetGOInfo()->GetAutoCloseTime() && (m_cooldownTime < time(NULL)))
+                    if (m_cooldownTime && (m_cooldownTime < time(NULL)))
                         ResetDoorOrButton();
                     break;
                 case GAMEOBJECT_TYPE_GOOBER:
@@ -1943,6 +1958,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
                 m_goValue.Building.Health = m_goValue.Building.MaxHealth;
                 SetGoAnimProgress(255);
             }
+            EnableCollision(true);
             break;
         case GO_DESTRUCTIBLE_DAMAGED:
         {
@@ -1991,6 +2007,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
                 m_goValue.Building.Health = 0;
                 SetGoAnimProgress(0);
             }
+            EnableCollision(false);
             break;
         }
         case GO_DESTRUCTIBLE_REBUILDING:
@@ -2010,6 +2027,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
                 m_goValue.Building.Health = m_goValue.Building.MaxHealth;
                 SetGoAnimProgress(255);
             }
+            EnableCollision(true);
             break;
         }
     }
@@ -2029,17 +2047,70 @@ void GameObject::SetLootState(LootState state, Unit* unit)
     if (GetGoType() == GAMEOBJECT_TYPE_DOOR) // only set collision for doors on SetGoState
         return;
 
+    if (m_model)
+    {
+        bool collision = false;
+        // Use the current go state
+        if ((GetGoState() != GO_STATE_READY && (state == GO_ACTIVATED || state == GO_JUST_DEACTIVATED)) || state == GO_READY)
+            collision = !collision;
+
+        EnableCollision(collision);
+    }
 }
 
 void GameObject::SetGoState(GOState state)
 {
     SetByteValue(GAMEOBJECT_BYTES_1, 0, state);
     sScriptMgr->OnGameObjectStateChanged(this, state);
+    if (m_model && !IsTransport())
+    {
+        if (!IsInWorld())
+            return;
+
+        // startOpen determines whether we are going to add or remove the LoS on activation
+        bool collision = false;
+        if (state == GO_STATE_READY)
+            collision = !collision;
+
+        EnableCollision(collision);
+    }
 }
 
 void GameObject::SetDisplayId(uint32 displayid)
 {
     SetUInt32Value(GAMEOBJECT_DISPLAYID, displayid);
+    UpdateModel();
+}
+
+void GameObject::SetPhaseMask(uint32 newPhaseMask, bool update)
+{
+    WorldObject::SetPhaseMask(newPhaseMask, update);
+    if (m_model && m_model->isEnabled())
+        EnableCollision(true);
+}
+
+void GameObject::EnableCollision(bool enable)
+{
+    if (!m_model)
+        return;
+
+    /*if (enable && !GetMap()->ContainsGameObjectModel(*m_model))
+        GetMap()->InsertGameObjectModel(*m_model);*/
+
+    m_model->enable(enable ? GetPhaseMask() : 0);
+}
+
+void GameObject::UpdateModel()
+{
+    if (!IsInWorld())
+        return;
+    if (m_model)
+        if (GetMap()->ContainsGameObjectModel(*m_model))
+            GetMap()->RemoveGameObjectModel(*m_model);
+    delete m_model;
+    m_model = GameObjectModel::Create(*this);
+    if (m_model)
+        GetMap()->InsertGameObjectModel(*m_model);
 }
 
 Player* GameObject::GetLootRecipient() const
@@ -2211,5 +2282,18 @@ float GameObject::GetInteractionDistance()
             return 20.0f + CONTACT_DISTANCE; // max spell range
         default:
             return INTERACTION_DISTANCE;
+    }
+}
+
+void GameObject::UpdateModelPosition()
+{
+    if (!m_model)
+        return;
+
+    if (GetMap()->ContainsGameObjectModel(*m_model))
+    {
+        GetMap()->RemoveGameObjectModel(*m_model);
+        m_model->Relocate(*this);
+        GetMap()->InsertGameObjectModel(*m_model);
     }
 }

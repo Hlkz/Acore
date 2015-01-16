@@ -1,5 +1,5 @@
 # Copyright (C) 2005-2009 MaNGOS project <http://getmangos.com/>
-# Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -24,16 +24,16 @@ endif()
 
 include_directories(${include_Dirs})
 
-add_executable(vmap3extractor ${sources})
+add_executable(vmap4extractor ${sources})
 
-target_link_libraries(vmap3extractor
+target_link_libraries(vmap4extractor
   mpq
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
 )
 
 if( UNIX )
-  install(TARGETS vmap3extractor DESTINATION bin)
+  install(TARGETS vmap4extractor DESTINATION bin)
 elseif( WIN32 )
-  install(TARGETS vmap3extractor DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  install(TARGETS vmap4extractor DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()

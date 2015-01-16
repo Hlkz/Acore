@@ -21,6 +21,7 @@
 #include "MMapFactory.h"
 #include "CellImpl.h"
 #include "DisableMgr.h"
+#include "DynamicTree.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "GridStates.h"
@@ -455,6 +456,7 @@ bool Map::EnsureGridLoaded(const Cell &cell)
 
         // Add resurrectable corpses to world object list in grid
         sObjectAccessor->AddCorpsesToGrid(GridCoord(cell.GridX(), cell.GridY()), grid->GetGridType(cell.CellX(), cell.CellY()), this);
+        Balance();
         return true;
     }
 
@@ -627,6 +629,7 @@ void Map::VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<Trinity::Obj
 
 void Map::Update(const uint32 t_diff)
 {
+    _dynamicTree.update(t_diff);
     /// update worldsessions for existing players
     for (m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
     {
@@ -964,6 +967,7 @@ void Map::GameObjectRelocation(GameObject* go, float x, float y, float z, float 
     else
     {
         go->Relocate(x, y, z, orientation);
+        go->UpdateModelPosition();
         go->UpdateObjectVisibility(false);
         RemoveGameObjectFromMoveList(go);
     }
@@ -1142,6 +1146,7 @@ void Map::MoveAllGameObjectsInMoveList()
         {
             // update pos
             go->Relocate(go->_newPosition);
+            go->UpdateModelPosition();
             go->UpdateObjectVisibility(false);
         }
         else
@@ -1552,11 +1557,8 @@ void Map::UnloadAll()
         Transport* transport = *itr;
         ++itr;
 
-        transport->RemoveFromWorld();
-        delete transport;
+        RemoveFromMap<Transport>(transport, true);
     }
-
-    _transports.clear();
 }
 
 // *****************************
@@ -2134,7 +2136,7 @@ float Map::GetWaterOrGroundLevel(float x, float y, float z, float* ground /*= NU
     if (const_cast<Map*>(this)->GetGrid(x, y))
     {
         // we need ground level (including grid height version) for proper return water level in point
-        float ground_z = GetHeight(x, y, z, true, 50.0f);
+        float ground_z = GetHeight(PHASEMASK_NORMAL, x, y, z, true, 50.0f);
         if (ground)
             *ground = ground_z;
 
@@ -2419,6 +2421,31 @@ void Map::GetZoneAndAreaIdByAreaFlag(uint32& zoneid, uint32& areaid, uint16 area
     zoneid = entry ? ((entry->zone != 0) ? entry->zone : entry->ID) : 0;
 }
 
+bool Map::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask) const
+{
+    return VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(GetId(), x1, y1, z1, x2, y2, z2)
+        && _dynamicTree.isInLineOfSight(x1, y1, z1, x2, y2, z2, phasemask);
+}
+
+bool Map::getObjectHitPos(uint32 phasemask, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float modifyDist)
+{
+    G3D::Vector3 startPos(x1, y1, z1);
+    G3D::Vector3 dstPos(x2, y2, z2);
+
+    G3D::Vector3 resultPos;
+    bool result = _dynamicTree.getObjectHitPos(phasemask, startPos, dstPos, resultPos, modifyDist);
+
+    rx = resultPos.x;
+    ry = resultPos.y;
+    rz = resultPos.z;
+    return result;
+}
+
+float Map::GetHeight(uint32 phasemask, float x, float y, float z, bool vmap/*=true*/, float maxSearchDist/*=DEFAULT_HEIGHT_SEARCH*/) const
+{
+    return std::max<float>(GetHeight(x, y, z, vmap, maxSearchDist), _dynamicTree.getHeight(x, y, z, maxSearchDist, phasemask));
+}
+
 bool Map::IsInWater(float x, float y, float pZ, LiquidData* data) const
 {
     LiquidData liquid_status;
@@ -2625,24 +2652,27 @@ void Map::RemoveAllObjectsInRemoveList()
                     RemoveFromMap(corpse, true);
                 break;
             }
-        case TYPEID_DYNAMICOBJECT:
-            RemoveFromMap((DynamicObject*)obj, true);
-            break;
-        case TYPEID_GAMEOBJECT:
-            if (Transport* transport = obj->ToGameObject()->ToTransport())
-                RemoveFromMap(transport, true);
-            else
-                RemoveFromMap(obj->ToGameObject(), true);
-            break;
-        case TYPEID_UNIT:
-            // in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
-            // make sure that like sources auras/etc removed before destructor start
-            obj->ToCreature()->CleanupsBeforeDelete();
-            RemoveFromMap(obj->ToCreature(), true);
-            break;
-        default:
-            TC_LOG_ERROR("maps", "Non-grid object (TypeId: %u) is in grid object remove list, ignored.", obj->GetTypeId());
-            break;
+            case TYPEID_DYNAMICOBJECT:
+                RemoveFromMap(obj->ToDynObject(), true);
+                break;
+            case TYPEID_GAMEOBJECT:
+            {
+                GameObject* go = obj->ToGameObject();
+                if (Transport* transport = go->ToTransport())
+                    RemoveFromMap(transport, true);
+                else
+                    RemoveFromMap(go, true);
+                break;
+            }
+            case TYPEID_UNIT:
+                // in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
+                // make sure that like sources auras/etc removed before destructor start
+                obj->ToCreature()->CleanupsBeforeDelete();
+                RemoveFromMap(obj->ToCreature(), true);
+                break;
+            default:
+                TC_LOG_ERROR("maps", "Non-grid object (TypeId: %u) is in grid object remove list, ignored.", obj->GetTypeId());
+                break;
         }
 
         i_objectsToRemove.erase(itr);

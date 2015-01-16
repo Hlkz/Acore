@@ -723,6 +723,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_BYTES_1, 3, animprogress); }
         static void SetGoArtKit(uint8 artkit, GameObject* go, uint32 lowguid = 0);
 
+        void SetPhaseMask(uint32 newPhaseMask, bool update);
         void EnableCollision(bool enable);
 
         void Use(Unit* user);
@@ -823,6 +824,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         uint32 GetFaction() const { return GetUInt32Value(GAMEOBJECT_FACTION); }
         void SetFaction(uint32 faction) { SetUInt32Value(GAMEOBJECT_FACTION, faction); }
 
+        GameObjectModel* m_model;
         void GetRespawnPosition(float &x, float &y, float &z, float* ori = NULL) const;
 
         Transport* ToTransport() { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MO_TRANSPORT) return reinterpret_cast<Transport*>(this); else return NULL; }
