@@ -687,7 +687,7 @@ class World
         void AddPlayerToResurrectQueue(ObjectGuid npc_guid, ObjectGuid player_guid);
         void RemovePlayerFromResurrectQueue(ObjectGuid player_guid);
         void SendAreaSpiritHealerQueryOpcode(Player* player, ObjectGuid guid);
-        std::vector<ObjectGuid> GetShReviveQueue(ObjectGuid sh_guid) { return m_ReviveQueue[sh_guid]; }
+        GuidVector& GetShReviveQueue(ObjectGuid shGuid) { return m_ReviveQueue[shGuid]; }
 
     protected:
         void _UpdateGameTime();
