@@ -518,17 +518,17 @@ struct AchievementCriteriaEntry
 
 struct AreaTableEntry
 {
-    uint32  ID;                                             // 0
-    uint32  mapid;                                          // 1
-    uint32  zone;                                           // 2 if 0 then it's zone, else it's zone id of this area
-    uint32  exploreFlag;                                    // 3, main index
-    uint32  flags;                                          // 4, unknown value but 312 for all cities
+    uint32      ID;                                         // 0
+    uint32      mapid;                                      // 1
+    uint32      zone;                                       // 2 if 0 then it's zone, else it's zone id of this area
+    uint32      exploreFlag;                                // 3, main index
+    uint32      flags;                                      // 4, unknown value but 312 for all cities
                                                             // 5-9 unused
-    int32   area_level;                                     // 10
-    char*   area_name[16];                                  // 11-26
+    int32       area_level;                                 // 10
+    std::string area_name[16];                              // 11-26
                                                             // 27, string flags, unused
-    uint32  team;                                           // 28
-    uint32  LiquidTypeOverride[4];                          // 29-32 liquid override by type
+    uint32      team;                                       // 28
+    uint32      LiquidTypeOverride[4];                      // 29-32 liquid override by type
 
     // helpers
     bool IsSanctuary() const

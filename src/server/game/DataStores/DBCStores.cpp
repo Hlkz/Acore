@@ -1150,9 +1150,9 @@ void DBCMgr::LoadAreaTableStore()
         newAreaTable->flags         = fields[4].GetUInt32();
         newAreaTable->area_level    = fields[5].GetInt32();
         for (uint8 i = 0; i < 16; i++)
-            newAreaTable->area_name[i] = NULL;
-        newAreaTable->area_name[0]  = (char*)fields[6].GetCString();
-        newAreaTable->area_name[2]  = (char*)fields[7].GetCString();
+            newAreaTable->area_name[i] = "";
+        newAreaTable->area_name[0]  = fields[6].GetString();
+        newAreaTable->area_name[2]  = fields[7].GetString();
         newAreaTable->team          = fields[8].GetUInt32();
         for (uint8 i = 0; i < 4; i++)
             newAreaTable->LiquidTypeOverride[i] = fields[9 + i].GetInt32();
