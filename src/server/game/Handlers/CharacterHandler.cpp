@@ -502,7 +502,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
             if (result)
             {
-                uint32 team = Player::TeamForRace(createInfo->Race);
+                //uint32 team = Player::TeamForRace(createInfo->Race);
                 uint32 freeHeroicSlots = sWorld->getIntConfig(CONFIG_HEROIC_CHARACTERS_PER_REALM);
 
                 Field* field = result->Fetch();

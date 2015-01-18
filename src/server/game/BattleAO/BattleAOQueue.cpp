@@ -308,8 +308,6 @@ bool BAOQueueInviteEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
     if (!player)
         return true;
 
-    BattleAO* BAO = sBattleAOMgr->GetBattleAO();
-
     uint32 queueSlot = player->GetBattlegroundQueueIndex(BATTLEGROUND_QUEUE_AO);
     if (queueSlot < PLAYER_MAX_BATTLEGROUND_QUEUES)
     {
@@ -332,8 +330,6 @@ bool BAOQueueRemoveEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
     Player* player = ObjectAccessor::FindPlayer(m_PlayerGuid);
     if (!player)
         return true;
-
-    BattleAO* BAO = sBattleAOMgr->GetBattleAO();
 
     uint32 queueSlot = player->GetBattlegroundQueueIndex(BATTLEGROUND_QUEUE_AO);
     if (queueSlot < PLAYER_MAX_BATTLEGROUND_QUEUES)

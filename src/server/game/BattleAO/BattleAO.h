@@ -284,7 +284,8 @@ class BattleAO : public ZoneScript
                 // should this be ObjectAccessor::FindConnectedPlayer() to return players teleporting ?
                 player = ObjectAccessor::FindPlayer(guid);
                 if (!player)
-                    TC_LOG_ERROR("bg.battleao", "BattleAO: player (%s) not found!", guid.ToString().c_str()); }
+                    TC_LOG_ERROR("bg.battleao", "BattleAO::%s: player (%s) not found!",
+                    context, guid.ToString().c_str()); }
             return player; }
         Player* _GetPlayer(BattleAOPlayerMap::iterator itr, const char* context) { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime != 0, context); }
         Player* _GetPlayer(BattleAOPlayerMap::const_iterator itr, const char* context) const { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime != 0, context); }

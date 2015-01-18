@@ -116,7 +116,7 @@ void BattleAOMgr::BuildBattleAOStatusPacket(WorldPacket* data, uint8 QueueSlot, 
     }
 }
 
-void BattleAOMgr::BuildPvpLogDataPacket(WorldPacket* data)
+void BattleAOMgr::BuildPvpLogDataPacket(WorldPacket* /*data*/)
 {
 }
 
