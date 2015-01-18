@@ -649,13 +649,11 @@ struct CharStartOutfitEntry
 
 struct CharTitlesEntry
 {
-    uint32  ID;                                             // 0, title ids, for example in Quest::GetCharTitleId()
-    //uint32      unk1;                                     // 1 flags?
-    char*   nameMale[16];                                   // 2-17
-                                                            // 18 string flag, unused
-    char*   nameFemale[16];                                 // 19-34
-                                                            // 35 string flag, unused
-    uint32  bit_index;                                      // 36 used in PLAYER_CHOSEN_TITLE and 1<<index in PLAYER__FIELD_KNOWN_TITLES
+    uint32      ID;                                         // 0, title ids, for example in Quest::GetCharTitleId()
+    //uint32     unk1;                                      // 1 flags?
+    std::string nameMale[16];                               // 2-18
+    std::string nameFemale[16];                             // 19-35
+    uint32      bit_index;                                  // 36 used in PLAYER_CHOSEN_TITLE and 1<<index in PLAYER__FIELD_KNOWN_TITLES
 };
 
 struct ChatChannelsEntry
@@ -785,8 +783,7 @@ struct CreatureFamilyEntry
     uint32  petFoodMask;                                    // 7        m_petFoodMask
     int32   petTalentType;                                  // 8        m_petTalentType
                                                             // 9        m_categoryEnumID
-    char*   Name[16];                                       // 10-25    m_name_lang
-                                                            // 26 string flags
+    char*   Name[16];                                       // 10-26    m_name_lang
                                                             // 27       m_iconFile
 };
 
@@ -924,10 +921,8 @@ struct FactionEntry
     float       spilloverRateOut;                           // 20       Faction outputs rep * spilloverRateOut as spillover reputation
     uint32      spilloverMaxRankIn;                         // 21       The highest rank the faction will profit from incoming spillover
     //uint32    spilloverRank_unk;                          // 22       It does not seem to be the max standing at which a faction outputs spillover ...so no idea
-    std::string name[16];                                   // 23-38    m_name_lang
-                                                            // 39 string flags
-    //char*     description[16];                            // 40-55    m_description_lang
-                                                            // 56 string flags
+    std::string name[16];                                   // 23-39    m_name_lang
+    //std::string description[16];                            // 40-56    m_description_lang
 
     // helpers
     bool CanHaveReputation() const
@@ -1156,15 +1151,14 @@ struct ItemRandomSuffixEntry
 
 struct ItemSetEntry
 {
-    //uint32    id                                          // 0        m_ID
-    char*     name[16];                                     // 1-16     m_name_lang
-                                                            // 17 string flags, unused
-    uint32    itemId[MAX_ITEM_SET_ITEMS];                   // 18-27    m_itemID
-    //uint32    unknown[7];                                 // 28-34    unk, all 0
-    uint32    spells[MAX_ITEM_SET_SPELLS];                  // 35-42    m_setSpellID
-    uint32    items_to_triggerspell[MAX_ITEM_SET_SPELLS];   // 43-50    m_setThreshold
-    uint32    required_skill_id;                            // 51       m_requiredSkill
-    uint32    required_skill_value;                         // 52       m_requiredSkillRank
+    //uint32    id                                              // 0        m_ID
+    std::string name[16];                                       // 1-17     m_name_lang
+    uint32      itemId[MAX_ITEM_SET_ITEMS];                     // 18-27    m_itemID
+    //uint32     unknown[7];                                    // 28-34    unk, all 0
+    uint32      spells[MAX_ITEM_SET_SPELLS];                    // 35-42    m_setSpellID
+    uint32      items_to_triggerspell[MAX_ITEM_SET_SPELLS];     // 43-50    m_setThreshold
+    uint32      required_skill_id;                              // 51       m_requiredSkill
+    uint32      required_skill_value;                           // 52       m_requiredSkillRank
 };
 
 struct LFGDungeonEntry

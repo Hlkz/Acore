@@ -495,7 +495,7 @@ char* GetPetName(uint32 petfamily, uint32 dbclang)
     CreatureFamilyEntry const* pet_family = sDBCMgr->GetCreatureFamilyEntry(petfamily);
     if (!pet_family)
         return NULL;
-    return pet_family->Name[dbclang]?pet_family->Name[dbclang]:NULL;
+    return pet_family->Name[dbclang] ? pet_family->Name[dbclang] : NULL;
 }
 
 TalentSpellPos const* GetTalentSpellPos(uint32 spellId)
@@ -1428,11 +1428,11 @@ void DBCMgr::LoadCharTitlesStore()
         CharTitlesEntry* newCharTitles = new CharTitlesEntry;
         newCharTitles->ID = fields[0].GetUInt32();
         for (uint8 i = 0; i < 16; i++)
-            newCharTitles->nameMale[i] = NULL;
+            newCharTitles->nameMale[i] = "";
         newCharTitles->nameMale[0] = (char*)fields[1].GetCString();
         newCharTitles->nameMale[2] = (char*)fields[2].GetCString();
         for (uint8 i = 0; i < 16; i++)
-            newCharTitles->nameFemale[i] = NULL;
+            newCharTitles->nameFemale[i] = "";
         newCharTitles->nameFemale[0] = (char*)fields[3].GetCString();
         newCharTitles->nameFemale[2] = (char*)fields[4].GetCString();
         newCharTitles->bit_index = fields[5].GetUInt32();
@@ -1612,7 +1612,7 @@ void DBCMgr::LoadCreatureFamilyStore()
         newCreatureFamily->petFoodMask = fields[7].GetUInt32();
         newCreatureFamily->petTalentType = fields[8].GetInt32();
         for (uint8 i = 0; i < 16; i++)
-            newCreatureFamily->Name[i] = NULL;
+            newCreatureFamily->Name[i] = "";
         newCreatureFamily->Name[0] = (char*)fields[9].GetCString();
         newCreatureFamily->Name[2] = (char*)fields[10].GetCString();
         CreatureFamilyStore[newCreatureFamily->ID] = newCreatureFamily;
@@ -2271,7 +2271,7 @@ void DBCMgr::LoadItemSetStore()
 
         ItemSetEntry* newItemSet = new ItemSetEntry;
         for (uint8 i = 0; i < 16; i++)
-            newItemSet->name[i] = NULL;
+            newItemSet->name[i] = "";
         newItemSet->name[0] = (char*)fields[1].GetCString();
         newItemSet->name[2] = (char*)fields[2].GetCString();
         for (uint8 i = 0; i < 10; i++)
