@@ -6455,7 +6455,6 @@ void ObjectMgr::LoadGameObjectLocales()
 
         for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
         {
-            LocaleConstant locale = (LocaleConstant)i;
             AddLocaleString(i == LOCALE_frFR ? fields[1].GetString() : "", LocaleConstant(i), data.Name);
             AddLocaleString(i == LOCALE_frFR ? fields[2].GetString() : "", LocaleConstant(i), data.CastBarCaption);
         }

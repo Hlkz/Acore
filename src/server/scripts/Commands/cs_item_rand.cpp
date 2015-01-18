@@ -8,11 +8,11 @@ int32 ItemRandChoix(int32 item_id, int choix)
 {
     ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_id);
     if (!itemProto)
-        return NULL;
+        return 0;
     uint32 randomPropId = choix;
     ItemRandomPropertiesEntry const* random_id = sDBCMgr->GetItemRandomPropertiesEntry(randomPropId);
     if (!random_id)
-        return NULL;
+        return 0;
     return random_id->ID;
 }
 

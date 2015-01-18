@@ -2613,14 +2613,14 @@ float Unit::GetUnitMissChance(WeaponAttackType attType) const
 {
     return 0.0f; // No miss without any spell influence.
 
-    float miss_chance = 5.00f;
+    /*float miss_chance = 5.00f;
 
     if (attType == RANGED_ATTACK)
         miss_chance -= GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_HIT_CHANCE);
     else
         miss_chance -= GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE);
 
-    return miss_chance;
+    return miss_chance;*/
 }
 
 float Unit::GetUnitBlockChance() const

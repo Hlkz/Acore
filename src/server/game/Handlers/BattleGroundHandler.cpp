@@ -455,7 +455,6 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
         BAOGroupQueueInfo ginfo;
         if (!baoQueue.GetPlayerGroupInfoData(_player->GetGUID(), &ginfo))
             return;
-        BattleAO* bao = sBattleAOMgr->GetBattleAO();
 
         uint32 queueSlot = _player->GetBattlegroundQueueIndex(BATTLEGROUND_QUEUE_AO);
         WorldPacket data;
@@ -730,8 +729,8 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
     if (_player->InBattleground())
         return;
 
-    Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
-/*  if (!unit)
+    /* Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
+    if (!unit)
         return;
 
     if (!unit->IsBattleMaster())                             // it's not battle master

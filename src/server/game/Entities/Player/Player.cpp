@@ -7058,7 +7058,7 @@ void Player::UpdateHonorFields()
 ///Calculate the amount of honor gained based on the victim
 ///and the size of the group for which the honor is divided
 ///An exact honor value can also be given (overriding the calcs)
-bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvptoken)
+bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool /*pvptoken*/)
 {
     // do not reward honor in arenas, but enable onkill spellproc
     if (InArena())
@@ -24181,7 +24181,7 @@ uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 n
 {
     return 0; // client show wrong values
 
-    uint8 level = getLevel();
+    /* uint8 level = getLevel();
 
     //if (level > GT_MAX_LEVEL)
     //    level = GT_MAX_LEVEL;                               // max level in this dbc
@@ -24200,7 +24200,6 @@ uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 n
 
     float cost = 0;
 
-    /*
     if (hairstyle != newhairstyle)
         cost += bsc->cost;                                  // full price
 
@@ -24212,9 +24211,8 @@ uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 n
 
     if (newSkin && skincolor != newSkin->hair_id)
         cost += bsc->cost * 0.75f;                          // +5/6 of price
-    */
 
-    return uint32(cost);
+    return uint32(cost); */
 }
 
 void Player::InitGlyphsForLevel()
@@ -26669,11 +26667,11 @@ uint32 Player::CanSwitchTeam()
 {
     return false;
 
-    uint32 team = GetTeam(true);
+    /* uint32 team = GetTeam(true);
     if ((int)GetReputation(team==ALLIANCE?FACTION_STORMWIND:FACTION_ORGRIMMAR)<0
      && (int)GetReputation(team==ALLIANCE?FACTION_ORGRIMMAR:FACTION_STORMWIND)>=0)
         return team==ALLIANCE?HORDE:ALLIANCE;
-    return 0;
+    return 0; */
 }
 
 bool Player::IsDeserter(uint32 team)

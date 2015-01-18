@@ -1050,8 +1050,8 @@ public:
 
     static bool HandleDebugLoSCommand(ChatHandler* handler, char const* /*args*/)
     {
-        //if (Unit* unit = handler->getSelectedUnit())
-        //    handler->PSendSysMessage("Unit %s (GuidLow: %u) is %sin LoS", unit->GetName().c_str(), unit->GetGUIDLow(), handler->GetSession()->GetPlayer()->IsWithinLOSInMap(unit) ? "" : "not ");
+        if (Unit* unit = handler->getSelectedUnit())
+            handler->PSendSysMessage("Unit %s (GuidLow: %u) is %sin LoS", unit->GetName().c_str(), unit->GetGUIDLow(), handler->GetSession()->GetPlayer()->IsWithinLOSInMap(unit) ? "" : "not ");
         return true;
     }
 
