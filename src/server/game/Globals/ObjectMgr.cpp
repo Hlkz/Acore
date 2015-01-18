@@ -2797,9 +2797,9 @@ void ObjectMgr::LoadItemTemplates()
 
     // Check if item templates for DBC referenced character start outfit are present
     std::set<uint32> notFoundOutfit;
-    for (uint32 i = 1; i < sDBCMgr->CharStartOutfitStore.size(); ++i)
+    for (CharStartOutfitContainer::const_iterator itr = sDBCMgr->CharStartOutfitStore.begin(); itr != sDBCMgr->CharStartOutfitStore.end(); ++itr)
     {
-        CharStartOutfitEntry const* entry = sDBCMgr->GetCharStartOutfitEntry(i);
+        CharStartOutfitEntry const* entry = itr->second;
         if (!entry)
             continue;
 
@@ -5703,15 +5703,14 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
     float dist = 10000;
     uint32 id = 0;
 
-    for (uint32 i = 1; i < sDBCMgr->TaxiNodesStore.size(); ++i)
+    for (TaxiNodesContainer::const_iterator itr = sDBCMgr->TaxiNodesStore.begin(); itr != sDBCMgr->TaxiNodesStore.end(); ++itr)
     {
-        TaxiNodesEntry const* node = sDBCMgr->GetTaxiNodesEntry(i);
-
+        TaxiNodesEntry const* node = itr->second;
         if (!node || node->map_id != mapid || (!node->MountCreatureID[team == ALLIANCE ? 1 : 0] && node->MountCreatureID[0] != 32981)) // dk flight
             continue;
 
-        uint8  field   = (uint8)((i - 1) / 32);
-        uint32 submask = 1<<((i-1)%32);
+        uint8  field   = (uint8)((itr->first - 1) / 32);
+        uint32 submask = 1 << ((itr->first - 1) % 32);
 
         // skip not taxi network nodes
         if ((sTaxiNodesMask[field] & submask) == 0)
@@ -5723,14 +5722,14 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
             if (dist2 < dist)
             {
                 dist = dist2;
-                id = i;
+                id = itr->first;
             }
         }
         else
         {
             found = true;
             dist = dist2;
-            id = i;
+            id = itr->first;
         }
     }
 

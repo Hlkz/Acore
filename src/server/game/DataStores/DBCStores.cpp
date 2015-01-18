@@ -246,9 +246,9 @@ void LoadDBCStores(const std::string& dataPath)
     sDBCMgr->LoadMapStore();
     sDBCMgr->LoadMapDifficultyStore();
     // fill data
-    for (uint32 i = 1; i < sDBCMgr->MapDifficultyStore.size(); ++i)
-    if (MapDifficultyEntry const* entry = sDBCMgr->GetMapDifficultyEntry(i))
-        sMapDifficultyMap[MAKE_PAIR32(entry->MapId, entry->Difficulty)] = MapDifficulty(entry->resetTime, entry->maxPlayers, entry->areaTriggerText[0] != '\0');
+    for (MapDifficultyContainer::const_iterator itr = sDBCMgr->MapDifficultyStore.begin(); itr != sDBCMgr->MapDifficultyStore.end(); ++itr)
+        if (MapDifficultyEntry const* entry = itr->second)
+            sMapDifficultyMap[MAKE_PAIR32(entry->MapId, entry->Difficulty)] = MapDifficulty(entry->resetTime, entry->maxPlayers, entry->areaTriggerText[0] != '\0');
     sDBCMgr->MapDifficultyStore.clear();
     sDBCMgr->LoadMovieStore();
     sDBCMgr->LoadOverrideSpellDataStore();
@@ -307,9 +307,9 @@ void LoadDBCStores(const std::string& dataPath)
 
     sDBCMgr->LoadTaxiNodesStore();
     uint32 pathCount = sDBCMgr->LoadTaxiPathStore();
-    for (uint32 i = 1; i < sDBCMgr->TaxiPathStore.size(); ++i)
-    if (TaxiPathEntry const* entry = sDBCMgr->GetTaxiPathEntry(i))
-        sTaxiPathSetBySource[entry->from][entry->to] = TaxiPathBySourceAndDestination(entry->ID, entry->price);
+    for (TaxiPathContainer::const_iterator itr = sDBCMgr->TaxiPathStore.begin(); itr != sDBCMgr->TaxiPathStore.end(); ++itr)
+        if (TaxiPathEntry const* entry = itr->second)
+            sTaxiPathSetBySource[entry->from][entry->to] = TaxiPathBySourceAndDestination(entry->ID, entry->price);
     sDBCMgr->LoadTaxiPathNodeStore(); // Loaded only for initialization different structures
     // Calculate path nodes count
     std::vector<uint32> pathLength;
@@ -367,9 +367,9 @@ void LoadDBCStores(const std::string& dataPath)
 
         if (spellInfo && spellInfo->Attributes & SPELL_ATTR0_PASSIVE)
         {
-            for (uint32 i = 1; i < sDBCMgr->CreatureFamilyStore.size(); ++i)
+            for (CreatureFamilyContainer::const_iterator itr = sDBCMgr->CreatureFamilyStore.begin(); itr != sDBCMgr->CreatureFamilyStore.end(); ++itr)
             {
-                CreatureFamilyEntry const* cFamily = sDBCMgr->GetCreatureFamilyEntry(i);
+                CreatureFamilyEntry const* cFamily = itr->second;
                 if (!cFamily)
                     continue;
 
@@ -381,7 +381,7 @@ void LoadDBCStores(const std::string& dataPath)
                 if (skillLine->AutolearnType != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
                     continue;
 
-                sPetFamilySpellsStore[i].insert(spellInfo->Id);
+                sPetFamilySpellsStore[itr->first].insert(spellInfo->Id);
             }
         }
     }
@@ -429,13 +429,13 @@ void LoadDBCStores(const std::string& dataPath)
         memset(sHordeTaxiNodesMask, 0, sizeof(sHordeTaxiNodesMask));
         memset(sAllianceTaxiNodesMask, 0, sizeof(sAllianceTaxiNodesMask));
         memset(sDeathKnightTaxiNodesMask, 0, sizeof(sDeathKnightTaxiNodesMask));
-        for (uint32 i = 1; i < sDBCMgr->TaxiNodesStore.size(); ++i)
+        for (TaxiNodesContainer::const_iterator itr = sDBCMgr->TaxiNodesStore.begin(); itr != sDBCMgr->TaxiNodesStore.end(); ++itr)
         {
-            TaxiNodesEntry const* node = sDBCMgr->GetTaxiNodesEntry(i);
+            TaxiNodesEntry const* node = itr->second;
             if (!node)
                 continue;
 
-            TaxiPathSetBySource::const_iterator src_i = sTaxiPathSetBySource.find(i);
+            TaxiPathSetBySource::const_iterator src_i = sTaxiPathSetBySource.find(itr->first);
             if (src_i != sTaxiPathSetBySource.end() && !src_i->second.empty())
             {
                 bool ok = false;
@@ -454,8 +454,8 @@ void LoadDBCStores(const std::string& dataPath)
             }
 
             // valid taxi network node
-            uint8  field = (uint8)((i - 1) / 32);
-            uint32 submask = 1 << ((i - 1) % 32);
+            uint8  field = (uint8)((itr->first - 1) / 32);
+            uint32 submask = 1 << ((itr->first - 1) % 32);
             sTaxiNodesMask[field] |= submask;
 
             if (node->MountCreatureID[0] && node->MountCreatureID[0] != 32981)
@@ -466,11 +466,11 @@ void LoadDBCStores(const std::string& dataPath)
                 sDeathKnightTaxiNodesMask[field] |= submask;
 
             // old continent node (+ nodes virtually at old continents, check explicitly to avoid loading map files for zone info)
-            if (node->map_id < 2 || i == 82 || i == 83 || i == 93 || i == 94)
+            if (node->map_id < 2 || itr->first == 82 || itr->first == 83 || itr->first == 93 || itr->first == 94)
                 sOldContinentsNodesMask[field] |= submask;
 
             // fix DK node at Ebon Hold and Shadow Vault flight master
-            if (i == 315 || i == 333)
+            if (itr->first == 315 || itr->first == 333)
                 ((TaxiNodesEntry*)node)->MountCreatureID[1] = 32981;
         }
     }
@@ -752,16 +752,10 @@ LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty)
 
 uint32 GetDefaultMapLight(uint32 mapId)
 {
-    for (int32 i = sDBCMgr->LightStore.size(); i >= 0; --i)
-    {
-        LightEntry const* light = sDBCMgr->GetLightEntry(uint32(i));
-        if (!light)
-            continue;
-
-        if (light->MapId == mapId && light->X == 0.0f && light->Y == 0.0f && light->Z == 0.0f)
-            return light->Id;
-    }
-
+    for (LightContainer::const_iterator itr = sDBCMgr->LightStore.begin(); itr != sDBCMgr->LightStore.end(); ++itr)
+        if (LightEntry const* light = itr->second)
+            if (light->MapId == mapId && light->X == 0.0f && light->Y == 0.0f && light->Z == 0.0f)
+                return light->Id;
     return 0;
 }
 

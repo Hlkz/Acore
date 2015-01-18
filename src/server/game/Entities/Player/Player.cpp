@@ -9366,9 +9366,9 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
 
 void Player::SendBGWeekendWorldStates()
 {
-    for (uint32 i = 1; i < sDBCMgr->BattlemasterListStore.size(); ++i)
+    for (BattlemasterListContainer::const_iterator itr = sDBCMgr->BattlemasterListStore.begin(); itr != sDBCMgr->BattlemasterListStore.end(); ++itr)
     {
-        BattlemasterListEntry const* bl = sDBCMgr->GetBattlemasterListEntry(i);
+        BattlemasterListEntry const* bl = itr->second;
         if (bl && bl->HolidayWorldStateId)
         {
             if (BattlegroundMgr::IsBGWeekend((BattlegroundTypeId)bl->id))
@@ -25325,23 +25325,23 @@ void Player::BuildPetTalentsInfoData(WorldPacket* data)
     if (!pet_family || pet_family->petTalentType < 0)
         return;
 
-    for (uint32 talentTabId = 1; talentTabId < sDBCMgr->TalentTabStore.size(); ++talentTabId)
+    for (TalentTabContainer::const_iterator itr = sDBCMgr->TalentTabStore.begin(); itr != sDBCMgr->TalentTabStore.end(); ++itr)
     {
-        TalentTabEntry const* talentTabInfo = sDBCMgr->GetTalentTabEntry(talentTabId);
+        TalentTabEntry const* talentTabInfo = itr->second;
         if (!talentTabInfo)
             continue;
 
         if (!((1 << pet_family->petTalentType) & talentTabInfo->petTalentMask))
             continue;
 
-        for (TalentContainer::const_iterator itr = sDBCMgr->TalentStore.begin(); itr != sDBCMgr->TalentStore.end(); ++itr)
+        for (TalentContainer::const_iterator itr2 = sDBCMgr->TalentStore.begin(); itr2 != sDBCMgr->TalentStore.end(); ++itr2)
         {
-            TalentEntry const* talentInfo = itr->second;
+            TalentEntry const* talentInfo = itr2->second;
             if (!talentInfo)
                 continue;
 
             // skip another tab talents
-            if (talentInfo->TalentTab != talentTabId)
+            if (talentInfo->TalentTab != itr->first)
                 continue;
 
             // find max talent rank (0~4)

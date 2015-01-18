@@ -391,9 +391,9 @@ public:
         std::string name;
 
         SkillLineEntry const* targetSkillInfo = NULL;
-        for (uint32 i = 1; i < sDBCMgr->SkillLineStore.size(); ++i)
+        for (SkillLineContainer::const_iterator itr = sDBCMgr->SkillLineStore.begin(); itr != sDBCMgr->SkillLineStore.end(); ++itr)
         {
-            SkillLineEntry const* skillInfo = sDBCMgr->GetSkillLineEntry(i);
+            SkillLineEntry const* skillInfo = itr->second;
             if (!skillInfo)
                 continue;
 

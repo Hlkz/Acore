@@ -224,9 +224,9 @@ public:
 
         uint64 titles2 = titles;
 
-        for (uint32 i = 1; i < sDBCMgr->CharTitlesStore.size(); ++i)
-            if (CharTitlesEntry const* tEntry = sDBCMgr->GetCharTitlesEntry(i))
-                titles2 &= ~(uint64(1) << tEntry->bit_index);
+        for (CharTitlesContainer::const_iterator itr = sDBCMgr->CharTitlesStore.begin(); itr != sDBCMgr->CharTitlesStore.end(); ++itr)
+            if (CharTitlesEntry const* titleInfo = itr->second)
+                titles2 &= ~(uint64(1) << titleInfo->bit_index);
 
         titles &= ~titles2;                                     // remove not existed titles
 

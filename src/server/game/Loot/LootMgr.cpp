@@ -1586,8 +1586,8 @@ void LoadLootTemplates_Fishing()
     uint32 count = LootTemplates_Fishing.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    for (uint32 i = 1; i < sDBCMgr->AreaTableStore.size(); ++i)
-        if (AreaTableEntry const* areaEntry = sDBCMgr->GetAreaTableEntry(i))
+    for (AreaTableContainer::const_iterator itr = sDBCMgr->AreaTableStore.begin(); itr != sDBCMgr->AreaTableStore.end(); ++itr)
+        if (AreaTableEntry const* areaEntry = itr->second)
             if (lootIdSet.find(areaEntry->ID) != lootIdSet.end())
                 lootIdSet.erase(areaEntry->ID);
 
@@ -1760,10 +1760,10 @@ void LoadLootTemplates_Mail()
     uint32 count = LootTemplates_Mail.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    for (uint32 i = 1; i < sDBCMgr->MailTemplateStore.size(); ++i)
-        if (sDBCMgr->GetMailTemplateEntry(i))
-            if (lootIdSet.find(i) != lootIdSet.end())
-                lootIdSet.erase(i);
+    for (MailTemplateContainer::const_iterator itr = sDBCMgr->MailTemplateStore.begin(); itr != sDBCMgr->MailTemplateStore.end(); ++itr)
+        if (MailTemplateEntry const* mailTemplate = itr->second)
+            if (lootIdSet.find(itr->first) != lootIdSet.end())
+                lootIdSet.erase(itr->first);
 
     // output error for any still listed (not referenced from appropriate table) ids
     LootTemplates_Mail.ReportUnusedIds(lootIdSet);
