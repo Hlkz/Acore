@@ -292,21 +292,18 @@ void LoadDBCStores(const std::string& dataPath)
 
     // prepare fast data access to bit pos of talent ranks for use at inspecting
     // now have all max ranks (and then bit amount used for store talent ranks in inspect)
-    for (uint32 talentTabId = 1; talentTabId < sDBCMgr->TalentTabStore.size(); ++talentTabId)
-    {
-        TalentTabEntry const* talentTabInfo = sDBCMgr->GetTalentTabEntry(talentTabId);
-        if (!talentTabInfo)
-            continue;
-
-        // prevent memory corruption; otherwise cls will become 12 below
-        if ((talentTabInfo->ClassMask & CLASSMASK_ALL_PLAYABLE) == 0)
-            continue;
+    for (TalentTabContainer::const_iterator itr = sDBCMgr->TalentTabStore.begin(); itr != sDBCMgr->TalentTabStore.end(); ++itr)
+        if (TalentTabEntry const* talentTabInfo = itr->second)
+        {
+            // prevent memory corruption; otherwise cls will become 12 below
+            if ((talentTabInfo->ClassMask & CLASSMASK_ALL_PLAYABLE) == 0)
+                continue;
         
-        // store class talent tab pages
-        for (uint32 cls = 1; cls < MAX_CLASSES; ++cls)
-        if (talentTabInfo->ClassMask & (1 << (cls - 1)))
-            sTalentTabPages[cls][talentTabInfo->tabpage] = talentTabId;
-    }
+            // store class talent tab pages
+            for (uint32 cls = 1; cls < MAX_CLASSES; ++cls)
+            if (talentTabInfo->ClassMask & (1 << (cls - 1)))
+                sTalentTabPages[cls][talentTabInfo->tabpage] = talentTabInfo->TalentTabID;
+        }
 
     sDBCMgr->LoadTaxiNodesStore();
     uint32 pathCount = sDBCMgr->LoadTaxiPathStore();
