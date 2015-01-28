@@ -2819,28 +2819,27 @@ void DBCMgr::LoadSkillLineAbilityStore()
     uint32 oldMSTime = getMSTime();
     SkillLineAbilityStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT Id, SkillId, SpellId, Racemask, Classemask, ReqSkillValue, ForwardSpellId, LearnOnGetSkill, `MaxValue`, MinValue FROM skilllineabilitydbc");
+    QueryResult result = WorldDatabase.Query("SELECT SkillId, SpellId, Racemask, Classemask, ReqSkillValue, ForwardSpellId, LearnOnGetSkill, `MaxValue`, MinValue FROM skilllineabilitydbc");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 SkillLineAbility entry. DB table `SkillLineAbility dbc` is empty.");
         return;
     }
 
+    uint32 recordCount = 1;
     do {
         Field* fields = result->Fetch();
-
         SkillLineAbilityEntry* newSkillLineAbility = new SkillLineAbilityEntry;
-        newSkillLineAbility->id = fields[0].GetUInt32();
-        newSkillLineAbility->skillId = fields[1].GetUInt32();
-        newSkillLineAbility->spellId = fields[2].GetUInt32();
-        newSkillLineAbility->racemask = fields[3].GetUInt32();
-        newSkillLineAbility->classmask = fields[4].GetUInt32();
-        newSkillLineAbility->req_skill_value = fields[5].GetUInt32();
-        newSkillLineAbility->forward_spellid = fields[6].GetUInt32();
-        newSkillLineAbility->AutolearnType = fields[7].GetUInt32();
-        newSkillLineAbility->max_value = fields[8].GetUInt32();
-        newSkillLineAbility->min_value = fields[9].GetUInt32();
-        SkillLineAbilityStore[newSkillLineAbility->id] = newSkillLineAbility;
+        newSkillLineAbility->skillId = fields[0].GetUInt32();
+        newSkillLineAbility->spellId = fields[1].GetUInt32();
+        newSkillLineAbility->racemask = fields[2].GetUInt32();
+        newSkillLineAbility->classmask = fields[3].GetUInt32();
+        newSkillLineAbility->req_skill_value = fields[4].GetUInt32();
+        newSkillLineAbility->forward_spellid = fields[5].GetUInt32();
+        newSkillLineAbility->AutolearnType = fields[6].GetUInt32();
+        newSkillLineAbility->max_value = fields[7].GetUInt32();
+        newSkillLineAbility->min_value = fields[8].GetUInt32();
+        SkillLineAbilityStore[recordCount++] = newSkillLineAbility;
 
     } while (result->NextRow());
 

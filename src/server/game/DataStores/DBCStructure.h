@@ -1481,7 +1481,7 @@ struct SkillLineEntry
 
 struct SkillLineAbilityEntry
 {
-    uint32    id;                                           // 0        m_ID
+    //uint32    id;                                         // 0        m_ID
     uint32    skillId;                                      // 1        m_skillLine
     uint32    spellId;                                      // 2        m_spell
     uint32    racemask;                                     // 3        m_raceMask
