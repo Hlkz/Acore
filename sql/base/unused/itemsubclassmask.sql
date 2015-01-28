@@ -23,10 +23,10 @@ DROP TABLE IF EXISTS `itemsubclassmask`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `itemsubclassmask` (
-  `ItemClass` int(10) NOT NULL DEFAULT '0',
+  `ItemClass` int(10) unsigned NOT NULL DEFAULT '0',
   `SubClassMask` int(10) NOT NULL DEFAULT '0',
-  `Name` varchar(100) NOT NULL DEFAULT '',
-  `Name_loc2` varchar(100) NOT NULL DEFAULT '',
+  `Name` varchar(128) NOT NULL DEFAULT '',
+  `Name_loc2` varchar(128) NOT NULL DEFAULT '',
   PRIMARY KEY (`ItemClass`,`SubClassMask`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -44,7 +44,7 @@ UNLOCK TABLES;
 -- Records of `itemsubclassmask`
 --
 
-INSERT INTO `itemsubclassmask` VALUES ('2', '173555', 'Melee Weapon', 'Arme de mêlée à une main');
+INSERT INTO `itemsubclassmask` VALUES ('2', '173555', 'Melee Weapon', 'Arme de mêlée');
 INSERT INTO `itemsubclassmask` VALUES ('4', '96', 'Shield', 'Bouclier');
-INSERT INTO `itemsubclassmask` VALUES ('2', '262156', 'Ranged Weapon', 'Arme de mêlée à une main');
+INSERT INTO `itemsubclassmask` VALUES ('2', '262156', 'Ranged Weapon', 'Arme à distance');
 INSERT INTO `itemsubclassmask` VALUES ('2', '41105', 'One-Handed Melee Weapon', 'Arme de mêlée à une main');
