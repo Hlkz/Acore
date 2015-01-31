@@ -1917,7 +1917,6 @@ class Player : public Unit, public GridObject<Player>
         float GetSpellCritFromIntellect();
         float RegenMPPerSpirit();
         int32 GetAttackSpeedFromStats() const;
-        float GetAttackSpeedPctFromStats() const;
 
         void UpdateDefenseBonusesMod();
         inline void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true); }
@@ -1938,10 +1937,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateRangedHitChances();
         void UpdateSpellHitChances();
 
-        void UpdateAttackTime(WeaponAttackType attType);
-        void UpdateAllAttackTime();
         void UpdateAttackSpeed(CombatRating cr);
-        void UpdateAllAttackSpeed();
         void UpdateSpellSpeed();
 
         void UpdateAllSpellCritChances();

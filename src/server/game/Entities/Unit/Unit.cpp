@@ -427,7 +427,7 @@ void Unit::DisableSpline()
 
 void Unit::resetAttackTimer(WeaponAttackType type)
 {
-    m_attackTimer[type] = uint32(GetAttackTime(type) * (m_modAttackSpeedPct[type] + (GetTypeId() == TYPEID_PLAYER ? ToPlayer()->GetAttackSpeedPctFromStats() : 0.0f)));
+    m_attackTimer[type] = uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]);
 }
 
 float Unit::GetMeleeReach() const
@@ -12036,7 +12036,7 @@ int32 Unit::ModifyPowerPct(Powers power, float pct, bool apply)
 
 uint32 Unit::GetAttackTime(WeaponAttackType att) const
 {
-    float f_BaseAttackTime = GetFloatValue(UNIT_FIELD_BASEATTACKTIME+att) / (m_modAttackSpeedPct[att] + (GetTypeId() == TYPEID_PLAYER ? ToPlayer()->GetAttackSpeedPctFromStats() : 0.0f));
+    float f_BaseAttackTime = GetFloatValue(UNIT_FIELD_BASEATTACKTIME+att) / (m_modAttackSpeedPct[att]);
     return (uint32)f_BaseAttackTime;
 }
 

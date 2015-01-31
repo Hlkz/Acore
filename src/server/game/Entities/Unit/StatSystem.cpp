@@ -110,15 +110,19 @@ bool Player::UpdateStats(Stats stat)
     {
         case STAT_STRENGTH:
             UpdateBlockPercentage();
-            UpdateAllAttackSpeed();
-            UpdateAllAttackTime();
             UpdateRating(CR_ARMOR_PENETRATION);
+            UpdateRating(CR_HASTE_MELEE);
+            UpdateRating(CR_HASTE_RANGED);
+            UpdateAttackSpeed(CR_HASTE_MELEE);
+            UpdateAttackSpeed(CR_HASTE_RANGED);
             break;
         case STAT_AGILITY:
             UpdateAllCritPercentages();
             UpdateDodgePercentage();
-            UpdateAllAttackSpeed();
-            UpdateAllAttackTime();
+            UpdateRating(CR_HASTE_MELEE);
+            UpdateRating(CR_HASTE_RANGED);
+            UpdateAttackSpeed(CR_HASTE_MELEE);
+            UpdateAttackSpeed(CR_HASTE_RANGED);
             break;
         case STAT_STAMINA:
             UpdateMaxHealth();
@@ -223,6 +227,8 @@ bool Player::UpdateAllStats()
     UpdateExpertise(OFF_ATTACK);
     RecalculateRating(CR_ARMOR_PENETRATION);
     UpdateAllResistances();
+    UpdateAttackSpeed(CR_HASTE_MELEE);
+    UpdateAttackSpeed(CR_HASTE_RANGED);
 
     return true;
 }
@@ -357,7 +363,7 @@ void Player::ApplyFeralAPBonus(int32 amount, bool apply)
 void Player::UpdateAttackPowerAndDamage(bool ranged)
 {
     float val2 = 0.0f;
-    float level = float(getLevel());
+    //float level = float(getLevel());
 
     UnitMods unitMod = ranged ? UNIT_MOD_ATTACK_POWER_RANGED : UNIT_MOD_ATTACK_POWER;
 
@@ -708,29 +714,33 @@ void Player::UpdateSpellCritChance(uint32 school)
     SetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1 + school, crit);
 }
 
-void Player::UpdateAttackTime(WeaponAttackType attType)
-{
-    SetFloatValue(UNIT_FIELD_BASEATTACKTIME, uint32((float)GetWeaponAttackDelay(BASE_ATTACK) / (m_modAttackSpeedPct[attType] + GetAttackSpeedPctFromStats())));
-}
-
-void Player::UpdateAllAttackTime()
-{
-    UpdateAttackTime(BASE_ATTACK);
-    UpdateAttackTime(OFF_ATTACK);
-    UpdateAttackTime(RANGED_ATTACK);
-}
-
 void Player::UpdateAttackSpeed(CombatRating cr)
 {
-    float modAttackSpeed = (1.0f / m_modAttackSpeedPct[cr==CR_HASTE_MELEE ? BASE_ATTACK : RANGED_ATTACK] - 1.0f) * 300.0f;
-    int32 rating = modAttackSpeed + GetAttackSpeedFromStats();
-    SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr, rating);
-}
+    if (cr == CR_HASTE_MELEE)
+    {
+        float newVal = 1.0f / (1.0 + (GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr) * GetRatingMultiplier(CR_HASTE_SPELL) / 100.0f));
 
-void Player::UpdateAllAttackSpeed()
-{
-    UpdateAttackSpeed(CR_HASTE_MELEE);
-    UpdateAttackSpeed(CR_HASTE_RANGED);
+        for (uint8 i = BASE_ATTACK; i < RANGED_ATTACK; i++)
+        {
+            WeaponAttackType attType = WeaponAttackType(i);
+            float f_BaseAttackTime = GetFloatValue(UNIT_FIELD_BASEATTACKTIME + attType) / (m_modAttackSpeedPct[attType]);
+            float remainingTimePct = (float)m_attackTimer[attType] / (GetAttackTime(attType) * m_modAttackSpeedPct[attType]);
+            m_modAttackSpeedPct[attType] = newVal;                                                                              // Haste modifier, from haste rating
+            SetFloatValue(UNIT_FIELD_BASEATTACKTIME + attType, f_BaseAttackTime * m_modAttackSpeedPct[attType]);                // Delay between attacks
+            m_attackTimer[attType] = uint32(GetAttackTime(attType) * m_modAttackSpeedPct[attType] * remainingTimePct);          // Remaining time before next attack
+        }
+    }
+    else
+    {
+        float newVal = 1.0f / (1.0 + (float)(GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr) / 3.0f) / 100.0f);
+
+        WeaponAttackType attType = RANGED_ATTACK;
+        float f_BaseAttackTime = GetFloatValue(UNIT_FIELD_BASEATTACKTIME + attType) / (m_modAttackSpeedPct[attType]);
+        float remainingTimePct = (float)m_attackTimer[attType] / (GetAttackTime(attType) * m_modAttackSpeedPct[attType]);
+        m_modAttackSpeedPct[attType] = newVal;                                                                              // Haste modifier, from haste rating
+        SetFloatValue(UNIT_FIELD_BASEATTACKTIME + attType, f_BaseAttackTime * m_modAttackSpeedPct[attType]);;               // Delay between attacks
+        m_attackTimer[attType] = uint32(GetAttackTime(attType) * m_modAttackSpeedPct[attType] * remainingTimePct);          // Remaining time before next attack
+    }
 }
 
 void Player::UpdateSpellSpeed()
@@ -738,11 +748,9 @@ void Player::UpdateSpellSpeed()
     int32 rating = GetModifierValue(UNIT_MOD_SPELL_SPEED, TOTAL_VALUE);
     rating += GetStat(STAT_INTELLECT) * GetStatRatio(SPELLSPEED_PER_INTELLECT);
     rating += GetStat(STAT_SPIRIT) * GetStatRatio(SPELLSPEED_PER_SPIRIT);
-    float pct = rating * GetRatingMultiplier(CR_HASTE_SPELL);
-    float spbi = 1.0f + (pct/100.0f);
-    float value = 1.0f / spbi;
-    SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_HASTE_SPELL, rating);
-    SetFloatValue(UNIT_MOD_CAST_SPEED, value);
+    float value = 1.0f / (1.0f + (rating * GetRatingMultiplier(CR_HASTE_SPELL) / 100.0f));
+    SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_HASTE_SPELL, rating);          // Spell haste score
+    SetFloatValue(UNIT_MOD_CAST_SPEED, value);                                      // Haste modifier
 }
 
 void Player::UpdateArmorPenetration(int32 amount)
@@ -825,7 +833,7 @@ void Player::ApplyHealthRegenBonus(int32 amount, bool apply)
 
 void Player::UpdateManaRegen()
 {
-    float Intellect = GetStat(STAT_INTELLECT);
+    //float Intellect = GetStat(STAT_INTELLECT);
     // Mana regen from spirit
     float power_regen = 1 + RegenMPPerSpirit();
     // Apply PCT bonus from SPELL_AURA_MOD_POWER_REGEN_PERCENT aura on spirit base regen

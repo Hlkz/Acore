@@ -5752,14 +5752,9 @@ float Player::RegenMPPerSpirit()
 
 int32 Player::GetAttackSpeedFromStats() const
 {
-    int32 value = uint32(GetStat(STAT_STRENGTH) * GetStatRatio(ATTACKSPEED_PER_STRENGTH));
-    value += uint32(GetStat(STAT_AGILITY) * GetStatRatio(ATTACKSPEED_PER_AGILITY));
-    return value;
-}
-
-float Player::GetAttackSpeedPctFromStats() const
-{
-    return (int32)GetAttackSpeedFromStats() / 100.0f;
+    int32 rating = uint32(GetStat(STAT_STRENGTH) * GetStatRatio(ATTACKSPEED_PER_STRENGTH));
+    rating += uint32(GetStat(STAT_AGILITY) * GetStatRatio(ATTACKSPEED_PER_AGILITY));
+    return rating;
 }
 
 float Player::GetRatingMultiplier(CombatRating cr) const
@@ -5862,6 +5857,17 @@ void Player::UpdateRating(CombatRating cr)
     for (AuraEffectList::const_iterator i = modRatingFromStat.begin(); i != modRatingFromStat.end(); ++i)
         if ((*i)->GetMiscValue() & (1<<cr))
             amount += int32(CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount()));
+
+    switch (cr)
+    {
+        case CR_HASTE_MELEE:
+        case CR_HASTE_RANGED:
+            amount += GetAttackSpeedFromStats();
+            break;
+        default:
+            break;
+    }
+
     if (amount < 0)
         amount = 0;
 
@@ -5920,7 +5926,6 @@ void Player::UpdateRating(CombatRating cr)
             break;
         case CR_HASTE_MELEE:                                // Implemented in Player::ApplyRatingMod
         case CR_HASTE_RANGED:
-            UpdateAttackSpeed(cr);
             break;
         case CR_HASTE_SPELL:
             UpdateSpellSpeed();
