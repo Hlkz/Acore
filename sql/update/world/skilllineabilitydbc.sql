@@ -40,47 +40,47 @@ INSERT INTO `skilllineabilitydbc` VALUES ('256', '2687', '0', '1', '0', '0', '1'
 INSERT INTO `skilllineabilitydbc` VALUES ('256', '7379', '0', '1', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Guerrier - vengeance');
 
 -- Holy - Sacré
-DELETE FROM `skilllineabilitydbc` WHERE `SkillId` = 594;
-INSERT INTO `skilllineabilitydbc` VALUES ('594', '10291', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - aura devo');
-INSERT INTO `skilllineabilitydbc` VALUES ('594', '19876', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - aura ombre');
-INSERT INTO `skilllineabilitydbc` VALUES ('594', '19888', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - aura givre');
-INSERT INTO `skilllineabilitydbc` VALUES ('594', '19891', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - aura feu');
-INSERT INTO `skilllineabilitydbc` VALUES ('594', '20217', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Bénédiction rois');
-INSERT INTO `skilllineabilitydbc` VALUES ('594', '642', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Bouclier divin');
-INSERT INTO `skilllineabilitydbc` VALUES ('594', '31789', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Def Vertueuse');
-INSERT INTO `skilllineabilitydbc` VALUES ('594', '25780', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Fureur Vertueuse');
-INSERT INTO `skilllineabilitydbc` VALUES ('594', '19752', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - interv divine');
-INSERT INTO `skilllineabilitydbc` VALUES ('594', '1044', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Main Liberté');
-INSERT INTO `skilllineabilitydbc` VALUES ('594', '10278', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Main Protec');
-INSERT INTO `skilllineabilitydbc` VALUES ('594', '62124', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Main Retrib');
-INSERT INTO `skilllineabilitydbc` VALUES ('594', '1038', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Main salut');
-INSERT INTO `skilllineabilitydbc` VALUES ('594', '5588', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Marteau Justice');
-INSERT INTO `skilllineabilitydbc` VALUES ('594', '498', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - protec divine');
-INSERT INTO `skilllineabilitydbc` VALUES ('594', '20164', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - sceau justice');
--- Protection - Protection
 DELETE FROM `skilllineabilitydbc` WHERE `SkillId` = 267;
-INSERT INTO `skilllineabilitydbc` VALUES ('267', '19746', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - aura concentration');
-INSERT INTO `skilllineabilitydbc` VALUES ('267', '19852', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Bénédiction sag');
-INSERT INTO `skilllineabilitydbc` VALUES ('267', '20116', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - consecration');
-INSERT INTO `skilllineabilitydbc` VALUES ('267', '5502', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - detection ud');
-INSERT INTO `skilllineabilitydbc` VALUES ('267', '19940', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - eclair lumineux');
-INSERT INTO `skilllineabilitydbc` VALUES ('267', '5615', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - exorcisme');
-INSERT INTO `skilllineabilitydbc` VALUES ('267', '2800', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - impo');
-INSERT INTO `skilllineabilitydbc` VALUES ('267', '3472', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - lumiere sacree');
-INSERT INTO `skilllineabilitydbc` VALUES ('267', '1152', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - purification');
-INSERT INTO `skilllineabilitydbc` VALUES ('267', '10324', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - redemption');
-INSERT INTO `skilllineabilitydbc` VALUES ('267', '10326', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - renvoi du mal');
-INSERT INTO `skilllineabilitydbc` VALUES ('267', '20165', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - sceau lumiere');
-INSERT INTO `skilllineabilitydbc` VALUES ('267', '20166', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - sceau sag');
-INSERT INTO `skilllineabilitydbc` VALUES ('267', '21084', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Seal of Righteousness');
+INSERT INTO `skilllineabilitydbc` VALUES ('267', '10291', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - aura devo');
+INSERT INTO `skilllineabilitydbc` VALUES ('267', '19876', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - aura ombre');
+INSERT INTO `skilllineabilitydbc` VALUES ('267', '19888', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - aura givre');
+INSERT INTO `skilllineabilitydbc` VALUES ('267', '19891', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - aura feu');
+INSERT INTO `skilllineabilitydbc` VALUES ('267', '20217', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Bénédiction rois');
+INSERT INTO `skilllineabilitydbc` VALUES ('267', '642', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Bouclier divin');
+INSERT INTO `skilllineabilitydbc` VALUES ('267', '31789', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Def Vertueuse');
+INSERT INTO `skilllineabilitydbc` VALUES ('267', '25780', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Fureur Vertueuse');
+INSERT INTO `skilllineabilitydbc` VALUES ('267', '19752', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - interv divine');
+INSERT INTO `skilllineabilitydbc` VALUES ('267', '1044', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Main Liberté');
+INSERT INTO `skilllineabilitydbc` VALUES ('267', '10278', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Main Protec');
+INSERT INTO `skilllineabilitydbc` VALUES ('267', '62124', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Main Retrib');
+INSERT INTO `skilllineabilitydbc` VALUES ('267', '1038', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Main salut');
+INSERT INTO `skilllineabilitydbc` VALUES ('267', '5588', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Marteau Justice');
+INSERT INTO `skilllineabilitydbc` VALUES ('267', '498', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - protec divine');
+INSERT INTO `skilllineabilitydbc` VALUES ('267', '20164', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - sceau justice');
+-- Protection - Protection
+DELETE FROM `skilllineabilitydbc` WHERE `SkillId` = 594;
+INSERT INTO `skilllineabilitydbc` VALUES ('594', '19746', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - aura concentration');
+INSERT INTO `skilllineabilitydbc` VALUES ('594', '19852', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Bénédiction sag');
+INSERT INTO `skilllineabilitydbc` VALUES ('594', '20116', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - consecration');
+INSERT INTO `skilllineabilitydbc` VALUES ('594', '5502', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - detection ud');
+INSERT INTO `skilllineabilitydbc` VALUES ('594', '19940', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - eclair lumineux');
+INSERT INTO `skilllineabilitydbc` VALUES ('594', '5615', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - exorcisme');
+INSERT INTO `skilllineabilitydbc` VALUES ('594', '2800', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - impo');
+INSERT INTO `skilllineabilitydbc` VALUES ('594', '3472', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - lumiere sacree');
+INSERT INTO `skilllineabilitydbc` VALUES ('594', '1152', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - purification');
+INSERT INTO `skilllineabilitydbc` VALUES ('594', '10324', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - redemption');
+INSERT INTO `skilllineabilitydbc` VALUES ('594', '10326', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - renvoi du mal');
+INSERT INTO `skilllineabilitydbc` VALUES ('594', '20165', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - sceau lumiere');
+INSERT INTO `skilllineabilitydbc` VALUES ('594', '20166', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - sceau sag');
+INSERT INTO `skilllineabilitydbc` VALUES ('594', '21084', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Seal of Righteousness');
 -- Retribution - Vindicte
 DELETE FROM `skilllineabilitydbc` WHERE `SkillId` = 184;
-INSERT INTO `skilllineabilitydbc` VALUES ('267', '10299', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - aura vind');
-INSERT INTO `skilllineabilitydbc` VALUES ('267', '19836', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Bénédiction puissance');
-INSERT INTO `skilllineabilitydbc` VALUES ('267', '20271', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Jugement de lumiere');
-INSERT INTO `skilllineabilitydbc` VALUES ('267', '53408', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Jugement sag');
-INSERT INTO `skilllineabilitydbc` VALUES ('267', '53407', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Jugement justice');
-INSERT INTO `skilllineabilitydbc` VALUES ('267', '31801', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Sceau Vengeance');
+INSERT INTO `skilllineabilitydbc` VALUES ('184', '10299', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - aura vind');
+INSERT INTO `skilllineabilitydbc` VALUES ('184', '19836', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Bénédiction puissance');
+INSERT INTO `skilllineabilitydbc` VALUES ('184', '20271', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Jugement de lumiere');
+INSERT INTO `skilllineabilitydbc` VALUES ('184', '53408', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Jugement sag');
+INSERT INTO `skilllineabilitydbc` VALUES ('184', '53407', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Jugement justice');
+INSERT INTO `skilllineabilitydbc` VALUES ('184', '31801', '0', '2', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Paladin - Sceau Vengeance');
 
 -- Beast Mastery - Maîtrise des bêtes
 DELETE FROM `skilllineabilitydbc` WHERE `SkillId` = 50;
@@ -101,6 +101,7 @@ INSERT INTO `skilllineabilitydbc` VALUES ('50', '982', '0', '4', '0', '0', '1', 
 INSERT INTO `skilllineabilitydbc` VALUES ('50', '1002', '0', '4', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Chasseur - yeux bete');
 -- Marksmanship - Précision
 DELETE FROM `skilllineabilitydbc` WHERE `SkillId` = 163;
+INSERT INTO `skilllineabilitydbc` VALUES ('163', '75', '0', '4', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Chasseur - Tir automatique');
 INSERT INTO `skilllineabilitydbc` VALUES ('163', '14288', '0', '4', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Chasseur - fleches multiples');
 INSERT INTO `skilllineabilitydbc` VALUES ('163', '1543', '0', '4', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Chasseur - fusee eclairante');
 INSERT INTO `skilllineabilitydbc` VALUES ('163', '14323', '0', '4', '0', '0', '1', '0', '2', '0', '0', '0', '0', 'Chasseur - marque du chasseur');
