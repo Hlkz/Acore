@@ -2881,8 +2881,11 @@ void World::ProcessResurrect(uint32 diff)
                         continue;
 
                     if (!sh && player->IsInWorld())
-                        if (sh = player->GetMap()->GetCreature(itr->first))
+                    {
+                        sh = player->GetMap()->GetCreature(itr->first);
+                        if (sh)
                             sh->CastSpell(sh, SPELL_SPIRIT_HEAL, true);
+                    }
 
                     player->CastSpell(player, SPELL_RESURRECTION_VISUAL, true);
                     m_ResurrectQueue.push_back(*itr2);

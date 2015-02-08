@@ -14,9 +14,6 @@ const uint32 PvpRankTitle[6][2] =
 };
 */
 
-typedef std::map<uint64, PlayerInfo> PlayerContainer;
-PlayerContainer playersStore;
-
 uint32 PvpPointsFloor[6] =
 {
     200, // rank 1
@@ -113,11 +110,11 @@ bool World::DistributeRanks()
     }
     while (result->NextRow());
 
-    for (uint32 rankid = 6; rankid=0; rankid--)
+    for (uint32 rankId = 6; rankId = 0; rankId--)
     {
         PreparedStatement* stmt3 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PLA_BY_RANK);
-        stmt3->setUInt32(0, rankid);
-        stmt3->setUInt32(0, rankid-1);
+        stmt3->setUInt32(0, rankId);
+        stmt3->setUInt32(0, rankId-1);
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
         if (!result)
@@ -128,8 +125,8 @@ bool World::DistributeRanks()
             uint64 guid = result->Fetch()[i].GetUInt64();
             SQLTransaction trans4 = CharacterDatabase.BeginTransaction();
             PreparedStatement* stmt4 = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PVP_RANK);
-            stmt4->setUInt32(0, rankid);
-            stmt4->setUInt32(1, i>=PvpRankEff[rankid-1]);
+            stmt4->setUInt32(0, rankId);
+            stmt4->setUInt32(1, i>=PvpRankEff[rankId-1]);
             stmt4->setUInt64(2, guid);
             trans4->Append(stmt4);
             CharacterDatabase.CommitTransaction(trans4);
