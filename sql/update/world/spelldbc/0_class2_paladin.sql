@@ -227,8 +227,10 @@ UPDATE `spelldbc_offi` SET `type` = 22 WHERE `Entry` = 53380;
 UPDATE `spelldbc_offi` SET `type` = 22 WHERE `Entry` = 53381;
 UPDATE `spelldbc_offi` SET `type` = 22 WHERE `Entry` = 53382;
 UPDATE `spelldbc_offi` SET `type` = 22 WHERE `Entry` = 53484;
-UPDATE `spelldbc_offi` SET `type` = 22 WHERE `Entry` = 53486;
-UPDATE `spelldbc_offi` SET `type` = 22 WHERE `Entry` = 53488;
+UPDATE `spelldbc_offi` SET `type` = 22 WHERE `Entry` = 53486; -- Art of War (talent)
+UPDATE `spelldbc_offi` SET `type` = 22 WHERE `Entry` = 53488; -- Art of War (talent)
+UPDATE `spelldbc_offi` SET `type` = 22 WHERE `Entry` = 53489; -- Art of War (buff)
+UPDATE `spelldbc_offi` SET `type` = 22 WHERE `Entry` = 59578; -- Art of War (buff)
 UPDATE `spelldbc_offi` SET `type` = 22 WHERE `Entry` = 53501;
 UPDATE `spelldbc_offi` SET `type` = 22 WHERE `Entry` = 53502;
 UPDATE `spelldbc_offi` SET `type` = 22 WHERE `Entry` = 53503;

@@ -1,5 +1,6 @@
 
 -- 400 361 HunterBeastMastery
+DELETE FROM `talentdbc` WHERE `TalentTab` = '361';
 INSERT INTO `talentdbc` VALUES ('400', '361', '0', '0', '19552', '19553', '19554', '19555', '19556', '0', '0', '0', '0', '0', '0');
 INSERT INTO `talentdbc` VALUES ('401', '361', '0', '1', '19609', '19610', '19612', '0', '0', '0', '0', '0', '0', '0', '0');
 INSERT INTO `talentdbc` VALUES ('402', '361', '0', '2', '19583', '19584', '19585', '19586', '19587', '0', '0', '0', '0', '0', '0');
@@ -22,6 +23,7 @@ INSERT INTO `talentdbc` VALUES ('442', '361', '4', '2', '34026', '0', '0', '0', 
 INSERT INTO `talentdbc` VALUES ('443', '361', '4', '3', '34692', '0', '0', '0', '0', '433', '0', '0', '0', '0', '0');
 
 -- 500 363 HunterMarksmanship
+DELETE FROM `talentdbc` WHERE `TalentTab` = '363';
 INSERT INTO `talentdbc` VALUES ('500', '363', '0', '0', '19407', '19412', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 INSERT INTO `talentdbc` VALUES ('501', '363', '0', '1', '19421', '19422', '19423', '0', '0', '0', '0', '0', '0', '0', '0');
 INSERT INTO `talentdbc` VALUES ('502', '363', '0', '2', '19426', '19427', '19429', '19430', '19431', '0', '0', '0', '0', '0', '0');
@@ -43,6 +45,7 @@ INSERT INTO `talentdbc` VALUES ('542', '363', '4', '2', '35104', '35110', '35111
 INSERT INTO `talentdbc` VALUES ('543', '363', '4', '3', '19506', '0', '0', '0', '0', '533', '1', '1', '0', '0', '0');
 
 -- 600 362 HunterSurvival
+DELETE FROM `talentdbc` WHERE `TalentTab` = '362';
 INSERT INTO `talentdbc` VALUES ('600', '362', '0', '0', '19498', '19499', '19500', '0', '0', '0', '0', '0', '0', '0', '0');
 INSERT INTO `talentdbc` VALUES ('601', '362', '0', '1', '19295', '19297', '19298', '0', '0', '0', '0', '0', '0', '0', '0');
 INSERT INTO `talentdbc` VALUES ('602', '362', '0', '2', '19159', '19160', '0', '0', '0', '0', '0', '0', '0', '0', '0');

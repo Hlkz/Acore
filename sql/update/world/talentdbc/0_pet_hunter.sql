@@ -1,5 +1,6 @@
 
 -- 409 HunterPetTenacity
+DELETE FROM `talentdbc` WHERE `TalentTab` = '409';
 INSERT INTO `talentdbc` VALUES ('9000', '409', '0', '0', '61682', '61683', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 INSERT INTO `talentdbc` VALUES ('9001', '409', '0', '1', '61685', '0', '0', '0', '0', '0', '0', '1', '0', '3179210', '1610612736');
 INSERT INTO `talentdbc` VALUES ('9002', '409', '0', '2', '61686', '61687', '61688', '0', '0', '0', '0', '0', '0', '0', '0');
@@ -22,6 +23,7 @@ INSERT INTO `talentdbc` VALUES ('9051', '409', '5', '1', '62764', '62765', '0', 
 INSERT INTO `talentdbc` VALUES ('9052', '409', '5', '2', '62758', '62762', '0', '0', '0', '2172', '0', '0', '0', '0', '0');
 
 -- 410 HunterPetFerocity
+DELETE FROM `talentdbc` WHERE `TalentTab` = '410';
 INSERT INTO `talentdbc` VALUES ('9100', '410', '0', '0', '61682', '61683', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 INSERT INTO `talentdbc` VALUES ('9101', '410', '0', '1', '61684', '0', '0', '0', '0', '0', '0', '1', '0', '42476576', '201326592');
 INSERT INTO `talentdbc` VALUES ('9106', '410', '0', '1', '23145', '0', '0', '0', '0', '0', '0', '1', '0', '2064', '268435456');
@@ -45,6 +47,7 @@ INSERT INTO `talentdbc` VALUES ('9150', '410', '5', '0', '62759', '62760', '0', 
 INSERT INTO `talentdbc` VALUES ('9152', '410', '5', '2', '62758', '62762', '0', '0', '0', '2157', '0', '0', '0', '0', '0');
 
 -- 411 HunterPetCunning
+DELETE FROM `talentdbc` WHERE `TalentTab` = '411';
 INSERT INTO `talentdbc` VALUES ('9200', '411', '0', '0', '61682', '61683', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 INSERT INTO `talentdbc` VALUES ('9201', '411', '0', '1', '61684', '0', '0', '0', '0', '0', '0', '1', '0', '212992', '-2147483648');
 INSERT INTO `talentdbc` VALUES ('9206', '411', '0', '1', '23145', '0', '0', '0', '0', '0', '0', '1', '0', '21238021', '0');

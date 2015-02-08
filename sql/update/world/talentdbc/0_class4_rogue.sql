@@ -1,5 +1,6 @@
 
 -- 700 182 RogueAssassination
+DELETE FROM `talentdbc` WHERE `TalentTab` = '182';
 INSERT INTO `talentdbc` VALUES ('700', '182', '0', '0', '14162', '14163', '14164', '0', '0', '0', '0', '0', '0', '0', '0');
 INSERT INTO `talentdbc` VALUES ('701', '182', '0', '1', '31380', '31382', '31383', '0', '0', '0', '0', '0', '0', '0', '0');
 INSERT INTO `talentdbc` VALUES ('702', '182', '0', '2', '14138', '14139', '14140', '14141', '14142', '0', '0', '0', '0', '0', '0');
@@ -22,6 +23,7 @@ INSERT INTO `talentdbc` VALUES ('742', '182', '4', '2', '1329', '0', '0', '0', '
 INSERT INTO `talentdbc` VALUES ('743', '182', '4', '3', '31226', '31227', '58410', '0', '0', '0', '0', '0', '0', '0', '0');
 
 -- 800 181 RogueCombat
+DELETE FROM `talentdbc` WHERE `TalentTab` = '181';
 INSERT INTO `talentdbc` VALUES ('800', '181', '0', '0', '13741', '13793', '13792', '0', '0', '0', '0', '0', '0', '0', '0');
 INSERT INTO `talentdbc` VALUES ('801', '181', '0', '1', '13732', '13863', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 INSERT INTO `talentdbc` VALUES ('802', '181', '0', '2', '13715', '13848', '13849', '13851', '13852', '0', '0', '0', '0', '0', '0');
@@ -44,6 +46,7 @@ INSERT INTO `talentdbc` VALUES ('842', '181', '4', '2', '13877', '0', '0', '0', 
 INSERT INTO `talentdbc` VALUES ('843', '181', '4', '3', '51682', '58413', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
 -- 900 183 RogueSubtlety
+DELETE FROM `talentdbc` WHERE `TalentTab` = '183';
 INSERT INTO `talentdbc` VALUES ('900', '183', '0', '0', '14179', '58422', '58423', '58424', '58425', '0', '0', '0', '0', '0', '0');
 INSERT INTO `talentdbc` VALUES ('901', '183', '0', '1', '31211', '31212', '31213', '0', '0', '0', '0', '0', '0', '0', '0');
 INSERT INTO `talentdbc` VALUES ('903', '183', '0', '3', '14057', '14072', '0', '0', '0', '0', '0', '0', '0', '0', '0');

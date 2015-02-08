@@ -47,7 +47,7 @@ LOCK TABLES `talenttabdbc` WRITE;
 UNLOCK TABLES;
 
 --
--- Records of `talenttabdbc`
+-- Records of `talenttabdbc` from 3.3.5
 --
 
 INSERT INTO `talenttabdbc` VALUES ('81', 'Arcane', 'Arcanes', '125', '2047', '128', '0', '0', 'MageArcane');
