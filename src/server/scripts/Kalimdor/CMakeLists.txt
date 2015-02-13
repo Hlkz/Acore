@@ -18,7 +18,6 @@ set(scripts_STAT_SRCS
   Kalimdor/zone_desolace.cpp
   Kalimdor/zone_feralas.cpp
   Kalimdor/zone_darkshore.cpp
-  Kalimdor/zone_mulgore.cpp
   Kalimdor/zone_bloodmyst_isle.cpp
   Kalimdor/zone_thunder_bluff.cpp
   Kalimdor/zone_azshara.cpp
