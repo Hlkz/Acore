@@ -25,6 +25,7 @@
 */
 
 #include "AuthSocketMgr.h"
+#include "AuthCodes.h"
 #include "Common.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
@@ -42,6 +43,7 @@
 
 using boost::asio::ip::tcp;
 using namespace boost::program_options;
+using namespace AuthHelper;
 
 #ifndef _TRINITY_REALM_CONFIG
 # define _TRINITY_REALM_CONFIG  "authserver.conf"
@@ -57,6 +59,8 @@ boost::asio::io_service _ioService;
 boost::asio::deadline_timer _dbPingTimer(_ioService);
 uint32 _dbPingInterval;
 LoginDatabaseWorkerPool LoginDatabase;
+
+extern Patcher patcher;
 
 int main(int argc, char** argv)
 {
@@ -79,6 +83,8 @@ int main(int argc, char** argv)
     TC_LOG_INFO("server.authserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
     TC_LOG_INFO("server.authserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
 
+    patcher.Initialize();
+
     // authserver PID file creation
     std::string pidFile = sConfigMgr->GetStringDefault("PidFile", "");
     if (!pidFile.empty())
@@ -95,6 +101,8 @@ int main(int argc, char** argv)
     // Initialize the database connection
     if (!StartDB())
         return 1;
+
+    AuthHelper::InitAcceptedClientBuilds();
 
     // Get the list of realms for the server
     sRealmList->Initialize(_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 20));
@@ -143,7 +151,6 @@ int main(int argc, char** argv)
     TC_LOG_INFO("server.authserver", "Halting process...");
     return 0;
 }
-
 
 /// Initialize connection to the database
 bool StartDB()

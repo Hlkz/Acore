@@ -964,7 +964,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_CHARDELETE_KEEP_DAYS] = sConfigMgr->GetIntDefault("CharDelete.KeepDays", 30);
 
     ///- Read the "Data" directory from the config file
-    std::string dataPath = sConfigMgr->GetStringDefault("DataDir", "./");
+    std::string dataPath = sConfigMgr->GetStringDefault("DataDir", "./data/");
     if (dataPath.empty() || (dataPath.at(dataPath.length()-1) != '/' && dataPath.at(dataPath.length()-1) != '\\'))
         dataPath.push_back('/');
 

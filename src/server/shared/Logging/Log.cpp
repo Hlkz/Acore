@@ -395,7 +395,7 @@ void Log::LoadFromConfig()
     Close();
 
     AppenderId = 0;
-    m_logsDir = sConfigMgr->GetStringDefault("LogsDir", "");
+    m_logsDir = sConfigMgr->GetStringDefault("LogsDir", "./log/");
     if (!m_logsDir.empty())
         if ((m_logsDir.at(m_logsDir.length() - 1) != '/') && (m_logsDir.at(m_logsDir.length() - 1) != '\\'))
             m_logsDir.push_back('/');

@@ -16,66 +16,52 @@
  */
 
 #include "AuthCodes.h"
+#include "Database/DatabaseEnv.h"
 #include <cstddef>
+#include <map>
+
+typedef std::map<int, RealmBuildInfo*> RealmBuildContainer;
 
 namespace AuthHelper
 {
-    static RealmBuildInfo const PostBcAcceptedClientBuilds[] =
+    RealmBuildContainer AcceptedClientBuilds;
+
+    void InitAcceptedClientBuilds()
     {
-        {15595, 4, 3, 4, ' '},
-        {14545, 4, 2, 2, ' '},
-        {13623, 4, 0, 6, 'a'},
-        {13930, 3, 3, 5, 'a'},                                  // 3.3.5a China Mainland build
-        {12340, 3, 3, 5, 'a'},
-        {11723, 3, 3, 3, 'a'},
-        {11403, 3, 3, 2, ' '},
-        {11159, 3, 3, 0, 'a'},
-        {10505, 3, 2, 2, 'a'},
-        {9947,  3, 1, 3, ' '},
-        {8606,  2, 4, 3, ' '},
-        {0,     0, 0, 0, ' '}                                   // terminator
-    };
+        AcceptedClientBuilds.clear();
 
-    static RealmBuildInfo const PreBcAcceptedClientBuilds[] =
-    {
-        {6141,  1, 12, 3, ' '},
-        {6005,  1, 12, 2, ' '},
-        {5875,  1, 12, 1, ' '},
-        {0,     0, 0, 0, ' '}                                   // terminator
-    };
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_VERSIONS);
+        PreparedQueryResult result = LoginDatabase.Query(stmt);
 
-    bool IsPreBCAcceptedClientBuild(int build)
-    {
-        for (int i = 0; PreBcAcceptedClientBuilds[i].Build; ++i)
-            if (PreBcAcceptedClientBuilds[i].Build == build)
-                return true;
+        if (!result)
+            TC_LOG_ERROR("server.authserver", "Table `versions` is empty. No one will be able to log in.");
 
-        return false;
-    }
-
-    bool IsPostBCAcceptedClientBuild(int build)
-    {
-        for (int i = 0; PostBcAcceptedClientBuilds[i].Build; ++i)
-            if (PostBcAcceptedClientBuilds[i].Build == build)
-                return true;
-
-        return false;
+        do {
+            Field* fields = result->Fetch();
+            RealmBuildInfo* newBuild = new RealmBuildInfo;
+            newBuild->Build = fields[0].GetUInt32();
+            newBuild->MajorVersion = fields[1].GetUInt32();
+            newBuild->MinorVersion = fields[2].GetUInt32();
+            newBuild->BugfixVersion = fields[3].GetUInt32();
+            newBuild->HotfixVersion = fields[4].GetUInt32();
+            AcceptedClientBuilds[newBuild->Build] = newBuild;
+        } while (result->NextRow());
     }
 
     bool IsAcceptedClientBuild(int build)
     {
-        return (IsPostBCAcceptedClientBuild(build) || IsPreBCAcceptedClientBuild(build));
+        for (RealmBuildContainer::iterator itr = AcceptedClientBuilds.begin(); itr != AcceptedClientBuilds.end(); itr++)
+            if (itr->second->Build == build)
+                return true;
+
+        return false;
     }
 
     RealmBuildInfo const* GetBuildInfo(int build)
     {
-        for (int i = 0; PostBcAcceptedClientBuilds[i].Build; ++i)
-            if (PostBcAcceptedClientBuilds[i].Build == build)
-                return &PostBcAcceptedClientBuilds[i];
-
-        for (int i = 0; PreBcAcceptedClientBuilds[i].Build; ++i)
-            if (PreBcAcceptedClientBuilds[i].Build == build)
-                return &PreBcAcceptedClientBuilds[i];
+        for (RealmBuildContainer::iterator itr = AcceptedClientBuilds.begin(); itr != AcceptedClientBuilds.end(); itr++)
+            if (itr->second->Build == build)
+                return itr->second;
 
         return NULL;
     }

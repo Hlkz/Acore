@@ -25,10 +25,60 @@
 #include "BigNumber.h"
 #include <memory>
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/thread.hpp>
+
+#include <openssl/md5.h>
 
 using boost::asio::ip::tcp;
 
 struct AuthHandler;
+
+class AuthSession;
+
+// clientpatching
+
+typedef struct PATCH_INFO
+{
+    int build;
+    int locale;
+    uint64 filesize;
+    uint8 md5[MD5_DIGEST_LENGTH];
+} PATCH_INFO;
+
+class Patcher
+{
+    typedef std::vector<PATCH_INFO> Patches;
+public:
+    void Initialize();
+
+    void LoadPatchMD5(const char*, char*);
+    bool GetHash(char * pat, uint8 mymd5[16]);
+
+    bool InitPatching(int _build, std::string _locale, AuthSession* _session);
+    bool PossiblePatching(int _build, std::string _locale);
+
+private:
+    PATCH_INFO* getPatchInfo(int _build, std::string _locale, bool* fallback);
+
+    void LoadPatchesInfo();
+    Patches _patches;
+    std::string m_dataDir;
+};
+
+// Launch a thread to transfer a patch to the client
+class PatcherRunnable
+{
+public:
+    PatcherRunnable(AuthSession* session, uint64 pos, uint64 size);
+    void run();
+    void stop();
+
+private:
+    AuthSession* _session;
+    uint64 pos;
+    uint64 size;
+    bool stopped;
+};
 
 class AuthSession : public Socket<AuthSession>
 {
@@ -36,11 +86,12 @@ public:
     static std::unordered_map<uint8, AuthHandler> InitHandlers();
 
     AuthSession(tcp::socket&& socket) : Socket(std::move(socket)),
-        _isAuthenticated(false), _build(0), _expversion(0), _accountSecurityLevel(SEC_PLAYER)
+        _isAuthenticated(false), _build(0), _expversion(0), _accountSecurityLevel(SEC_PLAYER), _patcher(NULL)
     {
         N.SetHexStr("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
         g.SetDword(7);
     }
+    ~AuthSession();
 
     void Start() override
     {
@@ -48,6 +99,9 @@ public:
     }
 
     void SendPacket(ByteBuffer& packet);
+
+    FILE* patch;
+    PatcherRunnable *_patcher;
 
 protected:
     void ReadHandler() override;
