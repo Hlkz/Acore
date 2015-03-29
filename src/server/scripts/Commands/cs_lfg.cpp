@@ -47,15 +47,15 @@ public:
         {
             {  "player",  SEC_ADMINISTRATOR, false, &HandleLfgPlayerInfoCommand, "", NULL },
             {   "group",  SEC_ADMINISTRATOR, false,  &HandleLfgGroupInfoCommand, "", NULL },
-            {   "queue",  SEC_ADMINISTRATOR, false,  &HandleLfgQueueInfoCommand, "", NULL },
-            {   "clean",  SEC_ADMINISTRATOR, false,      &HandleLfgCleanCommand, "", NULL },
-            { "options",  SEC_ADMINISTRATOR, false,    &HandleLfgOptionsCommand, "", NULL },
+            {   "queue",  SEC_ADMINISTRATOR, true,   &HandleLfgQueueInfoCommand, "", NULL },
+            {   "clean",  SEC_ADMINISTRATOR, true,       &HandleLfgCleanCommand, "", NULL },
+            { "options",  SEC_ADMINISTRATOR, true,     &HandleLfgOptionsCommand, "", NULL },
             {      NULL,         SEC_PLAYER, false,                        NULL, "", NULL }
         };
 
         static ChatCommand commandTable[] =
         {
-            {      "lfg", SEC_ADMINISTRATOR, false,                        NULL, "", lfgCommandTable },
+            {      "lfg", SEC_ADMINISTRATOR, true,                         NULL, "", lfgCommandTable },
             {  NULL,             SEC_PLAYER, false,                        NULL, "", NULL }
         };
         return commandTable;
