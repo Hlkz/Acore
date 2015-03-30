@@ -20,7 +20,6 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "CombatAI.h"
-#include "WorldPacket.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 
