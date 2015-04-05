@@ -188,7 +188,7 @@ void LoadDBCStores(const std::string& dataPath)
     for (CharSectionsContainer::const_iterator itr = sDBCMgr->CharSectionsStore.begin(); itr != sDBCMgr->CharSectionsStore.end(); ++itr)
         if (CharSectionsEntry const* entry = itr->second)
             if (entry->Race && ((1 << (entry->Race - 1)) & RACEMASK_ALL_PLAYABLE) != 0) //ignore Nonplayable races
-                sCharSectionMap.emplace(uint8(entry->GenType) | (uint8(entry->Gender) << 8) | (uint8(entry->Race) << 16), entry);
+                sCharSectionMap.insert({ entry->GenType | (entry->Gender << 8) | (entry->Race << 16), entry });
 
     sDBCMgr->LoadCharTitlesStore();
     sDBCMgr->LoadChatChannelsStore();
