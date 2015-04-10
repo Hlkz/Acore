@@ -24680,7 +24680,7 @@ uint32 Player::CalculateTalentsPoints() const
     return base_talent > 30 ? 30 : base_talent;
 }
 
-bool Player::canFlyInZone(uint32 mapid, uint32 zone) const
+bool Player::CanFlyInZone(uint32 mapid, uint32 zone) const
 {
     // continent checked in SpellInfo::CheckLocation at cast and area update
     uint32 v_map = GetVirtualMapForMapAndZone(mapid, zone);
