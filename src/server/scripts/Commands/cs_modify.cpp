@@ -135,7 +135,7 @@ public:
             return false;
         }
 
-        Player* target = handler->getSelectedPlayer();
+        Player* target = handler->getSelectedPlayerOrSelf();
         if (!target)
         {
             handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -163,17 +163,6 @@ public:
         if (!*args)
             return false;
 
-        // char* pmana = strtok((char*)args, " ");
-        // if (!pmana)
-        //     return false;
-
-        // char* pmanaMax = strtok(NULL, " ");
-        // if (!pmanaMax)
-        //     return false;
-
-        // int32 manam = atoi(pmanaMax);
-        // int32 mana = atoi(pmana);
-
         int32 energy = atoi((char*)args)*10;
         int32 energym = atoi((char*)args)*10;
 
@@ -184,7 +173,7 @@ public:
             return false;
         }
 
-        Player* target = handler->getSelectedPlayer();
+        Player* target = handler->getSelectedPlayerOrSelf();
         if (!target)
         {
             handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -214,17 +203,6 @@ public:
         if (!*args)
             return false;
 
-        // char* pmana = strtok((char*)args, " ");
-        // if (!pmana)
-        //     return false;
-
-        // char* pmanaMax = strtok(NULL, " ");
-        // if (!pmanaMax)
-        //     return false;
-
-        // int32 manam = atoi(pmanaMax);
-        // int32 mana = atoi(pmana);
-
         int32 rage = atoi((char*)args)*10;
         int32 ragem = atoi((char*)args)*10;
 
@@ -235,7 +213,7 @@ public:
             return false;
         }
 
-        Player* target = handler->getSelectedPlayer();
+        Player* target = handler->getSelectedPlayerOrSelf();
         if (!target)
         {
             handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -273,7 +251,7 @@ public:
             return false;
         }
 
-        Player* target = handler->getSelectedPlayer();
+        Player* target = handler->getSelectedPlayerOrSelf();
         if (!target)
         {
             handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -389,7 +367,7 @@ public:
         else
             mark = atoi(pmark);
 
-        Player* target = handler->getSelectedPlayer();
+        Player* target = handler->getSelectedPlayerOrSelf();
         if (target == NULL)
         {
             handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -944,7 +922,7 @@ public:
             return false;
         }
 
-        Player* target = handler->getSelectedPlayer();
+        Player* target = handler->getSelectedPlayerOrSelf();
         if (!target)
         {
             handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -985,7 +963,7 @@ public:
         if (!*args)
             return false;
 
-        Player* target = handler->getSelectedPlayer();
+        Player* target = handler->getSelectedPlayerOrSelf();
         if (!target)
         {
             handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -1106,7 +1084,7 @@ public:
         if (!*args)
             return false;
 
-        Player* target = handler->getSelectedPlayer();
+        Player* target = handler->getSelectedPlayerOrSelf();
         if (!target)
         {
             handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
@@ -1136,7 +1114,7 @@ public:
         if (drunklevel > 100)
             drunklevel = 100;
 
-        if (Player* target = handler->getSelectedPlayer())
+        if (Player* target = handler->getSelectedPlayerOrSelf())
             target->SetDrunkValue(drunklevel);
 
         return true;
@@ -1147,7 +1125,7 @@ public:
         if (!*args)
             return false;
 
-        Player* target = handler->getSelectedPlayer();
+        Player* target = handler->getSelectedPlayerOrSelf();
         if (!target)
         {
             handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
@@ -1301,7 +1279,7 @@ public:
         if (!*args)
             return false;
 
-        Player* target = handler->getSelectedPlayer();
+        Player* target = handler->getSelectedPlayerOrSelf();
         if (!target)
         {
             handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
@@ -1323,7 +1301,7 @@ public:
         if (!*args)
             return false;
 
-        Player* target = handler->getSelectedPlayer();
+        Player* target = handler->getSelectedPlayerOrSelf();
 
         if (!target)
         {
