@@ -335,7 +335,7 @@ void LoadDBCStores(const std::string& dataPath)
     // fill data
     for (TaxiPathNodeContainer::const_iterator itr = sDBCMgr->TaxiPathNodeStore.begin(); itr != sDBCMgr->TaxiPathNodeStore.end(); ++itr)
         if (TaxiPathNodeEntry const* entry = itr->second)
-            sTaxiPathNodesByPath[entry->path].set(entry->index, entry);
+            sTaxiPathNodesByPath[entry->PathID].set(entry->NodeIndex, entry);
 
     sDBCMgr->LoadTeamContributionPointsStore();
     sDBCMgr->LoadTotemCategoryStore();
@@ -3481,16 +3481,16 @@ void DBCMgr::LoadTaxiPathNodeStore()
         Field* fields = result->Fetch();
 
         TaxiPathNodeEntry* newTaxiPathNode = new TaxiPathNodeEntry;
-        newTaxiPathNode->path = fields[0].GetUInt32();
-        newTaxiPathNode->index = fields[1].GetUInt32();
-        newTaxiPathNode->mapid = fields[2].GetUInt32();
-        newTaxiPathNode->x = fields[3].GetFloat();
-        newTaxiPathNode->y = fields[4].GetFloat();
-        newTaxiPathNode->z = fields[5].GetFloat();
-        newTaxiPathNode->actionFlag = fields[6].GetUInt32();
-        newTaxiPathNode->delay = fields[7].GetUInt32();
-        newTaxiPathNode->arrivalEventID = fields[8].GetUInt32();
-        newTaxiPathNode->departureEventID = fields[9].GetUInt32();
+        newTaxiPathNode->PathID = fields[0].GetUInt32();
+        newTaxiPathNode->NodeIndex = fields[1].GetUInt32();
+        newTaxiPathNode->MapID = fields[2].GetUInt32();
+        newTaxiPathNode->LocX = fields[3].GetFloat();
+        newTaxiPathNode->LocY = fields[4].GetFloat();
+        newTaxiPathNode->LocZ = fields[5].GetFloat();
+        newTaxiPathNode->Flags = fields[6].GetUInt32();
+        newTaxiPathNode->Delay = fields[7].GetUInt32();
+        newTaxiPathNode->ArrivalEventID = fields[8].GetUInt32();
+        newTaxiPathNode->DepartureEventID = fields[9].GetUInt32();
         TaxiPathNodeStore[fields[10].GetUInt32()] = newTaxiPathNode;
 
     } while (result->NextRow());
