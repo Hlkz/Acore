@@ -34,6 +34,7 @@ extern std::string TinyDataPathLoc;
 extern std::string TinyDataPathPatch;
 extern std::string PatchOutputPath;
 extern std::string PatchResPath;
+extern std::string GameDataPath;
 // Deduct
 extern std::string FullDataPathEn;
 extern std::string FullDataPathFr;

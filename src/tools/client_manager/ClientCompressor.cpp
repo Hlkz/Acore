@@ -14,6 +14,28 @@
 ClientCompressor::ClientCompressor(po::variables_map vm)
 {
     mVm = vm;
+    mFlags = 0;
+    if (mVm.count("c-all"))
+        mFlags |= COMPRESS_ALL;
+    if (mVm.count("c-common"))
+        mFlags |= COMPRESS_COMMON;
+    if (mVm.count("c-common2"))
+        mFlags |= COMPRESS_COMMON2;
+    if (mVm.count("c-lichking"))
+        mFlags |= COMPRESS_LICHKING;
+    if (mVm.count("c-locale"))
+        mFlags |= COMPRESS_LOCALE;
+    if (mVm.count("c-speech"))
+        mFlags |= COMPRESS_SPEECH;
+    if (mVm.count("c-patch"))
+        mFlags |= COMPRESS_PATCH;
+    if (mVm.count("c-udbc"))
+        mFlags |= UPDATE_DBC;
+    if (mVm.count("c-ulua"))
+        mFlags |= UPDATE_LUA;
+    if (!mFlags)
+        return;
+
     Proceed();
 }
 
@@ -22,43 +44,52 @@ bool ClientCompressor::Proceed()
     if (PatchOutputPath.length() < 10)
         return false;
     uint32 oldMSTime = getMSTime();
-    std::cout << "\n  ClientSelector\n";
+    std::cout << "\nCompressor";
 
     SaveOutput();
 
-    bool all = mVm.count("all") ? true : false;
+    bool all = mFlags & COMPRESS_ALL;
 
-    if (mVm.count("locale") || mVm.count("patch") || mVm.count("speech") || all)
+    if (mFlags & COMPRESS_LOCALE || mFlags & COMPRESS_PATCH || mFlags & COMPRESS_SPEECH || all)
     {
         fs::create_directories(PatchOutputPath + "\\frFR");
         fs::create_directories(PatchOutputPath + "\\enUS");
     }
 
     // Patch
-    if (mVm.count("patch"))
+    if (mFlags & COMPRESS_PATCH)
     {
         GeneratePatchMPQ(LOCALE_frFR);
         GeneratePatchMPQ(LOCALE_enUS);
     }
     // Mixed
-    if (mVm.count("common") || all)
+    if (mFlags & COMPRESS_COMMON || all)
         GenerateCommonMPQ();
-    if (mVm.count("common-2") || all)
+    if (mFlags & COMPRESS_COMMON2 || all)
         GenerateCommon2MPQ();
-    if (mVm.count("lichking") || all)
+    if (mFlags & COMPRESS_LICHKING || all)
         GenerateLichkingMPQ();
     // frFR
-    if (mVm.count("locale") || all)
+    if (mFlags & COMPRESS_LOCALE || all)
         GenerateLocaleMPQ(LOCALE_frFR);
-    if (mVm.count("speech") || all)
+    if (mFlags & COMPRESS_SPEECH || all)
         GenerateSpeechMPQ(LOCALE_frFR);
     // enUS
-    if (mVm.count("locale") || all)
+    if (mFlags & COMPRESS_LOCALE || all)
         GenerateLocaleMPQ(LOCALE_enUS);
-    if (mVm.count("speech") || all)
+    if (mFlags & COMPRESS_SPEECH || all)
         GenerateSpeechMPQ(LOCALE_enUS);
 
-    printf("\n  ClientCompressor executed in %u ms\n", GetMSTimeDiffToNow(oldMSTime));
+    // Update dbc/lua in client (test function)
+    if (mFlags & UPDATE_DBC || mFlags & UPDATE_LUA)
+    {
+        if (fs::exists(GameDataPath + "\\frFR"))
+            UpdatePatchMPQ(LOCALE_frFR);
+        if (fs::exists(GameDataPath + "\\enUS"))
+            UpdatePatchMPQ(LOCALE_enUS);
+    }
+
+    printf("\nCompressor executed in %u ms\n", GetMSTimeDiffToNow(oldMSTime));
     return true;
 }
 
@@ -72,6 +103,7 @@ bool ClientCompressor::SaveOutput()
 
     if (save)
     {
+        printf("\n  Saving Output");
         time_t t;
         time(&t);
         tm* time = localtime(&t);
@@ -195,7 +227,7 @@ void ClientCompressor::GeneratePatchMPQ(uint8 loc)
     std::string prefix = TinyDataPathPatch + "\\" + locs;
     fs::path patchPath(PatchOutputPath + "\\" + locs + "\\" + "patch-" + locs + ".mpq");
     HANDLE patch;
-    SFileCreateArchive(patchPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, 0x40000, &patch);
+    SFileCreateArchive(patchPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, 0x4000, &patch);
 
     AddDirToMPQ(prefix + "\\DBFilesClient", "DBFilesClient", &patch);
     AddDirToMPQ(prefix + "\\Interface", "Interface", &patch);
@@ -204,7 +236,38 @@ void ClientCompressor::GeneratePatchMPQ(uint8 loc)
     printf("\n  Ending Patch generation");
 }
 
-bool ClientCompressor::AddFileToMPQ(fs::path from, fs::path to, HANDLE* mpq)
+void ClientCompressor::UpdatePatchMPQ(uint8 loc)
+{
+    printf("\n  Updating Patch ");
+    std::string locs = loc ? "frFR" : "enUS";
+    std::cout << locs;
+    std::string prefix = TinyDataPathPatch + "\\" + locs;
+    fs::path patchPath(GameDataPath + "\\" + locs + "\\" + "patch-" + locs + ".mpq");
+    HANDLE patch;
+
+    if (SFileOpenArchive(patchPath.string().c_str(), 0, 0, &patch))
+    {
+        if (mFlags & UPDATE_DBC)
+        {
+            std::cout << " dbc";
+            AddDirToMPQ(prefix + "\\DBFilesClient", "DBFilesClient", &patch, true);
+        }
+        if (mFlags & UPDATE_LUA)
+        {
+            std::cout << " lua";
+            AddDirToMPQ(prefix + "\\Interface", "Interface", &patch, true);
+        }
+        printf("\n  Compacting...");
+        SFileCompactArchive(patch, NULL, 0);
+        SFileCloseArchive(patch);
+    }
+    else
+        printf("\n  Error opening the archive (code: %u)", GetLastError());
+
+    //printf("\n  Ending Patch update");
+}
+
+bool ClientCompressor::AddFileToMPQ(fs::path from, fs::path to, HANDLE* mpq, bool replace)
 {
     DWORD dwFlags; // dwCompression, dwCompressionNext;
 
@@ -216,7 +279,10 @@ bool ClientCompressor::AddFileToMPQ(fs::path from, fs::path to, HANDLE* mpq)
         || (boost::iequals(from.extension().string(), "mpq")))
         dwFlags = 0;
     else
-        dwFlags = MPQ_FILE_COMPRESS | MPQ_FILE_ENCRYPTED;
+        dwFlags =  MPQ_FILE_COMPRESS | MPQ_FILE_ENCRYPTED;
+
+    if (replace)
+        dwFlags |= MPQ_FILE_REPLACEEXISTING;
 
     //if (dwFlags & MPQ_FILE_COMPRESS)
     //    SFileAddFileEx(mpq, from.string().c_str(), to.string().c_str(), dwFlags, dwCompression, dwCompressionNext);
@@ -224,7 +290,7 @@ bool ClientCompressor::AddFileToMPQ(fs::path from, fs::path to, HANDLE* mpq)
     return SFileAddFile(*mpq, from.string().c_str(), to.string().c_str(), dwFlags);
 }
 
-bool ClientCompressor::AddDirToMPQ(fs::path from, fs::path to, HANDLE* mpq)
+bool ClientCompressor::AddDirToMPQ(fs::path from, fs::path to, HANDLE* mpq, bool replace)
 {
     if (!fs::exists(from) || !fs::is_directory(from))
         return false;
@@ -232,8 +298,8 @@ bool ClientCompressor::AddDirToMPQ(fs::path from, fs::path to, HANDLE* mpq)
     boost::filesystem::directory_iterator end_itr;
     for (boost::filesystem::directory_iterator i(from); i != end_itr; ++i)
         if (fs::is_directory(i->status()))
-            AddDirToMPQ(i->path(), to / i->path().filename(), mpq);
+            AddDirToMPQ(i->path(), to / i->path().filename(), mpq, replace);
         else
-            AddFileToMPQ(i->path(), to / i->path().filename(), mpq);
+            AddFileToMPQ(i->path(), to / i->path().filename(), mpq, replace);
     return true;
 }

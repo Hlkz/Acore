@@ -12,6 +12,7 @@ std::string TinyDataPathLoc;
 std::string TinyDataPathPatch;
 std::string PatchOutputPath;
 std::string PatchResPath;
+std::string GameDataPath;
 
 std::string FullDataPathEn;
 std::string FullDataPathFr;
@@ -25,21 +26,23 @@ int main(int argc, char *argv[])
         ("help", "produce help message")
 
         ("selector", "Launch ClientSelector")
-            ("deldata", "Delete TinyData before selection")
-            ("noadt", "Don't select files from adts")
-            ("nodb", "Don't select files from the db")
-                ("noitem", "Don't select items from the db")
-            ("nosound", "Don't select sounds files")
-            ("nocompletion", "Don't select completion files")
+            ("s-all", "Select All")
+            ("s-adt", "Select from adts")
+            ("s-db", "Select from the db")
+            ("s-item", "Select items from the db")
+            ("s-sound", "Select sounds")
+            ("s-compl", "Selection Completion")
+            ("s-deldata", "Delete TinyData before selection")
 
-        ("compress", "Launch ClientCompressor")
-            ("all", "Compress All")
-            ("common", "Compress Common")
-            ("common-2", "Compress Common-2")
-            ("lichking", "Compress Lichking")
-            ("locale", "Compress Locale")
-            ("speech", "Compress Speech")
-            ("patch", "Compress Patch")
+            ("c-all", "Compress All")
+            ("c-common", "Compress Common")
+            ("c-common2", "Compress Common-2")
+            ("c-lichking", "Compress Lichking")
+            ("c-locale", "Compress Locale")
+            ("c-speech", "Compress Speech")
+            ("c-patch", "Compress Patch")
+            ("c-udbc", "Update dbc")
+            ("c-ulua", "Update lua")
         //("compression", po::value<int>(), "set compression level")
         ;
 
@@ -55,7 +58,8 @@ int main(int argc, char *argv[])
 
     ClientManager* Manager = new ClientManager(vm);
 
-    printf("\n  EndOfExe\n  ");
+    printf("\n");
+    //printf("\nEndOfExe\n  ");
     //system("pause");
     return 0;
 }

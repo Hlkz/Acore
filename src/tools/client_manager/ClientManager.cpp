@@ -14,6 +14,7 @@ ClientManager::ClientManager(po::variables_map vm)
     TinyDataPathPatch = "D:\\A\\Client\\Patch\\Data\\TinyPatch";
     PatchOutputPath = "D:\\A\\Client\\Patch\\Output";
     PatchResPath = "D:\\A\\Client\\Patch\\res";
+    GameDataPath = "D:\\A\\Client\\Aviana\\Data";
 
     FullDataPathFr = FullDataPathLoc + "\\frFR";
     FullDataPathEn = FullDataPathLoc + "\\enUS";
@@ -25,11 +26,9 @@ ClientManager::ClientManager(po::variables_map vm)
 
 bool ClientManager::Proceed()
 {
-    std::cout << "\n  ClientManager\n\n";
+    // std::cout << "\n  ClientManager\n\n";
 
     uint32 oldMSTime = getMSTime();
-    //boost::filesystem::remove_all(boost::filesystem::path(OutputPath));
-    //boost::filesystem::create_directories(boost::filesystem::path(OutputPath));
 
     if (!StartDB())
         return false;
@@ -39,11 +38,8 @@ bool ClientManager::Proceed()
         selector = new ClientSelector(mVm);
     }
 
-    if (mVm.count("compress"))
-    {
-        compressor = new ClientCompressor(mVm);
-    }
+    compressor = new ClientCompressor(mVm);
 
-    printf("\n  Program executed in %u ms", GetMSTimeDiffToNow(oldMSTime));
+    //printf("\n  Program executed in %u ms", GetMSTimeDiffToNow(oldMSTime));
     return true;
 }

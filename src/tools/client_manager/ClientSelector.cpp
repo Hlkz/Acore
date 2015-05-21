@@ -8,16 +8,18 @@
 
 ClientSelector::ClientSelector(po::variables_map vm)
 {
-    ExtractFlags = EXTRACT_ADTS | EXTRACT_DATABASE | EXTRACT_SOUNDS | COMPLETION;
+    ExtractFlags = 0;
+    if (vm.count("s-adt"))
+        ExtractFlags |= EXTRACT_ADTS;
+    if (vm.count("s-db"))
+        ExtractFlags |= EXTRACT_DATABASE;
+    if (vm.count("s-sound"))
+        ExtractFlags |= EXTRACT_SOUNDS;
+    if (vm.count("s-compl"))
+        ExtractFlags |= COMPLETION;
+    if (vm.count("s-all"))
+        ExtractFlags = EXTRACT_ADTS | EXTRACT_DATABASE | EXTRACT_SOUNDS | COMPLETION;
 
-    if (vm.count("noadt"))
-        ExtractFlags &= ~EXTRACT_ADTS;
-    if (vm.count("nodb"))
-        ExtractFlags &= ~EXTRACT_DATABASE;
-    if (vm.count("nosound"))
-        ExtractFlags &= ~EXTRACT_SOUNDS;
-    if (vm.count("nocompletion"))
-        ExtractFlags &= ~COMPLETION;
     mVm = vm; // additionnals
     mCopy = true;
 
@@ -70,7 +72,7 @@ bool ClientSelector::Proceed()
     std::cout << "\n\n  ";
     //system("pause");
 
-    if (mVm.count("deldata"))
+    if (mVm.count("s-deldata"))
     {
         for (boost::filesystem::directory_iterator i(TinyDataPath); i != boost::filesystem::directory_iterator(); ++i)
             if (i->path().filename() != ".git")
@@ -133,7 +135,7 @@ void ClientSelector::Extract()
         {
             Xtrct_eFiles("Models (exact, mixed)", eMdx_M);
             Xtrct_XFiles("Ground Models", MdxGround);
-            if (!mVm.count("noitem"))
+            if (!mVm.count("s-noitem"))
                 Xtrct_XFiles("Item Models", MdxItem);
         }
         Xtrct_eFiles("Models & Wmos (exact, mixed)", eWmoMdx_M);
@@ -146,7 +148,7 @@ void ClientSelector::Extract()
         Xtrct_XFiles("Textures (regex, localized)", Blp_RL);
         Xtrct_eFiles("Textures (exact)", eBlp);
         Xtrct_eFiles("Textures (exact, mixed)", eBlp_M);
-        if (!mVm.count("noitem"))
+        if (!mVm.count("s-noitem"))
         {
             Xtrct_XFiles("Item Textures (mixed)", BlpItem);
             Xtrct_XFiles("Item Textures (regex, mixed)", BlpItem2);
