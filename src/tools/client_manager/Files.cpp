@@ -70,7 +70,7 @@ void ClientSelector::NamesFromADT(std::string path)
     }
     fread(&header, 1, sizeof(MHDR), adtFile);
 
-    if (ExtractFlags & EXTRACT_ADTS)
+    if (mFlags & EXTRACT_ADTS)
     {
         fseek(adtFile, header.mtex + 0x14, SEEK_SET);
         fread(&fourcc, 4, 1, adtFile);
@@ -95,7 +95,7 @@ void ClientSelector::NamesFromADT(std::string path)
         }
     }
 
-    if (ExtractFlags & EXTRACT_ADTS)
+    if (mFlags & EXTRACT_ADTS)
     {
         fseek(adtFile, header.mmdx + 0x14, SEEK_SET);
         fread(&fourcc, 4, 1, adtFile);
@@ -117,7 +117,7 @@ void ClientSelector::NamesFromADT(std::string path)
         }
     }
 
-    //if (ExtractFlags & EXTRACT_ADTS || ExtractFlags & EXTRACT_SOUNDS)
+    //if (mFlags & EXTRACT_ADTS || mFlags & EXTRACT_SOUNDS)
     {
         fseek(adtFile, header.mwmo + 0x14, SEEK_SET);
         fread(&fourcc, 4, 1, adtFile);

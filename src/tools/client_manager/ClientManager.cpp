@@ -33,10 +33,7 @@ bool ClientManager::Proceed()
     if (!StartDB())
         return false;
 
-    if (mVm.count("selector"))
-    {
-        selector = new ClientSelector(mVm);
-    }
+    selector = new ClientSelector(mVm);
 
     compressor = new ClientCompressor(mVm);
 

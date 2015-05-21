@@ -31,7 +31,7 @@ void ClientSelector::NamesFromUnusedDatabase()
     printf("\n  Names from Unused Database");
     QueryResult result;
 
-    if (ExtractFlags & EXTRACT_DATABASE) //if (ExtractFlags & EXTRACT_MODELS)
+    if (mFlags & EXTRACT_DATABASE) //if (mFlags & EXTRACT_MODELS)
     {
         // CinematicCamera
         printf("\n    CinematicCamera");
@@ -88,7 +88,7 @@ void ClientSelector::NamesFromUnusedDatabase()
         } while (result->NextRow());
     }
 
-    if (ExtractFlags & EXTRACT_DATABASE) //if (ExtractFlags & EXTRACT_TEXTURES)
+    if (mFlags & EXTRACT_DATABASE) //if (mFlags & EXTRACT_TEXTURES)
     {
         // CharSections
         printf("\n    CharSections");
@@ -140,7 +140,7 @@ void ClientSelector::NamesFromUnusedDatabase()
         } while (result->NextRow());
     }
 
-    if (ExtractFlags & EXTRACT_DATABASE) //if (ExtractFlags & EXTRACT_MODELS || ExtractFlags & EXTRACT_TEXTURES)
+    if (mFlags & EXTRACT_DATABASE) //if (mFlags & EXTRACT_MODELS || mFlags & EXTRACT_TEXTURES)
     {
         // GameobjectArtkit
         printf("\n    GameobjectArtkit");
@@ -148,7 +148,7 @@ void ClientSelector::NamesFromUnusedDatabase()
             "WHERE (NULLIF(Texture1, '') AND NULLIF(Texture2, '') AND NULLIF(Texture3, '') AND NULLIF(Model1, '') AND NULLIF(Model2, '') AND NULLIF(Model3, '') AND NULLIF(Model4, '')) IS NOT NULL");
         do {
             Field* fields = result->Fetch();
-            //if (ExtractFlags & EXTRACT_TEXTURES)
+            //if (mFlags & EXTRACT_TEXTURES)
             {
                 if (strlen(fields[0].GetCString()))
                     AddExactFile(eBlp_M, fields[0].GetString());
@@ -157,7 +157,7 @@ void ClientSelector::NamesFromUnusedDatabase()
                 if (strlen(fields[2].GetCString()))
                     AddExactFile(eBlp_M, fields[2].GetString());
             }
-            //if (ExtractFlags & EXTRACT_MODELS)
+            //if (mFlags & EXTRACT_MODELS)
             {
                 if (strlen(fields[3].GetCString()))
                     AddExactFile(eMdx_M, fields[3].GetString());
@@ -170,12 +170,12 @@ void ClientSelector::NamesFromUnusedDatabase()
             }
         } while (result->NextRow());
 
-        if (!mVm.count("noitem"))
+        if (!(mFlags & DONT_EXTRACT_ITEMS))
         {
             // ItemDisplayInfo
             printf("\n    ItemDisplayInfo");
 
-            if (result = UnusedDatabase.Query("SELECT DisplayInfo FROM item_template WHERE DisplayInfo != 0"))
+            if (result = WorldDatabase.Query("SELECT DisplayId FROM item_template WHERE DisplayId != 0"))
                 do {
                     Field* fields = result->Fetch();
                     if (fields[0].GetUInt32())
@@ -190,14 +190,14 @@ void ClientSelector::NamesFromUnusedDatabase()
                 if (result = UnusedDatabase.Query(query.str().c_str()))
                     do {
                         Field* fields = result->Fetch();
-                        //if (ExtractFlags & EXTRACT_MODELS)
+                        //if (mFlags & EXTRACT_MODELS)
                         {
                             if (strlen(fields[0].GetCString()))
                                 AddFile(MdxItem, "Item\\ObjectComponents\\" + fields[0].GetString()); // name.mdx
                             if (strlen(fields[1].GetCString()))
                                 AddFile(MdxItem, "Item\\ObjectComponents\\" + fields[1].GetString()); // name.mdx
                         }
-                        //if (ExtractFlags & EXTRACT_TEXTURES)
+                        //if (mFlags & EXTRACT_TEXTURES)
                         {
                             if (strlen(fields[2].GetCString())) AddFile(BlpItem, "Item\\ObjectComponents\\" + fields[2].GetString(), ".blp"); // name (blp)
                             if (strlen(fields[3].GetCString())) AddFile(BlpItem, "Item\\ObjectComponents\\" + fields[3].GetString(), ".blp"); // name (blp)
@@ -222,26 +222,26 @@ void ClientSelector::NamesFromUnusedDatabase()
 
 void ClientSelector::NamesFromWorldDatabase()
 {
-    if (!(ExtractFlags & EXTRACT_DATABASE) && !(ExtractFlags & EXTRACT_SOUNDS))
+    if (!(mFlags & EXTRACT_DATABASE) && !(mFlags & EXTRACT_SOUNDS))
         return;
 
     printf("\n  Names from World Database");
     QueryResult result;
 
-    if (ExtractFlags & EXTRACT_DATABASE) //if (ExtractFlags & EXTRACT_MODELS || ExtractFlags & EXTRACT_TEXTURES)
+    if (mFlags & EXTRACT_DATABASE) //if (mFlags & EXTRACT_MODELS || mFlags & EXTRACT_TEXTURES)
     {
         // CreatureModelData
         printf("\n    CreatureModelData");
         result = WorldDatabase.Query("SELECT Id, Model FROM creaturemodeldatadbc WHERE NULLIF(Model, '') IS NOT NULL");
         do {
             Field* fields = result->Fetch();
-            if (/*ExtractFlags & EXTRACT_MODELS && */strlen(fields[1].GetCString()))
+            if (/*mFlags & EXTRACT_MODELS && */strlen(fields[1].GetCString()))
                 AddExactFile(eMdx_M, fields[1].GetString());
             CreaModelData[fields[0].GetUInt32()] = RemoveName(fields[1].GetString());
         } while (result->NextRow());
     }
 
-    if (ExtractFlags & EXTRACT_DATABASE || ExtractFlags & EXTRACT_SOUNDS) //if (ExtractFlags & EXTRACT_MODELS)
+    if (mFlags & EXTRACT_DATABASE || mFlags & EXTRACT_SOUNDS) //if (mFlags & EXTRACT_MODELS)
     {
         // GameObjectDisplayInfo
         printf("\n    GameObjectDisplayInfo");
@@ -253,7 +253,7 @@ void ClientSelector::NamesFromWorldDatabase()
         } while (result->NextRow());
     }
 
-    if (ExtractFlags & EXTRACT_DATABASE) //if(ExtractFlags & EXTRACT_TEXTURES)
+    if (mFlags & EXTRACT_DATABASE) //if(mFlags & EXTRACT_TEXTURES)
     {
         // CreatureDisplayInfoExtra
         printf("\n    CreatureDisplayInfoExtra");
@@ -340,7 +340,7 @@ void ClientSelector::NamesFromWorldDatabase()
 
 void ClientSelector::NamesOfSounds()
 {
-    if (!(ExtractFlags & EXTRACT_SOUNDS))
+    if (!(mFlags & EXTRACT_SOUNDS))
         return;
 
     printf("\n  Names of Sounds\n");

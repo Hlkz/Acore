@@ -8,17 +8,21 @@
 
 ClientSelector::ClientSelector(po::variables_map vm)
 {
-    ExtractFlags = 0;
+    mFlags = 0;
     if (vm.count("s-adt"))
-        ExtractFlags |= EXTRACT_ADTS;
+        mFlags |= EXTRACT_ADTS;
     if (vm.count("s-db"))
-        ExtractFlags |= EXTRACT_DATABASE;
+        mFlags |= EXTRACT_DATABASE;
     if (vm.count("s-sound"))
-        ExtractFlags |= EXTRACT_SOUNDS;
+        mFlags |= EXTRACT_SOUNDS;
     if (vm.count("s-compl"))
-        ExtractFlags |= COMPLETION;
+        mFlags |= COMPLETION;
     if (vm.count("s-all"))
-        ExtractFlags = EXTRACT_ADTS | EXTRACT_DATABASE | EXTRACT_SOUNDS | COMPLETION;
+        mFlags = EXTRACT_ADTS | EXTRACT_DATABASE | EXTRACT_SOUNDS | COMPLETION;
+    if (vm.count("s-noitem"))
+        mFlags |= DONT_EXTRACT_ITEMS;
+    if (!mFlags)
+        return;
 
     mVm = vm; // additionnals
     mCopy = true;
@@ -62,13 +66,13 @@ bool ClientSelector::Proceed()
     uint32 oldMSTime = getMSTime();
     std::cout << "\n  ClientSelector\n";
 
-    std::cout << "\n    Extracting Adts: " << (ExtractFlags & EXTRACT_ADTS ? "yes" : "no");
-    std::cout << "\n    Extracting Database: " << (ExtractFlags & EXTRACT_DATABASE ? "yes" : "no");
-    std::cout << "\n    Extracting Sounds: " << (ExtractFlags & EXTRACT_SOUNDS ? "yes" : "no");
-    //std::cout << "\n    Extracting Textures: " << (ExtractFlags & EXTRACT_TEXTURES ? "yes" : "no");
-    //std::cout << "\n    Extracting Models: " << (ExtractFlags & EXTRACT_MODELS ? "yes" : "no");
-    //std::cout << "\n    Extracting Wmos: " << (ExtractFlags & EXTRACT_WMOS ? "yes" : "no");
-    std::cout << "\n    Completion: " << (ExtractFlags & COMPLETION ? "yes" : "no");
+    std::cout << "\n    Extracting Adts: " << (mFlags & EXTRACT_ADTS ? "yes" : "no");
+    std::cout << "\n    Extracting Database: " << (mFlags & EXTRACT_DATABASE ? "yes" : "no");
+    std::cout << "\n    Extracting Sounds: " << (mFlags & EXTRACT_SOUNDS ? "yes" : "no");
+    //std::cout << "\n    Extracting Textures: " << (mFlags & EXTRACT_TEXTURES ? "yes" : "no");
+    //std::cout << "\n    Extracting Models: " << (mFlags & EXTRACT_MODELS ? "yes" : "no");
+    //std::cout << "\n    Extracting Wmos: " << (mFlags & EXTRACT_WMOS ? "yes" : "no");
+    std::cout << "\n    Completion: " << (mFlags & COMPLETION ? "yes" : "no");
     std::cout << "\n\n  ";
     //system("pause");
 
@@ -99,7 +103,7 @@ bool ClientSelector::Proceed()
 
 void ClientSelector::ExtractADTs()
 {
-    if (!(ExtractFlags & EXTRACT_ADTS) && !(ExtractFlags & EXTRACT_SOUNDS))
+    if (!(mFlags & EXTRACT_ADTS) && !(mFlags & EXTRACT_SOUNDS))
         return;
     printf("\n  Extracting ADTs");
 
@@ -117,7 +121,7 @@ void ClientSelector::ExtractADTs()
         }
     } while (result->NextRow());
 
-    mCopy = ExtractFlags & EXTRACT_ADTS ? true : false;
+    mCopy = mFlags & EXTRACT_ADTS ? true : false;
     Xtrct_XFiles("Adt", Adt);
     Xtrct_XFiles("Adt additionnals", WdAdt);
     mCopy = true;
@@ -128,27 +132,27 @@ void ClientSelector::ExtractADTs()
 
 void ClientSelector::Extract()
 {
-    if (ExtractFlags & EXTRACT_DATABASE || ExtractFlags & EXTRACT_SOUNDS) //if (ExtractFlags & EXTRACT_MODELS)
+    if (mFlags & EXTRACT_DATABASE || mFlags & EXTRACT_SOUNDS) //if (mFlags & EXTRACT_MODELS)
     {
         printf("\n  Extracting Models");
-        if (ExtractFlags & EXTRACT_DATABASE)
+        if (mFlags & EXTRACT_DATABASE)
         {
             Xtrct_eFiles("Models (exact, mixed)", eMdx_M);
             Xtrct_XFiles("Ground Models", MdxGround);
-            if (!mVm.count("s-noitem"))
+            if (!(mFlags & DONT_EXTRACT_ITEMS))
                 Xtrct_XFiles("Item Models", MdxItem);
         }
         Xtrct_eFiles("Models & Wmos (exact, mixed)", eWmoMdx_M);
         printf("\n");
     }
 
-    if (ExtractFlags & EXTRACT_DATABASE) //if (ExtractFlags & EXTRACT_TEXTURES)
+    if (mFlags & EXTRACT_DATABASE) //if (mFlags & EXTRACT_TEXTURES)
     {
         printf("\n  Extracting Textures");
         Xtrct_XFiles("Textures (regex, localized)", Blp_RL);
         Xtrct_eFiles("Textures (exact)", eBlp);
         Xtrct_eFiles("Textures (exact, mixed)", eBlp_M);
-        if (!mVm.count("s-noitem"))
+        if (!(mFlags & DONT_EXTRACT_ITEMS))
         {
             Xtrct_XFiles("Item Textures (mixed)", BlpItem);
             Xtrct_XFiles("Item Textures (regex, mixed)", BlpItem2);
@@ -179,7 +183,7 @@ void ClientSelector::End()
 
 void ClientSelector::ExtractSounds()
 {
-    if (ExtractFlags & EXTRACT_SOUNDS)
+    if (mFlags & EXTRACT_SOUNDS)
     {
         printf("\n  Extracting Sounds");
         Xtrct_XFiles("Sounds", Sounds);
@@ -189,10 +193,10 @@ void ClientSelector::ExtractSounds()
 
 void ClientSelector::Completion()
 {
-    if (!(ExtractFlags & COMPLETION))
+    if (!(mFlags & COMPLETION))
         return;
 
-    printf("\n Completion\n");
+    printf("\n  Completion\n");
 
     mXtrctFlags = XTRCT_CPYDIR | XTRCT_MIX | EXT_MDX | EXT_WMO;
     Xtrct_eFile("_shaders");
@@ -203,7 +207,7 @@ void ClientSelector::Completion()
     Xtrct_eFile("signaturefile");
     Xtrct_eFile("component.wow-data.txt");
     mXtrctFlags = XTRCT_MIX | XTRCT_REGEX;
-    Xtrct_XFile("*\\.blp", "Textures");
+    Xtrct_XFile(".*\\.blp", "Textures");
 
     mXtrctFlags = XTRCT_CPYDIR | XTRCT_LOC | EXT_MDX | EXT_WMO;
     Xtrct_eFile("Fonts");
@@ -290,7 +294,7 @@ void ClientSelector::Completion()
     Xtrct_eFile("Interface\\WorldMap\\Kalimdor.zmp");
     mXtrctFlags = XTRCT_LOC | XTRCT_REGEX;
     Xtrct_XFile("component\\.wow-....\\.txt");
-    Xtrct_XFile(".*blp", "Interface\\WorldMap");
+    Xtrct_XFile(".*\\.blp", "Interface\\WorldMap");
 
     // WorldMap
     QueryResult result = WorldDatabase.Query("SELECT InternalName FROM worldmapareadbc");

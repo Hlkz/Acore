@@ -39,6 +39,7 @@ enum ExtractFlag
     EXTRACT_DATABASE    = 0x20,
     EXTRACT_SOUNDS      = 0x40,
     COMPLETION          = 0x80,
+    DONT_EXTRACT_ITEMS  = 0x100
     //EXTRACT_TEXTURES    = 0x01,
     //EXTRACT_MODELS      = 0x02,
     //EXTRACT_WMOS        = 0x04,
@@ -117,7 +118,7 @@ class ClientSelector
 
     private:
         po::variables_map mVm;
-        int32 ExtractFlags;
+        int32 mFlags;
         int32 mXtrctFlags;
         bool mCopy;
 
