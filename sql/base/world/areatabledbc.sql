@@ -62,6 +62,7 @@ UNLOCK TABLES;
 -- Records of `areatabledbc`
 --
 
+/*
 INSERT INTO `areatabledbc` VALUES ('1', '0', '0', '119', '65', '0', '11', '42', '8', '0', '0', 'Dun Morogh', 'Dun Morogh', '2', '0', '0', '0', '0', '-500', '0.3', '0');
 INSERT INTO `areatabledbc` VALUES ('2', '0', '40', '120', '1073741888', '0', '11', '0', '9', '0', '0', 'Longshore', 'Longrivage', '0', '0', '0', '0', '0', '-500', '0', '0');
 INSERT INTO `areatabledbc` VALUES ('3', '0', '0', '121', '64', '0', '11', '25', '7', '0', '0', 'Badlands', 'Terres ingrates', '0', '0', '0', '0', '0', '-500', '0.1', '0');
@@ -2369,13 +2370,14 @@ INSERT INTO `areatabledbc` VALUES ('4906', '668', '4820', '3443', '1073758209', 
 INSERT INTO `areatabledbc` VALUES ('4908', '668', '4820', '3451', '1073758209', '0', '0', '0', '0', '0', '-1', 'The Hidden Passage', 'Le passage secret', '0', '0', '0', '0', '0', '-500', '0', '0');
 INSERT INTO `areatabledbc` VALUES ('4910', '631', '4812', '3461', '1107312641', '0', '0', '0', '0', '0', '-1', 'Frostmourne', 'Deuillegivre', '0', '0', '0', '0', '0', '-500', '0', '0');
 INSERT INTO `areatabledbc` VALUES ('4987', '724', '0', '3617', '0', '0', '0', '363', '566', '0', '0', 'The Ruby Sanctum', 'Le sanctum Rubis', '0', '0', '0', '0', '0', '-500', '1', '0');
+*/
 
 
 --
 -- Override with data from Cata/Mop
 --
 
-DELETE FROM `areatabledbc`;
+-- DELETE FROM `areatabledbc`;
 INSERT INTO `areatabledbc` VALUES ('1', '0', '0', '119', '0', '0', '11', '598', '759', '0', '0', 'Dun Morogh', 'Dun Morogh', '2', '0', '0', '0', '0', '-500', '0.3', '0');
 INSERT INTO `areatabledbc` VALUES ('2', '0', '40', '120', '1073758336', '0', '11', '567', '9', '0', '0', 'Longshore', 'Longrivage', '0', '0', '0', '0', '0', '-500', '0', '0');
 INSERT INTO `areatabledbc` VALUES ('3', '0', '0', '121', '0', '0', '11', '606', '738', '0', '0', 'Badlands', 'Terres Ingrates', '0', '0', '0', '0', '0', '-500', '0.1', '0');
