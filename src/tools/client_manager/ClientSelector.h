@@ -92,8 +92,6 @@ class ClientSelector
         bool AddFile(XFiles &vec, std::string str, std::string add = "");
         bool AddUInt(uint32 integer, std::vector<uint32> &vec);
         //bool AddString(std::string str, std::vector<std::string> &vec);
-        // Specific
-        void AddSoundToExtract(uint32 id) { AddUInt(id, SoundsToExtract); }
 
         // Generic
         //std::string ClientSelector::MismatchString(std::string const &a, std::string const &b);
@@ -154,6 +152,8 @@ class ClientSelector
         // Sounds
         XFiles Sounds;
 
+        std::vector<uint32> CreatureDisplayIds; // filled with creature_template
+        std::vector<uint32> ItemDisplayIds;     // filled with item_template
         std::vector<uint32> WMOIds;             // filled when WMOs are extracted
         std::vector<uint32> SoundsToExtract;    // from SoundAmbience, ZoneMusic, ZoneIntroMusic from AreaTable, WMOAreaTable (WMOIds must be filled)
         std::map<uint32, std::string> CreaModelData;

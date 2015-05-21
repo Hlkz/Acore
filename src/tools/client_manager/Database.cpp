@@ -174,33 +174,46 @@ void ClientSelector::NamesFromUnusedDatabase()
         {
             // ItemDisplayInfo
             printf("\n    ItemDisplayInfo");
-            result = UnusedDatabase.Query("SELECT LeftModel, RightModel, LeftModelTexture, RightModelTexture, Icon1, Icon2, UpperArmTexture, LowerArmTexture, HandsTexture, "
-                "UpperTorsoTexture, LowerTorsoTexture, UpperLegTexture, LowerLegTexture, FootTexture FROM itemdisplayinfo");
-            do {
-                Field* fields = result->Fetch();
-                //if (ExtractFlags & EXTRACT_MODELS)
-                {
-                    if (strlen(fields[0].GetCString()))
-                        AddFile(MdxItem, "Item\\ObjectComponents\\" + fields[0].GetString()); // name.mdx
-                    if (strlen(fields[1].GetCString()))
-                        AddFile(MdxItem, "Item\\ObjectComponents\\" + fields[1].GetString()); // name.mdx
-                }
-                //if (ExtractFlags & EXTRACT_TEXTURES)
-                {
-                    if (strlen(fields[2].GetCString())) AddFile(BlpItem, "Item\\ObjectComponents\\" + fields[2].GetString(), ".blp"); // name (blp)
-                    if (strlen(fields[3].GetCString())) AddFile(BlpItem, "Item\\ObjectComponents\\" + fields[3].GetString(), ".blp"); // name (blp)
-                    if (strlen(fields[4].GetCString())) AddExactFile(BlpIcon, "Interface\\Icons\\" + fields[4].GetString() + ".blp"); // name (blp)
-                    if (strlen(fields[5].GetCString())) AddExactFile(BlpIcon, "Interface\\Icons\\" + fields[5].GetString() + ".blp"); // name (blp)
-                    if (strlen(fields[6].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\ArmUpperTexture\\" + fields[6].GetString(), ".*\\.blp");        // name (blp)
-                    if (strlen(fields[7].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\ArmLowerTexture\\" + fields[7].GetString(), ".*\\.blp");        // name (blp)
-                    if (strlen(fields[8].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\HandTexture\\" + fields[8].GetString(), ".*\\.blp");            // name (blp)
-                    if (strlen(fields[9].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\TorsoUpperTexture\\" + fields[9].GetString(), ".*\\.blp");      // name (blp)
-                    if (strlen(fields[10].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\TorsoLowerTexture\\" + fields[10].GetString(), ".*\\.blp");    // name (blp)
-                    if (strlen(fields[11].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\LegUpperTexture\\" + fields[11].GetString(), ".*\\.blp");      // name (blp)
-                    if (strlen(fields[12].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\LegLowerTexture\\" + fields[12].GetString(), ".*\\.blp");      // name (blp)
-                    if (strlen(fields[13].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\FootTexture\\" + fields[13].GetString(), ".*\\.blp");          // name (blp)
-                }
-            } while (result->NextRow());
+
+            if (result = UnusedDatabase.Query("SELECT DisplayInfo FROM item_template WHERE DisplayInfo != 0"))
+                do {
+                    Field* fields = result->Fetch();
+                    if (fields[0].GetUInt32())
+                        AddUInt(fields[0].GetUInt32(), ItemDisplayIds);
+                } while (result->NextRow());
+
+            for (std::vector<uint32>::const_iterator itr = ItemDisplayIds.begin(); itr != ItemDisplayIds.end(); ++itr)
+            {
+                std::stringstream query;
+                query << "SELECT LeftModel, RightModel, LeftModelTexture, RightModelTexture, Icon1, Icon2, UpperArmTexture, LowerArmTexture, HandsTexture, "
+                    "UpperTorsoTexture, LowerTorsoTexture, UpperLegTexture, LowerLegTexture, FootTexture FROM itemdisplayinfo WHERE Id = " << (*itr);
+                if (result = UnusedDatabase.Query(query.str().c_str()))
+                    do {
+                        Field* fields = result->Fetch();
+                        //if (ExtractFlags & EXTRACT_MODELS)
+                        {
+                            if (strlen(fields[0].GetCString()))
+                                AddFile(MdxItem, "Item\\ObjectComponents\\" + fields[0].GetString()); // name.mdx
+                            if (strlen(fields[1].GetCString()))
+                                AddFile(MdxItem, "Item\\ObjectComponents\\" + fields[1].GetString()); // name.mdx
+                        }
+                        //if (ExtractFlags & EXTRACT_TEXTURES)
+                        {
+                            if (strlen(fields[2].GetCString())) AddFile(BlpItem, "Item\\ObjectComponents\\" + fields[2].GetString(), ".blp"); // name (blp)
+                            if (strlen(fields[3].GetCString())) AddFile(BlpItem, "Item\\ObjectComponents\\" + fields[3].GetString(), ".blp"); // name (blp)
+                            if (strlen(fields[4].GetCString())) AddExactFile(BlpIcon, "Interface\\Icons\\" + fields[4].GetString() + ".blp"); // name (blp)
+                            if (strlen(fields[5].GetCString())) AddExactFile(BlpIcon, "Interface\\Icons\\" + fields[5].GetString() + ".blp"); // name (blp)
+                            if (strlen(fields[6].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\ArmUpperTexture\\" + fields[6].GetString(), ".*\\.blp");        // name (blp)
+                            if (strlen(fields[7].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\ArmLowerTexture\\" + fields[7].GetString(), ".*\\.blp");        // name (blp)
+                            if (strlen(fields[8].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\HandTexture\\" + fields[8].GetString(), ".*\\.blp");            // name (blp)
+                            if (strlen(fields[9].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\TorsoUpperTexture\\" + fields[9].GetString(), ".*\\.blp");      // name (blp)
+                            if (strlen(fields[10].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\TorsoLowerTexture\\" + fields[10].GetString(), ".*\\.blp");    // name (blp)
+                            if (strlen(fields[11].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\LegUpperTexture\\" + fields[11].GetString(), ".*\\.blp");      // name (blp)
+                            if (strlen(fields[12].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\LegLowerTexture\\" + fields[12].GetString(), ".*\\.blp");      // name (blp)
+                            if (strlen(fields[13].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\FootTexture\\" + fields[13].GetString(), ".*\\.blp");          // name (blp)
+                        }
+                    } while (result->NextRow());
+            }
         }
     }
 
@@ -262,19 +275,38 @@ void ClientSelector::NamesFromWorldDatabase()
 
         // CreatureDisplayInfo (after CreatureModelData)
         printf("\n    CreatureDisplayInfo");
-        result = WorldDatabase.Query("SELECT ModelId, Skin1, Skin2, Skin3, PortraitTextureName FROM creaturedisplayinfodbc "
-            "WHERE (NULLIF(Skin1, '') AND NULLIF(Skin2, '') AND NULLIF(Skin3, '') AND NULLIF(PortraitTextureName, '')) IS NOT NULL");
-        do {
-            Field* fields = result->Fetch();
-            if (strlen(fields[1].GetCString()))
-                AddExactFile(eBlp_M, CreaModelData[fields[0].GetUInt32()] + fields[1].GetString() + ".blp");
-            if (strlen(fields[2].GetCString()))
-                AddExactFile(eBlp_M, CreaModelData[fields[0].GetUInt32()] + fields[2].GetString() + ".blp");
-            if (strlen(fields[3].GetCString()))
-                AddExactFile(eBlp_M, CreaModelData[fields[0].GetUInt32()] + fields[3].GetString() + ".blp");
-            if (strlen(fields[4].GetCString()))
-                AddExactFile(BlpIcon, "Interface\\Icons" + fields[4].GetString() + ".blp");
-        } while (result->NextRow());
+        if (result = WorldDatabase.Query("SELECT modelid1, modelid2, modelid3, modelid4 FROM creature_template"))
+        {
+            do {
+                Field* fields = result->Fetch();
+                if (fields[0].GetUInt32())
+                    AddUInt(fields[0].GetUInt32(), CreatureDisplayIds);
+                if (fields[1].GetUInt32())
+                    AddUInt(fields[1].GetUInt32(), CreatureDisplayIds);
+                if (fields[2].GetUInt32())
+                    AddUInt(fields[2].GetUInt32(), CreatureDisplayIds);
+                if (fields[3].GetUInt32())
+                    AddUInt(fields[3].GetUInt32(), CreatureDisplayIds);
+            } while (result->NextRow());
+
+            for (std::vector<uint32>::const_iterator itr = CreatureDisplayIds.begin(); itr != CreatureDisplayIds.end(); ++itr)
+            {
+                std::stringstream query;
+                query << "SELECT ModelId, Skin1, Skin2, Skin3, PortraitTextureName FROM creaturedisplayinfodbc WHERE Id = " << (*itr);
+                if (result = WorldDatabase.Query(query.str().c_str()))
+                    do {
+                        Field* fields = result->Fetch();
+                        if (strlen(fields[1].GetCString()))
+                            AddExactFile(eBlp_M, CreaModelData[fields[0].GetUInt32()] + fields[1].GetString() + ".blp");
+                        if (strlen(fields[2].GetCString()))
+                            AddExactFile(eBlp_M, CreaModelData[fields[0].GetUInt32()] + fields[2].GetString() + ".blp");
+                        if (strlen(fields[3].GetCString()))
+                            AddExactFile(eBlp_M, CreaModelData[fields[0].GetUInt32()] + fields[3].GetString() + ".blp");
+                        if (strlen(fields[4].GetCString()))
+                            AddExactFile(BlpIcon, "Interface\\Icons" + fields[4].GetString() + ".blp");
+                    } while (result->NextRow());
+            }
+        }
 
         // Holiday
         printf("\n    Holiday");
@@ -350,9 +382,9 @@ void ClientSelector::NamesOfSounds()
             do {
                 Field* fields = result->Fetch();
                 if (fields[0].GetUInt32())
-                    AddSoundToExtract(fields[0].GetUInt32());
+                    AddUInt(fields[0].GetUInt32(), SoundsToExtract);
                 if (fields[1].GetUInt32())
-                    AddSoundToExtract(fields[1].GetUInt32());
+                    AddUInt(fields[1].GetUInt32(), SoundsToExtract);
             } while (result->NextRow());
     }
 
@@ -364,9 +396,9 @@ void ClientSelector::NamesOfSounds()
             do {
                 Field* fields = result->Fetch();
                 if (fields[0].GetUInt32())
-                    AddSoundToExtract(fields[0].GetUInt32());
+                    AddUInt(fields[0].GetUInt32(), SoundsToExtract);
                 if (fields[1].GetUInt32())
-                    AddSoundToExtract(fields[1].GetUInt32());
+                    AddUInt(fields[1].GetUInt32(), SoundsToExtract);
             } while (result->NextRow());
     }
 
@@ -378,7 +410,7 @@ void ClientSelector::NamesOfSounds()
             do {
                 Field* fields = result->Fetch();
                 if (fields[0].GetUInt32())
-                    AddSoundToExtract(fields[0].GetUInt32());
+                    AddUInt(fields[0].GetUInt32(), SoundsToExtract);
             } while (result->NextRow());
     }
 
