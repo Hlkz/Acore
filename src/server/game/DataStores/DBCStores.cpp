@@ -1402,6 +1402,35 @@ void DBCMgr::LoadChatChannelsStore()
     TC_LOG_ERROR("misc", ">> Loaded %lu ChatChannels entries in %u ms", (unsigned long)ChatChannelsStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
+void DBCMgr::LoadCharSectionsStore()
+{
+    uint32 oldMSTime = getMSTime();
+    CharSectionsStore.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT Race, Gender, GeneralType, Flags, Type, Variation FROM charsectionsdbc");
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 CharSections entry. DB table `CharSections dbc` is empty.");
+        return;
+    }
+
+    do {
+        Field* fields = result->Fetch();
+
+        CharSectionsEntry* newCharSections = new CharSectionsEntry;
+        newCharSections->Race = fields[0].GetUInt32();
+        newCharSections->Gender = fields[1].GetUInt32();
+        newCharSections->GenType = fields[2].GetUInt32();
+        newCharSections->Flags = fields[3].GetUInt32();
+        newCharSections->Type = fields[4].GetUInt32();
+        newCharSections->Color = fields[5].GetUInt32();
+        CharSectionsStore[newCharSections->Race] = newCharSections;
+
+    } while (result->NextRow());
+
+    TC_LOG_ERROR("misc", ">> Loaded %lu CharSections entries in %u ms", (unsigned long)CharSectionsStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
 void DBCMgr::LoadCharStartOutfitStore()
 {
     uint32 oldMSTime = getMSTime();
@@ -1428,35 +1457,6 @@ void DBCMgr::LoadCharStartOutfitStore()
     } while (result->NextRow());
 
     TC_LOG_ERROR("misc", ">> Loaded %lu CharStartOutfit entries in %u ms", (unsigned long)CharStartOutfitStore.size(), GetMSTimeDiffToNow(oldMSTime));
-}
-
-void DBCMgr::LoadCharSectionsStore()
-{
-    uint32 oldMSTime = getMSTime();
-    CharSectionsStore.clear();
-
-    QueryResult result = WorldDatabase.Query("SELECT Race, Gender, GeneralType, Flags, Type, Variations FROM charsectionsdbc");
-    if (!result)
-    {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 CharSections entry. DB table `CharSections dbc` is empty.");
-        return;
-    }
-
-    do {
-        Field* fields = result->Fetch();
-
-        CharSectionsEntry* newCharSections = new CharSectionsEntry;
-        newCharSections->Race = fields[0].GetUInt32();
-        newCharSections->Gender = fields[1].GetUInt32();
-        newCharSections->GenType = fields[2].GetUInt32();
-        newCharSections->Flags = fields[3].GetUInt32();
-        newCharSections->Type = fields[4].GetUInt32();
-        newCharSections->Color = fields[5].GetUInt32();
-        CharSectionsStore[newCharSections->Race] = newCharSections;
-
-    } while (result->NextRow());
-
-    TC_LOG_ERROR("misc", ">> Loaded %lu CharSections entries in %u ms", (unsigned long)CharSectionsStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void DBCMgr::LoadCharTitlesStore()

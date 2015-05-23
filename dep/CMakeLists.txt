@@ -30,12 +30,12 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
 endif()
 
 if(SERVERS OR TOOLS)
+  add_subdirectory(cppformat)
   add_subdirectory(g3dlite)
   add_subdirectory(recastnavigation)
 endif()
 
 if(SERVERS)
-  add_subdirectory(cppformat)
   add_subdirectory(gsoap)
 endif()
 

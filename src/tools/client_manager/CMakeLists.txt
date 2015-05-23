@@ -260,6 +260,7 @@ set(include_Base
   ${CMAKE_SOURCE_DIR}/src/server/shared/Logging
   ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
   ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
+  ${CMAKE_SOURCE_DIR}/dep/cppformat
   ${CMAKE_SOURCE_DIR}/dep/stormlib
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${MYSQL_INCLUDE_DIR}
@@ -305,6 +306,7 @@ endif()
 
 target_link_libraries(ClientManager
   shared
+  format
   ${MYSQL_LIBRARY}
   ${Boost_LIBRARIES}
 )
