@@ -51,8 +51,8 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
     plTarget->SendDuelCountdown(3000);
 
     if (player->GetZoneId() == 1537 || player->GetZoneId() == 3457 || player->GetZoneId() == 3428) {
-    player->RemoveAllSpellCooldown();
-    plTarget->RemoveAllSpellCooldown();
+    player->RemoveArenaSpellCooldowns();
+    plTarget->RemoveArenaSpellCooldowns();
     player->RemoveAura(25771); // longanimité
     plTarget->RemoveAura(25771);
     player->RemoveAura(41425); // hypothermie

@@ -4153,16 +4153,6 @@ void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
     if (removeActivePetCooldowns)
         if (Pet* pet = GetPet())
             pet->GetSpellHistory()->ResetAllCooldowns();
-
-    if (Pet* pet = GetPet())
-    {
-        // notify player
-        for (CreatureSpellCooldowns::const_iterator itr2 = pet->m_CreatureSpellCooldowns.begin(); itr2 != pet->m_CreatureSpellCooldowns.end(); ++itr2)
-            SendClearCooldown(itr2->first, pet);
-
-        // actually clear cooldowns
-        pet->m_CreatureSpellCooldowns.clear();
-    }
 }
 
 uint32 Player::ResetTalentsCost() const
@@ -5348,7 +5338,7 @@ void Player::RepopAtGraveyard()
                 CastSpell(this,32612,false); // invisibilité
 
             if (GetMapId() == 0 || GetMapId() == 1 || GetMapId() == 37 || GetMapId() == 530 || GetMapId() == 532)
-                RemoveAllSpellCooldown();
+                RemoveArenaSpellCooldowns();
 
         }
     }

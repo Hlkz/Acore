@@ -324,8 +324,8 @@ void LoadDBCStores(const std::string& dataPath)
     pathLength.resize(pathCount);                           // 0 and some other indexes not used
     for (TaxiPathNodeContainer::const_iterator itr = sDBCMgr->TaxiPathNodeStore.begin(); itr != sDBCMgr->TaxiPathNodeStore.end(); ++itr)
         if (TaxiPathNodeEntry const* entry = itr->second)
-            if (pathLength[entry->path] < entry->index + 1)
-                pathLength[entry->path] = entry->index + 1;
+            if (pathLength[entry->PathID] < entry->NodeIndex + 1)
+                pathLength[entry->PathID] = entry->NodeIndex + 1;
 
     // Set path length
     sTaxiPathNodesByPath.resize(pathCount);                 // 0 and some other indexes not used
