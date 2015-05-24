@@ -1407,13 +1407,14 @@ void DBCMgr::LoadCharSectionsStore()
     uint32 oldMSTime = getMSTime();
     CharSectionsStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT Race, Gender, GeneralType, Flags, Type, Variation FROM charsectionsdbc");
+    QueryResult result = WorldDatabase.Query("SELECT Race, Gender, GeneralType, Type, Variation, Flags FROM charsectionsdbc");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 CharSections entry. DB table `CharSections dbc` is empty.");
         return;
     }
 
+    uint32 index = 1;
     do {
         Field* fields = result->Fetch();
 
@@ -1421,10 +1422,10 @@ void DBCMgr::LoadCharSectionsStore()
         newCharSections->Race = fields[0].GetUInt32();
         newCharSections->Gender = fields[1].GetUInt32();
         newCharSections->GenType = fields[2].GetUInt32();
-        newCharSections->Flags = fields[3].GetUInt32();
-        newCharSections->Type = fields[4].GetUInt32();
-        newCharSections->Color = fields[5].GetUInt32();
-        CharSectionsStore[newCharSections->Race] = newCharSections;
+        newCharSections->Type = fields[3].GetUInt32();
+        newCharSections->Color = fields[4].GetUInt32();
+        newCharSections->Flags = fields[5].GetUInt32();
+        CharSectionsStore[index++] = newCharSections;
 
     } while (result->NextRow());
 
