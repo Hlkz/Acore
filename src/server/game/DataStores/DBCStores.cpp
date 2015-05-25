@@ -2637,23 +2637,24 @@ void DBCMgr::LoadPvPDifficultyStore()
     uint32 oldMSTime = getMSTime();
     PvPDifficultyStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT Id, MapId, BracketId, MinLevel, MaxLevel, Difficulty FROM pvpdifficultydbc");
+    QueryResult result = WorldDatabase.Query("SELECT MapId, BracketId, MinLevel, MaxLevel, Difficulty FROM pvpdifficultydbc");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 PvPDifficulty entry. DB table `PvPDifficulty dbc` is empty.");
         return;
     }
 
+    uint32 index = 1;
     do {
         Field* fields = result->Fetch();
 
         PvPDifficultyEntry* newPvPDifficulty = new PvPDifficultyEntry;
-        newPvPDifficulty->mapId = fields[1].GetUInt32();
-        newPvPDifficulty->bracketId = fields[2].GetUInt32();
-        newPvPDifficulty->minLevel = fields[3].GetUInt32();
-        newPvPDifficulty->maxLevel = fields[4].GetUInt32();
-        newPvPDifficulty->difficulty = fields[5].GetUInt32();
-        PvPDifficultyStore[fields[0].GetUInt32()] = newPvPDifficulty; // tocheck id
+        newPvPDifficulty->mapId = fields[0].GetUInt32();
+        newPvPDifficulty->bracketId = fields[1].GetUInt32();
+        newPvPDifficulty->minLevel = fields[2].GetUInt32();
+        newPvPDifficulty->maxLevel = fields[3].GetUInt32();
+        newPvPDifficulty->difficulty = fields[4].GetUInt32();
+        PvPDifficultyStore[index++] = newPvPDifficulty;
 
     } while (result->NextRow());
 
