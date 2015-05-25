@@ -1,0 +1,5 @@
+[clientmanager]
+
+Appender.Console=1,4,0
+Appender.Manager=2,2,0,Manager.log,w
+Logger.root=3,Console Manager

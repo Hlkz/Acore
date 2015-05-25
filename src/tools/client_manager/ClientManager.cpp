@@ -26,8 +26,7 @@ ClientManager::ClientManager(po::variables_map vm)
 
 bool ClientManager::Proceed()
 {
-    // std::cout << "\n  ClientManager\n\n";
-
+    //std::cout << "\n  ClientManager\n\n";
     uint32 oldMSTime = getMSTime();
 
     if (!StartDB())

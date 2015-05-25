@@ -1,4 +1,5 @@
 #include "ClientManager.h"
+#include "Configuration/Config.h"
 #include <iostream>
 
 LoginDatabaseWorkerPool LoginDatabase;
@@ -52,6 +53,14 @@ int main(int argc, char *argv[])
     if (vm.count("help"))
     {
         std::cout << desc << "\n";
+        return 1;
+    }
+
+    std::string configFile = "clientmanager.conf";
+    std::string configError;
+    if (!sConfigMgr->LoadInitial(configFile, configError))
+    {
+        printf("Error in config file: %s\n", configError.c_str());
         return 1;
     }
 

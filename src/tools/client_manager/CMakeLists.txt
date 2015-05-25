@@ -251,7 +251,7 @@ set(ZLIB_BZIP2_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/StormLib/zlib/zutil.c
 )
 
-file(GLOB_RECURSE ClientManager_Sources *.cpp *.h)
+file(GLOB_RECURSE clientmanager_Sources *.cpp *.h)
 
 set(include_Base
   ${CMAKE_BINARY_DIR}
@@ -274,45 +274,61 @@ endif()
 
 include_directories(${include_Base})
 
-# ClientManager
+# clientmanager
 
-set(ClientManager_C_FLAGS "-D_7ZIP_ST -DBZ_STRICT_ANSI")
+set(clientmanager_C_FLAGS "-D_7ZIP_ST -DBZ_STRICT_ANSI")
 
 if(WIN32)
     if(MSVC)
-        set(ClientManager_C_FLAGS "-D_7ZIP_ST -DWIN32")
+        set(clientmanager_C_FLAGS "-D_7ZIP_ST -DWIN32")
     endif()
-    set(ClientManager_SRC_ADDITIONAL_FILES ${ZLIB_BZIP2_FILES} ${TOMCRYPT_FILES} ${TOMMATH_FILES})
+    set(clientmanager_SRC_ADDITIONAL_FILES ${ZLIB_BZIP2_FILES} ${TOMCRYPT_FILES} ${TOMMATH_FILES})
 endif()
 
 if(APPLE)
-    set(ClientManager_LINK_FLAGS "-lz -lbz2 -framework Carbon")
-    set(ClientManager_PUBLIC_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/StormLib/StormLib.h ${CMAKE_CURRENT_SOURCE_DIR}/StormLib/StormPort.h)
+    set(clientmanager_LINK_FLAGS "-lz -lbz2 -framework Carbon")
+    set(clientmanager_PUBLIC_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/StormLib/StormLib.h ${CMAKE_CURRENT_SOURCE_DIR}/StormLib/StormPort.h)
 endif()
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL Linux)
-    set(ClientManager_LINK_FLAGS "-lz -lbz2")
+    set(clientmanager_LINK_FLAGS "-lz -lbz2")
 endif()
 
-add_executable(ClientManager ${STORMLIB_FILES} ${ZLIB_BZIP2_FILES} ${TOMCRYPT_FILES} ${TOMMATH_FILES} ${ClientManager_Sources})
+add_executable(clientmanager ${STORMLIB_FILES} ${ZLIB_BZIP2_FILES} ${TOMCRYPT_FILES} ${TOMMATH_FILES} ${clientmanager_Sources})
 
 if(APPLE)
-	set_target_properties(ClientManager PROPERTIES COMPILE_FLAGS "${ClientManager_C_FLAGS}" LINK_FLAGS "${ClientManager_LINK_FLAGS}" PUBLIC_HEADER "${PUBLIC_HEADERS}")
+	set_target_properties(clientmanager PROPERTIES COMPILE_FLAGS "${clientmanager_C_FLAGS}" LINK_FLAGS "${clientmanager_LINK_FLAGS}" PUBLIC_HEADER "${PUBLIC_HEADERS}")
 else()
-	set_target_properties(ClientManager PROPERTIES COMPILE_FLAGS "${ClientManager_C_FLAGS}" LINK_FLAGS "${ClientManager_LINK_FLAGS}")
+	set_target_properties(clientmanager PROPERTIES COMPILE_FLAGS "${clientmanager_C_FLAGS}" LINK_FLAGS "${clientmanager_LINK_FLAGS}")
 endif()
 
-# add_executable(ClientManager ${StormLib_SRCS} ${ZLIB_BZIP2_FILES} ${ClientManager_Sources})
+# add_executable(clientmanager ${StormLib_SRCS} ${ZLIB_BZIP2_FILES} ${clientmanager_Sources})
 
-target_link_libraries(ClientManager
+target_link_libraries(clientmanager
   shared
   format
   ${MYSQL_LIBRARY}
   ${Boost_LIBRARIES}
 )
 
+if( WIN32 )
+  if ( MSVC )
+    add_custom_command(TARGET clientmanager
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/clientmanager.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
+    )
+  elseif ( MINGW )
+    add_custom_command(TARGET clientmanager
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/clientmanager.conf.dist ${CMAKE_BINARY_DIR}/bin/
+    )
+  endif()
+endif()
+
 if( UNIX )
-  install(TARGETS ClientManager DESTINATION bin)
+  install(TARGETS clientmanager DESTINATION bin)
+  install(FILES clientmanager.conf.dist DESTINATION ${CONF_DIR})
 elseif( WIN32 )
-  install(TARGETS ClientManager DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  install(TARGETS clientmanager DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  install(FILES clientmanager.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()
