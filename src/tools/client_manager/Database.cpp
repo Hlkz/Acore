@@ -13,17 +13,17 @@ bool ClientManager::StartDB()
 
     dbstring = "127.0.0.1;3306;root;;iwpa";
     LoginDatabase.SetConnectionInfo(dbstring, uint8(worker_threads), uint8(synch_threads));
-    if (!LoginDatabase.Open())
+    if (LoginDatabase.Open())
         return false;
 
     dbstring = "127.0.0.1;3306;root;;iwpu";
     UnusedDatabase.SetConnectionInfo(dbstring, uint8(worker_threads), uint8(synch_threads));
-    if (!UnusedDatabase.Open())
+    if (UnusedDatabase.Open())
         return false;
 
     dbstring = "127.0.0.1;3306;root;;iwpw";
     WorldDatabase.SetConnectionInfo(dbstring, uint8(worker_threads), uint8(synch_threads));
-    if (!WorldDatabase.Open())
+    if (WorldDatabase.Open())
         return false;
 
     return true;
