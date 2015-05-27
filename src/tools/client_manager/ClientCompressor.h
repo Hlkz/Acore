@@ -12,6 +12,7 @@ enum CompressorFlag
     COMPRESS_PATCH      = 0x40,
     UPDATE_DBC          = 0x100,
     UPDATE_LUA          = 0x200,
+    COMPRESS_INSTALL    = 0x400
 };
 
 class ClientCompressor
@@ -33,6 +34,7 @@ class ClientCompressor
         void GenerateSpeechMPQ(uint8 loc);
         void GeneratePatchMPQ(uint8 loc);
         void UpdatePatchMPQ(uint8 loc);
+        void InstallPatches();
 
         bool AddFileToMPQ(fs::path from, fs::path to, HANDLE* mpq, bool replace = false);
         bool AddDirToMPQ(fs::path from, fs::path to, HANDLE* mpq, bool replace = false);

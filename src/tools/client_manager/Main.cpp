@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
         ("c-patch", "Compress Patch")
         ("c-udbc", "Update dbc")
         ("c-ulua", "Update lua")
+        ("c-install", "Install to game path")
         //("compression", po::value<int>(), "set compression level")
         ;
 

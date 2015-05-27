@@ -13,28 +13,32 @@
 
 ClientCompressor::ClientCompressor(po::variables_map vm)
 {
-    mVm = vm;
     mFlags = 0;
-    if (mVm.count("c-all"))
+    if (vm.count("c-all"))
         mFlags |= COMPRESS_ALL;
-    if (mVm.count("c-common"))
+    if (vm.count("c-common"))
         mFlags |= COMPRESS_COMMON;
-    if (mVm.count("c-common2"))
+    if (vm.count("c-common2"))
         mFlags |= COMPRESS_COMMON2;
-    if (mVm.count("c-lichking"))
+    if (vm.count("c-lichking"))
         mFlags |= COMPRESS_LICHKING;
-    if (mVm.count("c-locale"))
+    if (vm.count("c-locale"))
         mFlags |= COMPRESS_LOCALE;
-    if (mVm.count("c-speech"))
+    if (vm.count("c-speech"))
         mFlags |= COMPRESS_SPEECH;
-    if (mVm.count("c-patch"))
+    if (vm.count("c-patch"))
         mFlags |= COMPRESS_PATCH;
-    if (mVm.count("c-udbc"))
+    if (vm.count("c-udbc"))
         mFlags |= UPDATE_DBC;
-    if (mVm.count("c-ulua"))
+    if (vm.count("c-ulua"))
         mFlags |= UPDATE_LUA;
+    if (vm.count("c-install"))
+        mFlags |= COMPRESS_INSTALL;
+
     if (!mFlags)
         return;
+
+    mVm = vm;
 
     Proceed();
 }
@@ -46,9 +50,10 @@ bool ClientCompressor::Proceed()
     uint32 oldMSTime = getMSTime();
     std::cout << "\nCompressor";
 
-    SaveOutput();
-
     bool all = mFlags & COMPRESS_ALL;
+
+    if (all || mFlags & (COMPRESS_COMMON | COMPRESS_COMMON2 | COMPRESS_LICHKING | COMPRESS_LOCALE | COMPRESS_PATCH | COMPRESS_SPEECH))
+        SaveOutput();
 
     if (mFlags & COMPRESS_LOCALE || mFlags & COMPRESS_PATCH || mFlags & COMPRESS_SPEECH || all)
     {
@@ -88,6 +93,9 @@ bool ClientCompressor::Proceed()
         if (fs::exists(GameDataPath + "\\enUS"))
             UpdatePatchMPQ(LOCALE_enUS);
     }
+
+    if (mFlags & COMPRESS_INSTALL)
+        InstallPatches();
 
     printf("\nCompressor executed in %u ms\n", GetMSTimeDiffToNow(oldMSTime));
     return true;
@@ -265,6 +273,39 @@ void ClientCompressor::UpdatePatchMPQ(uint8 loc)
         printf("\n  Error opening the archive (code: %u)", GetLastError());
 
     //printf("\n  Ending Patch update");
+}
+
+void ClientCompressor::InstallPatches()
+{
+    printf("\n  Installing Patches");
+    boost::filesystem::directory_iterator end_itr;
+    for (boost::filesystem::directory_iterator i(PatchOutputPath); i != end_itr; ++i)
+        if (!fs::is_directory(i->status()) || !boost::regex_match(i->path().filename().string(), boost::regex("[0-9]{4}-[0-9]{2}-[0-9]{2}.*")))
+        {
+            fs::path from(i->path());
+            fs::path to(GameDataPath / from.filename());
+            if (fs::is_directory(from))
+            {
+                if (fs::exists(to) && fs::is_directory(to))
+                {
+                    for (boost::filesystem::directory_iterator j(from); j != end_itr; ++j)
+                    {
+                        fs::path dest(to / j->path().filename());
+                        if (fs::exists(dest))
+                            fs::remove_all(dest);
+                        fs::rename(j->path(), dest);
+                    }
+                    fs::remove_all(from);
+                }
+            }
+            else
+            {
+                if (fs::exists(to))
+                    fs::remove_all(to);
+                fs::rename(from, to);
+            }
+        }
+    //printf("\n  Ending Patches installation");
 }
 
 bool ClientCompressor::AddFileToMPQ(fs::path from, fs::path to, HANDLE* mpq, bool replace)
