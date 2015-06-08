@@ -31,6 +31,10 @@ std::string ClientSelector::CleanExtension(std::string file, int32 xtrctFlags)
 
 bool ClientSelector::XCommitFile(std::string path)
 {
+    if (mXtrctFlags & EXT_WDL)
+        if (path.length() > 4 && boost::iequals(path.substr(path.length() - 4, 4), ".wdl"))
+            NamesFromWDL(path);
+
     if (mXtrctFlags & EXT_ADT)
         if (path.length() > 4 && boost::iequals(path.substr(path.length() - 4, 4), ".adt"))
             NamesFromADT(path);

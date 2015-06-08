@@ -30,12 +30,61 @@ struct SMOHeader
 };
 
 struct WMOMaterial {
-    int32_t flags;
-    int32_t specular;
-    int32_t transparent;
-    int32_t nameStart; // Start position for the first texture filename in the MOTX data block
-    // + 0x30 bytes
+    uint32 flags;
+    uint32 shader;
+    uint32 blendMode;
+    uint32 texture1;
+    uint32 color1;
+    uint32 flags1;
+    uint32 texture2;
+    uint32 color2;
+    uint32 flags2;
+    uint32 texture3;
+    // + 0x18 bytes
 };
+
+void ClientSelector::NamesFromWDL(std::string path)
+{
+    FILE* wdlFile;
+    uint32 err = fopen_s(&wdlFile, path.c_str(), "rb");
+
+    fseek(wdlFile, 0, SEEK_END);
+    if (err || feof(wdlFile) || !ftell(wdlFile))
+    {
+        if (!err)
+            fclose(wdlFile);
+        return;
+    }
+    fseek(wdlFile, 0, SEEK_SET);
+
+    uint32 fourcc, size;
+
+    while (!feof(wdlFile))
+    {
+        fread(&fourcc, 4, 1, wdlFile);
+        fread(&size, 4, 1, wdlFile);
+        size_t nextpos = ftell(wdlFile) + size;
+
+        if (fourcc == 'MWMO')
+        {
+            size_t pos = ftell(wdlFile);
+            while (pos < nextpos)
+            {
+                char* texbuf = new char[nextpos - pos];
+                fread(texbuf, nextpos - pos, 1, wdlFile);
+                std::string wmo(texbuf);
+                if (!wmo.empty())
+                    AddExactFile(WmoAdt, wmo);
+                pos += wmo.length() + 1;
+                fseek(wdlFile, pos, SEEK_SET);
+            }
+            fclose(wdlFile);
+            return;
+        }
+        fseek(wdlFile, nextpos, SEEK_SET);;
+    }
+    fclose(wdlFile);
+}
 
 void ClientSelector::NamesFromADT(std::string path)
 {
@@ -159,7 +208,7 @@ void ClientSelector::NamesFromWMO(std::string path)
     fseek(wmoFile, 0, SEEK_SET);
 
     char* texbuf = 0;
-    uint32 fourcc, size;
+    uint32 fourcc, size, motxsize = 0;
     SMOHeader header;
     bool m2 = false;
     bool blp = false;
@@ -178,16 +227,30 @@ void ClientSelector::NamesFromWMO(std::string path)
         else if (fourcc == 'MOTX')
         {
             texbuf = new char[size];
+            motxsize = size;
             fread(texbuf, size, 1, wmoFile);
         }
         else if (fourcc == 'MOMT')
         {
-            for (unsigned int i = 0; i < header.nTextures; ++i)
+            for (uint32 i = 0; i < header.nTextures; ++i)
             {
                 WMOMaterial m;
-                fread(&m, 0x10, 1, wmoFile);
-                AddExactFile(BlpWmo, texbuf + m.nameStart);
-                fseek(wmoFile, 0x30, SEEK_CUR);
+                fread(&m, 0x28, 1, wmoFile);
+                fseek(wmoFile, 0x18, SEEK_CUR);
+                bool tileset = (m.shader == 8);
+                uint32 texOffsets[3] = { m.texture1, m.texture2, m.texture3 };
+
+                for (uint32 j = 0; j < 3; j++)
+                    if (texOffsets[j] < motxsize)
+                    {
+                        std::string texture(texbuf + m.texture1);
+                        if (!texture.empty())
+                        {
+                            AddExactFile(BlpWmo, texture);
+                            if (tileset && texture.length() > 4)
+                                AddExactFile(BlpWmo, texture.substr(0, texture.length() - 4) + "_s.blp");
+                        }
+                    }
             }
             if (m2)
             {

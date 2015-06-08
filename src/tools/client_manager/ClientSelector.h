@@ -47,7 +47,7 @@ enum ExtractFlag
 
 enum XtractFlags
 {
-    //EXT_TILESET     = 0x01,
+    EXT_WDL         = 0x01,
     EXT_MDX         = 0x02,
     EXT_WMO         = 0x04,
     EXT_ADT         = 0x08,
@@ -77,6 +77,7 @@ class ClientSelector
         void Completion();
         void End();
         // From files
+        void NamesFromWDL(std::string path);
         void NamesFromADT(std::string path);
         void NamesFromWMO(std::string path);
         void NamesFromM2(std::string path);

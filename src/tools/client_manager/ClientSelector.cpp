@@ -29,7 +29,7 @@ ClientSelector::ClientSelector(po::variables_map vm)
 
     // Adts
     Adt         = XFiles(XTRCT_MIX | EXT_ADT | XTRCT_REGEX);
-    WdAdt       = XFiles(XTRCT_MIX | XTRCT_REGEX);
+    WdAdt       = XFiles(XTRCT_MIX | EXT_WDL | XTRCT_REGEX);
     BlpAdt      = eFiles(XTRCT_MIX);
     MdxAdt      = eFiles(XTRCT_MIX | EXT_MDX);
     BlpMap      = eFiles(XTRCT_LOC | XTRCT_CPYDIR);
@@ -206,6 +206,8 @@ void ClientSelector::Completion()
     mXtrctFlags = XTRCT_MIX;
     Xtrct_eFile("signaturefile");
     Xtrct_eFile("component.wow-data.txt");
+    mXtrctFlags |= EXT_MDX;
+    Xtrct_eFile("Spells\\ErrorCube.m2");
     mXtrctFlags = XTRCT_MIX | XTRCT_REGEX;
     Xtrct_XFile(".*\\.blp", "Textures");
 
