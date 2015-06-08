@@ -141,12 +141,11 @@ void ClientCompressor::GenerateCommonMPQ()
     printf("\n  Starting Common generation");
     fs::path commonPath(fs::path(PatchOutputPath) / fs::path("common.mpq"));
     HANDLE common;
-    SFileCreateArchive(commonPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, 0x40000, &common);
+    SFileCreateArchive(commonPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, COMMONMAXFILES, &common);
 
     AddDirToMPQ(TinyDataPath + "\\_shaders", "_shaders", &common);
     AddDirToMPQ(TinyDataPath + "\\Cameras", "Cameras", &common);
     AddDirToMPQ(TinyDataPath + "\\Character", "Character", &common);
-    AddDirToMPQ(TinyDataPath + "\\Creature", "Creature", &common);
     AddDirToMPQ(TinyDataPath + "\\Environments", "Environments", &common);
     AddDirToMPQ(TinyDataPath + "\\Interiors", "Interiors", &common);
     AddDirToMPQ(TinyDataPath + "\\Item", "Item", &common);
@@ -170,7 +169,7 @@ void ClientCompressor::GenerateCommon2MPQ()
     printf("\n  Starting Common2 generation");
     fs::path common2Path(fs::path(PatchOutputPath) / fs::path("common-2.mpq"));
     HANDLE common2;
-    SFileCreateArchive(common2Path.string().c_str(), MPQ_CREATE_ARCHIVE_V2, 0x40000, &common2);
+    SFileCreateArchive(common2Path.string().c_str(), MPQ_CREATE_ARCHIVE_V2, COMMON2MAXFILES, &common2);
 
     AddDirToMPQ(TinyDataPath + "\\Sound", "Sound", &common2);
 
@@ -183,10 +182,11 @@ void ClientCompressor::GenerateLichkingMPQ()
     printf("\n  Starting Lichking generation");
     fs::path lichkingPath(fs::path(PatchOutputPath) / fs::path("lichking.mpq"));
     HANDLE lichking;
-    SFileCreateArchive(lichkingPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, 0x40000, &lichking);
+    SFileCreateArchive(lichkingPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, LICHKINGMAXFILES, &lichking);
 
-    AddDirToMPQ(TinyDataPath + "\\World", "World", &lichking);
+    AddDirToMPQ(TinyDataPath + "\\Creature", "Creature", &lichking);
     AddDirToMPQ(TinyDataPath + "\\Dungeons", "Dungeons", &lichking);
+    AddDirToMPQ(TinyDataPath + "\\World", "World", &lichking);
 
     SFileCloseArchive(lichking);
     printf("\n  Ending Lichking generation");
@@ -200,7 +200,7 @@ void ClientCompressor::GenerateLocaleMPQ(uint8 loc)
     std::string prefix = loc ? TinyDataPathFr : TinyDataPathEn;
     fs::path localePath(PatchOutputPath + "\\" + locs + "\\" + "locale-" + locs + ".mpq");
     HANDLE locale;
-    SFileCreateArchive(localePath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, 0x40000, &locale);
+    SFileCreateArchive(localePath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, PATCHMAXFILES, &locale);
 
     AddDirToMPQ(prefix + "\\Fonts", "Fonts", &locale);
     AddDirToMPQ(prefix + "\\Interface", "Interface", &locale);
@@ -219,7 +219,7 @@ void ClientCompressor::GenerateSpeechMPQ(uint8 loc)
     std::string prefix = loc ? TinyDataPathFr : TinyDataPathEn;
     fs::path speechPath(PatchOutputPath + "\\" + locs + "\\" + "speech-" + locs + ".mpq");
     HANDLE speech;
-    SFileCreateArchive(speechPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, 0x40000, &speech);
+    SFileCreateArchive(speechPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, PATCHMAXFILES, &speech);
 
     AddDirToMPQ(prefix + "\\Sound", "Sound", &speech);
 
@@ -235,7 +235,7 @@ void ClientCompressor::GeneratePatchMPQ(uint8 loc)
     std::string prefix = TinyDataPathPatch + "\\" + locs;
     fs::path patchPath(PatchOutputPath + "\\" + locs + "\\" + "patch-" + locs + ".mpq");
     HANDLE patch;
-    SFileCreateArchive(patchPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, 0x4000, &patch);
+    SFileCreateArchive(patchPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, PATCHMAXFILES, &patch);
 
     AddDirToMPQ(prefix + "\\DBFilesClient", "DBFilesClient", &patch);
     AddDirToMPQ(prefix + "\\Interface", "Interface", &patch);
