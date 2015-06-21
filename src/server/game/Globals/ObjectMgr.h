@@ -753,6 +753,24 @@ class ObjectMgr
         void GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const;
 
         ObjectGuid GetPlayerGUIDByName(std::string const& name) const;
+        GameObjectQuestItemList const* GetGameObjectQuestItemList(uint32 id) const
+        {
+            GameObjectQuestItemMap::const_iterator itr = _gameObjectQuestItemStore.find(id);
+            if (itr != _gameObjectQuestItemStore.end())
+                return &itr->second;
+            return NULL;
+        }
+        GameObjectQuestItemMap const* GetGameObjectQuestItemMap() const { return &_gameObjectQuestItemStore; }
+
+        CreatureQuestItemList const* GetCreatureQuestItemList(uint32 id) const
+        {
+            CreatureQuestItemMap::const_iterator itr = _creatureQuestItemStore.find(id);
+            if (itr != _creatureQuestItemStore.end())
+                return &itr->second;
+            return NULL;
+        }
+        CreatureQuestItemMap const* GetCreatureQuestItemMap() const { return &_creatureQuestItemStore; }
+
         bool GetPlayerNameByGUID(ObjectGuid guid, std::string& name) const;
         uint32 GetPlayerTeamByGUID(ObjectGuid guid) const;
         uint32 GetPlayerAccountIdByGUID(ObjectGuid guid) const;
@@ -947,6 +965,8 @@ class ObjectMgr
         void LoadCreatureTemplateAddons();
         void LoadCreatureTemplate(Field* fields);
         void CheckCreatureTemplate(CreatureTemplate const* cInfo);
+        void LoadGameObjectQuestItems();
+        void LoadCreatureQuestItems();
         void LoadTempSummons();
         void LoadCreatures();
         void LoadLinkedRespawn();
@@ -1402,6 +1422,8 @@ class ObjectMgr
         CreatureAddonContainer _creatureAddonStore;
         CreatureAddonContainer _creatureTemplateAddonStore;
         GameObjectAddonContainer _gameObjectAddonStore;
+        GameObjectQuestItemMap _gameObjectQuestItemStore;
+        CreatureQuestItemMap _creatureQuestItemStore;
         EquipmentInfoContainer _equipmentInfoStore;
         LinkedRespawnContainer _linkedRespawnStore;
         CreatureLocaleContainer _creatureLocaleStore;
