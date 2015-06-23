@@ -43,7 +43,7 @@ bool ClientSelector::XCommitFile(std::string path)
         if (path.length() > 4 && boost::iequals(path.substr(path.length() - 4, 4), ".wmo"))
         {
             NamesFromWMO(path);
-            AddFile(GroupWmo, RemovePrefix(path.substr(0, path.length() - 4), FullDataPath), "_[0-9]{3}\\.wmo");
+            AddFile(GroupWmo, Util::RemovePrefix(path.substr(0, path.length() - 4), FullDataPath), "_[0-9]{3}\\.wmo");
         }
 
     if (mXtrctFlags & EXT_MDX)
@@ -51,7 +51,7 @@ bool ClientSelector::XCommitFile(std::string path)
         if (path.length() > 3 && boost::iequals(path.substr(path.length() - 3, 3), ".m2"))
         {
             NamesFromM2(path);
-            std::string apath = RemovePrefix(path.substr(0, path.length() - 3), FullDataPath);
+            std::string apath = Util::RemovePrefix(path.substr(0, path.length() - 3), FullDataPath);
             AddFile(SkinMdx, apath, "[0-9]{2}\\.skin");
             AddFile(AnimMdx, apath, "[0-9]{2,}-[0-9]{2}\\.anim");
         }
@@ -62,7 +62,7 @@ bool ClientSelector::XCommitFile(std::string path)
 
 bool ClientSelector::XtrctFile(fs::path from, fs::path to)
 {
-    fs::create_directories(fs::path(RemoveName(to.string())));
+    fs::create_directories(fs::path(Util::RemoveName(to.string())));
     if (fs::exists(from) && !fs::is_directory(from))
     {
         if (XCommitFile(from.string()) && mCopy)
@@ -161,12 +161,12 @@ uint32 ClientSelector::Xtrct(std::string name, fs::path in, fs::path from, fs::p
                 if (boost::filesystem::is_directory(i->status()))
                 {
                     if (mXtrctFlags & XTRCT_CPYDIR)
-                        count += XtrctDir(i->path(), to / fs::path(RemovePrefix(file, from.string())));
+                        count += XtrctDir(i->path(), to / fs::path(Util::RemovePrefix(file, from.string())));
                     else if ((mXtrctFlags & XTRCT_SUBDIR) && !boost::iequals(i->path().filename().string(), ".git"))
                         count += Xtrct(name, i->path(), from, to, true); // subdir
                 }
                 else
-                    count += XtrctFile(file, to / fs::path(RemovePrefix(file, from.string())));
+                    count += XtrctFile(file, to / fs::path(Util::RemovePrefix(file, from.string())));
             }
             else if (boost::filesystem::is_directory(i->status()) && (mXtrctFlags & XTRCT_SUBDIR) && !boost::iequals(i->path().filename().string(), ".git"))
                 count += Xtrct(name, i->path(), from, to, true); // subdir
@@ -175,7 +175,7 @@ uint32 ClientSelector::Xtrct(std::string name, fs::path in, fs::path from, fs::p
     else
     {
         fs::path current = fs::path(in / name);
-        count += Xtrct(current, fs::path(to / RemovePrefix(current.string(), from.string())), true);
+        count += Xtrct(current, fs::path(to / Util::RemovePrefix(current.string(), from.string())), true);
 
         if (mXtrctFlags & XTRCT_SUBDIR)
             for (boost::filesystem::directory_iterator i(in); i != end_itr; ++i)

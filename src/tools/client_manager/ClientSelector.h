@@ -84,8 +84,6 @@ class ClientSelector
         void NamesFromTRS(std::string path);
 
         // Util
-        std::string RemoveName(std::string fullPath);
-        std::string RemovePrefix(std::string str, std::string prefix);
         void SplitPath(std::string &name, std::string &path);
         std::string CleanExtension(std::string file, int32 xtrctFlags);
         void Bar(uint32 i, uint32 max, std::string disp = "");

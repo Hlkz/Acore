@@ -104,5 +104,5 @@ void LoginDatabaseConnection::DoPrepareStatements()
     // 0: string, 1: string, 2: string                      // Complete name: "Login_Insert_Failed_Account_Login_due_password_IP_Logging"
     PrepareStatement(LOGIN_INS_FALP_IP_LOGGING, "INSERT INTO logs_ip_actions (account_id,character_guid,type,ip,systemnote,unixtime,time) VALUES ((SELECT id FROM account WHERE username = ?), 0, 1, ?, ?, unix_timestamp(NOW()), NOW())", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_SEL_ACCOUNT_ACCESS_BY_ID, "SELECT gmlevel, RealmID FROM account_access WHERE id = ? and (RealmID = ? OR RealmID = -1) ORDER BY gmlevel desc", CONNECTION_SYNCH);
-    PrepareStatement(LOGIN_SEL_VERSIONS, "SELECT Build, MajorVersion, MinorVersion, BugfixVersion, HotfixVersion FROM versions", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_SEL_VERSIONS, "SELECT Build, MajorVersion, MinorVersion, BugfixVersion, HotfixVersion FROM versions ORDER BY Build DESC LIMIT 1", CONNECTION_SYNCH);
 }

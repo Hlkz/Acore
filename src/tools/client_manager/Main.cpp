@@ -1,19 +1,25 @@
 #include "ClientManager.h"
-#include "Configuration/Config.h"
 #include <iostream>
 
 LoginDatabaseWorkerPool LoginDatabase;
 UnusedDatabaseWorkerPool UnusedDatabase;
 WorldDatabaseWorkerPool WorldDatabase;
 
+std::string DataPath;
+std::string PatchOutputPath;
+std::string VersionPath;
+std::string InstallerPath;
+std::string BuildVersionPath;
+
 std::string FullDataPath;
 std::string FullDataPathLoc;
 std::string TinyDataPath;
-std::string TinyDataPathLoc;
-std::string TinyDataPathPatch;
-std::string PatchOutputPath;
-std::string PatchResPath;
+std::string TinyLocPath;
+std::string TinyPatchPath;
+
+std::string ReleasePath;
 std::string GameDataPath;
+std::string PatchNoteAdress;
 
 std::string FullDataPathEn;
 std::string FullDataPathFr;
@@ -44,7 +50,12 @@ int main(int argc, char *argv[])
         ("c-udbc", "Update dbc")
         ("c-ulua", "Update lua")
         ("c-install", "Install to game path")
-        //("compression", po::value<int>(), "set compression level")
+
+        ("p-version", "Commit version")
+        ("p-install", "Generate installer")
+        ("p-installfrom", po::value<uint32>(), "Specify from which build")
+        //("p-installto", po::value<uint32>(), "Specify to which build")
+        ("p-patch", "Patcher - Patch")
         ;
 
     po::variables_map vm;

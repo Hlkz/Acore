@@ -1,5 +1,35 @@
 [clientmanager]
 
+
+DataPath = "D:\A\Client\Manager\Data"
+PatchOutputPath = "D:\A\Client\Manager\Output"
+VersionPath = "D:\A\Client\Manager\Version"
+InstallerPath = "D:\A\Client\Manager\Tools\CreateInstaller"
+BuildVersionPath = "D:\A\Client\Manager\Tools\BuildVersion"
+
+FullDataPath = "D:\A\Client\Manager\Data\FullData"
+FullDataPathLoc = "D:\A\Client\Manager\Data\LocData"
+TinyDataPath = "D:\A\Client\Manager\Data\TinyData"
+TinyLocPath = "D:\A\Client\Manager\Data\TinyLoc"
+TinyPatchPath = "D:\A\Client\Manager\Data\TinyPatch"
+
+ReleasePath = "D:\A\Build\bin\Release"
+GameDataPath = "D:\A\Client\Aviana\Data"
+PatchNoteAdress = "localhost/patch-note"
+
+
+LoginDatabaseInfo = "127.0.0.1;3306;root;;iwpa"
+UnusedDatabaseInfo = "127.0.0.1;3306;root;;iwpu"
+WorldDatabaseInfo = "127.0.0.1;3306;root;;iwpw"
+
+
+NewClientBuild = 30000
+NewMajorVersion = 3
+NewMinorVersion = 0
+NewBugfixVersion = 0
+NewHotfixVersion = ""
+
+
 Appender.Console=1,4,0
 Appender.Manager=2,2,0,Manager.log,w
 Logger.root=3,Console Manager

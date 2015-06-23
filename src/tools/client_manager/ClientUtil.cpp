@@ -1,10 +1,101 @@
-#include "ClientSelector.h"
+#include "ClientManager.h"
 #include <iostream>
 #include <boost/algorithm/string.hpp>
+
+#include "StormLib/StormLib.h"
+#include "StormLib/StormCommon.h"
 
 #ifdef WIN32
 #include <tchar.h>
 #endif
+
+namespace Util
+{
+    std::string RemoveName(std::string fullPath)
+    {
+        char drive[_MAX_DRIVE];
+        char dir[_MAX_DIR];
+        char fname[_MAX_FNAME];
+        char ext[_MAX_EXT];
+        _splitpath(fullPath.c_str(), drive, dir, fname, ext);
+        return std::string(drive) + std::string(dir);
+    }
+
+    std::string RemovePrefix(std::string str, std::string prefix)
+    {
+        if (str.length() > prefix.length())
+            str = str.substr(prefix.length() + 1, str.length() - prefix.length() - 1);
+        return str;
+    }
+
+    bool CpyDir(std::string from, std::string to)
+    {
+        boost::filesystem::path source(from);
+        boost::filesystem::path destination(to);
+
+        if (!boost::filesystem::exists(source) || !boost::filesystem::is_directory(source))
+            return false;
+        boost::filesystem::create_directory(destination);
+
+        // Iterate through the source directory
+        for (boost::filesystem::directory_iterator file(source); file != boost::filesystem::directory_iterator(); ++file)
+        {
+            try
+            {
+                boost::filesystem::path current(file->path());
+                if (boost::filesystem::is_directory(current))
+                {
+                    if (!CpyDir(current.string(), boost::filesystem::path(destination / current.filename()).string()))
+                        return false;
+                }
+                else
+                    boost::filesystem::copy_file(current, destination / current.filename());
+            }
+            catch (boost::filesystem::filesystem_error const & e)
+            {
+                std::cerr << e.what() << '\n';
+            }
+        }
+        return true;
+    }
+
+    bool AddFileToMPQ(fs::path from, fs::path to, HANDLE* mpq, bool replace)
+    {
+        DWORD dwFlags; // dwCompression, dwCompressionNext;
+
+        if (boost::iequals(from.extension().string(), "wav"))
+            dwFlags = MPQ_FILE_COMPRESS | MPQ_FILE_ENCRYPTED;
+        else if ((boost::iequals(from.extension().string(), "mp3"))
+            || (boost::iequals(from.extension().string(), "smk"))
+            || (boost::iequals(from.extension().string(), "bik"))
+            || (boost::iequals(from.extension().string(), "mpq")))
+            dwFlags = 0;
+        else
+            dwFlags = MPQ_FILE_COMPRESS | MPQ_FILE_ENCRYPTED;
+
+        if (replace)
+            dwFlags |= MPQ_FILE_REPLACEEXISTING;
+
+        //if (dwFlags & MPQ_FILE_COMPRESS)
+        //    SFileAddFileEx(mpq, from.string().c_str(), to.string().c_str(), dwFlags, dwCompression, dwCompressionNext);
+        //else
+        return SFileAddFile(*mpq, from.string().c_str(), to.string().c_str(), dwFlags);
+    }
+
+    bool AddDirToMPQ(fs::path from, fs::path to, HANDLE* mpq, bool replace)
+    {
+        if (!fs::exists(from) || !fs::is_directory(from))
+            return false;
+
+        boost::filesystem::directory_iterator end_itr;
+        for (boost::filesystem::directory_iterator i(from); i != end_itr; ++i)
+            if (fs::is_directory(i->status()))
+                AddDirToMPQ(i->path(), to / i->path().filename(), mpq, replace);
+            else
+                AddFileToMPQ(i->path(), to / i->path().filename(), mpq, replace);
+        return true;
+    }
+}
 
 bool ClientSelector::AddUInt(uint32 integer, std::vector<uint32> &vec)
 {
@@ -28,16 +119,6 @@ bool ClientSelector::AddString(std::string str, std::vector<std::string> &vec)
 }
 */
 
-std::string ClientSelector::RemoveName(std::string fullPath)
-{
-    char drive[_MAX_DRIVE];
-    char dir[_MAX_DIR];
-    char fname[_MAX_FNAME];
-    char ext[_MAX_EXT];
-    _splitpath(fullPath.c_str(), drive, dir, fname, ext);
-    return std::string(drive) + std::string(dir);
-}
-
 void ClientSelector::SplitPath(std::string &name, std::string &path)
 {
     char drive[_MAX_DRIVE];
@@ -48,13 +129,6 @@ void ClientSelector::SplitPath(std::string &name, std::string &path)
     path = std::string(drive) + std::string(dir);
     if (path.length()) path = path.substr(0, path.length() - 1); // Remove last /
     name = std::string(fname) + std::string(ext);
-}
-
-std::string ClientSelector::RemovePrefix(std::string str, std::string prefix)
-{
-    if (str.length() > prefix.length())
-        str = str.substr(prefix.length() + 1, str.length() - prefix.length() - 1);
-    return str;
 }
 
 /*
@@ -89,37 +163,6 @@ bool ClientSelector::CpyFile(std::string from, std::string to)
     return false;
 }
 
-bool ClientSelector::CpyDir(std::string from, std::string to)
-{
-    boost::filesystem::path source(from);
-    boost::filesystem::path destination(to);
-
-    if (!boost::filesystem::exists(source) || !boost::filesystem::is_directory(source))
-        return false;
-    boost::filesystem::create_directory(destination);
-
-    // Iterate through the source directory
-    for (boost::filesystem::directory_iterator file(source); file != boost::filesystem::directory_iterator(); ++file)
-    {
-        try
-        {
-            boost::filesystem::path current(file->path());
-            if (boost::filesystem::is_directory(current))
-            {
-                if (!CpyDir(current.string(), boost::filesystem::path(destination / current.filename()).string()))
-                    return false;
-            }
-            else
-                boost::filesystem::copy_file(current, destination / current.filename());
-        }
-        catch (boost::filesystem::filesystem_error const & e)
-        {
-            std::cerr << e.what() << '\n';
-        }
-    }
-    return true;
-}
-
 bool ClientSelector::Cpy(std::string from, std::string to)
 {
     if (boost::filesystem::exists(from))
@@ -148,7 +191,7 @@ void ClientSelector::XCpy(std::string filter, std::string in, std::string from, 
             if (boost::filesystem::is_directory(i->status()))
             {
                 if (cpyDir)
-                        CpyDir(file, std::string(to + file.substr(from.length(), file.length() - from.length())));
+                    CpyDir(file, std::string(to + file.substr(from.length(), file.length() - from.length())));
                 else if (subDir)
                     XCpy(filter, file, from, to, subDir, icase, false, true); // subdir
             }

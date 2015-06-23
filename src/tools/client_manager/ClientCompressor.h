@@ -41,9 +41,6 @@ class ClientCompressor
         void UpdatePatchMPQ(uint8 loc);
         void InstallPatches();
 
-        bool AddFileToMPQ(fs::path from, fs::path to, HANDLE* mpq, bool replace = false);
-        bool AddDirToMPQ(fs::path from, fs::path to, HANDLE* mpq, bool replace = false);
-
         po::variables_map mVm;
         int32 mFlags;
 };
