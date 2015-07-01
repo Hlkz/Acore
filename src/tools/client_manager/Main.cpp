@@ -54,8 +54,6 @@ int main(int argc, char *argv[])
         ("p-version", "Commit version")
         ("p-install", "Generate installer")
         ("p-installfrom", po::value<uint32>(), "Specify from which build")
-        //("p-installto", po::value<uint32>(), "Specify to which build")
-        ("p-patch", "Patcher - Patch")
         ;
 
     po::variables_map vm;

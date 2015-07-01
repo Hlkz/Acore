@@ -95,6 +95,12 @@ namespace Util
                 AddFileToMPQ(i->path(), to / i->path().filename(), mpq, replace);
         return true;
     }
+
+    std::ifstream::pos_type filesize(const char* filename)
+    {
+        std::ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
+        return in.tellg();
+    }
 }
 
 bool ClientSelector::AddUInt(uint32 integer, std::vector<uint32> &vec)

@@ -3,6 +3,7 @@
 
 #include "Timer.h"
 #include <iostream>
+#include <bitset>
 #include <boost/algorithm/string.hpp>
 
 #include "StormLib\StormLib.h"
@@ -15,8 +16,6 @@ ClientPatcher::ClientPatcher(po::variables_map vm)
         mFlags |= PATCH_VERSION;
     if (vm.count("p-install"))
         mFlags |= PATCH_INSTALL;
-    if (vm.count("p-patch"))
-        mFlags |= PATCH_PATCH;
     if (!mFlags)
         return;
 
@@ -174,6 +173,7 @@ void ClientPatcher::InstallPatch()
     fs::remove_all(InstallerPath + "/frFR");
     fs::remove_all(InstallerPath + "/enUS");
 
+    printf("\n  Extracting git diff");
     ExtractGitDiff(TinyDataPath, fromFullHash, toFullHash, "TinyData.diff");
     ExtractGitDiff(TinyLocPath, fromLocHash, toLocHash, "TinyLoc.diff");
     ExtractGitDiff(TinyPatchPath, fromPatchHash, toPatchHash, "TinyPatch.diff");
@@ -256,10 +256,13 @@ void ClientPatcher::GenerateInstaller(std::string loc)
 #endif
 
     std::stringstream fromss, toss, patchCmdStart, patchCmdEnd, baseName, mpqss;
-    baseName << "wow-" << fromBuild << "-" << toBuild << "-";
-    std::string installerName(baseName.str() + loc + ".exe");
-    printf("\n  Generating %s", installerName.c_str());
+    baseName << "wow-" << fromBuild << "-" << toBuild << "-" << loc;
+    printf("\n  Generating %s", baseName.str().c_str());
 
+    // Installer
+
+    printf("\n    Preparing Installer");
+    std::string installerName(baseName.str() + ".exe");
     fromss << fromMajor << "." << fromMinor << "." << fromBugfix << "." << fromBuild;
     toss << toMajor << "." << toMinor << "." << toBugfix << "." << toBuild;
     patchCmdStart << "* set the product patch name" << std::endl
@@ -285,36 +288,92 @@ void ClientPatcher::GenerateInstaller(std::string loc)
     std::ofstream(patchHtml, std::ios_base::out | std::ios_base::app)
         << "<script language=\"javascript\">document.location=\"" << PatchNoteAdress << "/" << toBuild << "\";</script>";
 
+    printf("\n    Generating Installer");
     SetCurrentDirectory(InstallerPath.c_str());
     exec("bin\\headergenerator.exe data data_tmp");
     exec("bin\\listgenerator.exe data_tmp data_tmp\\patch.lst");
     Util::CpyDir("res\\data", "data_tmp");
     exec("bin\\mpqcreate.exe tmp.mpq data_tmp");
-    exec(std::string("bin\\append.exe res\\base.exe " + installerName + " tmp.mpq res\\Installer.exe res\\RichEd20.dll res\\Unicows.dll").c_str());
+    exec("bin\\append.exe res\\base.exe " + installerName + " tmp.mpq res\\Installer.exe res\\RichEd20.dll res\\Unicows.dll");
     fs::remove("tmp.mpq");
     fs::remove_all("data_tmp");
+
+    std::string piecesPath("pieces\\" + installerName);
+    uint32 pieceLength = 262144;
+    std::stringstream fileSplitter;
+    fileSplitter << "\"bin\\fileSplitter.exe\" " << installerName << " " << pieceLength << " " << piecesPath;
+    exec(fileSplitter.str());
+
+    // Torrent
+    printf("\n    Generating Torrent");
+    std::string torrentName(installerName + ".torrent");
+    if (fs::exists(torrentName))
+        fs::remove(torrentName);
+    std::ofstream tor(torrentName, std::ios::out | std::ios::binary | std::ios::app);
+    std::string announcePath("http://127.0.0.1:3724/announce");
+    std::string installerPath(installerName);
+    std::string strHash(readfile("pieces/" + installerName + "/hash.txt"));
+    std::stringstream ss, sshash, ss2;
+    ss << "d8:announce" << announcePath.length() << ":" << announcePath << "10:autolaunchi2e11:choose pathi0e13:creation datei" << std::time(nullptr) << "e"
+        << "14:download label" << installerName.length() << ":" << installerName << "13:download typei1e4:infod5:filesld6:lengthi" << Util::filesize(installerName.c_str()) << "e"
+        << "4:pathl" << installerPath.length() << ":" << installerPath << "eee4:name0:12:piece lengthi" << pieceLength << "e6:pieces" << uint32(strHash.size() / 2) << " : ";
+    tor.write(ss.str().c_str(), ss.str().length());
+    for (std::size_t pos = 0; pos < strHash.size(); pos = pos + 2)
+    {
+        int32 num = strtol(strHash.substr(pos, 2).c_str(), NULL, 16);
+        tor.write((char*)&num, 1);
+    }
+    ss2 << "e13:launch target" << installerPath.length() << ":" << installerPath << "e";
+    tor.write(ss2.str().c_str(), ss2.str().length());
+    tor.close();
+
+    // Downloader
+    printf("\n    Generating Downloader");
+    std::string downloaderName(baseName.str() + "-dl.exe");
+    exec("BwoD.exe compile " + torrentName + " " + downloaderName);
+
+    // Patch
 
     std::string prepatch("prepatch.lst");
     if (fs::exists(prepatch))
         fs::remove(prepatch);
-    std::ofstream(prepatch, std::ios_base::out | std::ios_base::app) << "extract " << installerName << std::endl << "execute " << installerName;
+    std::ofstream(prepatch, std::ios_base::out | std::ios_base::app) << "extract " << downloaderName << std::endl << "execute " << downloaderName;
 
     mpqss << fromBuild << "-" << loc << ".mpq";
     std::string mpqName(mpqss.str());
     std::string mpqPath(InstallerPath + "\\" + mpqName);
-    std::string mpqReleasePath(ReleasePath + "\\data\\patches\\" + mpqName);
     if (fs::exists(mpqPath))
         fs::remove(mpqPath);
-    printf("\n  Generating %s", mpqName.c_str());
+    printf("\n    Generating MPQ");
     HANDLE mpq;
     SFileCreateArchive(mpqPath.c_str(), MPQ_CREATE_ARCHIVE_V2, 0x1000, &mpq);
     Util::AddFileToMPQ(prepatch, prepatch, &mpq);
-    Util::AddFileToMPQ(installerName, installerName, &mpq);
+    Util::AddFileToMPQ(downloaderName, downloaderName, &mpq);
     SFileCloseArchive(mpq);
-    if (fs::exists(mpqReleasePath))
-        printf("\n  Warning: %s already exist in Release folder", mpqName.c_str());
-    else
-        fs::rename(mpqPath, mpqReleasePath);
+
+    // Save files
+    printf("\n    Saving files");
+    SaveFile(installerName, "patches\\installers");
+    SaveFile(installerName, "patches", "pieces");
+    SaveFile(downloaderName, "patches\\downloaders");
+    SaveFile(torrentName, "patches\\downloaders");
+    SaveFile(mpqName, "patches");
+}
+
+void ClientPatcher::SaveFile(fs::path filename, fs::path additionnal, fs::path in)
+{
+    fs::path from(InstallerPath / in / filename);
+    fs::path to(fs::path(ReleasePath + "\\data") / additionnal / filename);
+
+    if (fs::exists(from)) // if not, some error should have been displayed before
+    {
+        if (fs::exists(to))
+            ; //printf("\n  Warning: %s already exist in Release folder", path.c_str());
+        else if (fs::is_directory(from))
+            exec("move \"" + from.string() + "\" \"" + to.string() + "\"");
+        else
+            fs::rename(from, to);
+    }
 }
 
 std::string ClientPatcher::exec(std::string cmd)

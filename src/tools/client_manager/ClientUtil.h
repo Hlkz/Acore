@@ -10,5 +10,7 @@ namespace Util
 
     bool AddFileToMPQ(fs::path from, fs::path to, HANDLE* mpq, bool replace = false);
     bool AddDirToMPQ(fs::path from, fs::path to, HANDLE* mpq, bool replace = false);
+
+    std::ifstream::pos_type filesize(const char* filename);
 }
 #endif
