@@ -137,6 +137,32 @@ bool DBUpdater<CharacterDatabaseConnection>::IsEnabled(uint32 const updateMask)
     return (updateMask & DatabaseLoader::DATABASE_CHARACTER) ? true : false;
 }
 
+// Unused Database
+template<>
+std::string DBUpdater<UnusedDatabaseConnection>::GetConfigEntry()
+{
+    return "Updates.Unused";
+}
+
+template<>
+std::string DBUpdater<UnusedDatabaseConnection>::GetTableName()
+{
+    return "Unused";
+}
+
+template<>
+std::string DBUpdater<UnusedDatabaseConnection>::GetBaseFile()
+{
+    return DBUpdater<UnusedDatabaseConnection>::GetSourceDirectory() + "/sql/base/unused_database.sql";
+}
+
+template<>
+bool DBUpdater<UnusedDatabaseConnection>::IsEnabled(uint32 const updateMask)
+{
+    // This way silences warnings under msvc
+    return (updateMask & DatabaseLoader::DATABASE_UNUSED) ? true : false;
+}
+
 // All
 template<class T>
 BaseLocation DBUpdater<T>::GetBaseLocationType()
@@ -393,3 +419,4 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
 template class DBUpdater<LoginDatabaseConnection>;
 template class DBUpdater<WorldDatabaseConnection>;
 template class DBUpdater<CharacterDatabaseConnection>;
+template class DBUpdater<UnusedDatabaseConnection>;

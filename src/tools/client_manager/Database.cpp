@@ -1,29 +1,18 @@
 #include "ClientManager.h"
+#include "DatabaseLoader.h"
 
 /// Initialize connection to the database
 bool ClientManager::StartDB()
 {
     MySQL::Library_Init();
 
-    std::string dbstring;
-    int8 worker_threads, synch_threads;
+    DatabaseLoader loader("clientmanager", DatabaseLoader::DATABASE_NONE);
+    loader
+        .AddDatabase(WorldDatabase, "World")
+        .AddDatabase(LoginDatabase, "Login")
+        .AddDatabase(UnusedDatabase, "Unused");
 
-    worker_threads = 1;
-    synch_threads = 1;
-
-    dbstring = sConfigMgr->GetStringDefault("LoginDatabaseInfo", "127.0.0.1;3306;root;;iwpa");
-    LoginDatabase.SetConnectionInfo(dbstring, uint8(worker_threads), uint8(synch_threads));
-    if (LoginDatabase.Open())
-        return false;
-
-    dbstring = sConfigMgr->GetStringDefault("UnusedDatabaseInfo", "127.0.0.1;3306;root;;iwpu");
-    UnusedDatabase.SetConnectionInfo(dbstring, uint8(worker_threads), uint8(synch_threads));
-    if (UnusedDatabase.Open())
-        return false;
-
-    dbstring = sConfigMgr->GetStringDefault("WorldDatabaseInfo", "127.0.0.1;3306;root;;iwpw");
-    WorldDatabase.SetConnectionInfo(dbstring, uint8(worker_threads), uint8(synch_threads));
-    if (WorldDatabase.Open())
+    if (!loader.Load())
         return false;
 
     return true;

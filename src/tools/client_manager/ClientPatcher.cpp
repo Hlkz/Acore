@@ -2,12 +2,13 @@
 #include "ClientManager.h"
 
 #include "Timer.h"
+#include "SHA1.h"
 #include <iostream>
 #include <bitset>
 #include <boost/algorithm/string.hpp>
 
-#include "StormLib\StormLib.h"
-#include "StormLib\StormCommon.h"
+#include "StormLib/StormLib.h"
+#include "StormLib/StormCommon.h"
 
 ClientPatcher::ClientPatcher(po::variables_map vm)
 {
@@ -92,7 +93,7 @@ void ClientPatcher::CommitVersion()
     std::string PatchHash(exec("git -C \"" + TinyPatchPath + "\" log --format=\"%H\" -n 1"));
 
     std::stringstream insert_query;
-    insert_query << "INSERT INTO versions(Build, MajorVersion, MinorVersion, BugfixVersion, HotfixVersion, FullHash, LocHash, PatchHash) "
+    insert_query << "INSERT INTO versions (Build, MajorVersion, MinorVersion, BugfixVersion, HotfixVersion, FullHash, LocHash, PatchHash) "
         << "VALUES(" << build << ", " << major << ", " << minor << ", " << bugfix << ", \"" << hotfix << "\", \""
         << FullHash << "\", \"" << LocHash << "\", \"" << PatchHash << "\")";
     LoginDatabase.Query(insert_query.str().c_str());
@@ -310,22 +311,43 @@ void ClientPatcher::GenerateInstaller(std::string loc)
     if (fs::exists(torrentName))
         fs::remove(torrentName);
     std::ofstream tor(torrentName, std::ios::out | std::ios::binary | std::ios::app);
-    std::string announcePath("http://127.0.0.1:3724/announce");
+    std::string announcePath(sConfigMgr->GetStringDefault("AnnounceAdress", "http://localhost/announce"));
     std::string installerPath(installerName);
     std::string strHash(readfile("pieces/" + installerName + "/hash.txt"));
-    std::stringstream ss, sshash, ss2;
+    std::stringstream ss, ssEnd;
     ss << "d8:announce" << announcePath.length() << ":" << announcePath << "10:autolaunchi2e11:choose pathi0e13:creation datei" << std::time(nullptr) << "e"
-        << "14:download label" << installerName.length() << ":" << installerName << "13:download typei1e4:infod5:filesld6:lengthi" << Util::filesize(installerName.c_str()) << "e"
-        << "4:pathl" << installerPath.length() << ":" << installerPath << "eee4:name0:12:piece lengthi" << pieceLength << "e6:pieces" << uint32(strHash.size() / 2) << " : ";
+        << "14:download label" << installerName.length() << ":" << installerName << "13:download typei1e4:info";
+    uint32 infoPos = ss.str().length();
+    ss << "d5:filesld6:lengthi" << Util::filesize(installerName.c_str()) << "e"
+        << "4:pathl" << installerPath.length() << ":" << installerPath << "eee4:name0:12:piece lengthi" << pieceLength << "e6:pieces" << uint32(strHash.size() / 2) << ":";
     tor.write(ss.str().c_str(), ss.str().length());
     for (std::size_t pos = 0; pos < strHash.size(); pos = pos + 2)
     {
         int32 num = strtol(strHash.substr(pos, 2).c_str(), NULL, 16);
         tor.write((char*)&num, 1);
     }
-    ss2 << "e13:launch target" << installerPath.length() << ":" << installerPath << "e";
-    tor.write(ss2.str().c_str(), ss2.str().length());
+    tor.write("e", 1);
+    ssEnd << "13:launch target" << installerPath.length() << ":" << installerPath << "e";
+    tor.write(ssEnd.str().c_str(), ssEnd.str().length());
     tor.close();
+
+    // Calculate the torrent info_hash
+    std::ifstream tori(torrentName, std::ifstream::ate | std::ifstream::binary);
+    uint32 torrentLength = tori.tellg();
+    uint32 infoLength = torrentLength - ssEnd.str().length() - infoPos;
+    tori.seekg(infoPos);
+    char* buffer = new char[infoLength];
+    tori.read(buffer, infoLength);
+    unsigned char info_hash[20];
+    SHA1((unsigned char *)buffer, infoLength, info_hash);
+    tori.close();
+
+    std::string directDownload(sConfigMgr->GetStringDefault("PatchAdress", "http://localhost/patch") + "/" + installerName);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_PATCH);
+    stmt->setString(0, std::string((char*)info_hash));
+    stmt->setString(1, installerName);
+    stmt->setString(2, directDownload);
+    LoginDatabase.Query(stmt);
 
     // Downloader
     printf("\n    Generating Downloader");

@@ -256,6 +256,7 @@ file(GLOB_RECURSE clientmanager_Sources *.cpp *.h)
 set(include_Base
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/src/server/shared
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Cryptography
   ${CMAKE_SOURCE_DIR}/src/server/shared/Database
   ${CMAKE_SOURCE_DIR}/src/server/shared/Logging
   ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
@@ -263,6 +264,7 @@ set(include_Base
   ${CMAKE_SOURCE_DIR}/dep/cppformat
   ${CMAKE_SOURCE_DIR}/dep/stormlib
   ${CMAKE_CURRENT_SOURCE_DIR}
+  ${OPENSSL_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
 )
 
@@ -308,6 +310,7 @@ target_link_libraries(clientmanager
   shared
   format
   ${MYSQL_LIBRARY}
+  ${OPENSSL_LIBRARIES}
   ${Boost_LIBRARIES}
 )
 

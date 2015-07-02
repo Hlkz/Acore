@@ -15,7 +15,9 @@ TinyPatchPath = "D:\A\Client\Manager\Data\TinyPatch"
 
 ReleasePath = "D:\A\Build\bin\Release"
 GameDataPath = "D:\A\Client\Aviana\Data"
-PatchNoteAdress = "localhost/patch-note"
+PatchNoteAdress = "http://localhost/patch-note"
+AnnounceAdress = "http://localhost/announce"
+PatchesAdress = "http://localhost/patch"
 
 
 LoginDatabaseInfo = "127.0.0.1;3306;root;;iwpa"

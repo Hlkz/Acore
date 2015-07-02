@@ -189,3 +189,5 @@ template
 DatabaseLoader& DatabaseLoader::AddDatabase<WorldDatabaseConnection>(DatabaseWorkerPool<WorldDatabaseConnection>& pool, std::string const& name);
 template
 DatabaseLoader& DatabaseLoader::AddDatabase<CharacterDatabaseConnection>(DatabaseWorkerPool<CharacterDatabaseConnection>& pool, std::string const& name);
+template
+DatabaseLoader& DatabaseLoader::AddDatabase<UnusedDatabaseConnection>(DatabaseWorkerPool<UnusedDatabaseConnection>& pool, std::string const& name);
