@@ -5,33 +5,24 @@ LoginDatabaseWorkerPool LoginDatabase;
 UnusedDatabaseWorkerPool UnusedDatabase;
 WorldDatabaseWorkerPool WorldDatabase;
 
-std::string DataPath;
-std::string PatchOutputPath;
-std::string VersionPath;
-std::string InstallerPath;
-std::string BuildVersionPath;
-
 std::string FullDataPath;
-std::string FullDataPathLoc;
 std::string TinyDataPath;
 std::string TinyLocPath;
 std::string TinyPatchPath;
-
-std::string ReleasePath;
-std::string GameDataPath;
-std::string PatchNoteAdress;
 
 std::string FullDataPathEn;
 std::string FullDataPathFr;
 std::string TinyDataPathEn;
 std::string TinyDataPathFr;
 
+fs::path UpdatePath;
+
 int main(int argc, char *argv[])
 {
     po::options_description desc("Allowed options");
     desc.add_options()
         ("help", "produce help message")
-
+        // ClientSelector
         ("s-all", "Select All")
         ("s-adt", "Select from adts")
         ("s-db", "Select from the db")
@@ -39,21 +30,24 @@ int main(int argc, char *argv[])
         ("s-compl", "Selection Completion")
         ("s-noitem", "Don't select items from the db")
         ("s-deldata", "Delete TinyData before selection")
-
+        // ClientCompressor
         ("c-all", "Compress All")
+        ("c-alle", "Compress All except Patch")
         ("c-common", "Compress Common")
         ("c-common2", "Compress Common-2")
         ("c-lichking", "Compress Lichking")
         ("c-locale", "Compress Locale")
         ("c-speech", "Compress Speech")
         ("c-patch", "Compress Patch")
+        ("c-install", "Move compressed Tiny to game path")
+        ("c-release", "Move compressed Tiny to release path + build Wow.exe")
         ("c-udbc", "Update dbc")
         ("c-ulua", "Update lua")
-        ("c-install", "Install to game path")
-
+        // ClientPatcher
         ("p-version", "Commit version")
-        ("p-install", "Generate installer")
-        ("p-installfrom", po::value<uint32>(), "Specify from which build")
+        ("p-update", "Generate update")
+        ("p-updatefrom", po::value<uint32>(), "Specify from which build")
+        ("p-release", "Copy installers/downloaders to release path")
         ;
 
     po::variables_map vm;

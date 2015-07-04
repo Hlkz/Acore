@@ -8,16 +8,19 @@
 
 enum CompressorFlag
 {
-    COMPRESS_ALL        = 0x01,
-    COMPRESS_COMMON     = 0x02,
-    COMPRESS_COMMON2    = 0x04,
-    COMPRESS_LICHKING   = 0x08,
+    COMPRESS_COMMON     = 0x01,
+    COMPRESS_COMMON2    = 0x02,
+    COMPRESS_LICHKING   = 0x04,
     COMPRESS_LOCALE     = 0x10,
     COMPRESS_SPEECH     = 0x20,
     COMPRESS_PATCH      = 0x40,
-    UPDATE_DBC          = 0x100,
-    UPDATE_LUA          = 0x200,
-    COMPRESS_INSTALL    = 0x400
+    COMPRESS_ALL        = COMPRESS_COMMON | COMPRESS_COMMON2 | COMPRESS_LICHKING | COMPRESS_LOCALE | COMPRESS_SPEECH | COMPRESS_PATCH,
+    COMPRESS_ALLE       = COMPRESS_COMMON | COMPRESS_COMMON2 | COMPRESS_LICHKING | COMPRESS_LOCALE | COMPRESS_SPEECH,
+    COMPRESS_ALL_LOC    = COMPRESS_LOCALE | COMPRESS_SPEECH | COMPRESS_PATCH,
+    COMPRESS_INSTALL    = 0x100,
+    COMPRESS_RELEASE    = 0x200,
+    UPDATE_DBC          = 0x400,
+    UPDATE_LUA          = 0x800
 };
 
 class ClientCompressor
@@ -27,22 +30,25 @@ class ClientCompressor
         ~ClientCompressor() {}
 
         bool Proceed();
+        void Compress();
+        void UpdatePatchMPQ(uint8 loc);
+        void InstallPatches();
 
+        // Compress()
         bool SaveOutput();
-        bool CompressTinyData();
-        bool CompressTinyDataLoc();
-
         void GenerateCommonMPQ();
         void GenerateCommon2MPQ();
         void GenerateLichkingMPQ();
         void GenerateLocaleMPQ(uint8 loc);
         void GenerateSpeechMPQ(uint8 loc);
         void GeneratePatchMPQ(uint8 loc);
-        void UpdatePatchMPQ(uint8 loc);
-        void InstallPatches();
 
         po::variables_map mVm;
         int32 mFlags;
+
+        std::string PatchOutputPath;
+        fs::path ClientPath;
+        std::string GameDataPath;
 };
 
 #endif

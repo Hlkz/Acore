@@ -28,37 +28,72 @@ namespace Util
         return str;
     }
 
-    bool CpyDir(std::string from, std::string to)
+    bool CpyFile(fs::path from, fs::path to, bool replace)
     {
-        boost::filesystem::path source(from);
-        boost::filesystem::path destination(to);
-
-        if (!boost::filesystem::exists(source) || !boost::filesystem::is_directory(source))
+        if (!fs::exists(from) || fs::is_directory(from))
             return false;
-        boost::filesystem::create_directory(destination);
 
-        // Iterate through the source directory
-        for (boost::filesystem::directory_iterator file(source); file != boost::filesystem::directory_iterator(); ++file)
+        if (fs::exists(to) && !replace)
+            return false;
+
+        if (!fs::exists(to.parent_path()))
+            fs::create_directories(to.parent_path());
+        else if (!fs::is_directory(to.parent_path()))
+            return false;
+
+        if (fs::exists(to))
+            fs::remove_all(to);
+        fs::copy_file(from, to);
+        return true;
+    }
+
+    bool CpyDir(fs::path from, fs::path to, bool replace)
+    {
+        if (!fs::exists(from) || !fs::is_directory(from))
+            return false;
+
+        if (!fs::exists(to))
+            fs::create_directories(to);
+        else if (!fs::is_directory(to))
+            return false;
+
+        for (fs::directory_iterator file(from); file != fs::directory_iterator(); ++file)
         {
-            try
+            fs::path current(file->path());
+            if (fs::is_directory(current))
             {
-                boost::filesystem::path current(file->path());
-                if (boost::filesystem::is_directory(current))
-                {
-                    if (!CpyDir(current.string(), boost::filesystem::path(destination / current.filename()).string()))
-                        return false;
-                }
-                else
-                    boost::filesystem::copy_file(current, destination / current.filename());
+                if (!CpyDir(current.string(), fs::path(to / current.filename()).string(), replace))
+                    return false;
             }
-            catch (boost::filesystem::filesystem_error const & e)
-            {
-                std::cerr << e.what() << '\n';
-            }
+            else if (!fs::exists(to / current.filename()) || (replace && fs::remove_all(to / current.filename())))
+                fs::copy_file(current, to / current.filename());
         }
         return true;
     }
 
+    std::string exec(std::string cmd)
+    {
+        FILE* pipe = _popen(cmd.c_str(), "r");
+        if (!pipe)
+            return "ERROR";
+        char buffer[128];
+        std::string result = "";
+        while (!feof(pipe))
+            if (fgets(buffer, 128, pipe) != NULL)
+                result = +buffer;
+        _pclose(pipe);
+        return result.substr(0, result.length() - 1);
+    }
+
+    std::ifstream::pos_type filesize(fs::path path)
+    {
+        std::ifstream in(path.string(), std::ifstream::ate | std::ifstream::binary);
+        return in.tellg();
+    }
+}
+
+namespace Manager
+{
     bool AddFileToMPQ(fs::path from, fs::path to, HANDLE* mpq, bool replace)
     {
         DWORD dwFlags; // dwCompression, dwCompressionNext;
@@ -87,8 +122,8 @@ namespace Util
         if (!fs::exists(from) || !fs::is_directory(from))
             return false;
 
-        boost::filesystem::directory_iterator end_itr;
-        for (boost::filesystem::directory_iterator i(from); i != end_itr; ++i)
+        fs::directory_iterator end_itr;
+        for (fs::directory_iterator i(from); i != end_itr; ++i)
             if (fs::is_directory(i->status()))
                 AddDirToMPQ(i->path(), to / i->path().filename(), mpq, replace);
             else
@@ -96,10 +131,58 @@ namespace Util
         return true;
     }
 
-    std::ifstream::pos_type filesize(const char* filename)
+    bool BuildVersion(fs::path dest, uint32 build, uint32 major, uint32 minor, uint32 bugfix)
     {
-        std::ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
-        return in.tellg();
+#ifndef WIN32
+        printf("\nThis programm only works on windows");
+        return;
+#endif
+
+        QueryResult result;
+
+        if (!build)
+        {
+            result = LoginDatabase.Query("SELECT Build FROM versions ORDER BY Build DESC LIMIT 1");
+            build = result->Fetch()->GetUInt32();
+            if (!build)
+                return false;
+        }
+
+        if (!major && !minor && !bugfix)
+        {
+            std::stringstream select_query;
+            select_query << "SELECT MajorVersion, MinorVersion, BugfixVersion FROM versions WHERE Build = " << build;
+            result = LoginDatabase.Query(select_query.str().c_str());
+            Field* fields = result->Fetch();
+            major = fields[0].GetUInt32();
+            minor = fields[1].GetUInt32();
+            bugfix = fields[2].GetUInt32();
+        }
+
+        if (fs::exists(dest))
+            fs::remove_all(dest);
+        else if (!fs::exists(dest.parent_path()))
+            fs::create_directories(dest.parent_path());
+        else if (!fs::is_directory(dest.parent_path()))
+            return false;
+
+        TCHAR NPath[MAX_PATH];
+        GetCurrentDirectory(MAX_PATH, NPath);
+        SetCurrentDirectory(UpdatePath.string().c_str());
+
+        fs::path buildVersion_exe("bin\\BuildVersion.exe");
+        std::stringstream buildVersion_cmd;
+        buildVersion_cmd << buildVersion_exe.string() << " --file=" << dest.string()
+            << " --Major=\"" << major << "\" --Minor=\"" << minor << "\" --Bugfix=\"" << bugfix << "\" --Build=\"" << build << "\"" << std::endl;
+        Util::exec(buildVersion_cmd.str().c_str());
+
+        SetCurrentDirectory(NPath);
+        if (!fs::exists(dest))
+        {
+            printf("\n  Error generating Wow.exe");
+            return false;
+        }
+        return true;
     }
 }
 
@@ -158,22 +241,11 @@ std::string ClientSelector::MismatchString(std::string const &a, std::string con
     return std::string(mismatch_pair.first, longEnd);
 }
 
-bool ClientSelector::CpyFile(std::string from, std::string to)
-{
-    boost::filesystem::create_directories(boost::filesystem::path(RemoveName(to)));
-    if (boost::filesystem::exists(from) && !boost::filesystem::exists(to))
-    {
-        boost::filesystem::copy_file(boost::filesystem::path(from), boost::filesystem::path(to));
-        return true;
-    }
-    return false;
-}
-
 bool ClientSelector::Cpy(std::string from, std::string to)
 {
-    if (boost::filesystem::exists(from))
+    if (fs::exists(from))
     {
-        if (boost::filesystem::is_directory(from))
+        if (fs::is_directory(from))
             return CpyDir(from, to);
         else
             return CpyFile(from, to);
@@ -185,16 +257,16 @@ void ClientSelector::XCpy(std::string filter, std::string in, std::string from, 
 {
     if (!inAbs)
         in = from + (in.length() ? "\\" + in : "");
-    if (!boost::filesystem::exists(boost::filesystem::path(in)))
+    if (!fs::exists(fs::path(in)))
         return;
 
-    boost::filesystem::directory_iterator end_itr;
-    for (boost::filesystem::directory_iterator i(in); i != end_itr; ++i)
+    fs::directory_iterator end_itr;
+    for (fs::directory_iterator i(in); i != end_itr; ++i)
     {
         std::string file = i->path().string();
         if (boost::regex_match(i->path().filename().string(), boost::regex(filter, icase ? boost::regex::icase : boost::regex::normal)))
         {
-            if (boost::filesystem::is_directory(i->status()))
+            if (fs::is_directory(i->status()))
             {
                 if (cpyDir)
                     CpyDir(file, std::string(to + file.substr(from.length(), file.length() - from.length())));
@@ -204,22 +276,22 @@ void ClientSelector::XCpy(std::string filter, std::string in, std::string from, 
             else
                 CpyFile(file, std::string(to + file.substr(from.length(), file.length() - from.length())));
         }
-        else if (boost::filesystem::is_directory(i->status()) && subDir)
+        else if (fs::is_directory(i->status()) && subDir)
             XCpy(filter, file, from, to, true, icase, cpyDir, true); // subdir
     }
 }
 
 void ClientSelector::Fnd(std::string filter, std::string in, std::vector<std::string> &found, bool subDir, bool icase)
 {
-    if (!boost::filesystem::exists(boost::filesystem::path(in)))
+    if (!fs::exists(fs::path(in)))
         return;
 
-    boost::filesystem::directory_iterator end_itr;
-    for (boost::filesystem::directory_iterator i(in); i != end_itr; ++i)
+    fs::directory_iterator end_itr;
+    for (fs::directory_iterator i(in); i != end_itr; ++i)
     {
         if (boost::regex_match(i->path().filename().string(), boost::regex(filter, icase ? boost::regex::icase : boost::regex::normal)))
             found.push_back(i->path().string());
-        else if (boost::filesystem::is_directory(i->status()) && subDir)
+        else if (fs::is_directory(i->status()) && subDir)
             Fnd(filter, i->path().string(), found, true, icase);
     }
 }

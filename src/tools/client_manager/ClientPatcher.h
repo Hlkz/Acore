@@ -4,7 +4,8 @@
 enum PatcherFlag
 {
     PATCH_VERSION   = 0x01,
-    PATCH_INSTALL   = 0x02
+    PATCH_UPDATE    = 0x02,
+    PATCH_RELEASE   = 0x04
 };
 
 class ClientPatcher
@@ -15,21 +16,17 @@ class ClientPatcher
 
         bool Proceed();
         void CommitVersion();
-        void InstallPatch();
+        void Update();
         void ExtractGitDiff(std::string path, std::string fromHash, std::string toHash, std::string filename);
-        void GenerateInstaller(std::string loc);
-        void SaveFile(fs::path filename, fs::path additionnal = "", fs::path in = "");
+        void GenerateUpdate(std::string loc);
 
-        std::string exec(std::string cmd);
         std::string readfile(std::string str);
         std::string escape(std::string str);
 
         po::variables_map mVm;
         int32 mFlags;
 
-        std::vector<fs::path> addPaths;
-        std::vector<fs::path> delPaths;
-        std::vector<fs::path> modPaths;
+        fs::path DataPath;
 
         uint32 fromBuild;
         uint32 fromMajor;

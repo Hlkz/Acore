@@ -1,29 +1,37 @@
 [clientmanager]
 
-
-DataPath = "D:\A\Client\Manager\Data"
-PatchOutputPath = "D:\A\Client\Manager\Output"
-VersionPath = "D:\A\Client\Manager\Version"
-InstallerPath = "D:\A\Client\Manager\Tools\CreateInstaller"
-BuildVersionPath = "D:\A\Client\Manager\Tools\BuildVersion"
+# Global
 
 FullDataPath = "D:\A\Client\Manager\Data\FullData"
-FullDataPathLoc = "D:\A\Client\Manager\Data\LocData"
+LocDataPath = "D:\A\Client\Manager\Data\LocData"
 TinyDataPath = "D:\A\Client\Manager\Data\TinyData"
 TinyLocPath = "D:\A\Client\Manager\Data\TinyLoc"
 TinyPatchPath = "D:\A\Client\Manager\Data\TinyPatch"
 
-ReleasePath = "D:\A\Build\bin\Release"
-GameDataPath = "D:\A\Client\Aviana\Data"
-PatchNoteAdress = "http://localhost/patch-note"
-AnnounceAdress = "http://localhost/announce"
-PatchesAdress = "http://localhost/patch"
+UpdatePath = "D:\A\Client\Manager\Update"
 
+# ClientCompressor
+
+PatchOutputPath = "D:\A\Client\Manager\Output"
+ClientPath = "D:\A\Client\Client"
+GameDataPath = "D:\A\Client\Aviana\Data"
+
+# ClientPatcher
+
+DataPath = "D:\A\Client\Manager\Data"
+
+AnnounceAdress = "http://localhost/announce"
+PatchAdress = "http://localhost/updates/patch"
+PatchNoteAdress = "http://localhost/patch-note"
+PatchReleasePath = "D:\A\Build\bin\Release\data\patches"
+
+# Database
 
 LoginDatabaseInfo = "127.0.0.1;3306;root;;iwpa"
 UnusedDatabaseInfo = "127.0.0.1;3306;root;;iwpu"
 WorldDatabaseInfo = "127.0.0.1;3306;root;;iwpw"
 
+# ClientPatcher - Version
 
 NewClientBuild = 30000
 NewMajorVersion = 3
@@ -31,6 +39,7 @@ NewMinorVersion = 0
 NewBugfixVersion = 0
 NewHotfixVersion = ""
 
+# Logging
 
 Appender.Console=1,4,0
 Appender.Manager=2,2,0,Manager.log,w

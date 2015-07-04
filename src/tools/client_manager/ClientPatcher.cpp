@@ -15,10 +15,12 @@ ClientPatcher::ClientPatcher(po::variables_map vm)
     mFlags = 0;
     if (vm.count("p-version"))
         mFlags |= PATCH_VERSION;
-    if (vm.count("p-install"))
-        mFlags |= PATCH_INSTALL;
+    if (vm.count("p-update"))
+        mFlags |= PATCH_UPDATE;
     if (!mFlags)
         return;
+    if (vm.count("p-release"))
+        mFlags |= PATCH_RELEASE;
 
     fromBuild = 0;
     if (vm.count("p-installfrom"))
@@ -36,6 +38,8 @@ ClientPatcher::ClientPatcher(po::variables_map vm)
 
     mVm = vm;
 
+    DataPath = sConfigMgr->GetStringDefault("DataPath", "D:\\A\\Client\\Manager\\Data");
+
     Proceed();
 }
 
@@ -47,8 +51,8 @@ bool ClientPatcher::Proceed()
     if (mFlags & PATCH_VERSION)
         CommitVersion();
 
-    if (mFlags & PATCH_INSTALL)
-        InstallPatch();
+    if (mFlags & PATCH_UPDATE)
+        Update();
 
     printf("\nPatcher executed in %u ms\n", GetMSTimeDiffToNow(oldMSTime));
     return true;
@@ -81,16 +85,16 @@ void ClientPatcher::CommitVersion()
     printf("\n  git commit");
 
     printf("\n    Committing TinyData");
-    exec("git -C \"" + TinyDataPath + "\" commit --allow-empty -m  \"" + Ammend + "\"");
+    Util::exec("git -C \"" + TinyDataPath + "\" commit --allow-empty -m  \"" + Ammend + "\"");
     printf("\n    Committing TinyLoc");
-    exec("git -C \"" + TinyLocPath + "\" commit --allow-empty -m  \"" + Ammend + "\"");
+    Util::exec("git -C \"" + TinyLocPath + "\" commit --allow-empty -m  \"" + Ammend + "\"");
     printf("\n    Committing TinyPatch");
-    exec("git -C \"" + TinyPatchPath + "\" commit --allow-empty -m  \"" + Ammend + "\"");
+    Util::exec("git -C \"" + TinyPatchPath + "\" commit --allow-empty -m  \"" + Ammend + "\"");
 
     printf("\n  database save");
-    std::string FullHash(exec("git -C \"" + TinyDataPath + "\" log --format=\"%H\" -n 1"));
-    std::string LocHash(exec("git -C \"" + TinyLocPath + "\" log --format=\"%H\" -n 1"));
-    std::string PatchHash(exec("git -C \"" + TinyPatchPath + "\" log --format=\"%H\" -n 1"));
+    std::string FullHash(Util::exec("git -C \"" + TinyDataPath + "\" log --format=\"%H\" -n 1"));
+    std::string LocHash(Util::exec("git -C \"" + TinyLocPath + "\" log --format=\"%H\" -n 1"));
+    std::string PatchHash(Util::exec("git -C \"" + TinyPatchPath + "\" log --format=\"%H\" -n 1"));
 
     std::stringstream insert_query;
     insert_query << "INSERT INTO versions (Build, MajorVersion, MinorVersion, BugfixVersion, HotfixVersion, FullHash, LocHash, PatchHash) "
@@ -103,7 +107,7 @@ void ClientPatcher::CommitVersion()
     LoginDatabase.Query(insert_query.str().c_str());
 }
 
-void ClientPatcher::InstallPatch()
+void ClientPatcher::Update()
 {
 #ifndef WIN32
     printf("\nThis programm only works on windows");
@@ -170,9 +174,13 @@ void ClientPatcher::InstallPatch()
     printf("\nInstalling from build %u to build %u", fromBuild, toBuild);
 
     printf("\n  Cleaning Installer dir");
-    fs::remove_all(InstallerPath + "/data");
-    fs::remove_all(InstallerPath + "/frFR");
-    fs::remove_all(InstallerPath + "/enUS");
+    fs::remove_all(UpdatePath / "data");
+    fs::remove_all(UpdatePath / "frFR");
+    fs::remove_all(UpdatePath / "enUS");
+    fs::remove_all(UpdatePath / "installers");
+    fs::remove_all(UpdatePath / "downloaders");
+    fs::create_directory(UpdatePath / "installers");
+    fs::create_directory(UpdatePath / "downloaders");
 
     printf("\n  Extracting git diff");
     ExtractGitDiff(TinyDataPath, fromFullHash, toFullHash, "TinyData.diff");
@@ -180,50 +188,35 @@ void ClientPatcher::InstallPatch()
     ExtractGitDiff(TinyPatchPath, fromPatchHash, toPatchHash, "TinyPatch.diff");
 
     printf("\n  Building Wow.exe");
-    std::string buildVersion_exe(BuildVersionPath + "/BuildVersion.exe");
-    if (!fs::exists(BuildVersionPath) || !fs::exists(buildVersion_exe))
-    {
-        printf("\n  Error: BuildVersion does not exist");
+    fs::path wow_exe(UpdatePath / "data/base/Wow.exe");
+    if (!Manager::BuildVersion(wow_exe, toBuild, toMajor, toMinor, toBugfix))
         return;
-    }
-    std::stringstream buildVersion_cmd;
-    buildVersion_cmd << "BuildVersion.exe --file=\"Wow.exe\" --Major=\"" << toMajor << "\" --Minor=\"" << toMinor << "\" --Bugfix=\"" << toBugfix
-        << "\" --Build=\"" << toBuild << "\"" << std::endl;
-    SetCurrentDirectory(BuildVersionPath.c_str());
-    exec(buildVersion_cmd.str().c_str());
-    std::string wowFrom(BuildVersionPath + "/Wow.exe");
-    std::string wowTo(InstallerPath + "/data/base/Wow.exe");
-    if (!fs::exists(wowFrom))
-    {
-        printf("\n  Error generating Wow.exe");
-        return;
-    }
-    fs::create_directories(InstallerPath + "/data/base");
-    fs::copy_file(wowFrom, wowTo);
 
-    if (fs::exists(InstallerPath + "/data/enUS"))
-        fs::rename(InstallerPath + "/data/enUS", InstallerPath + "/enUS");
-    GenerateInstaller("frFR");
-    if (fs::exists(InstallerPath + "/enUS"))
-        fs::rename(InstallerPath + "/enUS", InstallerPath + "/data/enUS");
-    if (fs::exists(InstallerPath + "/data/frFR"))
-        fs::rename(InstallerPath + "/data/frFR", InstallerPath + "/frFR");
-    GenerateInstaller("enUS");
-    if (fs::exists(InstallerPath + "/data/enUS"))
-        fs::rename(InstallerPath + "/data/enUS", InstallerPath + "/enUS");
+    SetCurrentDirectory(UpdatePath.string().c_str());
+
+    if (fs::exists(UpdatePath / "data/enUS"))
+        fs::rename(UpdatePath / "data/enUS", UpdatePath / "enUS");
+    GenerateUpdate("frFR");
+    if (fs::exists(UpdatePath / "enUS"))
+        fs::rename(UpdatePath / "enUS", UpdatePath / "data/enUS");
+    if (fs::exists(UpdatePath / "data/frFR"))
+        fs::rename(UpdatePath / "data/frFR", UpdatePath / "frFR");
+    GenerateUpdate("enUS");
+    if (fs::exists(UpdatePath / "data/enUS"))
+        fs::rename(UpdatePath / "data/enUS", UpdatePath / "enUS");
 }
 
 void ClientPatcher::ExtractGitDiff(std::string path, std::string fromHash, std::string toHash, std::string filename)
 {
     printf("\n    Generating %s", filename.c_str());
-    std::string diffPath(DataPath + "/" + filename);
+    fs::path diffPath(DataPath / filename);
     if (fs::exists(diffPath))
         fs::remove(diffPath);
-    std::string gitcmd("git -C " + path + " diff " + fromHash + " " + toHash + " --name-status  >> " + DataPath + "/" + filename);
-    exec(gitcmd.c_str());
+    std::string gitcmd("git -C " + path + " diff " + fromHash + " " + toHash + " --name-status  >> " + DataPath.string() + "/" + filename);
+    Util::exec(gitcmd.c_str());
 
     printf("\n    Extracting files from %s", filename.c_str());
-    std::ifstream diffFile(diffPath);
+    std::ifstream diffFile(diffPath.string());
     std::string str;
     while (std::getline(diffFile, str))
     {
@@ -235,12 +228,12 @@ void ClientPatcher::ExtractGitDiff(std::string path, std::string fromHash, std::
         if (prefix == "M" || prefix == "A")
         {
             std::string from(path + "/" + file);
-            std::string to(InstallerPath + "/data/" + file);
+            fs::path to(UpdatePath / "data" / file);
             if (fs::exists(from))
             {
                 if (fs::exists(to))
                     fs::remove(to);
-                fs::create_directories(fs::path(Util::RemoveName(to)));
+                fs::create_directories(fs::path(Util::RemoveName(to.string())));
                 fs::copy_file(from, to);
             }
         }
@@ -249,13 +242,8 @@ void ClientPatcher::ExtractGitDiff(std::string path, std::string fromHash, std::
     diffFile.close();
 }
 
-void ClientPatcher::GenerateInstaller(std::string loc)
+void ClientPatcher::GenerateUpdate(std::string loc)
 {
-#ifndef WIN32
-    printf("\nThis programm only works on windows");
-    return;
-#endif
-
     std::stringstream fromss, toss, patchCmdStart, patchCmdEnd, baseName, mpqss;
     baseName << "wow-" << fromBuild << "-" << toBuild << "-" << loc;
     printf("\n  Generating %s", baseName.str().c_str());
@@ -264,6 +252,7 @@ void ClientPatcher::GenerateInstaller(std::string loc)
 
     printf("\n    Preparing Installer");
     std::string installerName(baseName.str() + ".exe");
+    fs::path installerPath(UpdatePath / "installers" / installerName);
     fromss << fromMajor << "." << fromMinor << "." << fromBugfix << "." << fromBuild;
     toss << toMajor << "." << toMinor << "." << toBugfix << "." << toBuild;
     patchCmdStart << "* set the product patch name" << std::endl
@@ -278,48 +267,47 @@ void ClientPatcher::GenerateInstaller(std::string loc)
         << "WoWPatchIndex 2" << std::endl
         << "PatchSize 1992294400" << std::endl;
 
-    std::string patchCmd(InstallerPath + "/res/data/patch.cmd");
+    fs::path patchCmd(UpdatePath / "res/data/patch.cmd");
     if (fs::exists(patchCmd))
         fs::remove(patchCmd);
-    std::ofstream(patchCmd, std::ios_base::out | std::ios_base::app) << patchCmdStart.str() << loc << patchCmdEnd.str();
+    std::ofstream(patchCmd.string(), std::ios_base::out | std::ios_base::app) << patchCmdStart.str() << loc << patchCmdEnd.str();
 
-    std::string patchHtml(InstallerPath + "/res/data/patch.html");
+    fs::path patchHtml(UpdatePath / "res/data/patch.html");
     if (fs::exists(patchHtml))
         fs::remove(patchHtml);
-    std::ofstream(patchHtml, std::ios_base::out | std::ios_base::app)
-        << "<script language=\"javascript\">document.location=\"" << PatchNoteAdress << "/" << toBuild << "\";</script>";
+    std::ofstream(patchHtml.string(), std::ios_base::out | std::ios_base::app)
+        << "<script language=\"javascript\">document.location=\"" << sConfigMgr->GetStringDefault("PatchNoteAdress", "localhost/patch") << "/" << toBuild << "-" << loc << "\";</script>";
 
     printf("\n    Generating Installer");
-    SetCurrentDirectory(InstallerPath.c_str());
-    exec("bin\\headergenerator.exe data data_tmp");
-    exec("bin\\listgenerator.exe data_tmp data_tmp\\patch.lst");
+    Util::exec("bin\\headergenerator.exe data data_tmp");
+    Util::exec("bin\\listgenerator.exe data_tmp data_tmp\\patch.lst");
     Util::CpyDir("res\\data", "data_tmp");
-    exec("bin\\mpqcreate.exe tmp.mpq data_tmp");
-    exec("bin\\append.exe res\\base.exe " + installerName + " tmp.mpq res\\Installer.exe res\\RichEd20.dll res\\Unicows.dll");
+    Util::exec("bin\\mpqcreate.exe tmp.mpq data_tmp");
+    Util::exec("bin\\append.exe res\\base.exe " + installerPath.string() + " tmp.mpq res\\Installer.exe res\\RichEd20.dll res\\Unicows.dll");
     fs::remove("tmp.mpq");
     fs::remove_all("data_tmp");
 
-    std::string piecesPath("pieces\\" + installerName);
+    std::string piecesPath(installerName);
     uint32 pieceLength = 262144;
     std::stringstream fileSplitter;
-    fileSplitter << "\"bin\\fileSplitter.exe\" " << installerName << " " << pieceLength << " " << piecesPath;
-    exec(fileSplitter.str());
+    fileSplitter << "bin\\fileSplitter.exe " << installerPath.string() << " " << pieceLength << " " << piecesPath;
+    Util::exec(fileSplitter.str());
 
     // Torrent
     printf("\n    Generating Torrent");
     std::string torrentName(installerName + ".torrent");
-    if (fs::exists(torrentName))
-        fs::remove(torrentName);
-    std::ofstream tor(torrentName, std::ios::out | std::ios::binary | std::ios::app);
+    fs::path torrentPath(UpdatePath / "downloaders" / torrentName);
+    if (fs::exists(torrentPath))
+        fs::remove(torrentPath);
+    std::ofstream tor(torrentPath.string(), std::ios::out | std::ios::binary | std::ios::app);
     std::string announcePath(sConfigMgr->GetStringDefault("AnnounceAdress", "http://localhost/announce"));
-    std::string installerPath(installerName);
-    std::string strHash(readfile("pieces/" + installerName + "/hash.txt"));
+    std::string strHash(readfile(piecesPath + "/hash.txt"));
     std::stringstream ss, ssEnd;
     ss << "d8:announce" << announcePath.length() << ":" << announcePath << "10:autolaunchi2e11:choose pathi0e13:creation datei" << std::time(nullptr) << "e"
         << "14:download label" << installerName.length() << ":" << installerName << "13:download typei1e4:info";
     uint32 infoPos = ss.str().length();
-    ss << "d5:filesld6:lengthi" << Util::filesize(installerName.c_str()) << "e"
-        << "4:pathl" << installerPath.length() << ":" << installerPath << "eee4:name0:12:piece lengthi" << pieceLength << "e6:pieces" << uint32(strHash.size() / 2) << ":";
+    ss << "d5:filesld6:lengthi" << Util::filesize(installerPath) << "e"
+        << "4:pathl" << installerName.length() << ":" << installerName << "eee4:name0:12:piece lengthi" << pieceLength << "e6:pieces" << uint32(strHash.size() / 2) << ":";
     tor.write(ss.str().c_str(), ss.str().length());
     for (std::size_t pos = 0; pos < strHash.size(); pos = pos + 2)
     {
@@ -327,12 +315,12 @@ void ClientPatcher::GenerateInstaller(std::string loc)
         tor.write((char*)&num, 1);
     }
     tor.write("e", 1);
-    ssEnd << "13:launch target" << installerPath.length() << ":" << installerPath << "e";
+    ssEnd << "13:launch target" << installerName.length() << ":" << installerName << "e";
     tor.write(ssEnd.str().c_str(), ssEnd.str().length());
     tor.close();
 
     // Calculate the torrent info_hash
-    std::ifstream tori(torrentName, std::ifstream::ate | std::ifstream::binary);
+    std::ifstream tori(torrentPath.string(), std::ifstream::ate | std::ifstream::binary);
     uint32 torrentLength = tori.tellg();
     uint32 infoLength = torrentLength - ssEnd.str().length() - infoPos;
     tori.seekg(infoPos);
@@ -352,7 +340,8 @@ void ClientPatcher::GenerateInstaller(std::string loc)
     // Downloader
     printf("\n    Generating Downloader");
     std::string downloaderName(baseName.str() + "-dl.exe");
-    exec("BwoD.exe compile " + torrentName + " " + downloaderName);
+    fs::path downloaderPath(UpdatePath / "downloaders" / downloaderName);
+    Util::exec("BwoD.exe compile " + torrentPath.string() + " " + downloaderPath.string());
 
     // Patch
 
@@ -361,57 +350,36 @@ void ClientPatcher::GenerateInstaller(std::string loc)
         fs::remove(prepatch);
     std::ofstream(prepatch, std::ios_base::out | std::ios_base::app) << "extract " << downloaderName << std::endl << "execute " << downloaderName;
 
+    printf("\n    Generating MPQ");
     mpqss << fromBuild << "-" << loc << ".mpq";
     std::string mpqName(mpqss.str());
-    std::string mpqPath(InstallerPath + "\\" + mpqName);
+    fs::path mpqPath(UpdatePath / mpqName);
     if (fs::exists(mpqPath))
         fs::remove(mpqPath);
-    printf("\n    Generating MPQ");
     HANDLE mpq;
-    SFileCreateArchive(mpqPath.c_str(), MPQ_CREATE_ARCHIVE_V2, 0x1000, &mpq);
-    Util::AddFileToMPQ(prepatch, prepatch, &mpq);
-    Util::AddFileToMPQ(downloaderName, downloaderName, &mpq);
+    SFileCreateArchive(mpqPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, 0x1000, &mpq);
+    Manager::AddFileToMPQ(prepatch, prepatch, &mpq);
+    Manager::AddFileToMPQ(downloaderPath, downloaderName, &mpq);
     SFileCloseArchive(mpq);
 
     // Save files
-    printf("\n    Saving files");
-    SaveFile(installerName, "patches\\installers");
-    SaveFile(installerName, "patches", "pieces");
-    SaveFile(downloaderName, "patches\\downloaders");
-    SaveFile(torrentName, "patches\\downloaders");
-    SaveFile(mpqName, "patches");
-}
-
-void ClientPatcher::SaveFile(fs::path filename, fs::path additionnal, fs::path in)
-{
-    fs::path from(InstallerPath / in / filename);
-    fs::path to(fs::path(ReleasePath + "\\data") / additionnal / filename);
-
-    if (fs::exists(from)) // if not, some error should have been displayed before
+    if (mFlags & PATCH_RELEASE)
     {
-        if (fs::exists(to))
-            ; //printf("\n  Warning: %s already exist in Release folder", path.c_str());
-        else if (fs::is_directory(from))
-            exec("move \"" + from.string() + "\" \"" + to.string() + "\"");
-        else
-            fs::rename(from, to);
-    }
-}
+        printf("\n    Saving files");
+        fs::path releaseDataPath(sConfigMgr->GetStringDefault("PatchReleasePath", "D:\\A\\Build\\bin\\Release\\data\\patches"));
+        fs::path installersPath(releaseDataPath / "installers");
+        if (!fs::exists(installersPath))
+            fs::create_directories(installersPath);
+        fs::path downloadersPath(releaseDataPath / "downloadersPath");
+        if (!fs::exists(downloadersPath))
+            fs::create_directories(downloadersPath);
 
-std::string ClientPatcher::exec(std::string cmd)
-{
-    FILE* pipe = _popen(cmd.c_str(), "r");
-    if (!pipe)
-        return "ERROR";
-    char buffer[128];
-    std::string result = "";
-    while (!feof(pipe))
-    {
-        if (fgets(buffer, 128, pipe) != NULL)
-            result = +buffer;
+        Util::CpyFile(installerPath, installersPath / installerName, true);
+        Util::CpyFile(installerPath, downloadersPath / installerName, true);
+        Util::CpyFile(torrentPath, downloadersPath / torrentName, true);
+        Util::CpyDir(piecesPath, releaseDataPath / installerName, true);
+        Util::CpyFile(mpqPath, releaseDataPath / mpqName, true);
     }
-    _pclose(pipe);
-    return result.substr(0, result.length() - 1);
 }
 
 std::string ClientPatcher::readfile(std::string path)

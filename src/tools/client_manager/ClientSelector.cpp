@@ -3,8 +3,8 @@
 #include <tchar.h>
 #include <iostream>
 #include <regex>
-#include <boost\filesystem.hpp>
-#include <boost\algorithm\string.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 
 ClientSelector::ClientSelector(po::variables_map vm)
 {
