@@ -36,6 +36,7 @@ class ClientPatcher
         uint32 toMajor;
         uint32 toMinor;
         uint32 toBugfix;
+        time_t toTimeStamp;
 };
 
 #endif

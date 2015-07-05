@@ -73,9 +73,9 @@ bool ClientCompressor::Proceed()
     // Update dbc/lua in client (test function)
     if (mFlags & UPDATE_DBC || mFlags & UPDATE_LUA)
     {
-        if (fs::exists(GameDataPath + "\\frFR"))
+        if (fs::exists(GameDataPath / "frFR"))
             UpdatePatchMPQ(LOCALE_frFR);
-        if (fs::exists(GameDataPath + "\\enUS"))
+        if (fs::exists(GameDataPath / "enUS"))
             UpdatePatchMPQ(LOCALE_enUS);
     }
 
@@ -267,7 +267,7 @@ void ClientCompressor::UpdatePatchMPQ(uint8 loc)
     std::string locs = loc ? "frFR" : "enUS";
     std::cout << locs;
     std::string prefix = TinyPatchPath + "\\" + locs;
-    fs::path patchPath(GameDataPath + "\\" + locs + "\\" + "patch-" + locs + ".mpq");
+    fs::path patchPath(GameDataPath / locs / ("patch-" + locs + ".mpq"));
     HANDLE patch;
 
     if (SFileOpenArchive(patchPath.string().c_str(), 0, 0, &patch))

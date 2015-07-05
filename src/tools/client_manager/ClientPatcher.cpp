@@ -97,9 +97,9 @@ void ClientPatcher::CommitVersion()
     std::string PatchHash(Util::exec("git -C \"" + TinyPatchPath + "\" log --format=\"%H\" -n 1"));
 
     std::stringstream insert_query;
-    insert_query << "INSERT INTO versions (Build, MajorVersion, MinorVersion, BugfixVersion, HotfixVersion, FullHash, LocHash, PatchHash) "
+    insert_query << "INSERT INTO versions (Build, MajorVersion, MinorVersion, BugfixVersion, HotfixVersion, FullHash, LocHash, PatchHash, TimeStamp) "
         << "VALUES(" << build << ", " << major << ", " << minor << ", " << bugfix << ", \"" << hotfix << "\", \""
-        << FullHash << "\", \"" << LocHash << "\", \"" << PatchHash << "\")";
+        << FullHash << "\", \"" << LocHash << "\", \"" << PatchHash << "\", " << std::time(nullptr) << ")";
     LoginDatabase.Query(insert_query.str().c_str());
 
     insert_query.str("");
@@ -161,7 +161,7 @@ void ClientPatcher::Update()
     fromPatchHash = fields[5].GetString();
 
     select_query.str("");
-    select_query << "SELECT MajorVersion, MinorVersion, BugfixVersion, FullHash, LocHash, PatchHash FROM versions WHERE Build = " << toBuild;
+    select_query << "SELECT MajorVersion, MinorVersion, BugfixVersion, FullHash, LocHash, PatchHash, TimeStamp FROM versions WHERE Build = " << toBuild;
     result = LoginDatabase.Query(select_query.str().c_str());
     fields = result->Fetch();
     toMajor = fields[0].GetUInt32();
@@ -170,6 +170,7 @@ void ClientPatcher::Update()
     toFullHash = fields[3].GetString();
     toLocHash = fields[4].GetString();
     toPatchHash = fields[5].GetString();
+    toTimeStamp = fields[6].GetUInt32();
 
     printf("\nInstalling from build %u to build %u", fromBuild, toBuild);
 
@@ -288,6 +289,8 @@ void ClientPatcher::GenerateUpdate(std::string loc)
     fs::remove_all("data_tmp");
 
     std::string piecesPath(installerName);
+    if (fs::exists(piecesPath))
+        fs::remove_all(piecesPath);
     uint32 pieceLength = 262144;
     std::stringstream fileSplitter;
     fileSplitter << "bin\\fileSplitter.exe " << installerPath.string() << " " << pieceLength << " " << piecesPath;
@@ -303,7 +306,7 @@ void ClientPatcher::GenerateUpdate(std::string loc)
     std::string announcePath(sConfigMgr->GetStringDefault("AnnounceAdress", "http://localhost/announce"));
     std::string strHash(readfile(piecesPath + "/hash.txt"));
     std::stringstream ss, ssEnd;
-    ss << "d8:announce" << announcePath.length() << ":" << announcePath << "10:autolaunchi2e11:choose pathi0e13:creation datei" << std::time(nullptr) << "e"
+    ss << "d8:announce" << announcePath.length() << ":" << announcePath << "10:autolaunchi2e11:choose pathi0e13:creation datei" << toTimeStamp << "e"
         << "14:download label" << installerName.length() << ":" << installerName << "13:download typei1e4:info";
     uint32 infoPos = ss.str().length();
     ss << "d5:filesld6:lengthi" << Util::filesize(installerPath) << "e"
@@ -341,7 +344,7 @@ void ClientPatcher::GenerateUpdate(std::string loc)
     printf("\n    Generating Downloader");
     std::string downloaderName(baseName.str() + "-dl.exe");
     fs::path downloaderPath(UpdatePath / "downloaders" / downloaderName);
-    Util::exec("BwoD.exe compile " + torrentPath.string() + " " + downloaderPath.string());
+    Util::exec("bin\\BwoD.exe compile " + torrentPath.string() + " " + downloaderPath.string());
 
     // Patch
 
@@ -370,13 +373,15 @@ void ClientPatcher::GenerateUpdate(std::string loc)
         fs::path installersPath(releaseDataPath / "installers");
         if (!fs::exists(installersPath))
             fs::create_directories(installersPath);
-        fs::path downloadersPath(releaseDataPath / "downloadersPath");
+        fs::path downloadersPath(releaseDataPath / "downloaders");
         if (!fs::exists(downloadersPath))
             fs::create_directories(downloadersPath);
 
         Util::CpyFile(installerPath, installersPath / installerName, true);
-        Util::CpyFile(installerPath, downloadersPath / installerName, true);
+        Util::CpyFile(downloaderPath, downloadersPath / downloaderName, true);
         Util::CpyFile(torrentPath, downloadersPath / torrentName, true);
+        if (fs::exists(piecesPath))
+            fs::remove_all(piecesPath);
         Util::CpyDir(piecesPath, releaseDataPath / installerName, true);
         Util::CpyFile(mpqPath, releaseDataPath / mpqName, true);
     }

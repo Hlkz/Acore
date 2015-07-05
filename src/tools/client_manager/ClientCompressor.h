@@ -48,7 +48,7 @@ class ClientCompressor
 
         std::string PatchOutputPath;
         fs::path ClientPath;
-        std::string GameDataPath;
+        fs::path GameDataPath;
 };
 
 #endif
