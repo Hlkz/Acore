@@ -23,6 +23,17 @@ enum CompressorFlag
     UPDATE_LUA          = 0x800
 };
 
+struct FullVersion
+{
+    uint32 Build;
+    uint32 Major;
+    uint32 Minor;
+    uint32 Bugfix;
+    time_t Timestamp;
+    std::string ClientName;
+    fs::path SourcePath;
+};
+
 class ClientCompressor
 {
     public:
@@ -33,6 +44,8 @@ class ClientCompressor
         void Compress();
         void UpdatePatchMPQ(uint8 loc);
         void InstallPatches();
+        bool ReleaseFullVersion();
+        void PrepareFullVersion(FullVersion* fv, std::string loc);
 
         // Compress()
         bool SaveOutput();
@@ -46,8 +59,8 @@ class ClientCompressor
         po::variables_map mVm;
         int32 mFlags;
 
-        std::string PatchOutputPath;
-        fs::path ClientPath;
+        fs::path PatchOutputPath;
+        fs::path ReleasePath;
         fs::path GameDataPath;
 };
 

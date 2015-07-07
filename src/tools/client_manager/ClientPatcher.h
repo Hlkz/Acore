@@ -5,7 +5,8 @@ enum PatcherFlag
 {
     PATCH_VERSION   = 0x01,
     PATCH_UPDATE    = 0x02,
-    PATCH_RELEASE   = 0x04
+    PATCH_ONLY      = 0x04,
+    PATCH_RELEASE   = 0x08
 };
 
 class ClientPatcher
@@ -20,13 +21,11 @@ class ClientPatcher
         void ExtractGitDiff(std::string path, std::string fromHash, std::string toHash, std::string filename);
         void GenerateUpdate(std::string loc);
 
-        std::string readfile(std::string str);
+        std::string readfile(fs::path path);
         std::string escape(std::string str);
 
         po::variables_map mVm;
         int32 mFlags;
-
-        fs::path DataPath;
 
         uint32 fromBuild;
         uint32 fromMajor;

@@ -8,21 +8,22 @@ TinyDataPath = "D:\A\Client\Manager\Data\TinyData"
 TinyLocPath = "D:\A\Client\Manager\Data\TinyLoc"
 TinyPatchPath = "D:\A\Client\Manager\Data\TinyPatch"
 
+DataPath = "D:\A\Client\Manager\Data"
 UpdatePath = "D:\A\Client\Manager\Update"
 
 # ClientCompressor
 
 PatchOutputPath = "D:\A\Client\Manager\Output"
-ClientPath = "D:\A\Client\Client"
+ReleasePath = "D:\A\Client\Manager\Release"
 GameDataPath = "D:\A\Client\Aviana\Data"
+ClientName = "Aviana"
+RealmlistAddress = "auth.aviana-online.com"
 
 # ClientPatcher
 
-DataPath = "D:\A\Client\Manager\Data"
-
-AnnounceAdress = "http://localhost/announce"
-PatchAdress = "http://localhost/updates/patch"
-PatchNoteAdress = "http://localhost/patch-note"
+AnnounceAddress = "http://localhost/announce"
+PatchAddress = "http://localhost/update/patch"
+PatchNoteAddress = "http://localhost/patch-note"
 PatchReleasePath = "D:\A\Build\bin\Release\data\patches"
 
 # Database

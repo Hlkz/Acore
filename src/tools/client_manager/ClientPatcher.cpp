@@ -19,6 +19,8 @@ ClientPatcher::ClientPatcher(po::variables_map vm)
         mFlags |= PATCH_UPDATE;
     if (!mFlags)
         return;
+    if (vm.count("p-patch"))
+        mFlags |= PATCH_ONLY;
     if (vm.count("p-release"))
         mFlags |= PATCH_RELEASE;
 
@@ -37,8 +39,6 @@ ClientPatcher::ClientPatcher(po::variables_map vm)
     //    installTo = vm["p-installto"].as<uint32>();
 
     mVm = vm;
-
-    DataPath = sConfigMgr->GetStringDefault("DataPath", "D:\\A\\Client\\Manager\\Data");
 
     Proceed();
 }
@@ -184,8 +184,11 @@ void ClientPatcher::Update()
     fs::create_directory(UpdatePath / "downloaders");
 
     printf("\n  Extracting git diff");
-    ExtractGitDiff(TinyDataPath, fromFullHash, toFullHash, "TinyData.diff");
-    ExtractGitDiff(TinyLocPath, fromLocHash, toLocHash, "TinyLoc.diff");
+    if (!(mFlags & PATCH_ONLY))
+    {
+        ExtractGitDiff(TinyDataPath, fromFullHash, toFullHash, "TinyData.diff");
+        ExtractGitDiff(TinyLocPath, fromLocHash, toLocHash, "TinyLoc.diff");
+    }
     ExtractGitDiff(TinyPatchPath, fromPatchHash, toPatchHash, "TinyPatch.diff");
 
     printf("\n  Building Wow.exe");
@@ -210,10 +213,10 @@ void ClientPatcher::Update()
 void ClientPatcher::ExtractGitDiff(std::string path, std::string fromHash, std::string toHash, std::string filename)
 {
     printf("\n    Generating %s", filename.c_str());
-    fs::path diffPath(DataPath / filename);
+    fs::path diffPath(ManagerDataPath / filename);
     if (fs::exists(diffPath))
         fs::remove(diffPath);
-    std::string gitcmd("git -C " + path + " diff " + fromHash + " " + toHash + " --name-status  >> " + DataPath.string() + "/" + filename);
+    std::string gitcmd("git -C " + path + " diff " + fromHash + " " + toHash + " --name-status  >> " + ManagerDataPath.string() + "/" + filename);
     Util::exec(gitcmd.c_str());
 
     printf("\n    Extracting files from %s", filename.c_str());
@@ -277,7 +280,7 @@ void ClientPatcher::GenerateUpdate(std::string loc)
     if (fs::exists(patchHtml))
         fs::remove(patchHtml);
     std::ofstream(patchHtml.string(), std::ios_base::out | std::ios_base::app)
-        << "<script language=\"javascript\">document.location=\"" << sConfigMgr->GetStringDefault("PatchNoteAdress", "localhost/patch") << "/" << toBuild << "-" << loc << "\";</script>";
+        << "<script language=\"javascript\">document.location=\"" << sConfigMgr->GetStringDefault("PatchNoteAddress", "localhost/patch") << "/" << toBuild << "-" << loc << "\";</script>";
 
     printf("\n    Generating Installer");
     Util::exec("bin\\headergenerator.exe data data_tmp");
@@ -288,12 +291,12 @@ void ClientPatcher::GenerateUpdate(std::string loc)
     fs::remove("tmp.mpq");
     fs::remove_all("data_tmp");
 
-    std::string piecesPath(installerName);
+    fs::path piecesPath(installerName);
     if (fs::exists(piecesPath))
         fs::remove_all(piecesPath);
     uint32 pieceLength = 262144;
     std::stringstream fileSplitter;
-    fileSplitter << "bin\\fileSplitter.exe " << installerPath.string() << " " << pieceLength << " " << piecesPath;
+    fileSplitter << "bin\\fileSplitter.exe " << installerPath.string() << " " << pieceLength << " " << piecesPath.string();
     Util::exec(fileSplitter.str());
 
     // Torrent
@@ -303,8 +306,8 @@ void ClientPatcher::GenerateUpdate(std::string loc)
     if (fs::exists(torrentPath))
         fs::remove(torrentPath);
     std::ofstream tor(torrentPath.string(), std::ios::out | std::ios::binary | std::ios::app);
-    std::string announcePath(sConfigMgr->GetStringDefault("AnnounceAdress", "http://localhost/announce"));
-    std::string strHash(readfile(piecesPath + "/hash.txt"));
+    std::string announcePath(sConfigMgr->GetStringDefault("AnnounceAddress", "http://localhost/announce"));
+    std::string strHash(readfile(piecesPath / "hash.txt"));
     std::stringstream ss, ssEnd;
     ss << "d8:announce" << announcePath.length() << ":" << announcePath << "10:autolaunchi2e11:choose pathi0e13:creation datei" << toTimeStamp << "e"
         << "14:download label" << installerName.length() << ":" << installerName << "13:download typei1e4:info";
@@ -333,12 +336,12 @@ void ClientPatcher::GenerateUpdate(std::string loc)
     SHA1((unsigned char *)buffer, infoLength, info_hash);
     tori.close();
 
-    std::string directDownload(sConfigMgr->GetStringDefault("PatchAdress", "http://localhost/patch") + "/" + installerName);
+    std::string directDownload(sConfigMgr->GetStringDefault("PatchAddress", "http://localhost/patch") + "/" + installerName);
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_PATCH);
     stmt->setString(0, std::string((char*)info_hash));
     stmt->setString(1, installerName);
     stmt->setString(2, directDownload);
-    LoginDatabase.Query(stmt);
+    LoginDatabase.Execute(stmt);
 
     // Downloader
     printf("\n    Generating Downloader");
@@ -369,27 +372,27 @@ void ClientPatcher::GenerateUpdate(std::string loc)
     if (mFlags & PATCH_RELEASE)
     {
         printf("\n    Saving files");
-        fs::path releaseDataPath(sConfigMgr->GetStringDefault("PatchReleasePath", "D:\\A\\Build\\bin\\Release\\data\\patches"));
-        fs::path installersPath(releaseDataPath / "installers");
+        fs::path patchReleasePath(sConfigMgr->GetStringDefault("PatchReleasePath", "D:\\A\\Build\\bin\\Release\\data\\patches"));
+        fs::path installersPath(patchReleasePath / "installers");
         if (!fs::exists(installersPath))
             fs::create_directories(installersPath);
-        fs::path downloadersPath(releaseDataPath / "downloaders");
+        fs::path downloadersPath(patchReleasePath / "downloaders");
         if (!fs::exists(downloadersPath))
             fs::create_directories(downloadersPath);
 
         Util::CpyFile(installerPath, installersPath / installerName, true);
         Util::CpyFile(downloaderPath, downloadersPath / downloaderName, true);
         Util::CpyFile(torrentPath, downloadersPath / torrentName, true);
-        if (fs::exists(piecesPath))
-            fs::remove_all(piecesPath);
-        Util::CpyDir(piecesPath, releaseDataPath / installerName, true);
-        Util::CpyFile(mpqPath, releaseDataPath / mpqName, true);
+        if (fs::exists(patchReleasePath / installerName))
+            fs::remove_all(patchReleasePath / installerName);
+        Util::CpyDir(piecesPath, patchReleasePath / installerName, true);
+        Util::CpyFile(mpqPath, patchReleasePath / mpqName, true);
     }
 }
 
-std::string ClientPatcher::readfile(std::string path)
+std::string ClientPatcher::readfile(fs::path path)
 {
-    std::ifstream file(path.c_str());
+    std::ifstream file(path.string().c_str());
     std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
     return str;
 }

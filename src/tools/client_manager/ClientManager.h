@@ -26,6 +26,7 @@ extern std::string FullDataPathFr;
 extern std::string TinyDataPathEn;
 extern std::string TinyDataPathFr;
 
+extern fs::path ManagerDataPath;
 extern fs::path UpdatePath;
 
 class ClientManager

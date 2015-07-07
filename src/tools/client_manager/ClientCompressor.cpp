@@ -46,7 +46,7 @@ ClientCompressor::ClientCompressor(po::variables_map vm)
     mVm = vm;
 
     PatchOutputPath = sConfigMgr->GetStringDefault("PatchOutputPath", "D:\\A\\Client\\Manager\\Output");
-    ClientPath = sConfigMgr->GetStringDefault("ClientPath", "D:\\A\\Client\\Client");
+    ReleasePath = sConfigMgr->GetStringDefault("ReleasePath", "D:\\A\\Client\\Manager\\Release");
     GameDataPath = sConfigMgr->GetStringDefault("GameDataPath", "D:\\A\\Client\\Aviana\\Data");
 
     Proceed();
@@ -54,7 +54,7 @@ ClientCompressor::ClientCompressor(po::variables_map vm)
 
 bool ClientCompressor::Proceed()
 {
-    if (PatchOutputPath.length() < 10)
+    if (PatchOutputPath.string().length() < 10)
         return false;
     uint32 oldMSTime = getMSTime();
     std::cout << "\nCompressor";
@@ -64,11 +64,11 @@ bool ClientCompressor::Proceed()
         Compress();
 
     // Install compressed Tiny to GamePath
-    if (mFlags & (COMPRESS_INSTALL | COMPRESS_RELEASE))
+    if (mFlags & (COMPRESS_INSTALL))
         InstallPatches();
 
     if (mFlags & COMPRESS_RELEASE)
-        Manager::BuildVersion(ClientPath / "Wow.exe");
+        ReleaseFullVersion();
 
     // Update dbc/lua in client (test function)
     if (mFlags & UPDATE_DBC || mFlags & UPDATE_LUA)
@@ -89,8 +89,8 @@ void ClientCompressor::Compress()
 
     if (mFlags & COMPRESS_ALL_LOC)
     {
-        fs::create_directories(PatchOutputPath + "\\frFR");
-        fs::create_directories(PatchOutputPath + "\\enUS");
+        fs::create_directories(PatchOutputPath / "frFR");
+        fs::create_directories(PatchOutputPath / "enUS");
     }
 
     // Patch
@@ -133,7 +133,7 @@ bool ClientCompressor::SaveOutput()
         time(&t);
         tm* time = localtime(&t);
         std::stringstream saveDir;
-        saveDir << PatchOutputPath << "/" << std::setw(4) << std::setfill('0') << time->tm_year + 1900 << "-" << std::setw(2) << time->tm_mon + 1 << "-" << std::setw(2) << time->tm_mday;
+        saveDir << PatchOutputPath.string() << "/" << std::setw(4) << std::setfill('0') << time->tm_year + 1900 << "-" << std::setw(2) << time->tm_mon + 1 << "-" << std::setw(2) << time->tm_mday;
         fs::path savePath(saveDir.str());
         uint8 i = 0;
         while (fs::exists(savePath))
@@ -156,7 +156,7 @@ bool ClientCompressor::SaveOutput()
 void ClientCompressor::GenerateCommonMPQ()
 {
     printf("\n  Starting Common generation");
-    fs::path commonPath(fs::path(PatchOutputPath) / fs::path("common.mpq"));
+    fs::path commonPath(PatchOutputPath / "common.mpq");
     HANDLE common;
     SFileCreateArchive(commonPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, COMMONMAXFILES, &common);
 
@@ -184,7 +184,7 @@ void ClientCompressor::GenerateCommonMPQ()
 void ClientCompressor::GenerateCommon2MPQ()
 {
     printf("\n  Starting Common2 generation");
-    fs::path common2Path(fs::path(PatchOutputPath) / fs::path("common-2.mpq"));
+    fs::path common2Path(PatchOutputPath / "common-2.mpq");
     HANDLE common2;
     SFileCreateArchive(common2Path.string().c_str(), MPQ_CREATE_ARCHIVE_V2, COMMON2MAXFILES, &common2);
 
@@ -197,7 +197,7 @@ void ClientCompressor::GenerateCommon2MPQ()
 void ClientCompressor::GenerateLichkingMPQ()
 {
     printf("\n  Starting Lichking generation");
-    fs::path lichkingPath(fs::path(PatchOutputPath) / fs::path("lichking.mpq"));
+    fs::path lichkingPath(PatchOutputPath / "lichking.mpq");
     HANDLE lichking;
     SFileCreateArchive(lichkingPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, LICHKINGMAXFILES, &lichking);
 
@@ -215,7 +215,7 @@ void ClientCompressor::GenerateLocaleMPQ(uint8 loc)
     std::string locs = loc ? "frFR" : "enUS";
     std::cout << locs;
     std::string prefix = loc ? TinyDataPathFr : TinyDataPathEn;
-    fs::path localePath(PatchOutputPath + "\\" + locs + "\\" + "locale-" + locs + ".mpq");
+    fs::path localePath(PatchOutputPath / locs / ("locale-" + locs + ".mpq"));
     HANDLE locale;
     SFileCreateArchive(localePath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, PATCHMAXFILES, &locale);
 
@@ -234,7 +234,7 @@ void ClientCompressor::GenerateSpeechMPQ(uint8 loc)
     std::string locs = loc ? "frFR" : "enUS";
     std::cout << locs;
     std::string prefix = loc ? TinyDataPathFr : TinyDataPathEn;
-    fs::path speechPath(PatchOutputPath + "\\" + locs + "\\" + "speech-" + locs + ".mpq");
+    fs::path speechPath(PatchOutputPath / locs / ("speech-" + locs + ".mpq"));
     HANDLE speech;
     SFileCreateArchive(speechPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, PATCHMAXFILES, &speech);
 
@@ -250,7 +250,7 @@ void ClientCompressor::GeneratePatchMPQ(uint8 loc)
     std::string locs = loc ? "frFR" : "enUS";
     std::cout << locs;
     std::string prefix = TinyPatchPath + "\\" + locs;
-    fs::path patchPath(PatchOutputPath + "\\" + locs + "\\" + "patch-" + locs + ".mpq");
+    fs::path patchPath(PatchOutputPath / locs / ("patch-" + locs + ".mpq"));
     HANDLE patch;
     SFileCreateArchive(patchPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, PATCHMAXFILES, &patch);
 
@@ -294,7 +294,7 @@ void ClientCompressor::UpdatePatchMPQ(uint8 loc)
 
 void ClientCompressor::InstallPatches()
 {
-    fs::path installTo = mFlags & COMPRESS_INSTALL ? GameDataPath : ClientPath / "Data";
+    fs::path installTo = GameDataPath;
     printf("\n  Installing Patches");
     boost::filesystem::directory_iterator end_itr;
     for (boost::filesystem::directory_iterator i(PatchOutputPath); i != end_itr; ++i)
@@ -324,4 +324,74 @@ void ClientCompressor::InstallPatches()
             }
         }
     //printf("\n  Ending Patches installation");
+}
+
+bool ClientCompressor::ReleaseFullVersion()
+{
+#ifndef WIN32
+    printf("\nThis programm only works on windows");
+    return;
+#endif
+    SetCurrentDirectory(ReleasePath.string().c_str());
+
+    FullVersion fv;
+    fv.SourcePath = ManagerDataPath / "Source";
+    if (!fs::exists(fv.SourcePath))
+        return false;
+
+    QueryResult result;
+    result = LoginDatabase.Query("SELECT Build, MajorVersion, MinorVersion, BugfixVersion, TimeStamp FROM versions ORDER BY Build DESC LIMIT 1");
+    Field* fields = result->Fetch();
+    fv.Build = fields[0].GetUInt32();
+    fv.Major = fields[1].GetUInt32();
+    fv.Minor = fields[2].GetUInt32();
+    fv.Bugfix = fields[3].GetUInt32();
+    fv.Timestamp = fields[4].GetUInt32();
+
+    fv.ClientName = sConfigMgr->GetStringDefault("ClientName", "Aviana");
+    PrepareFullVersion(&fv, "frFR");
+    PrepareFullVersion(&fv, "enUS");
+    return true;
+}
+
+void ClientCompressor::PrepareFullVersion(FullVersion* fv, std::string loc)
+{
+    printf(std::string("\n  Generating FullVersion " + loc).c_str());
+    std::stringstream ssName;
+    ssName << fv->ClientName << "-" << fv->Major << "." << fv->Minor << "." << fv->Bugfix << "-" << loc;
+    std::string clientName(ssName.str());
+    fs::path clientPath(ReleasePath / clientName);
+    if (fs::exists(clientPath))
+        fs::remove_all(clientPath);
+    Util::CpyDir(fv->SourcePath, clientPath);
+    Manager::BuildVersion(clientPath / "Wow.exe");
+
+    fs::path dataPath(clientPath / "Data");
+    Util::CpyDir(PatchOutputPath / loc, dataPath / loc);
+    Util::CpyFile(PatchOutputPath / "common.mpq", dataPath / "common.mpq");
+    Util::CpyFile(PatchOutputPath / "common-2.mpq", dataPath / "common-2.mpq");
+    Util::CpyFile(PatchOutputPath / "lichking.mpq", dataPath / "lichking.mpq"); 
+    std::ofstream(fs::path(dataPath / loc / "realmlist.wtf").string(), std::ios_base::out | std::ios_base::app)
+        << "set realmlist " << sConfigMgr->GetStringDefault("RealmlistAddress", "auth.aviana-online.com");
+
+    printf("\n    Generating Torrent");
+    std::string torrentName(clientName + ".torrent");
+    fs::path torrentPath(ReleasePath / torrentName);
+    std::string announcePath(sConfigMgr->GetStringDefault("AnnounceAddress", "http://localhost/announce"));
+    Util::exec("bin\\transmission-create.exe " + clientName + " --tracker " + announcePath);
+
+    std::string clhash = Util::exec("bin\\cl_torrent_hash.exe " + torrentPath.string());
+    unsigned char info_hash[20];
+    for (std::size_t pos = 0; pos < 20; pos = pos ++)
+    {
+        int32 num = strtol(clhash.substr(2 * pos, 2).c_str(), NULL, 16);
+        info_hash[pos] = num;
+    }
+    std::string delete_query = "DELETE FROM tracker_files WHERE file_name = \"" + clientName + "\"";
+    LoginDatabase.Query(delete_query.c_str());
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_PATCH);
+    stmt->setString(0, std::string((char*)info_hash));
+    stmt->setString(1, clientName);
+    stmt->setString(2, "");
+    LoginDatabase.Execute(stmt);
 }

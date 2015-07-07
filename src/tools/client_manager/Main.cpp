@@ -15,6 +15,7 @@ std::string FullDataPathFr;
 std::string TinyDataPathEn;
 std::string TinyDataPathFr;
 
+fs::path ManagerDataPath;
 fs::path UpdatePath;
 
 int main(int argc, char *argv[])
@@ -40,13 +41,14 @@ int main(int argc, char *argv[])
         ("c-speech", "Compress Speech")
         ("c-patch", "Compress Patch")
         ("c-install", "Move compressed Tiny to game path")
-        ("c-release", "Move compressed Tiny to release path + build Wow.exe")
+        ("c-release", "Generate FullVersion directory + torrent")
         ("c-udbc", "Update dbc")
         ("c-ulua", "Update lua")
         // ClientPatcher
         ("p-version", "Commit version")
         ("p-update", "Generate update")
         ("p-updatefrom", po::value<uint32>(), "Specify from which build")
+        ("p-patch", "Generate update for TinyPatch only")
         ("p-release", "Copy installers/downloaders to release path")
         ;
 

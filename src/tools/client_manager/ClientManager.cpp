@@ -16,6 +16,7 @@ ClientManager::ClientManager(po::variables_map vm)
     TinyDataPathFr = TinyLocPath + "\\frFR";
     TinyDataPathEn = TinyLocPath + "\\enUS";
 
+    ManagerDataPath = sConfigMgr->GetStringDefault("DataPath", "D:\\A\\Client\\Manager\\Data");
     UpdatePath = sConfigMgr->GetStringDefault("UpdatePath", "D:\\A\\Client\\Manager\\Update");
 
     Proceed();

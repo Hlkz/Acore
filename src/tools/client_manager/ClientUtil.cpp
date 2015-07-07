@@ -53,7 +53,10 @@ namespace Util
             return false;
 
         if (!fs::exists(to))
-            fs::create_directories(to);
+        {
+            if (!fs::create_directories(to))
+                return false;
+        }
         else if (!fs::is_directory(to))
             return false;
 
