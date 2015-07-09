@@ -24,20 +24,6 @@ ClientPatcher::ClientPatcher(po::variables_map vm)
     if (vm.count("p-release"))
         mFlags |= PATCH_RELEASE;
 
-    fromBuild = 0;
-    if (vm.count("p-installfrom"))
-        fromBuild = vm["p-installfrom"].as<uint32>();
-    fromMajor = 0;
-    fromMinor = 0;
-    fromBugfix = 0;
-    toBuild = 0;
-    toMajor = 0;
-    toMinor = 0;
-    toBugfix = 0;
-
-    //if (vm.count("p-installto"))
-    //    installTo = vm["p-installto"].as<uint32>();
-
     mVm = vm;
 
     Proceed();
@@ -52,7 +38,7 @@ bool ClientPatcher::Proceed()
         CommitVersion();
 
     if (mFlags & PATCH_UPDATE)
-        Update();
+        ReleaseUpdate();
 
     printf("\nPatcher executed in %u ms\n", GetMSTimeDiffToNow(oldMSTime));
     return true;
@@ -68,10 +54,10 @@ void ClientPatcher::CommitVersion()
     bugfix = sConfigMgr->GetIntDefault("NewBugfixVersion", 0);
     hotfix = sConfigMgr->GetStringDefault("NewHotfixVersion", "");
 
+    // Check build
     QueryResult result;
     result = LoginDatabase.Query("SELECT Build FROM versions ORDER BY Build DESC LIMIT 1");
     uint32 lastBuild = result->Fetch()->GetUInt32();
-
     if (lastBuild >= build)
     {
         printf("\n  Error: build %u exist, cannot create build %u", lastBuild, build);
@@ -82,97 +68,98 @@ void ClientPatcher::CommitVersion()
     sprintf(buff, "%u.%u.%u%s (%u)", major, minor, bugfix, hotfix.c_str(), build);
     std::string Ammend(buff);
     printf("\nCommitting version %s", Ammend.c_str());
+    // git commit
     printf("\n  git commit");
-
     printf("\n    Committing TinyData");
     Util::exec("git -C \"" + TinyDataPath + "\" commit --allow-empty -m  \"" + Ammend + "\"");
     printf("\n    Committing TinyLoc");
     Util::exec("git -C \"" + TinyLocPath + "\" commit --allow-empty -m  \"" + Ammend + "\"");
     printf("\n    Committing TinyPatch");
     Util::exec("git -C \"" + TinyPatchPath + "\" commit --allow-empty -m  \"" + Ammend + "\"");
-
+    // database save
     printf("\n  database save");
-    std::string FullHash(Util::exec("git -C \"" + TinyDataPath + "\" log --format=\"%H\" -n 1"));
-    std::string LocHash(Util::exec("git -C \"" + TinyLocPath + "\" log --format=\"%H\" -n 1"));
-    std::string PatchHash(Util::exec("git -C \"" + TinyPatchPath + "\" log --format=\"%H\" -n 1"));
-
     std::stringstream insert_query;
     insert_query << "INSERT INTO versions (Build, MajorVersion, MinorVersion, BugfixVersion, HotfixVersion, FullHash, LocHash, PatchHash, TimeStamp) "
         << "VALUES(" << build << ", " << major << ", " << minor << ", " << bugfix << ", \"" << hotfix << "\", \""
-        << FullHash << "\", \"" << LocHash << "\", \"" << PatchHash << "\", " << std::time(nullptr) << ")";
+        << Util::exec("git -C \"" + TinyDataPath + "\" log --format=\"%H\" -n 1") << "\", \""
+        << Util::exec("git -C \"" + TinyLocPath + "\" log --format=\"%H\" -n 1") << "\", \""
+        << Util::exec("git -C \"" + TinyPatchPath + "\" log --format=\"%H\" -n 1") << "\", " << std::time(nullptr) << ")";
     LoginDatabase.Query(insert_query.str().c_str());
-
+    // realmlist update
     insert_query.str("");
     insert_query << "UPDATE realmlist SET gamebuild = " << build;
     LoginDatabase.Query(insert_query.str().c_str());
 }
 
-void ClientPatcher::Update()
+void ClientPatcher::ReleaseUpdate()
 {
 #ifndef WIN32
     printf("\nThis programm only works on windows");
     return;
 #endif
 
-    //if (!installFrom && installTo)
+    QueryResult result;
+    Update up;
+
+    if (mVm.count("p-updatefrom"))
+        up.fromBuild = mVm["p-updatefrom"].as<uint32>();
+    //if (mVm.count("p-updateto"))
+    //    installTo = mVm["p-updateto"].as<uint32>();
+
+    //if (!up.fromBuild && up.toBuild)
     //{
     //    printf("\n  You cant specify to which build install without specifying from which one");
     //    return;
     //}
-
-    QueryResult result;
-
-    if (!fromBuild)
+    if (!up.fromBuild)
     {
         result = LoginDatabase.Query("SELECT Build FROM versions ORDER BY Build DESC LIMIT 2");
 
-        toBuild = result->Fetch()->GetUInt32();
+        up.toBuild = result->Fetch()->GetUInt32();
         if (result->NextRow())
-            fromBuild = result->Fetch()->GetUInt32();
+            up.fromBuild = result->Fetch()->GetUInt32();
         else
         {
             printf("\n  There is only one client version");
             return;
         }
     }
-    if (!toBuild)
+    if (!up.toBuild)
     {
         result = LoginDatabase.Query("SELECT Build FROM versions ORDER BY Build DESC LIMIT 1");
-        toBuild = result->Fetch()->GetUInt32();
+        up.toBuild = result->Fetch()->GetUInt32();
     }
-
-    if (fromBuild >= toBuild)
+    if (up.fromBuild >= up.toBuild)
     {
-        printf("\n  Cannot update a version (%u) to an older one (%u)", fromBuild, toBuild);
+        printf("\n  Cannot update a version (%u) to an older one (%u)", up.fromBuild, up.toBuild);
         return;
     }
 
     std::string fromFullHash, fromLocHash, fromPatchHash, toFullHash, toLocHash, toPatchHash;
-
     std::stringstream select_query;
-    select_query << "SELECT MajorVersion, MinorVersion, BugfixVersion, FullHash, LocHash, PatchHash FROM versions WHERE Build = " << fromBuild;
+    select_query << "SELECT MajorVersion, MinorVersion, BugfixVersion, FullHash, LocHash, PatchHash FROM versions WHERE Build = " << up.fromBuild;
     result = LoginDatabase.Query(select_query.str().c_str());
     Field* fields = result->Fetch();
-    fromMajor = fields[0].GetUInt32();
-    fromMinor = fields[1].GetUInt32();
-    fromBugfix = fields[2].GetUInt32();
+    up.fromMajor = fields[0].GetUInt32();
+    up.fromMinor = fields[1].GetUInt32();
+    up.fromBugfix = fields[2].GetUInt32();
     fromFullHash = fields[3].GetString();
     fromLocHash = fields[4].GetString();
     fromPatchHash = fields[5].GetString();
 
     select_query.str("");
-    select_query << "SELECT MajorVersion, MinorVersion, BugfixVersion, FullHash, LocHash, PatchHash, TimeStamp FROM versions WHERE Build = " << toBuild;
+    select_query << "SELECT MajorVersion, MinorVersion, BugfixVersion, FullHash, LocHash, PatchHash, TimeStamp FROM versions WHERE Build = " << up.toBuild;
     result = LoginDatabase.Query(select_query.str().c_str());
     fields = result->Fetch();
-    toMajor = fields[0].GetUInt32();
-    toMinor = fields[1].GetUInt32();
-    toBugfix = fields[2].GetUInt32();
+    up.toMajor = fields[0].GetUInt32();
+    up.toMinor = fields[1].GetUInt32();
+    up.toBugfix = fields[2].GetUInt32();
     toFullHash = fields[3].GetString();
     toLocHash = fields[4].GetString();
     toPatchHash = fields[5].GetString();
-    toTimeStamp = fields[6].GetUInt32();
+    up.toTimeStamp = fields[6].GetUInt32();
 
-    printf("\nInstalling from build %u to build %u", fromBuild, toBuild);
+    printf("\nInstalling from build %u to build %u", up.fromBuild, up.toBuild);
 
     printf("\n  Cleaning Installer dir");
     fs::remove_all(UpdatePath / "data");
@@ -193,21 +180,58 @@ void ClientPatcher::Update()
 
     printf("\n  Building Wow.exe");
     fs::path wow_exe(UpdatePath / "data/base/Wow.exe");
-    if (!Manager::BuildVersion(wow_exe, toBuild, toMajor, toMinor, toBugfix))
+    if (!Manager::BuildVersion(wow_exe, up.toBuild, up.toMajor, up.toMinor, up.toBugfix))
         return;
 
     SetCurrentDirectory(UpdatePath.string().c_str());
 
+    // Downloader base
+    printf("\n  Building downloader base");
+    AddMPQToFile(UpdatePath / "res" / "installer" / "base.exe", UpdatePath / "res" / "installer" / "skin", UpdatePath / "res" / "Installer.exe");
+    AddMPQToFile(UpdatePath / "res" / "downloader" / "base.exe", UpdatePath / "res" / "downloader" / "skin", UpdatePath / "base.exe");
+
     if (fs::exists(UpdatePath / "data/enUS"))
         fs::rename(UpdatePath / "data/enUS", UpdatePath / "enUS");
-    GenerateUpdate("frFR");
+    GenerateUpdate(&up, "frFR");
     if (fs::exists(UpdatePath / "enUS"))
         fs::rename(UpdatePath / "enUS", UpdatePath / "data/enUS");
     if (fs::exists(UpdatePath / "data/frFR"))
         fs::rename(UpdatePath / "data/frFR", UpdatePath / "frFR");
-    GenerateUpdate("enUS");
-    if (fs::exists(UpdatePath / "data/enUS"))
-        fs::rename(UpdatePath / "data/enUS", UpdatePath / "enUS");
+    GenerateUpdate(&up, "enUS");
+    if (fs::exists(UpdatePath / "frFR"))
+        fs::rename(UpdatePath / "frFR", UpdatePath / "data/frFR");
+
+    // Delete temp files
+    fs::remove(UpdatePath / "res" / "Installer.exe");
+    fs::remove(UpdatePath / "base.exe");
+    fs::remove(UpdatePath / "res" / "skin-installer.mpq");
+    fs::remove(UpdatePath / "res" / "skin-downloader.mpq");
+    fs::remove(UpdatePath / "prepatch.lst");
+}
+
+void ClientPatcher::AddMPQToFile(fs::path source, fs::path mpqsource, fs::path out)
+{
+    HANDLE mpq;
+    fs::path mpqPath(UpdatePath / "res" / ("skin-" + mpqsource.parent_path().filename().string() + ".mpq"));
+    if (fs::exists(mpqPath))
+        fs::remove(mpqPath);
+    SFileCreateArchive(mpqPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, 0x200, &mpq);
+    Manager::AddDirToMPQ(mpqsource, "", &mpq);
+    SFileCloseArchive(mpq);
+
+    std::ifstream skin_mpq(mpqPath.string(), std::ios::binary | std::ios::in | std::ios::ate);
+    uint32 skinLength = skin_mpq.tellg();
+    char* buffer = new char[skinLength];
+    skin_mpq.seekg(skin_mpq.beg);
+    skin_mpq.read(buffer, skinLength);
+    skin_mpq.close();
+
+    if (fs::exists(out))
+        fs::remove(out);
+    fs::copy_file(source, out);
+    std::ofstream base(out.string(), std::ios::binary | std::ios::out | std::ios::app);
+    base.write(buffer, skinLength);
+    base.close();
 }
 
 void ClientPatcher::ExtractGitDiff(std::string path, std::string fromHash, std::string toHash, std::string filename)
@@ -237,7 +261,7 @@ void ClientPatcher::ExtractGitDiff(std::string path, std::string fromHash, std::
             {
                 if (fs::exists(to))
                     fs::remove(to);
-                fs::create_directories(fs::path(Util::RemoveName(to.string())));
+                fs::create_directories(Util::RemoveName(to.string()));
                 fs::copy_file(from, to);
             }
         }
@@ -246,10 +270,10 @@ void ClientPatcher::ExtractGitDiff(std::string path, std::string fromHash, std::
     diffFile.close();
 }
 
-void ClientPatcher::GenerateUpdate(std::string loc)
+void ClientPatcher::GenerateUpdate(Update* up, std::string loc)
 {
     std::stringstream fromss, toss, patchCmdStart, patchCmdEnd, baseName, mpqss;
-    baseName << "wow-" << fromBuild << "-" << toBuild << "-" << loc;
+    baseName << "wow-" << up->fromBuild << "-" << up->toBuild << "-" << loc;
     printf("\n  Generating %s", baseName.str().c_str());
 
     // Installer
@@ -257,8 +281,8 @@ void ClientPatcher::GenerateUpdate(std::string loc)
     printf("\n    Preparing Installer");
     std::string installerName(baseName.str() + ".exe");
     fs::path installerPath(UpdatePath / "installers" / installerName);
-    fromss << fromMajor << "." << fromMinor << "." << fromBugfix << "." << fromBuild;
-    toss << toMajor << "." << toMinor << "." << toBugfix << "." << toBuild;
+    fromss << up->fromMajor << "." << up->fromMinor << "." << up->fromBugfix << "." << up->fromBuild;
+    toss << up->toMajor << "." << up->toMinor << "." << up->toBugfix << "." << up->toBuild;
     patchCmdStart << "* set the product patch name" << std::endl
         << "PatchVersion This patch upgrades World of Warcraft from version " << fromss.str() << " to version " << toss.str() << "." << std::endl
         << "TargetVersion " << fromss.str() << std::endl
@@ -280,7 +304,7 @@ void ClientPatcher::GenerateUpdate(std::string loc)
     if (fs::exists(patchHtml))
         fs::remove(patchHtml);
     std::ofstream(patchHtml.string(), std::ios_base::out | std::ios_base::app)
-        << "<script language=\"javascript\">document.location=\"" << sConfigMgr->GetStringDefault("PatchNoteAddress", "localhost/patch") << "/" << toBuild << "-" << loc << "\";</script>";
+        << "<script language=\"javascript\">document.location=\"" << sConfigMgr->GetStringDefault("PatchNoteAddress", "localhost/patch") << "/" << up->toBuild << "-" << loc << "\";</script>";
 
     printf("\n    Generating Installer");
     Util::exec("bin\\headergenerator.exe data data_tmp");
@@ -288,8 +312,8 @@ void ClientPatcher::GenerateUpdate(std::string loc)
     Util::CpyDir("res\\data", "data_tmp");
     Util::exec("bin\\mpqcreate.exe tmp.mpq data_tmp");
     Util::exec("bin\\append.exe res\\base.exe " + installerPath.string() + " tmp.mpq res\\Installer.exe res\\RichEd20.dll res\\Unicows.dll");
-    fs::remove("tmp.mpq");
     fs::remove_all("data_tmp");
+    fs::remove("tmp.mpq");
 
     fs::path piecesPath(installerName);
     if (fs::exists(piecesPath))
@@ -309,7 +333,7 @@ void ClientPatcher::GenerateUpdate(std::string loc)
     std::string announcePath(sConfigMgr->GetStringDefault("AnnounceAddress", "http://localhost/announce"));
     std::string strHash(readfile(piecesPath / "hash.txt"));
     std::stringstream ss, ssEnd;
-    ss << "d8:announce" << announcePath.length() << ":" << announcePath << "10:autolaunchi2e11:choose pathi0e13:creation datei" << toTimeStamp << "e"
+    ss << "d8:announce" << announcePath.length() << ":" << announcePath << "10:autolaunchi2e11:choose pathi0e13:creation datei" << up->toTimeStamp << "e"
         << "14:download label" << installerName.length() << ":" << installerName << "13:download typei1e4:info";
     uint32 infoPos = ss.str().length();
     ss << "d5:filesld6:lengthi" << Util::filesize(installerPath) << "e"
@@ -336,6 +360,9 @@ void ClientPatcher::GenerateUpdate(std::string loc)
     SHA1((unsigned char *)buffer, infoLength, info_hash);
     tori.close();
 
+    // Saving update to database
+    std::string delete_query = "DELETE FROM tracker_files WHERE file_name = \"" + installerName + "\"";
+    LoginDatabase.Query(delete_query.c_str());
     std::string directDownload(sConfigMgr->GetStringDefault("PatchAddress", "http://localhost/patch") + "/" + installerName);
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_PATCH);
     stmt->setString(0, std::string((char*)info_hash));
@@ -357,7 +384,7 @@ void ClientPatcher::GenerateUpdate(std::string loc)
     std::ofstream(prepatch, std::ios_base::out | std::ios_base::app) << "extract " << downloaderName << std::endl << "execute " << downloaderName;
 
     printf("\n    Generating MPQ");
-    mpqss << fromBuild << "-" << loc << ".mpq";
+    mpqss << up->fromBuild << "-" << loc << ".mpq";
     std::string mpqName(mpqss.str());
     fs::path mpqPath(UpdatePath / mpqName);
     if (fs::exists(mpqPath))

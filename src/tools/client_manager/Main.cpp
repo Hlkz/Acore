@@ -1,4 +1,5 @@
 #include "ClientManager.h"
+#include "DatabaseLoader.h"
 #include <iostream>
 
 LoginDatabaseWorkerPool LoginDatabase;
@@ -30,7 +31,6 @@ int main(int argc, char *argv[])
         ("s-sound", "Select sounds")
         ("s-compl", "Selection Completion")
         ("s-noitem", "Don't select items from the db")
-        ("s-deldata", "Delete TinyData before selection")
         // ClientCompressor
         ("c-all", "Compress All")
         ("c-alle", "Compress All except Patch")
@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    // Config
     std::string configFile = "clientmanager.conf";
     std::string configError;
     if (!sConfigMgr->LoadInitial(configFile, configError))
@@ -69,6 +70,16 @@ int main(int argc, char *argv[])
         printf("Error in config file: %s\n", configError.c_str());
         return 1;
     }
+
+    // Database
+    MySQL::Library_Init();
+    DatabaseLoader loader("clientmanager", DatabaseLoader::DATABASE_NONE);
+    loader
+        .AddDatabase(WorldDatabase, "World")
+        .AddDatabase(LoginDatabase, "Login")
+        .AddDatabase(UnusedDatabase, "Unused");
+    if (!loader.Load())
+        return 1;
 
     ClientManager* Manager = new ClientManager(vm);
 

@@ -42,8 +42,10 @@ class ClientCompressor
 
         bool Proceed();
         void Compress();
+        // Testing
         void UpdatePatchMPQ(uint8 loc);
         void InstallPatches();
+        // FullVersion
         bool ReleaseFullVersion();
         void PrepareFullVersion(FullVersion* fv, std::string loc);
 

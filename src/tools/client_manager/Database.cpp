@@ -1,22 +1,4 @@
 #include "ClientManager.h"
-#include "DatabaseLoader.h"
-
-/// Initialize connection to the database
-bool ClientManager::StartDB()
-{
-    MySQL::Library_Init();
-
-    DatabaseLoader loader("clientmanager", DatabaseLoader::DATABASE_NONE);
-    loader
-        .AddDatabase(WorldDatabase, "World")
-        .AddDatabase(LoginDatabase, "Login")
-        .AddDatabase(UnusedDatabase, "Unused");
-
-    if (!loader.Load())
-        return false;
-
-    return true;
-}
 
 void ClientSelector::NamesFromUnusedDatabase()
 {

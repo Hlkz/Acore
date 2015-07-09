@@ -95,9 +95,7 @@ class ClientSelector
 
         // Generic
         //std::string ClientSelector::MismatchString(std::string const &a, std::string const &b);
-        //bool CpyFile(std::string from, std::string to);
         //bool Cpy(std::string from, std::string to);
-        //bool CpyDir(std::string from, std::string to);
         //void XCpy(std::string filter, std::string in, std::string from, std::string to, bool subDir = false, bool icase = false, bool cpyDir = false, bool inAbs = false);
         //void Fnd(std::string filter, std::string in, std::vector<std::string> &found, bool subDir = false, bool icase = false);
 

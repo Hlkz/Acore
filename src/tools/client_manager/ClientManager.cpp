@@ -27,9 +27,6 @@ bool ClientManager::Proceed()
     //std::cout << "\n  ClientManager\n\n";
     uint32 oldMSTime = getMSTime();
 
-    if (!StartDB())
-        return false;
-
     selector = new ClientSelector(mVm);
 
     compressor = new ClientCompressor(mVm);

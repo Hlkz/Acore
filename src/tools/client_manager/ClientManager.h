@@ -36,12 +36,12 @@ class ClientManager
         ~ClientManager() {}
 
         bool Proceed();
-        bool StartDB();
 
-        po::variables_map mVm;
         ClientSelector* selector;
         ClientCompressor* compressor;
         ClientPatcher* patcher;
+
+        po::variables_map mVm;
 };
 
 #endif

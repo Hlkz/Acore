@@ -69,21 +69,9 @@ bool ClientSelector::Proceed()
     std::cout << "\n    Extracting Adts: " << (mFlags & EXTRACT_ADTS ? "yes" : "no");
     std::cout << "\n    Extracting Database: " << (mFlags & EXTRACT_DATABASE ? "yes" : "no");
     std::cout << "\n    Extracting Sounds: " << (mFlags & EXTRACT_SOUNDS ? "yes" : "no");
-    //std::cout << "\n    Extracting Textures: " << (mFlags & EXTRACT_TEXTURES ? "yes" : "no");
-    //std::cout << "\n    Extracting Models: " << (mFlags & EXTRACT_MODELS ? "yes" : "no");
-    //std::cout << "\n    Extracting Wmos: " << (mFlags & EXTRACT_WMOS ? "yes" : "no");
     std::cout << "\n    Completion: " << (mFlags & COMPLETION ? "yes" : "no");
     std::cout << "\n\n  ";
-    //system("pause");
 
-    if (mVm.count("s-deldata"))
-    {
-        for (boost::filesystem::directory_iterator i(TinyDataPath); i != boost::filesystem::directory_iterator(); ++i)
-            if (i->path().filename() != ".git")
-                boost::filesystem::remove_all(boost::filesystem::path(i->path()));
-        boost::filesystem::remove_all(boost::filesystem::path(TinyDataPathEn));
-        boost::filesystem::remove_all(boost::filesystem::path(TinyDataPathFr));
-    }
     boost::filesystem::create_directories(boost::filesystem::path(TinyDataPath));
     boost::filesystem::create_directories(boost::filesystem::path(TinyDataPathFr));
     boost::filesystem::create_directories(boost::filesystem::path(TinyDataPathEn));
@@ -97,7 +85,11 @@ bool ClientSelector::Proceed()
     Completion();
     End();
 
-    printf("\n  ClientSelector executed in %u ms\n", GetMSTimeDiffToNow(oldMSTime));
+    uint32 diff = GetMSTimeDiffToNow(oldMSTime);
+    time_t diffsec = diff / 1000;
+    diff -= diffsec;
+    tm* difftm = localtime(&diffsec);
+    printf("\n  ClientSelector executed in %uh%um%us%ums\n", difftm->tm_hour, difftm->tm_min, difftm->tm_sec, GetMSTimeDiffToNow(oldMSTime));
     return true;
 }
 
