@@ -365,7 +365,7 @@ void ClientPatcher::GenerateUpdate(Update* up, std::string loc)
     LoginDatabase.Query(delete_query.c_str());
     std::string directDownload(sConfigMgr->GetStringDefault("PatchAddress", "http://localhost/patch") + "/" + installerName);
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_PATCH);
-    stmt->setString(0, std::string((char*)info_hash));
+    stmt->setString(0, ByteArrayToHexStr(info_hash, 20));
     stmt->setString(1, installerName);
     stmt->setString(2, directDownload);
     LoginDatabase.Execute(stmt);

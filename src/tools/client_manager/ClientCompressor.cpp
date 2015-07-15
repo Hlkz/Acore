@@ -390,7 +390,7 @@ void ClientCompressor::PrepareFullVersion(FullVersion* fv, std::string loc)
     std::string delete_query = "DELETE FROM tracker_files WHERE file_name = \"" + clientName + "\"";
     LoginDatabase.Query(delete_query.c_str());
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_PATCH);
-    stmt->setString(0, std::string((char*)info_hash));
+    stmt->setString(0, ByteArrayToHexStr(info_hash, 20));
     stmt->setString(1, clientName);
     stmt->setString(2, "");
     LoginDatabase.Execute(stmt);
