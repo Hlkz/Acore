@@ -40,10 +40,12 @@
 #include "BattleAOMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "SocialMgr.h"
-#include "zlib.h"
 #include "ScriptMgr.h"
 #include "WardenWin.h"
 #include "MoveSpline.h"
+#include "WardenMac.h"
+
+#include <zlib.h>
 
 namespace {
 
