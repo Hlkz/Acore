@@ -22,6 +22,7 @@
 #include "SpellMgr.h"
 #include "TransportMgr.h"
 #include "Timer.h"
+#include "ObjectDefines.h"
 #include "SpellMgr.h"
 #include "SpellInfo.h"
 
