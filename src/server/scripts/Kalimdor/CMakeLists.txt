@@ -31,7 +31,6 @@ set(scripts_STAT_SRCS
   Kalimdor/zone_winterspring.cpp
   Kalimdor/zone_thousand_needles.cpp
   Kalimdor/zone_ashenvale.cpp
-  Kalimdor/zone_teldrassil.cpp
   Kalimdor/BlackfathomDeeps/boss_kelris.cpp
   Kalimdor/BlackfathomDeeps/instance_blackfathom_deeps.cpp
   Kalimdor/BlackfathomDeeps/boss_gelihast.cpp
