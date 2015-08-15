@@ -31,6 +31,7 @@
 #include "DatabaseEnv.h"
 #include "DatabaseLoader.h"
 #include "Log.h"
+#include "AppenderDB.h"
 #include "ProcessPriority.h"
 #include "RealmList.h"
 #include "SystemConfig.h"
@@ -102,6 +103,9 @@ int main(int argc, char** argv)
         printf("Error in config file: %s\n", configError.c_str());
         return 1;
     }
+
+    sLog->RegisterAppender<AppenderDB>();
+    sLog->Initialize(nullptr);
 
     TC_LOG_INFO("server.authserver", "%s (authserver)", _FULLVERSION);
     TC_LOG_INFO("server.authserver", "<Ctrl-C> to stop.\n");
