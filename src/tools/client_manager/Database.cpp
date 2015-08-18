@@ -2,13 +2,13 @@
 
 void ClientSelector::NamesFromUnusedDatabase()
 {
-    printf("\n  Names from Unused Database");
+    TC_LOG_INFO("client.selector", "  Names from Unused Database");
     QueryResult result;
 
     if (mFlags & EXTRACT_DATABASE) //if (mFlags & EXTRACT_MODELS)
     {
         // CinematicCamera
-        printf("\n    CinematicCamera");
+        TC_LOG_INFO("client.selector", "    CinematicCamera");
         result = UnusedDatabase.Query("SELECT Filepath FROM cinematiccamera WHERE Filepath != ''");
         do {
             Field* fields = result->Fetch();
@@ -17,7 +17,7 @@ void ClientSelector::NamesFromUnusedDatabase()
         } while (result->NextRow());
 
         // GroundEffectDoodad
-        printf("\n    GroundEffectDoodad");
+        TC_LOG_INFO("client.selector", "    GroundEffectDoodad");
         result = UnusedDatabase.Query("SELECT Model FROM groundeffectdoodad WHERE Model != ''");
         do {
             Field* fields = result->Fetch();
@@ -26,7 +26,7 @@ void ClientSelector::NamesFromUnusedDatabase()
         } while (result->NextRow());
 
         // ItemVisualEffects
-        printf("\n    ItemVisualEffects");
+        TC_LOG_INFO("client.selector", "    ItemVisualEffects");
         result = UnusedDatabase.Query("SELECT Model FROM itemvisualeffects WHERE Model != ''");
         do {
             Field* fields = result->Fetch();
@@ -35,7 +35,7 @@ void ClientSelector::NamesFromUnusedDatabase()
         } while (result->NextRow());
 
         // LightSkyBox
-        printf("\n    LightSkyBox");
+        TC_LOG_INFO("client.selector", "    LightSkyBox");
         result = UnusedDatabase.Query("SELECT Model FROM lightskybox WHERE Model != ''");
         do {
             Field* fields = result->Fetch();
@@ -44,7 +44,7 @@ void ClientSelector::NamesFromUnusedDatabase()
         } while (result->NextRow());
 
         // SpellVisualEffectName
-        printf("\n    SpellVisualEffectName");
+        TC_LOG_INFO("client.selector", "    SpellVisualEffectName");
         result = UnusedDatabase.Query("SELECT Model FROM spellvisualeffectname WHERE Model != ''");
         do {
             Field* fields = result->Fetch();
@@ -53,7 +53,7 @@ void ClientSelector::NamesFromUnusedDatabase()
         } while (result->NextRow());
 
         // SpellVisualKitAreaModel
-        printf("\n    SpellVisualKitAreaModel");
+        TC_LOG_INFO("client.selector", "    SpellVisualKitAreaModel");
         result = UnusedDatabase.Query("SELECT Name FROM spellvisualkitareamodel WHERE Name != ''");
         do {
             Field* fields = result->Fetch();
@@ -65,7 +65,7 @@ void ClientSelector::NamesFromUnusedDatabase()
     if (mFlags & EXTRACT_DATABASE) //if (mFlags & EXTRACT_TEXTURES)
     {
         // FootprintTextures
-        printf("\n    FootprintTextures");
+        TC_LOG_INFO("client.selector", "    FootprintTextures");
         result = UnusedDatabase.Query("SELECT FileName FROM footprinttextures WHERE FileName != ''");
         do {
             Field* fields = result->Fetch();
@@ -74,7 +74,7 @@ void ClientSelector::NamesFromUnusedDatabase()
         } while (result->NextRow());
 
         // SpellChainEffects note: 3 records are single file names without path
-        printf("\n    SpellChainEffects");
+        TC_LOG_INFO("client.selector", "    SpellChainEffects");
         result = UnusedDatabase.Query("SELECT Texture FROM spellchaineffects WHERE Texture != ''");
         do {
             Field* fields = result->Fetch();
@@ -83,7 +83,7 @@ void ClientSelector::NamesFromUnusedDatabase()
         } while (result->NextRow());
 
         // SpellIcon
-        printf("\n    SpellIcon");
+        TC_LOG_INFO("client.selector", "    SpellIcon");
         result = UnusedDatabase.Query("SELECT Name FROM spellicon WHERE Name != ''");
         do {
             Field* fields = result->Fetch();
@@ -92,7 +92,7 @@ void ClientSelector::NamesFromUnusedDatabase()
         } while (result->NextRow());
 
         // Weather
-        printf("\n    Weather");
+        TC_LOG_INFO("client.selector", "    Weather");
         result = UnusedDatabase.Query("SELECT Texture FROM weather WHERE Texture != ''");
         do {
             Field* fields = result->Fetch();
@@ -104,7 +104,7 @@ void ClientSelector::NamesFromUnusedDatabase()
     if (mFlags & EXTRACT_DATABASE) //if (mFlags & EXTRACT_MODELS || mFlags & EXTRACT_TEXTURES)
     {
         // GameobjectArtkit
-        printf("\n    GameobjectArtkit");
+        TC_LOG_INFO("client.selector", "    GameobjectArtkit");
         result = UnusedDatabase.Query("SELECT Texture1, Texture2, Texture3, Model1, Model2, Model3, Model4 FROM gameobjectartkit "
             "WHERE (NULLIF(Texture1, '') AND NULLIF(Texture2, '') AND NULLIF(Texture3, '') AND NULLIF(Model1, '') AND NULLIF(Model2, '') AND NULLIF(Model3, '') AND NULLIF(Model4, '')) IS NOT NULL");
         do {
@@ -134,7 +134,7 @@ void ClientSelector::NamesFromUnusedDatabase()
         if (!(mFlags & DONT_EXTRACT_ITEMS))
         {
             // ItemDisplayInfo
-            printf("\n    ItemDisplayInfo");
+            TC_LOG_INFO("client.selector", "    ItemDisplayInfo");
 
             if (result = WorldDatabase.Query("SELECT DisplayId FROM item_template WHERE DisplayId != 0"))
                 do {
@@ -178,7 +178,7 @@ void ClientSelector::NamesFromUnusedDatabase()
         }
     }
 
-    printf("\n");
+    TC_LOG_INFO("client.selector", "");
 }
 
 void ClientSelector::NamesFromWorldDatabase()
@@ -186,13 +186,13 @@ void ClientSelector::NamesFromWorldDatabase()
     if (!(mFlags & EXTRACT_DATABASE) && !(mFlags & EXTRACT_SOUNDS))
         return;
 
-    printf("\n  Names from World Database");
+    TC_LOG_INFO("client.selector", "  Names from World Database");
     QueryResult result;
 
     if (mFlags & EXTRACT_DATABASE) //if (mFlags & EXTRACT_MODELS || mFlags & EXTRACT_TEXTURES)
     {
         // CreatureModelData
-        printf("\n    CreatureModelData");
+        TC_LOG_INFO("client.selector", "    CreatureModelData");
         result = WorldDatabase.Query("SELECT Id, Model FROM creaturemodeldatadbc WHERE NULLIF(Model, '') IS NOT NULL");
         do {
             Field* fields = result->Fetch();
@@ -205,7 +205,7 @@ void ClientSelector::NamesFromWorldDatabase()
     if (mFlags & EXTRACT_DATABASE || mFlags & EXTRACT_SOUNDS) //if (mFlags & EXTRACT_MODELS)
     {
         // GameObjectDisplayInfo
-        printf("\n    GameObjectDisplayInfo");
+        TC_LOG_INFO("client.selector", "    GameObjectDisplayInfo");
         result = WorldDatabase.Query("SELECT FileName FROM gameobjectdisplayinfodbc WHERE NULLIF(FileName, '') IS NOT NULL");
         do {
             Field* fields = result->Fetch();
@@ -217,7 +217,7 @@ void ClientSelector::NamesFromWorldDatabase()
     if (mFlags & EXTRACT_DATABASE) //if(mFlags & EXTRACT_TEXTURES)
     {
         // CharSections
-        printf("\n    CharSections");
+        TC_LOG_INFO("client.selector", "    CharSections");
         result = WorldDatabase.Query("SELECT Texture1, Texture2, Texture3 FROM charsectionsdbc WHERE (NULLIF(Texture1, '') AND NULLIF(Texture2, '') AND NULLIF(Texture3, '')) IS NOT NULL");
         do {
             Field* fields = result->Fetch();
@@ -230,7 +230,7 @@ void ClientSelector::NamesFromWorldDatabase()
         } while (result->NextRow());
 
         // CreatureDisplayInfoExtra
-        printf("\n    CreatureDisplayInfoExtra");
+        TC_LOG_INFO("client.selector", "    CreatureDisplayInfoExtra");
         result = WorldDatabase.Query("SELECT Texture FROM creaturedisplayinfoextradbc WHERE NULLIF(Texture, '') IS NOT NULL");
         do {
             Field* fields = result->Fetch();
@@ -239,7 +239,7 @@ void ClientSelector::NamesFromWorldDatabase()
         } while (result->NextRow());
 
         // CreatureFamily
-        printf("\n    CreatureFamily");
+        TC_LOG_INFO("client.selector", "    CreatureFamily");
         result = WorldDatabase.Query("SELECT IconFile FROM creaturefamilydbc WHERE NULLIF(IconFile, '') IS NOT NULL");
         do {
             Field* fields = result->Fetch();
@@ -248,7 +248,7 @@ void ClientSelector::NamesFromWorldDatabase()
         } while (result->NextRow());
 
         // CreatureDisplayInfo (after CreatureModelData)
-        printf("\n    CreatureDisplayInfo");
+        TC_LOG_INFO("client.selector", "    CreatureDisplayInfo");
         if (result = WorldDatabase.Query("SELECT modelid1, modelid2, modelid3, modelid4 FROM creature_template"))
         {
             do {
@@ -283,7 +283,7 @@ void ClientSelector::NamesFromWorldDatabase()
         }
 
         // Holiday
-        printf("\n    Holiday");
+        TC_LOG_INFO("client.selector", "    Holiday");
         result = WorldDatabase.Query("SELECT TextureFilename FROM holidaysdbc WHERE NULLIF(TextureFilename, '') IS NOT NULL");
         do {
             Field* fields = result->Fetch();
@@ -292,7 +292,7 @@ void ClientSelector::NamesFromWorldDatabase()
         } while (result->NextRow());
 
         // Vehicle
-        printf("\n    Vehicle");
+        TC_LOG_INFO("client.selector", "    Vehicle");
         result = WorldDatabase.Query("SELECT MSSLTrgtArcTexture, MSSLTrgtImpactTexture FROM vehicledbc WHERE (NULLIF(MSSLTrgtArcTexture, '') AND NULLIF(MSSLTrgtImpactTexture, '')) IS NOT NULL");
         do {
             Field* fields = result->Fetch();
@@ -309,7 +309,7 @@ void ClientSelector::NamesFromWorldDatabase()
     // Map
     // Movie
     // WorldMapOverlay
-    printf("\n");
+    TC_LOG_INFO("client.selector", "");
 }
 
 void ClientSelector::NamesOfSounds()
@@ -317,7 +317,7 @@ void ClientSelector::NamesOfSounds()
     if (!(mFlags & EXTRACT_SOUNDS))
         return;
 
-    printf("\n  Names of Sounds\n");
+    TC_LOG_INFO("client.selector", "  Names of Sounds\n");
     QueryResult result;
     std::vector<uint32> Ambiences, Musics, Intros;
 

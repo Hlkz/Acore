@@ -42,6 +42,16 @@ NewHotfixVersion = ""
 
 # Logging
 
-Appender.Console=1,4,0
+LogsDir = "./log"
+
+Appender.Console=1,3,0
 Appender.Manager=2,2,0,Manager.log,w
-Logger.root=3,Console Manager
+Appender.Extract=2,2,8,ManagerExtract.log,w
+Appender.ExtractExist=2,2,8,ManagerExtractExist.log,w
+Appender.ExtractLookup=2,2,8,ManagerExtractLookup.log,w
+
+Logger.root=5,Console Manager
+Logger.client.selector=3,Console Manager
+Logger.client.extract=3,Extract
+Logger.client.extract.exist=3,ExtractExist
+Logger.client.extract.lookup=3,ExtractLookup

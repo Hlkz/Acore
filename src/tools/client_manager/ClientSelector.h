@@ -110,9 +110,6 @@ class ClientSelector
         void Xtrct_XFiles(std::string name, XFiles &xfiles);
         void Xtrct_eFiles(std::string name, eFiles &efiles);
 
-        // Log
-        void XtrctLog(std::string str, uint32 type = 0);
-
     private:
         po::variables_map mVm;
         int32 mFlags;

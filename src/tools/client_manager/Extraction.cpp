@@ -70,10 +70,10 @@ bool ClientSelector::XtrctFile(fs::path from, fs::path to)
             if (!fs::exists(to))
             {
                 fs::copy_file(from, to);
-                XtrctLog(from.string());
+                TC_LOG_INFO("client.extract", from.string().c_str());
             }
             else
-                XtrctLog(from.string(), 1);
+                TC_LOG_INFO("client.extract.exist", from.string().c_str());
         }
         return 1;
     }
@@ -105,10 +105,10 @@ bool ClientSelector::XtrctDir(fs::path from, fs::path to)
                 if (!fs::exists(destination / current.filename()))
                 {
                     fs::copy_file(current, destination / current.filename());
-                    XtrctLog(from.string());
+                    TC_LOG_INFO("client.extract", from.string().c_str());
                 }
                 else
-                    XtrctLog(from.string(), 1);
+                    TC_LOG_INFO("client.extract.exist", from.string().c_str());
             }
         }
         catch (fs::filesystem_error const & e)
@@ -123,7 +123,7 @@ bool ClientSelector::XtrctDir(fs::path from, fs::path to)
 uint32 ClientSelector::Xtrct(fs::path from, fs::path to, bool nolog)
 {
     if (!nolog)
-        XtrctLog(from.string() + " TO:" + to.string(), 2);
+        TC_LOG_INFO("client.extract.lookup", std::string(from.string() + " TO:" + to.string()).c_str());
 
     if (boost::filesystem::exists(from))
     {
@@ -140,7 +140,7 @@ uint32 ClientSelector::Xtrct(std::string name, fs::path in, fs::path from, fs::p
 {
     if (!inAbs)
     {
-        XtrctLog(" IN:" + in.string() + " NAME:" + name + " FLAGS:" + std::to_string(mXtrctFlags), 2);
+        TC_LOG_INFO("client.extract.lookup", std::string(" IN:" + in.string() + " NAME:" + name + " FLAGS:" + std::to_string(mXtrctFlags)).c_str());
         in = from / in;
     }
 
@@ -191,7 +191,7 @@ uint32 ClientSelector::Xtrct(std::string name, fs::path in, fs::path from, fs::p
 void ClientSelector::Xtrct_XFiles(std::string name, XFiles &xfiles)
 {
     mXtrctFlags = xfiles.xtrctFlags;
-    std::cout << "\n    " << name << " [" << xfiles.files.size() << "]\n";
+    TC_LOG_INFO("client.selector", "    %s [%u]", name.c_str(), xfiles.files.size());
     uint32 i = 1;
     for (std::set<std::pair<fs::path, fs::path>>::iterator itr = xfiles.files.begin(); itr != xfiles.files.end(); itr++)
     {
@@ -199,6 +199,7 @@ void ClientSelector::Xtrct_XFiles(std::string name, XFiles &xfiles)
         Xtrct_XFile((*itr).first, (*itr).second);
     }
     xfiles.files.clear();
+    printf("\n");
 }
 
 void ClientSelector::Xtrct_eFiles(std::string name, eFiles &efiles)
@@ -207,7 +208,7 @@ void ClientSelector::Xtrct_eFiles(std::string name, eFiles &efiles)
     std::sort((*vec).begin(), (*vec).end());
     (*vec).erase(std::unique((*vec).begin(), (*vec).end()), (*vec).end());
     mXtrctFlags = efiles.xtrctFlags;
-    std::cout << "\n    " << name << " [" << efiles.files.size() << "]\n";
+    TC_LOG_INFO("client.selector", "    %s [%u]", name.c_str(), efiles.files.size());
     uint32 i = 1;
     for (std::vector<fs::path>::const_iterator itr = efiles.files.begin(); itr != efiles.files.end(); ++itr)
     {
@@ -215,6 +216,7 @@ void ClientSelector::Xtrct_eFiles(std::string name, eFiles &efiles)
         Xtrct_eFile(*itr);
     }
     efiles.files.clear();
+    printf("\n");
 }
 
 // type 0:Full/Loc 1:Full 2:Loc

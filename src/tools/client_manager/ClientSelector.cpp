@@ -64,13 +64,12 @@ ClientSelector::ClientSelector(po::variables_map vm)
 bool ClientSelector::Proceed()
 {
     uint32 oldMSTime = getMSTime();
-    std::cout << "\n  ClientSelector\n";
-
-    std::cout << "\n    Extracting Adts: " << (mFlags & EXTRACT_ADTS ? "yes" : "no");
-    std::cout << "\n    Extracting Database: " << (mFlags & EXTRACT_DATABASE ? "yes" : "no");
-    std::cout << "\n    Extracting Sounds: " << (mFlags & EXTRACT_SOUNDS ? "yes" : "no");
-    std::cout << "\n    Completion: " << (mFlags & COMPLETION ? "yes" : "no");
-    std::cout << "\n\n  ";
+    TC_LOG_INFO("client.selector", "\n  ClientSelector");
+    TC_LOG_INFO("client.selector", "    Extracting Adts: %s", (mFlags & EXTRACT_ADTS ? "yes" : "no"));
+    TC_LOG_INFO("client.selector", "    Extracting Database: %s", (mFlags & EXTRACT_DATABASE ? "yes" : "no"));
+    TC_LOG_INFO("client.selector", "    Extracting Sounds: %s", (mFlags & EXTRACT_SOUNDS ? "yes" : "no"));
+    TC_LOG_INFO("client.selector", "    Completion: %s", (mFlags & COMPLETION ? "yes" : "no"));
+    TC_LOG_INFO("client.selector", "  ");
 
     boost::filesystem::create_directories(boost::filesystem::path(TinyDataPath));
     boost::filesystem::create_directories(boost::filesystem::path(TinyDataPathFr));
@@ -89,7 +88,7 @@ bool ClientSelector::Proceed()
     time_t diffsec = diff / 1000;
     diff -= diffsec;
     tm* difftm = localtime(&diffsec);
-    printf("\n  ClientSelector executed in %uh%um%us%ums\n", difftm->tm_hour, difftm->tm_min, difftm->tm_sec, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("client.selector", "  ClientSelector executed in %uh%um%us %ums\n", difftm->tm_hour, difftm->tm_min, difftm->tm_sec, GetMSTimeDiffToNow(oldMSTime));
     return true;
 }
 
@@ -97,7 +96,7 @@ void ClientSelector::ExtractADTs()
 {
     if (!(mFlags & EXTRACT_ADTS) && !(mFlags & EXTRACT_SOUNDS))
         return;
-    printf("\n  Extracting ADTs");
+    TC_LOG_INFO("client.selector", "  Extracting ADTs");
 
     QueryResult result = WorldDatabase.Query("SELECT InternalName FROM mapdbc WHERE TinyClient");
     do {
@@ -119,14 +118,14 @@ void ClientSelector::ExtractADTs()
     mCopy = true;
     Xtrct_eFiles("Root Wmos from Adts", WmoAdt);
 
-    printf("\n");
+    TC_LOG_INFO("client.selector", "  ");
 }
 
 void ClientSelector::Extract()
 {
     if (mFlags & EXTRACT_DATABASE || mFlags & EXTRACT_SOUNDS) //if (mFlags & EXTRACT_MODELS)
     {
-        printf("\n  Extracting Models");
+        TC_LOG_INFO("client.selector", "  Extracting Models");
         if (mFlags & EXTRACT_DATABASE)
         {
             Xtrct_eFiles("Models (exact, mixed)", eMdx_M);
@@ -135,12 +134,12 @@ void ClientSelector::Extract()
                 Xtrct_XFiles("Item Models", MdxItem);
         }
         Xtrct_eFiles("Models & Wmos (exact, mixed)", eWmoMdx_M);
-        printf("\n");
+        TC_LOG_INFO("client.selector", "  ");
     }
 
     if (mFlags & EXTRACT_DATABASE) //if (mFlags & EXTRACT_TEXTURES)
     {
-        printf("\n  Extracting Textures");
+        TC_LOG_INFO("client.selector", "  Extracting Textures");
         Xtrct_XFiles("Textures (regex, localized)", Blp_RL);
         Xtrct_eFiles("Textures (exact)", eBlp);
         Xtrct_eFiles("Textures (exact, mixed)", eBlp_M);
@@ -151,13 +150,13 @@ void ClientSelector::Extract()
         }
         Xtrct_eFiles("Icons (localized)", BlpIcon);
         Xtrct_eFiles("Baked Npc Textures (mixed)", BlpBaked);
-        printf("\n");
+        TC_LOG_INFO("client.selector", "  ");
     }
 }
 
 void ClientSelector::End()
 {
-    printf("\n  Completing Adt, Wmo and Model extraction");
+    TC_LOG_INFO("client.selector", "  Completing Adt, Wmo and Model extraction");
 
     Xtrct_eFiles("Adt Models", MdxAdt);
     Xtrct_eFiles("Adt Textures", BlpAdt);
@@ -170,16 +169,16 @@ void ClientSelector::End()
     Xtrct_XFiles("Models Animations", AnimMdx);
     Xtrct_XFiles("Models Skins", SkinMdx);
 
-    printf("\n");
+    TC_LOG_INFO("client.selector", "  ");
 }
 
 void ClientSelector::ExtractSounds()
 {
     if (mFlags & EXTRACT_SOUNDS)
     {
-        printf("\n  Extracting Sounds");
+        TC_LOG_INFO("client.selector", "  Extracting Sounds");
         Xtrct_XFiles("Sounds", Sounds);
-        printf("\n");
+        TC_LOG_INFO("client.selector", "  ");
     }
 }
 
@@ -188,7 +187,7 @@ void ClientSelector::Completion()
     if (!(mFlags & COMPLETION))
         return;
 
-    printf("\n  Completion\n");
+    TC_LOG_INFO("client.selector", "  Completion\n");
 
     mXtrctFlags = XTRCT_CPYDIR | XTRCT_MIX | EXT_MDX | EXT_WMO;
     Xtrct_eFile("_shaders");
@@ -305,18 +304,6 @@ void ClientSelector::Completion()
     NamesFromTRS(FullDataPath + "\\Textures\\Minimap\\md5translate.trs");
     Xtrct_eFile("Textures\\Minimap\\md5translate.trs");
     Xtrct_eFiles("World Minimaps", BlpMinimap);
-}
 
-void ClientSelector::XtrctLog(std::string str, uint32 type)
-{
-    std::string path;
-    path = "xtrct.txt";
-    if (type == 1)
-        path = "xtrct_exist.txt";
-    else if (type == 2)
-        path = "xtrct_lookup.txt";
-    else if (type == 4)
-        path = "xtrct_test.txt";
-
-    std::ofstream(path, std::ios_base::out | std::ios_base::app) << str << std::endl;
+    TC_LOG_INFO("client.selector", "  ");
 }

@@ -253,7 +253,7 @@ set(ZLIB_BZIP2_FILES
 
 file(GLOB_RECURSE clientmanager_Sources *.cpp *.h)
 
-set(include_Base
+include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Cryptography
@@ -262,19 +262,12 @@ set(include_Base
   ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
   ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
   ${CMAKE_SOURCE_DIR}/dep/cppformat
-  ${CMAKE_SOURCE_DIR}/dep/stormlib
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${OPENSSL_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
 )
 
-if( WIN32 )
-  set(include_Base
-    ${include_Base}
-    )
-endif()
-
-include_directories(${include_Base})
+GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
 # clientmanager
 
