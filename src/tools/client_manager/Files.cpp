@@ -229,9 +229,22 @@ void ClientSelector::NamesFromWMO(std::string path)
             texbuf = new char[size];
             motxsize = size;
             fread(texbuf, size, 1, wmoFile);
+
+            for (uint32 i = 0; i < size; i++)
+            {
+                std::string texture(texbuf + i);
+                if (!texture.empty())
+                {
+                    AddExactFile(BlpWmo, texture);
+                    if (texture.length() > 4)
+                        AddExactFile(BlpWmo, texture.substr(0, texture.length() - 4) + "_s.blp");
+                    i += texture.length();
+                }
+            }
         }
         else if (fourcc == 'MOMT')
         {
+            /*
             for (uint32 i = 0; i < header.nTextures; ++i)
             {
                 WMOMaterial m;
@@ -252,6 +265,7 @@ void ClientSelector::NamesFromWMO(std::string path)
                         }
                     }
             }
+            */
             if (m2)
             {
                 fclose(wmoFile);
