@@ -44,6 +44,7 @@ ClientSelector::ClientSelector(po::variables_map vm)
     eWmoMdx_M   = eFiles(XTRCT_MIX | EXT_MDX | EXT_WMO);
     MdxGround   = XFiles(XTRCT_MIX | EXT_MDX | XTRCT_SUBDIR);
     MdxItem     = XFiles(XTRCT_MIX | EXT_MDX | XTRCT_SUBDIR);
+    MdxItemHead = XFiles(XTRCT_MIX | EXT_A_MDX | XTRCT_SUBDIR | XTRCT_REGEX);
     SkinMdx     = XFiles(XTRCT_REGEX);
     AnimMdx     = XFiles(XTRCT_REGEX);
     BlpM2       = eFiles();
@@ -131,7 +132,10 @@ void ClientSelector::Extract()
             Xtrct_eFiles("Models (exact, mixed)", eMdx_M);
             Xtrct_XFiles("Ground Models", MdxGround);
             if (!(mFlags & DONT_EXTRACT_ITEMS))
+            {
                 Xtrct_XFiles("Item Models", MdxItem);
+                Xtrct_XFiles("Head Item Models", MdxItemHead);
+            }
         }
         Xtrct_eFiles("Models & Wmos (exact, mixed)", eWmoMdx_M);
         TC_LOG_INFO("client.selector", "  ");

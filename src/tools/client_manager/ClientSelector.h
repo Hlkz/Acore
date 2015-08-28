@@ -54,6 +54,7 @@ enum XtractFlags
     XTRCT_REGEX     = 0x10,
     XTRCT_SUBDIR    = 0x20,
     XTRCT_CPYDIR    = 0x40,
+    EXT_A_MDX       = 0x80,
     XTRCT_MIX       = 0x100,
     XTRCT_LOC       = 0x200
 };
@@ -133,6 +134,7 @@ class ClientSelector
         eFiles eWmoMdx_M; // gobdisplayinfodbc
         XFiles MdxGround;
         XFiles MdxItem;
+        XFiles MdxItemHead;
         XFiles AnimMdx; // regex: name00+-00.anim
         XFiles SkinMdx; // regex: name00.skin
         eFiles BlpM2;
@@ -148,7 +150,6 @@ class ClientSelector
         XFiles Sounds;
 
         std::vector<uint32> CreatureDisplayIds; // filled with creature_template
-        std::vector<uint32> ItemDisplayIds;     // filled with item_template
         std::vector<uint32> WMOIds;             // filled when WMOs are extracted
         std::vector<uint32> SoundsToExtract;    // from SoundAmbience, ZoneMusic, ZoneIntroMusic from AreaTable, WMOAreaTable (WMOIds must be filled)
         std::map<uint32, std::string> CreaModelData;

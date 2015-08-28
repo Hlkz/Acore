@@ -25,7 +25,12 @@ std::string ClientSelector::CleanExtension(std::string file, int32 xtrctFlags)
         file = file.substr(0, file.length() - 2) + "2"; // .m2
 
     if (xtrctFlags & XTRCT_REGEX)
-        boost::replace_all(file, ".", "\\.");
+    {
+        if (xtrctFlags & EXT_A_MDX && file.length() > 4 && (boost::iequals(file.substr(file.length() - 4, 4), ".mdx") || boost::iequals(file.substr(file.length() - 4, 4), ".mdl")))
+            file = file.substr(0, file.length() - 4) + ".*\\.m2"; // .m2
+        else
+            boost::replace_all(file, ".", "\\.");
+    }
     return file;
 }
 
@@ -46,7 +51,7 @@ bool ClientSelector::XCommitFile(std::string path)
             AddFile(GroupWmo, Util::RemovePrefix(path.substr(0, path.length() - 4), FullDataPath), "_[0-9]{3}\\.wmo");
         }
 
-    if (mXtrctFlags & EXT_MDX)
+    if (mXtrctFlags & EXT_MDX || mXtrctFlags & EXT_A_MDX)
     {
         if (path.length() > 3 && boost::iequals(path.substr(path.length() - 3, 3), ".m2"))
         {

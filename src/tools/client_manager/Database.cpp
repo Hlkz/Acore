@@ -130,55 +130,9 @@ void ClientSelector::NamesFromUnusedDatabase()
                     AddExactFile(eMdx_M, fields[6].GetString());
             }
         } while (result->NextRow());
-
-        if (!(mFlags & DONT_EXTRACT_ITEMS))
-        {
-            // ItemDisplayInfo
-            TC_LOG_INFO("client.selector", "    ItemDisplayInfo");
-
-            if (result = WorldDatabase.Query("SELECT DisplayId FROM item_template WHERE DisplayId != 0"))
-                do {
-                    Field* fields = result->Fetch();
-                    if (fields[0].GetUInt32())
-                        AddUInt(fields[0].GetUInt32(), ItemDisplayIds);
-                } while (result->NextRow());
-
-            for (std::vector<uint32>::const_iterator itr = ItemDisplayIds.begin(); itr != ItemDisplayIds.end(); ++itr)
-            {
-                std::stringstream query;
-                query << "SELECT LeftModel, RightModel, LeftModelTexture, RightModelTexture, Icon1, Icon2, UpperArmTexture, LowerArmTexture, HandsTexture, "
-                    "UpperTorsoTexture, LowerTorsoTexture, UpperLegTexture, LowerLegTexture, FootTexture FROM itemdisplayinfo WHERE Id = " << (*itr);
-                if (result = UnusedDatabase.Query(query.str().c_str()))
-                    do {
-                        Field* fields = result->Fetch();
-                        //if (mFlags & EXTRACT_MODELS)
-                        {
-                            if (strlen(fields[0].GetCString()))
-                                AddFile(MdxItem, "Item\\ObjectComponents\\" + fields[0].GetString()); // name.mdx
-                            if (strlen(fields[1].GetCString()))
-                                AddFile(MdxItem, "Item\\ObjectComponents\\" + fields[1].GetString()); // name.mdx
-                        }
-                        //if (mFlags & EXTRACT_TEXTURES)
-                        {
-                            if (strlen(fields[2].GetCString())) AddFile(BlpItem, "Item\\ObjectComponents\\" + fields[2].GetString(), ".blp"); // name (blp)
-                            if (strlen(fields[3].GetCString())) AddFile(BlpItem, "Item\\ObjectComponents\\" + fields[3].GetString(), ".blp"); // name (blp)
-                            if (strlen(fields[4].GetCString())) AddExactFile(BlpIcon, "Interface\\Icons\\" + fields[4].GetString() + ".blp"); // name (blp)
-                            if (strlen(fields[5].GetCString())) AddExactFile(BlpIcon, "Interface\\Icons\\" + fields[5].GetString() + ".blp"); // name (blp)
-                            if (strlen(fields[6].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\ArmUpperTexture\\" + fields[6].GetString(), ".*\\.blp");        // name (blp)
-                            if (strlen(fields[7].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\ArmLowerTexture\\" + fields[7].GetString(), ".*\\.blp");        // name (blp)
-                            if (strlen(fields[8].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\HandTexture\\" + fields[8].GetString(), ".*\\.blp");            // name (blp)
-                            if (strlen(fields[9].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\TorsoUpperTexture\\" + fields[9].GetString(), ".*\\.blp");      // name (blp)
-                            if (strlen(fields[10].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\TorsoLowerTexture\\" + fields[10].GetString(), ".*\\.blp");    // name (blp)
-                            if (strlen(fields[11].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\LegUpperTexture\\" + fields[11].GetString(), ".*\\.blp");      // name (blp)
-                            if (strlen(fields[12].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\LegLowerTexture\\" + fields[12].GetString(), ".*\\.blp");      // name (blp)
-                            if (strlen(fields[13].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\FootTexture\\" + fields[13].GetString(), ".*\\.blp");          // name (blp)
-                        }
-                    } while (result->NextRow());
-            }
-        }
     }
 
-    TC_LOG_INFO("client.selector", "");
+    TC_LOG_INFO("client.selector", "  ");
 }
 
 void ClientSelector::NamesFromWorldDatabase()
@@ -200,6 +154,126 @@ void ClientSelector::NamesFromWorldDatabase()
                 AddExactFile(eMdx_M, fields[1].GetString());
             CreaModelData[fields[0].GetUInt32()] = Util::RemoveName(fields[1].GetString());
         } while (result->NextRow());
+
+        if (!(mFlags & DONT_EXTRACT_ITEMS))
+        {
+            // ItemDisplayInfo
+            TC_LOG_INFO("client.selector", "    ItemDisplayInfo");
+
+            if (result = WorldDatabase.Query("SELECT idi.LeftModel, idi.RightModel FROM creature_template ct, creaturedisplayinfodbc cdi, creaturedisplayinfoextradbc cdie, itemdisplayinfodbc idi "
+                "WHERE(ct.modelid1 = cdi.Id OR ct.modelid2 = cdi.Id OR ct.modelid3 = cdi.Id OR ct.modelid4 = cdi.Id) AND cdi.ExtraId = cdie.Id AND cdie.HelmDisplayId = idi.Id"))
+                do {
+                    Field* fields = result->Fetch();
+                    if (strlen(fields[0].GetCString()))
+                        AddFile(MdxItemHead, "Item\\ObjectComponents\\Head\\" + fields[0].GetString()); // name.mdx
+                    if (strlen(fields[1].GetCString()))
+                        AddFile(MdxItemHead, "Item\\ObjectComponents\\Head\\" + fields[1].GetString()); // name.mdx
+                } while (result->NextRow());
+            if (result = WorldDatabase.Query("SELECT idi.LeftModel, idi.RightModel FROM creature_template ct, creaturedisplayinfodbc cdi, creaturedisplayinfoextradbc cdie, itemdisplayinfodbc idi "
+                "WHERE(ct.modelid1 = cdi.Id OR ct.modelid2 = cdi.Id OR ct.modelid3 = cdi.Id OR ct.modelid4 = cdi.Id) AND cdi.ExtraId = cdie.Id AND cdie.ShoulderDisplayId = idi.Id"))
+                do {
+                    Field* fields = result->Fetch();
+                    if (strlen(fields[0].GetCString()))
+                        AddFile(MdxItem, "Item\\ObjectComponents\\Shoulder\\" + fields[0].GetString()); // name.mdx
+                    if (strlen(fields[1].GetCString()))
+                        AddFile(MdxItem, "Item\\ObjectComponents\\Shoulder\\" + fields[1].GetString()); // name.mdx
+                } while (result->NextRow());
+            if (result = WorldDatabase.Query(" SELECT idi.LeftModel, idi.RightModel FROM creature_template ct, creaturedisplayinfodbc cdi, creaturedisplayinfoextradbc cdie, itemdisplayinfodbc idi "
+                "WHERE(ct.modelid1 = cdi.Id OR ct.modelid2 = cdi.Id OR ct.modelid3 = cdi.Id OR ct.modelid4 = cdi.Id) AND cdi.ExtraId = cdie.Id AND cdie.BeltDisplayId = idi.Id"))
+                do {
+                    Field* fields = result->Fetch();
+                    if (strlen(fields[0].GetCString()))
+                        AddFile(MdxItem, "Item\\ObjectComponents\\Waist\\" + fields[0].GetString()); // name.mdx
+                    if (strlen(fields[1].GetCString()))
+                        AddFile(MdxItem, "Item\\ObjectComponents\\Waist\\" + fields[1].GetString()); // name.mdx
+                } while (result->NextRow());
+
+            if (result = WorldDatabase.Query("SELECT idi.LeftModel, idi.RightModel, idi.LeftModelTexture, idi.RightModelTexture, idi.Icon1, idi.Icon2, idi.UpperArmTexture, idi.LowerArmTexture, idi.HandsTexture, "
+                "idi.UpperTorsoTexture, idi.LowerTorsoTexture, idi.UpperLegTexture, idi.LowerLegTexture, idi.FootTexture, it.InventoryType, it.Entry FROM itemdisplayinfodbc idi, item_template it WHERE it.DisplayId = idi.Id"))
+                do {
+                Field* fields = result->Fetch();
+                std::string path = "";
+                //if (mFlags & EXTRACT_MODELS)
+                {
+                    if (uint32 invType = fields[14].GetUInt32())
+                    {
+                        switch (invType) // InventoryType
+                        {
+                            case 1:
+                                path = "Head\\";
+                                break;
+                            case 3:
+                                path = "Shoulder\\";
+                                break;
+                            case 6:
+                                path = "Waist\\";
+                                break;
+                            case 16:
+                                path = "Cape\\";
+                                break;
+                            case 13:
+                            case 15: // bow
+                            case 17: // staff
+                            case 21:
+                            case 22:
+                            case 23: // left hand
+                            case 25: // thrown
+                            case 26: // wand
+                                path = "Weapon\\";
+                                break;
+                            case 14:
+                                path = "Shield\\";
+                                break;
+                            case 24:
+                                path = "Ammo\\";
+                                break;
+                            default:
+                                break;
+                        }
+                        if (!path.empty())
+                        {
+                            XFiles &vec = (invType == 1) ? MdxItemHead : MdxItem;
+                            if (strlen(fields[0].GetCString()))
+                                AddFile(vec, "Item\\ObjectComponents\\" + path + fields[0].GetString()); // name.mdx
+                            if (strlen(fields[1].GetCString()))
+                                AddFile(vec, "Item\\ObjectComponents\\" + path + fields[1].GetString()); // name.mdx
+                        }
+                        else
+                        {
+                            //if (strlen(fields[0].GetCString())) TC_LOG_ERROR("client.selector", "ItemDisplayInfo: no path to find \"%s\" for item %u", fields[0].GetCString(), fields[15].GetUInt32());
+                            //if (strlen(fields[1].GetCString())) TC_LOG_ERROR("client.selector", "ItemDisplayInfo: no path to find \"%s\" for item %u", fields[1].GetCString(), fields[15].GetUInt32());
+                        }
+                    }
+                }
+                //if (mFlags & EXTRACT_TEXTURES)
+                {
+                    if (strlen(fields[4].GetCString())) AddExactFile(BlpIcon, "Interface\\Icons\\" + fields[4].GetString() + ".blp"); // name (blp)
+                    if (strlen(fields[5].GetCString())) AddExactFile(BlpIcon, "Interface\\Icons\\" + fields[5].GetString() + ".blp"); // name (blp)
+
+                    if (fields[14].GetUInt32())
+                    {
+                        if (!path.empty())
+                        {
+                            if (strlen(fields[2].GetCString())) AddFile(BlpItem, "Item\\ObjectComponents\\" + path + fields[2].GetString(), ".blp"); // name (blp)
+                            if (strlen(fields[3].GetCString())) AddFile(BlpItem, "Item\\ObjectComponents\\" + path + fields[3].GetString(), ".blp"); // name (blp)
+                        }
+                        else
+                        {
+                            //if (strlen(fields[0].GetCString())) TC_LOG_ERROR("client.selector", "ItemDisplayInfo: no path to find \"%s.blp\" for item %u", fields[2].GetCString(), fields[15].GetUInt32());
+                            //if (strlen(fields[1].GetCString())) TC_LOG_ERROR("client.selector", "ItemDisplayInfo: no path to find \"%s.blp\" for item %u", fields[3].GetCString(), fields[15].GetUInt32());
+                        }
+                        if (strlen(fields[6].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\ArmUpperTexture\\" + fields[6].GetString(), ".*\\.blp");        // name (blp)
+                        if (strlen(fields[7].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\ArmLowerTexture\\" + fields[7].GetString(), ".*\\.blp");        // name (blp)
+                        if (strlen(fields[8].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\HandTexture\\" + fields[8].GetString(), ".*\\.blp");            // name (blp)
+                        if (strlen(fields[9].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\TorsoUpperTexture\\" + fields[9].GetString(), ".*\\.blp");      // name (blp)
+                        if (strlen(fields[10].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\TorsoLowerTexture\\" + fields[10].GetString(), ".*\\.blp");    // name (blp)
+                        if (strlen(fields[11].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\LegUpperTexture\\" + fields[11].GetString(), ".*\\.blp");      // name (blp)
+                        if (strlen(fields[12].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\LegLowerTexture\\" + fields[12].GetString(), ".*\\.blp");      // name (blp)
+                        if (strlen(fields[13].GetCString())) AddFile(BlpItem2, "Item\\TextureComponents\\FootTexture\\" + fields[13].GetString(), ".*\\.blp");          // name (blp)
+                    }
+                }
+            } while (result->NextRow());
+        }
     }
 
     if (mFlags & EXTRACT_DATABASE || mFlags & EXTRACT_SOUNDS) //if (mFlags & EXTRACT_MODELS)
@@ -309,7 +383,7 @@ void ClientSelector::NamesFromWorldDatabase()
     // Map
     // Movie
     // WorldMapOverlay
-    TC_LOG_INFO("client.selector", "");
+    TC_LOG_INFO("client.selector", "  ");
 }
 
 void ClientSelector::NamesOfSounds()
