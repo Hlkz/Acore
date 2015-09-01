@@ -114,6 +114,9 @@ MaxOverspeedPings = 3
 #                 to speed up moving players to new grids. (Default: 1)
 GridUnload = 1
 
+#    ActiveWorldObjects : Active every loaded world object.  (Default: 1)
+ActiveWorldObjects = 1
+
 #    SocketTimeOutTime : Time (in ms) after which a connection being idle on the character
 #                        selection screen is disconnected. (Default: 900000, 15 minutes)
 SocketTimeOutTime = 900000
