@@ -944,6 +944,8 @@ struct FactionEntry
     //uint32    spilloverRank_unk;                          // 22       It does not seem to be the max standing at which a faction outputs spillover ...so no idea
     std::string name[16];                                   // 23-39    m_name_lang
     //std::string description[16];                            // 40-56    m_description_lang
+    int32       Flags;                                      // custom, not in dbc
+    uint32      LinkedTemplates[3];                         // idem
 
     // helpers
     bool CanHaveReputation() const

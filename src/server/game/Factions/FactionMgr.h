@@ -21,7 +21,7 @@ class FactionMgr
 
         void Update(uint32 diff);
 
-        Faction* GetFactionById(uint32 id) { for (FactionMap::iterator itr = m_Factions.begin(); itr != m_Factions.end(); ++itr) if (itr->first == id) return itr->second; return NULL; }
+        Faction* GetFactionById(uint32 id) { if (m_Factions.find(id) != m_Factions.end()) return m_Factions[id]; return NULL; }
 
     private:
         FactionMap m_Factions;

@@ -1,11 +1,9 @@
-
+ 
 #ifndef _NODEMGR_H
 #define _NODEMGR_H
 
+#include "Common.h"
 #include "Node.h"
-#include <map>
-#include <set>
-#include <vector>
 
 enum NodeTimeIntervals
 {
@@ -45,9 +43,15 @@ class NodeMgr
         void Update(uint32 diff);
 
         Node* GetNodeById(uint32 id) { for (NodeMap::iterator itr = m_Nodes.begin(); itr != m_Nodes.end(); ++itr) if (itr->first == id) return itr->second; return NULL; }
+        NodeCreature* GetNodeCreatureByGuid(uint32 guid) { for (NodeCreatureMap::iterator itr = m_NodeCreatures.begin(); itr != m_NodeCreatures.end(); ++itr) if (itr->first == guid) return itr->second; return NULL; }
+        void SetCreatureNode(uint32 guid, uint32 node, uint32 type);
+        bool AddNodeCreature(uint32 guid, uint32 nodeId, uint32 type);
+        void AddNodeCreature(Creature* creature, Node* node, uint32 type);
+        void RemoveNodeCreature(uint32 guid);
 
     private:
         NodeMap m_Nodes;
+        NodeCreatureMap m_NodeCreatures;
 
         time_t m_LastWaveTime;
 

@@ -1943,7 +1943,7 @@ void DBCMgr::LoadFactionStore()
     FactionStore.clear();
 
     QueryResult result = WorldDatabase.Query("SELECT Id, ReputationListId, BaseRepRaceMask1, BaseRepRaceMask2, BaseRepRaceMask3, BaseRepRaceMask4, BaseRepClassMask1, BaseRepClassMask2, BaseRepClassMask3, BaseRepClassMask4, BaseRepValue1, BaseRepValue2, BaseRepValue3, BaseRepValue4, "
-        "ReputationFlags1, ReputationFlags2, ReputationFlags3, ReputationFlags4, Team, SpilloverRateIn, SpilloverRateOut, SpilloverMaxRankIn, Name, Name_loc2 FROM factiondbc");
+        "ReputationFlags1, ReputationFlags2, ReputationFlags3, ReputationFlags4, Team, SpilloverRateIn, SpilloverRateOut, SpilloverMaxRankIn, Name, Name_loc2, Flags, LinkedTemplate1, LinkedTemplate2, LinkedTemplate3 FROM factiondbc");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 faction entry. DB table `factiondbc` is empty.");
@@ -1972,6 +1972,9 @@ void DBCMgr::LoadFactionStore()
             newFaction->name[i] = "";
         newFaction->name[0] = fields[22].GetString();
         newFaction->name[2] = fields[23].GetString();
+        newFaction->Flags = fields[24].GetInt32();
+        for (uint8 i = 0; i < 3; i++)
+            newFaction->LinkedTemplates[i] = fields[25 + i].GetUInt32();
         FactionStore[newFaction->ID] = newFaction;
 
     } while (result->NextRow());

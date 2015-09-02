@@ -1,4 +1,7 @@
 
+#include "FactionMgr.h"
+#include "GuildMgr.h"
+
 #ifndef __NODE_H
 #define __NODE_H
 
@@ -31,15 +34,13 @@ enum NodeLeadType
     NODE_LEAD_FACTION_IN_GUILD
 };
 
-enum NodeLeading
-{
-    NODE_LEADING_WORLD,         // Server rules (Soldiers+Civilians in lead faction)
-    NODE_LEADING_CHARACTER,     // Character rules (idem)
-    NODE_LEADING_OCCUPATION,    // Only Soldiers in lead faction
-    NODE_LEADING_NONE           // No leader, contested node?
-};
-
 class Node;
+struct NodeCreature
+{
+    Creature* Creature;
+    Node* Node;
+    uint32 Type;
+};
 struct NodeRelation
 {
     Node* Relation;
@@ -47,23 +48,22 @@ struct NodeRelation
     int32 Hostile;
     uint32 Path;
 };
+class Faction;
 typedef std::map<uint32, Node*> NodeMap;
-typedef std::map<uint32, NodeRelation> NodeRelationMap;
+typedef std::map<uint32, NodeCreature*> NodeCreatureMap;
+typedef std::map<uint32, NodeRelation*> NodeRelationMap;
 
 class Node
 {
     friend class NodeMgr;
 
     public:
-        Node(Field* fields);
+        Node(Map* map, Field* fields);
         ~Node() { }
-        
-        void SetId(uint32 id) { m_Id = id; }
-        uint32 GetId() { return m_Id; }
-        void SetTeam(uint32 team) { m_Team = team; }
-        uint32 GetTeam() { return m_Team; }
-        void SetBase(Creature* base) { m_Base = base; }
-        Creature* GetBase() { return m_Base; }
+
+        void Load();
+        void Populate();
+        void InitCreature(NodeCreature* nodeCrea);
 
         void AttackNode(Node* node);
         void StopAttackNode(Node* node);
@@ -78,6 +78,8 @@ class Node
         void SetFlags(uint32 flags) { m_Flags = flags; }
         uint32 GetFlags() { return m_Flags; }
 
+        void AddCreature(uint32 guid, NodeCreature* nodeCreature);
+        void RemoveCreature(uint32 guid);
         void AddRelation(uint32 id, uint32 type = 0, int32 hostile = 0, uint32 path = 0);
       //void RemoveRelation(uint32 id) { NodeRelationMap::iterator itr = m_relations.find(id); if (itr != m_relations.end()) { delete itr->second; m_relations.erase(itr); } }
       //NodeRelation GetRelation(uint32 id) { NodeRelationMap::iterator itr = m_relations.find(id); if (itr != m_relations.end()) return itr->second; return NULL; }
@@ -86,14 +88,23 @@ class Node
         void SendWaves();
         void SendWave(NodeRelationMap::iterator itr);
 
+        Map* GetMap() { return m_Map; };
+
     private:
         uint32 m_Id;
-        std::string m_Comment;
+        Map* m_Map;
+        uint32 m_Type;
+        uint32 m_Status;
+        uint32 m_LeadType;
+        uint32 m_FactionId;
+        Faction* m_Faction;
+        uint32 m_GuildId;
+        Guild* m_Guild;
 
-        uint32 m_Team;
         Creature* m_Base;
         CommanderMap m_Commanders;
         uint32 m_Flags;
+        NodeCreatureMap m_Creatures;
         NodeRelationMap m_Relations;
 };
 

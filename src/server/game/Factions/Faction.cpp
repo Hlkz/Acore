@@ -5,6 +5,7 @@
 // Used in FactionMgr::InitFactions()
 Faction::Faction(FactionEntry const* factionEntry)
 {
+    m_FactionEntry = factionEntry;
     m_Relations.clear();
 }
 

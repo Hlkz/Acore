@@ -36,6 +36,7 @@
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
+#include "FactionMgr.h"
 #include "GameEventMgr.h"
 #include "GridNotifiersImpl.h"
 #include "GroupMgr.h"
@@ -1608,8 +1609,8 @@ void World::SetInitialWorldSettings()
     sBattleAOMgr->InitBattleAO();
 
     ///- Initialize Factions
-    //TC_LOG_INFO("server.loading", "Starting Faction System");
-    //sFactionMgr->InitFactions();
+    TC_LOG_INFO("server.loading", "Starting Faction System");
+    sFactionMgr->InitFactions();
 
     ///- Initialize Nodes
     TC_LOG_INFO("server.loading", "Starting Node System");

@@ -50,6 +50,10 @@ CREATE TABLE `factiondbc` (
   `Name_loc2` varchar(300) NOT NULL DEFAULT '',
   `Description` varchar(512) NOT NULL DEFAULT '',
   `Description_loc2` varchar(512) NOT NULL DEFAULT '',
+  `Flags` int(10) NOT NULL DEFAULT '0',
+  `LinkedTemplate1` int(10) NOT NULL DEFAULT '0',
+  `LinkedTemplate2` int(10) NOT NULL DEFAULT '0',
+  `LinkedTemplate3` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`),
   UNIQUE KEY `Id` (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='';

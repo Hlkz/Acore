@@ -47,6 +47,7 @@ set(scripts_STAT_SRCS
   Commands/cs_bg.cpp
   Commands/cs_item_rand.cpp
   Commands/cs_item_suffix.cpp
+  Commands/cs_node.cpp
   Commands/cs_talent.cpp
   Commands/cs_spectate.cpp
   Commands/cs_test.cpp

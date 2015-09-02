@@ -16,10 +16,12 @@ void FactionMgr::InitFactions()
 
     for (FactionContainer::const_iterator itr = sDBCMgr->FactionStore.begin(); itr != sDBCMgr->FactionStore.end(); ++itr)
     {
-        //if (FactionEntry const* factionEntry = itr->second)
-        //    if (factionEntry->Flags)
-        //        m_Factions[factionEntry->Id] = new Faction(factionEntry);
+        if (FactionEntry const* factionEntry = itr->second)
+            if (factionEntry->Flags)
+                m_Factions[factionEntry->ID] = new Faction(factionEntry);
     }
+
+    TC_LOG_INFO("server.loading", ">> Loaded %lu Factions in %u ms", (unsigned long)m_Factions.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void FactionMgr::Update(uint32 diff)

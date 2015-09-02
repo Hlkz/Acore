@@ -57,15 +57,15 @@ class Faction
       //void RemoveRelation(uint32 id) { FactionRelationMap::iterator itr = m_relations.find(id); if (itr != m_relations.end()) { delete itr->second; m_relations.erase(itr); } }
       //FactionRelation GetRelation(uint32 id) { FactionRelationMap::iterator itr = m_relations.find(id); if (itr != m_relations.end()) return itr->second; return NULL; }
         FactionRelationMap GetRelations() { return m_Relations; }
+        FactionEntry const* GetEntry() { return m_FactionEntry; }
 
-        ObjectGuid GetLeaderGuid() { return m_LeaderGuid; }
+      //ObjectGuid GetLeaderGuid() { return m_LeaderGuid; }
 
     private:
 
         NodeMap m_Nodes;
         FactionRelationMap m_Relations;
-
-        ObjectGuid m_LeaderGuid; // FactionLeader for Faction = GuildMaster for Guild
+      //ObjectGuid m_LeaderGuid; // FactionLeader for Faction = GuildMaster for Guild
 
         FactionEntry const* m_FactionEntry;
 

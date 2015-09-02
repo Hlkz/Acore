@@ -76,6 +76,7 @@ void AddSC_bg_commandscript();
 void AddSC_talent_commandscript();
 void AddSC_item_rand_commandscript();
 void AddSC_item_suffix_commandscript();
+void AddSC_node_commandscript();
 void AddSC_ranks_commandscript();
 void AddSC_test_commandscript();
 void AddSC_ucast_commandscript();
@@ -355,6 +356,7 @@ void AddCommandScripts()
     AddSC_talent_commandscript();
     AddSC_item_rand_commandscript();
     AddSC_item_suffix_commandscript();
+    AddSC_node_commandscript();
     AddSC_ranks_commandscript();
     AddSC_test_commandscript();
     AddSC_ucast_commandscript();
