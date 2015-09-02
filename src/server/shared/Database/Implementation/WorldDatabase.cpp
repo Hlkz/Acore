@@ -86,8 +86,8 @@ void WorldDatabaseConnection::DoPrepareStatements()
     PrepareStatement(WORLD_DEL_GAME_EVENT_CREATURE, "DELETE FROM game_event_creature WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_DEL_GAME_EVENT_MODEL_EQUIP, "DELETE FROM game_event_model_equip WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_INS_GAMEOBJECT, "INSERT INTO gameobject (guid, id, map, spawnMask, phaseMask, position_x, position_y, position_z, orientation, rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
-    PrepareStatement(WORLD_UPD_TOP_RANK, "UPDATE page_text SET text = ? WHERE entry = 10000", CONNECTION_ASYNC);
-    PrepareStatement(WORLD_UPD_TOP_RANK_LOCALE, "UPDATE page_text SET Text_loc2 = ? WHERE entry = 10000", CONNECTION_ASYNC);
+    PrepareStatement(WORLD_UPD_TOP_RANK, "UPDATE page_text SET Text = ? WHERE ID = 10000", CONNECTION_ASYNC);
+    PrepareStatement(WORLD_UPD_TOP_RANK_LOCALE, "UPDATE page_text SET Text_loc2 = ? WHERE ID = 10000", CONNECTION_ASYNC);
     PrepareStatement(WORLD_SEL_SPELLDBC, "SELECT "
         /* 0 */     "Entry, Category, Dispel, Mechanic, Attributes, AttributesEx, AttributesEx2, AttributesEx3, AttributesEx4, AttributesEx5, AttributesEx6, AttributesEx7, "
         /* 12 */    "Stances, StancesNot, Targets, TargetCreatureType, RequiresSpellFocus, FacingCasterFlags, CasterAuraState, TargetAuraState, CasterAuraStateNot, TargetAuraStateNot, casterAuraSpell, targetAuraSpell, "

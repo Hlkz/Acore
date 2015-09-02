@@ -364,7 +364,7 @@ void ObjectMgr::LoadPointOfInterestLocales()
 
     _pointOfInterestLocaleStore.clear();                              // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, icon_name_loc2 FROM points_of_interest");
+    QueryResult result = WorldDatabase.Query("SELECT ID, Name_loc2 FROM points_of_interest");
 
     if (!result)
         return;
@@ -5206,7 +5206,7 @@ void ObjectMgr::LoadPageTextLocales()
 
     _pageTextLocaleStore.clear();                             // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, text_loc2 FROM page_text");
+    QueryResult result = WorldDatabase.Query("SELECT ID, Text_loc2 FROM page_text");
 
     if (!result)
         return;
