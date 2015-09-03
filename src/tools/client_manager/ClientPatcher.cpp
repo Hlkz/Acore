@@ -2,7 +2,7 @@
 #include "ClientManager.h"
 
 #include "Timer.h"
-#include "SHA1.h"
+#include "Cryptography/SHA1.h"
 #include <iostream>
 #include <bitset>
 #include <boost/algorithm/string.hpp>

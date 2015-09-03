@@ -1,5 +1,5 @@
-#include "ScriptPCH.h"
 #include "Chat.h"
+#include "ScriptMgr.h"
 
 class WE_commandscript : public CommandScript
 {

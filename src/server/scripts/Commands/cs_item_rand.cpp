@@ -1,5 +1,5 @@
-#include "ScriptPCH.h"
 #include "Chat.h"
+#include "ScriptMgr.h"
 
 #ifndef TRINITY_ITEM_RAND_COMMAND
 #define TRINITY_ITEM_RAND_COMMAND

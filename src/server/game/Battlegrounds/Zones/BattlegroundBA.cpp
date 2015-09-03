@@ -14,7 +14,7 @@
 #include "ReputationMgr.h"
 #include "GameObject.h"
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "CombatAI.h"

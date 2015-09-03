@@ -1159,9 +1159,8 @@ void World::SetInitialWorldSettings()
     DetectDBCLang();
 
     std::vector<uint32> mapIds;
-    for (uint32 mapId = 0; mapId < sMapStore.GetNumRows(); mapId++)
-        if (sMapStore.LookupEntry(mapId))
-            mapIds.push_back(mapId);
+    for (MapContainer::const_iterator itr = sDBCMgr->MapStore.begin(); itr != sDBCMgr->MapStore.end(); ++itr)
+        mapIds.push_back(itr->second->MapID);
 
     if (VMAP::VMapManager2* vmmgr2 = dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager()))
         vmmgr2->InitializeThreadUnsafe(mapIds);

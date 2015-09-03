@@ -1,6 +1,6 @@
-#include "ScriptPCH.h"
 #include "Chat.h"
 #include "Language.h"
+#include "ScriptMgr.h"
 
 /* player.h
 const uint32 PvpRankTitle[6][2] =

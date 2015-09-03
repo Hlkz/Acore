@@ -5,7 +5,7 @@
 #include "ClientCompressor.h"
 #include "ClientPatcher.h"
 #include "ClientUtil.h"
-#include "Configuration/Config.h"
+#include "Config.h"
 #include "DatabaseEnv.h"
 
 #define __STORMLIB_SELF__

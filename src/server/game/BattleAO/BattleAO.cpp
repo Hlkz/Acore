@@ -13,6 +13,7 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 #include "CreatureTextMgr.h"
+#include "Chat.h"
 #include "GroupMgr.h"
 
 namespace Trinity

@@ -255,13 +255,15 @@ file(GLOB_RECURSE clientmanager_Sources *.cpp *.h)
 
 include_directories(
   ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/dep/cppformat
+  ${CMAKE_SOURCE_DIR}/src/common/
+  ${CMAKE_SOURCE_DIR}/src/common/Configuration
+  ${CMAKE_SOURCE_DIR}/src/common/Logging
+  ${CMAKE_SOURCE_DIR}/src/common/Threading
+  ${CMAKE_SOURCE_DIR}/src/common/Utilities
+  ${CMAKE_SOURCE_DIR}/src/server/database/Database
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Cryptography
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Database
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Logging
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
-  ${CMAKE_SOURCE_DIR}/dep/cppformat
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${OPENSSL_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
@@ -300,7 +302,9 @@ endif()
 # add_executable(clientmanager ${StormLib_SRCS} ${ZLIB_BZIP2_FILES} ${clientmanager_Sources})
 
 target_link_libraries(clientmanager
+  common
   shared
+  database
   format
   ${MYSQL_LIBRARY}
   ${OPENSSL_LIBRARIES}

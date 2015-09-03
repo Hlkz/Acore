@@ -1,5 +1,5 @@
-#include "ScriptPCH.h"
 #include "Pet.h"
+#include "ScriptMgr.h"
 
 enum NpcBeast
 {

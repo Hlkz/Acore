@@ -1,8 +1,8 @@
-#include "ScriptPCH.h"
 #include "Chat.h"
 #include "Language.h"
 #include "BattlegroundMgr.h"
 #include "BattleAOMgr.h"
+#include "ScriptMgr.h"
 
 class bg_commandscript : public CommandScript
 {

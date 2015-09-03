@@ -1,6 +1,6 @@
-#include "ScriptPCH.h"
 #include "Chat.h"
 #include "ObjectGuid.h"
+#include "ScriptMgr.h"
 
 class ucast_commandscript : public CommandScript
 {

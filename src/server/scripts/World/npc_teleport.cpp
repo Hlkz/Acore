@@ -1,6 +1,6 @@
-#include "ScriptPCH.h"
 #include "Config.h"
 #include "BattleAOMgr.h"
+#include "ScriptMgr.h"
 
 class npc_teleport : public CreatureScript
 {

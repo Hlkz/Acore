@@ -1,4 +1,4 @@
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 
 enum NpcEnchant {
     LANG_NPCENCH_BACK       = 12100,

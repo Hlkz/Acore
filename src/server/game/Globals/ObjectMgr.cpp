@@ -4656,9 +4656,8 @@ void ObjectMgr::LoadQuestLocales()
 
     _questLocaleStore.clear();                                // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT Id, "
-        "Title_loc2, Details_loc2, Objectives_loc2, OfferRewardText_loc2, RequestItemsText_loc2, EndText_loc2, CompletedText_loc2, ObjectiveText1_loc2, ObjectiveText2_loc2, ObjectiveText3_loc2, ObjectiveText4_loc2 "
-        " FROM quest_template");
+    QueryResult result = WorldDatabase.Query("SELECT Id, LogTitle_loc2, LogDescription_loc2, QuestDescription_loc2, EndText_loc2, OfferRewardText_loc2, RequestItemsText_loc2, QuestCompletionLog_loc2, "
+        "ObjectiveText1_loc2, ObjectiveText2_loc2, ObjectiveText3_loc2, ObjectiveText4_loc2 FROM quest_template");
 
     if (!result)
         return;
@@ -4676,11 +4675,11 @@ void ObjectMgr::LoadQuestLocales()
             LocaleConstant locale = (LocaleConstant) i;
 
             AddLocaleString(i == LOCALE_frFR ? fields[1].GetString() : "", locale, data.Title);
-            AddLocaleString(i == LOCALE_frFR ? fields[2].GetString() : "", locale, data.Details);
-            AddLocaleString(i == LOCALE_frFR ? fields[3].GetString() : "", locale, data.Objectives);
-            AddLocaleString(i == LOCALE_frFR ? fields[4].GetString() : "", locale, data.OfferRewardText);
-            AddLocaleString(i == LOCALE_frFR ? fields[5].GetString() : "", locale, data.RequestItemsText);
-            AddLocaleString(i == LOCALE_frFR ? fields[6].GetString() : "", locale, data.EndText);
+            AddLocaleString(i == LOCALE_frFR ? fields[3].GetString() : "", locale, data.Details);
+            AddLocaleString(i == LOCALE_frFR ? fields[2].GetString() : "", locale, data.Objectives);
+            AddLocaleString(i == LOCALE_frFR ? fields[5].GetString() : "", locale, data.OfferRewardText);
+            AddLocaleString(i == LOCALE_frFR ? fields[6].GetString() : "", locale, data.RequestItemsText);
+            AddLocaleString(i == LOCALE_frFR ? fields[4].GetString() : "", locale, data.EndText);
             AddLocaleString(i == LOCALE_frFR ? fields[7].GetString() : "", locale, data.CompletedText);
 
             for (uint8 k = 0; k < 4; ++k)
@@ -9227,8 +9226,8 @@ void ObjectMgr::LoadGameObjectQuestItems()
             continue;
         };
 
-        ItemEntry const* db2Data = sItemStore.LookupEntry(item);
-        if (!db2Data)
+        ItemTemplate const* itemProto = GetItemTemplate(item);
+        if (!itemProto)
         {
             TC_LOG_ERROR("sql.sql", "Table `gameobject_questitem` has nonexistent item (ID: %u) in gameobject (entry: %u, idx: %u), skipped", item, entry, idx);
             continue;
@@ -9272,8 +9271,8 @@ void ObjectMgr::LoadCreatureQuestItems()
             continue;
         };
 
-        ItemEntry const* db2Data = sItemStore.LookupEntry(item);
-        if (!db2Data)
+        ItemTemplate const* itemProto = GetItemTemplate(item);
+        if (!itemProto)
         {
             TC_LOG_ERROR("sql.sql", "Table `creature_questitem` has nonexistent item (ID: %u) in creature (entry: %u, idx: %u), skipped", item, entry, idx);
             continue;

@@ -1,8 +1,8 @@
-#include "ScriptPCH.h"
 #include "Chat.h"
 #include "BattleAOMgr.h"
 #include "BattlegroundSG.h"
 #include "BattlegroundMgr.h"
+#include "ScriptMgr.h"
 
 class test_commandscript : public CommandScript
 {

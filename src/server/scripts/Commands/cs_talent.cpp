@@ -1,5 +1,5 @@
-#include "ScriptPCH.h"
 #include "Chat.h"
+#include "ScriptMgr.h"
 
 class talent_commandscript : public CommandScript
 {

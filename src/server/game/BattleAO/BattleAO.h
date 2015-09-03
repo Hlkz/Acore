@@ -1,16 +1,16 @@
 #ifndef BATTLEAO_H_
 #define BATTLEAO_H_
 
-#include "Utilities/Util.h"
+#include "Common.h"
 #include "SharedDefines.h"
-#include "ZoneScript.h"
-#include "WorldPacket.h"
-#include "GameObject.h"
-#include "Battleground.h"
-#include "ObjectAccessor.h"
-#include "ScriptPCH.h"
-#include "ScriptedCreature.h"
 #include "Language.h"
+#include "Battleground.h"
+#include "ZoneScript.h"
+#include "Object.h"
+#include "ObjectAccessor.h"
+#include "GameObject.h"
+#include "Player.h"
+#include "WorldPacket.h"
 
 enum BattleAOIds
 {

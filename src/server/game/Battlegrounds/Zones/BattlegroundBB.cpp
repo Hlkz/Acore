@@ -14,9 +14,10 @@
 #include "ReputationMgr.h"
 #include "GameObject.h"
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 #include "CombatAI.h"
 
 class npc_bb_turret : public CreatureScript
