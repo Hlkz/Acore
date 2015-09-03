@@ -42,6 +42,8 @@ ClientCompressor::ClientCompressor(po::variables_map vm)
         mFlags |= UPDATE_LUA;
     if (!mFlags)
         return;
+    if (vm.count("c-full"))
+        mFlags |= COMPRESS_FULLDATA;
 
     mVm = vm;
 
@@ -158,24 +160,25 @@ void ClientCompressor::GenerateCommonMPQ()
     printf("\n  Starting Common generation");
     fs::path commonPath(PatchOutputPath / "common.mpq");
     HANDLE common;
-    SFileCreateArchive(commonPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, COMMONMAXFILES, &common);
+    SFileCreateArchive(commonPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, mFlags & COMPRESS_FULLDATA ? FULLCOMMONMAXFILES : COMMONMAXFILES, &common);
+    fs::path dataPath = mFlags & COMPRESS_FULLDATA ? FullDataPath : TinyDataPath;
 
-    Manager::AddDirToMPQ(TinyDataPath + "\\_shaders", "_shaders", &common);
-    Manager::AddDirToMPQ(TinyDataPath + "\\Cameras", "Cameras", &common);
-    Manager::AddDirToMPQ(TinyDataPath + "\\Character", "Character", &common);
-    Manager::AddDirToMPQ(TinyDataPath + "\\Environments", "Environments", &common);
-    Manager::AddDirToMPQ(TinyDataPath + "\\Interiors", "Interiors", &common);
-    Manager::AddDirToMPQ(TinyDataPath + "\\Item", "Item", &common);
-    Manager::AddDirToMPQ(TinyDataPath + "\\Particles", "Particles", &common);
-    Manager::AddDirToMPQ(TinyDataPath + "\\shaders", "shaders", &common);
-    Manager::AddDirToMPQ(TinyDataPath + "\\Spell", "Spell", &common);
-    Manager::AddDirToMPQ(TinyDataPath + "\\Spells", "Spells", &common);
-    Manager::AddDirToMPQ(TinyDataPath + "\\Textures", "Textures", &common);
-    Manager::AddDirToMPQ(TinyDataPath + "\\Tileset", "Tileset", &common);
-    Manager::AddDirToMPQ(TinyDataPath + "\\WTF", "WTF", &common);
-    Manager::AddDirToMPQ(TinyDataPath + "\\XTextures", "XTextures", &common);
-    Manager::AddFileToMPQ(TinyDataPath + "\\signaturefile", "signaturefile", &common);
-    Manager::AddFileToMPQ(TinyDataPath + "\\component.wow-data.txt", "component.wow-data.txt", &common);
+    Manager::AddDirToMPQ(dataPath / "_shaders", "_shaders", &common);
+    Manager::AddDirToMPQ(dataPath / "Cameras", "Cameras", &common);
+    Manager::AddDirToMPQ(dataPath / "Character", "Character", &common);
+    Manager::AddDirToMPQ(dataPath / "Environments", "Environments", &common);
+    Manager::AddDirToMPQ(dataPath / "Interiors", "Interiors", &common);
+    Manager::AddDirToMPQ(dataPath / "Item", "Item", &common);
+    Manager::AddDirToMPQ(dataPath / "Particles", "Particles", &common);
+    Manager::AddDirToMPQ(dataPath / "shaders", "shaders", &common);
+    Manager::AddDirToMPQ(dataPath / "Spell", "Spell", &common);
+    Manager::AddDirToMPQ(dataPath / "Spells", "Spells", &common);
+    Manager::AddDirToMPQ(dataPath / "Textures", "Textures", &common);
+    Manager::AddDirToMPQ(dataPath / "Tileset", "Tileset", &common);
+    Manager::AddDirToMPQ(dataPath / "WTF", "WTF", &common);
+    Manager::AddDirToMPQ(dataPath / "XTextures", "XTextures", &common);
+    Manager::AddFileToMPQ(dataPath / "signaturefile", "signaturefile", &common);
+    Manager::AddFileToMPQ(dataPath / "component.wow-data.txt", "component.wow-data.txt", &common);
 
     SFileCloseArchive(common);
     printf("\n  Ending Common generation");
@@ -187,8 +190,9 @@ void ClientCompressor::GenerateCommon2MPQ()
     fs::path common2Path(PatchOutputPath / "common-2.mpq");
     HANDLE common2;
     SFileCreateArchive(common2Path.string().c_str(), MPQ_CREATE_ARCHIVE_V2, COMMON2MAXFILES, &common2);
+    fs::path dataPath = mFlags & COMPRESS_FULLDATA ? FullDataPath : TinyDataPath;
 
-    Manager::AddDirToMPQ(TinyDataPath + "\\Sound", "Sound", &common2);
+    Manager::AddDirToMPQ(dataPath / "Sound", "Sound", &common2);
 
     SFileCloseArchive(common2);
     printf("\n  Ending Common2 generation");
@@ -199,11 +203,12 @@ void ClientCompressor::GenerateLichkingMPQ()
     printf("\n  Starting Lichking generation");
     fs::path lichkingPath(PatchOutputPath / "lichking.mpq");
     HANDLE lichking;
-    SFileCreateArchive(lichkingPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, LICHKINGMAXFILES, &lichking);
+    SFileCreateArchive(lichkingPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, mFlags & COMPRESS_FULLDATA ? FULLLICHKINGMAXFILES : LICHKINGMAXFILES, &lichking);
+    fs::path dataPath = mFlags & COMPRESS_FULLDATA ? FullDataPath : TinyDataPath;
 
-    Manager::AddDirToMPQ(TinyDataPath + "\\Creature", "Creature", &lichking);
-    Manager::AddDirToMPQ(TinyDataPath + "\\Dungeons", "Dungeons", &lichking);
-    Manager::AddDirToMPQ(TinyDataPath + "\\World", "World", &lichking);
+    Manager::AddDirToMPQ(dataPath / "Creature", "Creature", &lichking);
+    Manager::AddDirToMPQ(dataPath / "Dungeons", "Dungeons", &lichking);
+    Manager::AddDirToMPQ(dataPath / "World", "World", &lichking);
 
     SFileCloseArchive(lichking);
     printf("\n  Ending Lichking generation");
@@ -214,15 +219,15 @@ void ClientCompressor::GenerateLocaleMPQ(uint8 loc)
     printf("\n  Starting Locale generation ");
     std::string locs = loc ? "frFR" : "enUS";
     std::cout << locs;
-    std::string prefix = loc ? TinyDataPathFr : TinyDataPathEn;
     fs::path localePath(PatchOutputPath / locs / ("locale-" + locs + ".mpq"));
     HANDLE locale;
     SFileCreateArchive(localePath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, PATCHMAXFILES, &locale);
+    fs::path dataPath = mFlags & COMPRESS_FULLDATA ? (loc ? FullDataPathFr : FullDataPathEn) : (loc ? TinyDataPathFr : TinyDataPathEn);
 
-    Manager::AddDirToMPQ(prefix + "\\Fonts", "Fonts", &locale);
-    Manager::AddDirToMPQ(prefix + "\\Interface", "Interface", &locale);
-    Manager::AddFileToMPQ(prefix + "\\Wow.ini", "Wow.ini", &locale);
-    Manager::AddFileToMPQ(prefix + "\\component.wow-" + locs + ".txt", "component.wow-" + locs + ".txt", &locale);
+    Manager::AddDirToMPQ(dataPath / "Fonts", "Fonts", &locale);
+    Manager::AddDirToMPQ(dataPath / "Interface", "Interface", &locale);
+    Manager::AddFileToMPQ(dataPath / "Wow.ini", "Wow.ini", &locale);
+    Manager::AddFileToMPQ(dataPath / ("component.wow-" + locs + ".txt"), "component.wow-" + locs + ".txt", &locale);
 
     SFileCloseArchive(locale);
     printf("\n  Ending Locale generation");
@@ -233,12 +238,12 @@ void ClientCompressor::GenerateSpeechMPQ(uint8 loc)
     printf("\n  Starting Speech generation ");
     std::string locs = loc ? "frFR" : "enUS";
     std::cout << locs;
-    std::string prefix = loc ? TinyDataPathFr : TinyDataPathEn;
     fs::path speechPath(PatchOutputPath / locs / ("speech-" + locs + ".mpq"));
     HANDLE speech;
     SFileCreateArchive(speechPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, PATCHMAXFILES, &speech);
+    fs::path dataPath = mFlags & COMPRESS_FULLDATA ? (loc ? FullDataPathFr : FullDataPathEn) : (loc ? TinyDataPathFr : TinyDataPathEn);
 
-    Manager::AddDirToMPQ(prefix + "\\Sound", "Sound", &speech);
+    Manager::AddDirToMPQ(dataPath / "Sound", "Sound", &speech);
 
     SFileCloseArchive(speech);
     printf("\n  Ending Speech generation");
@@ -246,6 +251,12 @@ void ClientCompressor::GenerateSpeechMPQ(uint8 loc)
 
 void ClientCompressor::GeneratePatchMPQ(uint8 loc)
 {
+    if (mFlags & COMPRESS_FULLDATA)
+    {
+        printf("\n  Can't generate Patch for FullData");
+        return;
+    }
+
     printf("\n  Starting Patch generation ");
     std::string locs = loc ? "frFR" : "enUS";
     std::cout << locs;

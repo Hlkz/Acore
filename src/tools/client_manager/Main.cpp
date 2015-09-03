@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
         // ClientCompressor
         ("c-all", "Compress All")
         ("c-alle", "Compress All except Patch")
+        ("c-full", "Compress FullData instead of TinyData")
         ("c-common", "Compress Common")
         ("c-common2", "Compress Common-2")
         ("c-lichking", "Compress Lichking")

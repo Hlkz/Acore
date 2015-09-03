@@ -2,8 +2,10 @@
 #define CLIENTCOMPRESSOR_H
 
 #define COMMONMAXFILES 0x14000
+#define FULLCOMMONMAXFILES 0x35000
 #define COMMON2MAXFILES 0x4000
 #define LICHKINGMAXFILES 0x10000
+#define FULLLICHKINGMAXFILES 0x25000
 #define PATCHMAXFILES 0x4000
 
 enum CompressorFlag
@@ -20,7 +22,8 @@ enum CompressorFlag
     COMPRESS_INSTALL    = 0x100,
     COMPRESS_RELEASE    = 0x200,
     UPDATE_DBC          = 0x400,
-    UPDATE_LUA          = 0x800
+    UPDATE_LUA          = 0x800,
+    COMPRESS_FULLDATA   = 0x1000
 };
 
 struct FullVersion
