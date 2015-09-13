@@ -1916,6 +1916,9 @@ void World::Update(uint32 diff)
         }
     }
 
+    sFactionMgr->Update(diff);
+    RecordTimeDiff("UpdateFactionMgr");
+
     sBattlegroundMgr->Update(diff);
     RecordTimeDiff("UpdateBattlegroundMgr");
 
@@ -2856,7 +2859,9 @@ void World::ResetEventSeasonalQuests(uint16 event_id)
 
 void World::DailyReset()
 {
-    TC_LOG_INFO("misc", "Daily reset for all characters.");
+    TC_LOG_INFO("misc", "Daily reset.");
+
+    sFactionMgr->LoadRelations();
 
     // reset randombg
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BATTLEGROUND_RANDOM_ALL);

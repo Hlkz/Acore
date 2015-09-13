@@ -99,6 +99,8 @@ bool Group::Create(Player* leader)
 
     if (isBGGroup() || isBAOGroup())
         m_groupType = GROUPTYPE_BGRAID;
+    else if (isNodeGroup())
+        m_groupType = GROUPTYPE_RAID;
 
     if (m_groupType & GROUPTYPE_RAID)
         _initRaidSubGroupsCounter();
@@ -365,7 +367,7 @@ bool Group::AddMember(Player* player)
     player->SetGroupInvite(NULL);
     if (player->GetGroup())
     {
-            if (isBGGroup() || isBAOGroup()) // if player is in group and he is being added to BG raid group, then call SetBattlegroundRaid()
+        if (isBGGroup() || isBAOGroup()) // if player is in group and he is being added to BG raid group, then call SetBattlegroundRaid()
             player->SetBattlegroundOrBattlefieldRaid(this, subGroup);
         else //if player is in bg raid and we are adding him to normal group, then call SetOriginalGroup()
             player->SetOriginalGroup(this, subGroup);
@@ -401,7 +403,7 @@ bool Group::AddMember(Player* player)
     SendUpdate();
     sScriptMgr->OnGroupAddMember(this, player->GetGUID());
 
-        if (!IsLeader(player->GetGUID()) && !isBGGroup() && !isBAOGroup())
+    if (!IsLeader(player->GetGUID()) && !isBGGroup() && !isBAOGroup())
     {
         // reset the new member's instances, unless he is currently in one of them
         // including raid/heroic instances that they are not permanently bound to!
@@ -2193,6 +2195,11 @@ bool Group::isBAOGroup() const
     return m_baoGroup != NULL;
 }
 
+bool Group::isNodeGroup() const
+{
+    return m_nodeGroup != NULL;
+}
+
 bool Group::IsCreated() const
 {
     return GetMembersCount() > 0;
@@ -2302,6 +2309,11 @@ void Group::SetBattlegroundGroup(Battleground* bg)
 void Group::SetBattleAOGroup(BattleAO *bao)
 {
     m_baoGroup = bao;
+}
+
+void Group::SetNodeGroup(NodeGroup *ng)
+{
+    m_nodeGroup = ng;
 }
 
 void Group::SetGroupMemberFlag(ObjectGuid guid, bool apply, GroupMemberFlags flag)

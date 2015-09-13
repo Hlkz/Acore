@@ -42,6 +42,9 @@ public:
     void AddGuild(Guild* guild);
     void RemoveGuild(uint32 guildId);
 
+    void SetGuildRelation(Guild* guild, Guild* relation, uint32 type);
+    void CheckGuildRelations(Faction* faction);
+
     uint32 GenerateGuildId();
     void SetNextGuildId(uint32 Id) { NextGuildId = Id; }
 

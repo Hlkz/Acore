@@ -1,6 +1,7 @@
-
 #ifndef __FACTION_H
 #define __FACTION_H
+
+#include "Common.h"
 
 enum FactionTimeIntervals
 {
@@ -36,14 +37,29 @@ class Faction;
 class Guild;
 class Node;
 typedef std::map<uint32, Node*> NodeMap;
-
+typedef std::map<uint32, Faction*> FactionMap;
 struct FactionRelation
 {
-    Faction* Relation;
-    uint32 StatusFlags;
+    FactionRelation(Faction* faction) : Relation(faction) { }
+    Faction*    Relation;
+    int32       BaseStanding;
+    uint32      BaseCount;
+    int32       Standing;
+    int32       MemberStanding;
+    uint32      MemberCount;
+    uint32      Type;
 };
-typedef std::map<uint32, Faction*> FactionMap;
-typedef std::map<uint32, FactionRelation> FactionRelationMap;
+struct FactionGuildRelation
+{
+    FactionGuildRelation(Guild* guild) : Relation(guild) { }
+    Guild*      Relation;
+    int32       Standing;
+    int32       MemberStanding;
+    uint32      MemberCount;
+    uint32      Type;
+};
+typedef std::map<uint32, FactionRelation*> FactionRelationMap;
+typedef std::map<uint32, FactionGuildRelation*> FactionGuildRelationMap;
 
 class Faction
 {
@@ -53,22 +69,25 @@ class Faction
         Faction(FactionEntry const* factionEntry);
         ~Faction() { }
 
-        void AddRelation(uint32 id, uint32 statusFlags = 0);
-      //void RemoveRelation(uint32 id) { FactionRelationMap::iterator itr = m_relations.find(id); if (itr != m_relations.end()) { delete itr->second; m_relations.erase(itr); } }
-      //FactionRelation GetRelation(uint32 id) { FactionRelationMap::iterator itr = m_relations.find(id); if (itr != m_relations.end()) return itr->second; return NULL; }
-        FactionRelationMap GetRelations() { return m_Relations; }
-        FactionEntry const* GetEntry() { return m_FactionEntry; }
+        void AddEmptyRelation(Faction* faction);
+        void AddRelation(Field* fields);
+        FactionRelation* GetRelation(uint32 id) { FactionRelationMap::iterator itr = m_relations.find(id); if (itr != m_relations.end()) return itr->second; return NULL; }
 
-      //ObjectGuid GetLeaderGuid() { return m_LeaderGuid; }
+        void AddEmptyGuildRelation(Guild* guild);
+        void AddGuildRelation(Field* fields);
+        FactionGuildRelation* GetGuildRelation(uint32 id) { FactionGuildRelationMap::iterator itr = m_guildRelations.find(id); if (itr != m_guildRelations.end()) return itr->second; return NULL; }
+
+        FactionEntry const* GetEntry() { return m_factionEntry; }
+
+        uint32 GetId() { return m_factionEntry->ID; }
+      //ObjectGuid GetLeaderGuid() { return m_leaderGuid; }
 
     private:
+        FactionEntry const* m_factionEntry;
+        FactionRelationMap m_relations;
+        FactionGuildRelationMap m_guildRelations;
 
-        NodeMap m_Nodes;
-        FactionRelationMap m_Relations;
-      //ObjectGuid m_LeaderGuid; // FactionLeader for Faction = GuildMaster for Guild
-
-        FactionEntry const* m_FactionEntry;
-
+      //ObjectGuid m_leaderGuid; // FactionLeader for Faction = GuildMaster for Guild
 };
 
 #endif

@@ -1,4 +1,3 @@
-
 #ifndef _FACTIONMGR_H
 #define _FACTIONMGR_H
 
@@ -18,13 +17,15 @@ class FactionMgr
         }
 
         void InitFactions();
+        void LoadRelations();
+        void LoadGuildRelations();
 
         void Update(uint32 diff);
 
-        Faction* GetFactionById(uint32 id) { if (m_Factions.find(id) != m_Factions.end()) return m_Factions[id]; return NULL; }
+        Faction* GetFactionById(uint32 id) { if (m_factions.find(id) != m_factions.end()) return m_factions[id]; return NULL; }
 
     private:
-        FactionMap m_Factions;
+        FactionMap m_factions;
 };
 
 #define sFactionMgr FactionMgr::instance()

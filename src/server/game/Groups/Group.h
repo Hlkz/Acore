@@ -27,6 +27,7 @@
 
 class BattleAO;
 class Battleground;
+struct NodeGroup;
 class Creature;
 class InstanceSave;
 class Map;
@@ -207,7 +208,8 @@ class Group
         bool isLFGGroup()  const;
         bool isRaidGroup() const;
         bool isBGGroup()   const;
-        bool isBAOGroup()   const;
+        bool isBAOGroup()  const;
+        bool isNodeGroup() const;
         bool IsCreated()   const;
         ObjectGuid GetLeaderGUID() const;
         ObjectGuid GetGUID() const;
@@ -246,6 +248,7 @@ class Group
 
         void SetBattlegroundGroup(Battleground* bg);
         void SetBattleAOGroup(BattleAO* bao);
+        void SetNodeGroup(NodeGroup* ng);
         GroupJoinBattlegroundResult CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot);
 
         void ChangeMembersGroup(ObjectGuid guid, uint8 group);
@@ -344,6 +347,7 @@ class Group
         Difficulty          m_raidDifficulty;
         Battleground*       m_bgGroup;
         BattleAO*           m_baoGroup;
+        NodeGroup*          m_nodeGroup;
         ObjectGuid          m_targetIcons[TARGETICONCOUNT];
         LootMethod          m_lootMethod;
         ItemQualities       m_lootThreshold;

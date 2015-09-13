@@ -1,9 +1,11 @@
 
 #include "NodeMgr.h"
+#include "MapManager.h"
+#include "Group.h"
 
 NodeMgr::NodeMgr()
 {
-    m_LastWaveTime = 0;
+    m_lastWaveTime = 0;
 }
 
 NodeMgr::~NodeMgr() { }
@@ -11,7 +13,7 @@ NodeMgr::~NodeMgr() { }
 void NodeMgr::InitNodes()
 {
     uint32 oldMSTime = getMSTime();
-    m_Nodes.clear();
+    m_nodes.clear();
 
     QueryResult result = WorldDatabase.Query("SELECT id, map, type, status, leadtype, faction, guild FROM nodes ORDER BY map ASC");
     if (!result)
@@ -21,22 +23,25 @@ void NodeMgr::InitNodes()
     }
 
     uint32 prevMapId = 0;
-    Map* curMap = sMapMgr->FindMap(0, 0);
+    Map* curMap = sMapMgr->CreateBaseMap(0);
     do {
         Field* fields = result->Fetch();
         uint32 curMapId = fields[1].GetUInt32();
         if (curMapId != prevMapId)
         {
-            curMap = sMapMgr->FindMap(curMapId, 0);
+            curMap = sMapMgr->CreateBaseMap(curMapId);
             prevMapId = curMapId;
         }
         if (!curMap)
+        {
+            TC_LOG_ERROR("sql.sql", "Can't spawn Node id %u on non-existent Map entry %u", fields[0].GetUInt32(), curMapId);
             continue;
+        }
 
-        m_Nodes[fields[0].GetUInt32()] = new Node(curMap, fields);
+        m_nodes[fields[0].GetUInt32()] = new Node(curMap, fields);
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %lu Nodes in %u ms", (unsigned long)m_Nodes.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %lu Nodes in %u ms", (unsigned long)m_nodes.size(), GetMSTimeDiffToNow(oldMSTime));
     oldMSTime = getMSTime();
     uint32 count = 0;
 
@@ -79,11 +84,13 @@ void NodeMgr::InitNodes()
         Field* fields = result->Fetch();
         if (AddNodeCreature(fields[0].GetUInt32(), fields[1].GetUInt32(), fields[2].GetUInt32()))
             count++;
+        else
+            TC_LOG_ERROR("sql.sql", "Can't spawn Creature guid %u for Node id %u", fields[0].GetUInt32(), fields[1].GetUInt32());
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u NodeCreatures in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
-    for (NodeMap::iterator itr = m_Nodes.begin(); itr != m_Nodes.end(); ++itr)
+    for (NodeMap::iterator itr = m_nodes.begin(); itr != m_nodes.end(); ++itr)
         itr->second->Load();
 }
 
@@ -138,25 +145,47 @@ void NodeMgr::AddNodeCreature(Creature* creature, Node* node, uint32 type)
     nodeCreature->Type = type;
 
     node->AddCreature(creature->GetGUIDLow(), nodeCreature);
-    m_NodeCreatures[creature->GetGUIDLow()] = nodeCreature;
+    m_nodeCreatures[creature->GetGUIDLow()] = nodeCreature;
 }
 
 void NodeMgr::RemoveNodeCreature(uint32 guid)
 {
     if (NodeCreature* nodeCreature = GetNodeCreatureByGuid(guid))
         nodeCreature->Node->RemoveCreature(guid);
-    m_NodeCreatures.erase(guid);
+    m_nodeCreatures.erase(guid);
 }
 
 void NodeMgr::Update(uint32 diff)
 {
     // Waves
-    m_LastWaveTime += diff;
-    if (m_LastWaveTime >= NODE_WAVE_INVERVAL)
+    m_lastWaveTime += diff;
+    if (m_lastWaveTime >= NODE_WAVE_INVERVAL)
     {
-        for (NodeMap::iterator itr = m_Nodes.begin(); itr != m_Nodes.end(); ++itr)
+        for (NodeMap::iterator itr = m_nodes.begin(); itr != m_nodes.end(); ++itr)
             if (Node* node = itr->second)
                 node->SendWaves();
-        m_LastWaveTime = 0;
+        m_lastWaveTime = 0;
     }
+
+    for (NodeBattleMap::iterator itr = m_nodeBattles.begin(); itr != m_nodeBattles.end(); ++itr)
+        itr->second->Update();
+}
+
+void NodeMgr::AddNodeGroup(Group* group, uint32 faction, uint32 guild)
+{
+    NodeGroup* nodeGroup = new NodeGroup;
+    nodeGroup->Group = group;
+    nodeGroup->Faction = faction;
+    nodeGroup->Guild = guild;
+    AddNodeGroup(nodeGroup);
+}
+
+void NodeMgr::AddNodeGroup(NodeGroup* nodeGroup)
+{
+    m_nodeGroups[nodeGroup->Group->GetGUID()] = nodeGroup;
+}
+
+void NodeMgr::RemoveNodeGroup(ObjectGuid guid)
+{
+    m_nodeGroups.erase(guid);
 }

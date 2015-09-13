@@ -1249,6 +1249,15 @@ void Guild::Disband()
     stmt->setUInt32(0, m_id);
     trans->Append(stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_RELATIONS);
+    stmt->setUInt32(0, m_id);
+    stmt->setUInt32(1, m_id);
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_FACTION_RELATIONS);
+    stmt->setUInt32(0, m_id);
+    trans->Append(stmt);
+
     CharacterDatabase.CommitTransaction(trans);
     sGuildMgr->RemoveGuild(m_id);
 }

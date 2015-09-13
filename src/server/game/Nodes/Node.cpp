@@ -7,16 +7,16 @@
 // Used in NodeMgr::InitNodes()
 Node::Node(Map* map, Field* fields)
 {
-    m_Id = fields[0].GetUInt32();
-    m_Map = map;
-    m_Type = fields[2].GetUInt32();
-    m_Status = fields[3].GetUInt32();
-    m_LeadType = fields[4].GetUInt32();
-    m_FactionId = fields[5].GetUInt32();
-    m_Faction = sFactionMgr->GetFactionById(m_FactionId); // NULL if dont exist or 0
-    m_GuildId = fields[6].GetUInt32();
-    m_Guild = sGuildMgr->GetGuildById(m_GuildId);
-    m_Relations.clear();
+    m_id = fields[0].GetUInt32();
+    m_map = map;
+    m_type = fields[2].GetUInt32();
+    m_status = fields[3].GetUInt32();
+    m_leadType = fields[4].GetUInt32();
+    m_factionId = fields[5].GetUInt32();
+    m_faction = sFactionMgr->GetFactionById(m_factionId); // NULL if dont exist or 0
+    m_guildId = fields[6].GetUInt32();
+    m_guild = sGuildMgr->GetGuildById(m_guildId);
+    m_relations.clear();
 }
 
 void Node::Load()
@@ -26,9 +26,9 @@ void Node::Load()
 
 void Node::Populate()
 {
-    FactionEntry const* factionEntry = m_Faction ? m_Faction->GetEntry() : NULL;
+    FactionEntry const* factionEntry = m_faction ? m_faction->GetEntry() : NULL;
 
-    for (NodeCreatureMap::iterator itr = m_Creatures.begin(); itr != m_Creatures.end(); ++itr)
+    for (NodeCreatureMap::iterator itr = m_creatures.begin(); itr != m_creatures.end(); ++itr)
         InitCreature(itr->second);
 }
 
@@ -36,25 +36,27 @@ void Node::InitCreature(NodeCreature* nodeCrea)
 {
     if (nodeCrea->Creature)
     {
-        if (m_Faction)
+        if (m_faction)
         {
-            if (0 < nodeCrea->Type && nodeCrea->Type < 4)
-                if (uint32 factionTemplate = m_Faction->GetEntry()->LinkedTemplates[nodeCrea->Type - 1])
+            if (nodeCrea->Type)
+            {
+                if (uint32 factionTemplate = m_faction->GetEntry()->LinkedTemplates[0 /*nodeCrea->Type - 1 */])
                     if (sDBCMgr->GetFactionTemplateEntry(factionTemplate))
                         nodeCrea->Creature->setFaction(factionTemplate);
+            }
         }
     }
 }
 
 void Node::AddCreature(uint32 guid, NodeCreature* nodeCreature)
 {
-    m_Creatures[guid] = nodeCreature;
+    m_creatures[guid] = nodeCreature;
     InitCreature(nodeCreature);
 }
 
 void Node::RemoveCreature(uint32 guid)
 {
-    m_Creatures.erase(guid);
+    m_creatures.erase(guid);
 }
 
 void Node::AddRelation(uint32 id, uint32 type, int32 hostile, uint32 path)
@@ -71,12 +73,12 @@ void Node::AddRelation(uint32 id, uint32 type, int32 hostile, uint32 path)
     relation->Type = type;
     relation->Hostile = hostile;
     relation->Path = path;
-    m_Relations[id] = relation;
+    m_relations[id] = relation;
 }
 
 void Node::SendWaves()
 {
-    for (NodeRelationMap::iterator itr = m_Relations.begin(); itr != m_Relations.end(); ++itr)
+    for (NodeRelationMap::iterator itr = m_relations.begin(); itr != m_relations.end(); ++itr)
         if (itr->second->Type == NODE_PEDESTRIAN && itr->second->Hostile == NODE_HOSTILE)
             SendWave(itr);
 }
@@ -84,4 +86,9 @@ void Node::SendWaves()
 void Node::SendWave(NodeRelationMap::iterator itr)
 {
     // todo, spawn commander + soldiers
+}
+
+void NodeBattle::Update()
+{
+
 }

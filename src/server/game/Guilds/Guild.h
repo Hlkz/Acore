@@ -279,6 +279,8 @@ typedef std::vector <GuildBankRightsAndSlots> GuildBankRightsAndSlotsVec;
 
 typedef std::set <uint8> SlotIds;
 
+typedef std::map <uint32, uint32> GuildRelationMap;
+
 class Guild
 {
 private:
@@ -738,6 +740,12 @@ public:
     void DeleteMember(ObjectGuid guid, bool isDisbanding = false, bool isKicked = false, bool canDeleteGuild = false);
     bool ChangeMemberRank(ObjectGuid guid, uint8 newRank);
 
+    // Guild relations
+    void ClearRelations() { m_relations.clear(); }
+    uint32 GetRelation(uint32 guild) { if (m_relations.find(guild) != m_relations.end()) return m_relations[guild]; return 0; }
+    void SetRelation(uint32 guild, uint32 type) { m_relations[guild] = type; }
+    void RemoveRelation(uint32 guild) { m_relations.erase(guild); }
+
     // Bank
     void SwapItems(Player* player, uint8 tabId, uint8 slotId, uint8 destTabId, uint8 destSlotId, uint32 splitedAmount);
     void SwapItemsWithInventory(Player* player, bool toChar, uint8 tabId, uint8 slotId, uint8 playerBag, uint8 playerSlotId, uint32 splitedAmount);
@@ -762,6 +770,7 @@ protected:
     Ranks m_ranks;
     Members m_members;
     BankTabs m_bankTabs;
+    GuildRelationMap m_relations;
 
     // These are actually ordered lists. The first element is the oldest entry.
     LogHolder* m_eventLog;

@@ -616,6 +616,31 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_SEL_TOP_RANK, "SELECT name, pvprank FROM characters WHERE pvprank > 0 ORDER BY pvptotal DESC LIMIT 10", CONNECTION_SYNCH);
     PrepareStatement(CHAR_SEL_RANKS_INFO, "SELECT pvprank, pvptotal, pvplast FROM characters WHERE guid = ?", CONNECTION_SYNCH);
 
+    //factions
+    PrepareStatement(CHAR_UPD_FACTION_RELATIONS, "UPDATE faction_relations fr "
+                     "INNER JOIN (SELECT c.faction, cr.faction AS relation, SUM(cr.standing) AS memberStanding, COUNT(cr.standing) AS memberCount FROM characters c, character_reputation cr "
+                     "WHERE c.faction AND c.logout_time > ? AND c.guid = cr.guid AND c.faction != cr.faction GROUP BY c.faction, cr.faction) r "
+                     "ON fr.faction=r.faction AND fr.relation=r.relation SET fr.memberStanding = r.memberStanding, fr.memberCount = r.memberCount, "
+                     "fr.standing = (r.memberStanding + fr.baseStanding * fr.baseCount) / (r.memberCount + fr.baseCount)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_FACTION_RELATION, "UPDATE faction_relations fr "
+                     "INNER JOIN (SELECT c.faction, cr.faction AS relation, SUM(cr.standing) AS memberStanding, COUNT(cr.standing) AS memberCount FROM characters c, character_reputation cr "
+                     "WHERE c.faction AND c.logout_time > ? AND c.guid = cr.guid AND c.faction = ? GROUP BY cr.faction) r "
+                     "ON fr.faction=r.faction AND fr.relation=r.relation SET fr.memberStanding = r.memberStanding, fr.memberCount = r.memberCount, "
+                     "fr.standing = (r.memberStanding + fr.baseStanding * fr.baseCount) / (r.memberCount + fr.baseCount)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_FACTION_RELATION, "INSERT INTO faction_relations (faction, relation) VALUES (?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_FACTION_GUILD_RELATIONS, "UPDATE faction_guild_relations fg INNER JOIN (SELECT cr.faction, gm.guildid, SUM(cr.standing) AS memberStanding, COUNT(cr.standing) AS memberCount "
+                     "FROM guild_member gm, character_reputation cr WHERE gm.guid = cr.guid GROUP BY cr.faction, gm.guildid) r ON fg.faction = r.faction AND fg.guildid = r.guildid "
+                     "SET fg.memberStanding = r.memberStanding, fg.memberCount = r.memberCount, fg.standing = (r.memberStanding / r.memberCount)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_FACTION_GUILD_RELATION, "UPDATE faction_guild_relations fg INNER JOIN (SELECT cr.faction, gm.guildid, SUM(cr.standing) AS memberStanding, COUNT(cr.standing) AS memberCount "
+                     "FROM guild_member gm, character_reputation cr WHERE gm.guid = cr.guid AND guildid = ? GROUP BY cr.faction) r ON fg.faction = r.faction AND fg.guildid = r.guildid "
+                     "SET fg.memberStanding = r.memberStanding, fg.memberCount = r.memberCount, fg.standing = (r.memberStanding / r.memberCount)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_FACTION_GUILD_RELATION, "INSERT INTO faction_guild_relations (faction, guildid) VALUES (?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_GUILD_RELATION, "INSERT INTO guild_relations (guildid, relation, type) VALUES (?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_GUILD_RELATION, "UPDATE guild_relations SET type = ? WHERE guildid = ? AND relation = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_GUILD_RELATION, "DELETE FROM guild_relations WHERE guildid = ? AND relation = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_GUILD_RELATIONS, "DELETE FROM guild_relations WHERE guildid = ? OR relation = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_GUILD_FACTION_RELATIONS, "DELETE FROM faction_guild_relations WHERE guildid = ?", CONNECTION_ASYNC);
+
     //stats
     PrepareStatement(CHAR_SEL_CHAR_STATS, "SELECT * FROM character_stats WHERE guid = ? AND type = ?", CONNECTION_SYNCH);
     PrepareStatement(CHAR_DEL_CHAR_STATS, "DELETE FROM character_stats WHERE guid = ? AND type = ?", CONNECTION_ASYNC);

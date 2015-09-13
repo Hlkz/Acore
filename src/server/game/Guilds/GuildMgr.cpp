@@ -17,6 +17,7 @@
 
 #include "Common.h"
 #include "GuildMgr.h"
+#include "FactionMgr.h"
 
 GuildMgr::GuildMgr() : NextGuildId(1)
 { }
@@ -35,6 +36,59 @@ void GuildMgr::AddGuild(Guild* guild)
 void GuildMgr::RemoveGuild(uint32 guildId)
 {
     GuildStore.erase(guildId);
+}
+
+void GuildMgr::SetGuildRelation(Guild* guild, Guild* relation, uint32 type)
+{
+    if (guild->GetId() > relation->GetId())
+    {
+        SetGuildRelation(relation, guild, type);
+        return;
+    }
+
+    uint32 exist = guild->GetRelation(relation->GetId());
+    if ((!exist && type) || guild == relation)
+        return;
+
+    uint32 firstId = guild->GetId();
+    uint32 secondId = relation->GetId();
+
+    if (!exist && type)
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GUILD_RELATION);
+        stmt->setUInt32(0, firstId);
+        stmt->setUInt32(1, secondId);
+        stmt->setUInt32(2, type);
+        CharacterDatabase.Execute(stmt);
+        guild->SetRelation(relation->GetId(), type);
+        relation->SetRelation(guild->GetId(), type);
+    }
+    else if (exist && type)
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_RELATION);
+        stmt->setUInt32(0, type);
+        stmt->setUInt32(1, firstId);
+        stmt->setUInt32(2, secondId);
+        CharacterDatabase.Execute(stmt);
+        guild->SetRelation(relation->GetId(), type);
+        relation->SetRelation(guild->GetId(), type);
+    }
+    else if (exist && !type)
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_RELATION);
+        stmt->setUInt32(0, firstId);
+        stmt->setUInt32(1, secondId);
+        CharacterDatabase.Execute(stmt);
+        guild->RemoveRelation(relation->GetId());
+        relation->RemoveRelation(guild->GetId());
+    }
+}
+
+void GuildMgr::CheckGuildRelations(Faction* faction)
+{
+    for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
+        if (!faction->GetGuildRelation(itr->first))
+            faction->AddEmptyGuildRelation(itr->second);
 }
 
 uint32 GuildMgr::GenerateGuildId()
@@ -200,6 +254,44 @@ void GuildMgr::LoadGuilds()
             while (result->NextRow());
 
             TC_LOG_INFO("server.loading", ">> Loaded %u guild members in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        }
+    }
+
+    // 3.5 Load relations between guilds
+    TC_LOG_INFO("server.loading", "Loading guild relations...");
+    {
+        uint32 oldMSTime = getMSTime();
+
+        for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
+            itr->second->ClearRelations();
+
+        CharacterDatabase.DirectExecute("DELETE FROM guild_relations WHERE guildid >= relation OR !type");
+        QueryResult result = CharacterDatabase.Query("SELECT guildid, relation, type FROM guild_relations ORDER BY guildid ASC");
+
+        if (!result)
+            TC_LOG_INFO("server.loading", ">> Loaded 0 guild relation. DB table `guild_relations` is empty.");
+        else
+        {
+            uint32 count = 0;
+
+            do
+            {
+                Field* fields = result->Fetch();
+                uint32 guildId      = fields[0].GetUInt32();
+                uint32 relationId   = fields[1].GetUInt32();
+                uint32 type         = fields[2].GetUInt32();
+
+                Guild* guild = GetGuildById(guildId);
+                Guild* relation = GetGuildById(relationId);
+                if (guild && relation)
+                {
+                    guild->SetRelation(relation->GetId(), type);
+                    relation->SetRelation(guild->GetId(), type);
+                }
+                ++count;
+            } while (result->NextRow());
+
+            TC_LOG_INFO("server.loading", ">> Loaded %u guild relations in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
 
