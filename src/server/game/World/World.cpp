@@ -2872,10 +2872,8 @@ void World::DailyReset()
             itr->second->GetPlayer()->SetRandomWinner(false);
 
     // reset bg/arena daily win
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    PreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_UPD_RESET_WIN_DAY);
-    trans->Append(stmt2);
-    CharacterDatabase.CommitTransaction(trans);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_RESET_WIN_DAY);
+    CharacterDatabase.Execute(stmt);
 
     m_NextDailyReset = time_t(m_NextDailyReset + DAY);
     sWorld->setWorldState(WS_DAILY_RESET_TIME, uint64(m_NextDailyReset));

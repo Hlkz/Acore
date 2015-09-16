@@ -809,11 +809,11 @@ void ArenaTeam::MemberWon(Player* player, uint32 againstMatchmakerRating, int32 
             CharacterDatabase.CommitTransaction(trans);
             SaveToDB();
             uint32 aw = player->GetArenaWin();
-            if (aw<=2)
-                player->SetPvpLast(player->GetPvpLast()+PvpPointByAW[aw]);
+            if (aw <= 2)
+                player->SetPvpLast(player->GetPvpLast() + PvpPointByAW[aw]);
             else
-                player->SetPvpLast(player->GetPvpLast()+2);
-            player->SetArenaWin(aw+1);
+                player->SetPvpLast(player->GetPvpLast() + 2);
+            player->SetArenaWin(aw + 1);
 
             // update unit fields
             player->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_WEEK, itr->WeekGames);

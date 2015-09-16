@@ -1,6 +1,8 @@
+#include "ScriptMgr.h"
 #include "Chat.h"
 #include "Language.h"
-#include "ScriptMgr.h"
+#include "ObjectMgr.h"
+#include "Player.h"
 
 /* player.h
 const uint32 PvpRankTitle[6][2] =
@@ -14,24 +16,42 @@ const uint32 PvpRankTitle[6][2] =
 };
 */
 
-uint32 PvpPointsFloor[6] =
+enum PvpRanks
 {
-    200, // rank 1
-    500, // rank 2
-    750, // rank 3
-    880, // rank 4
-    1000, // rank 5
-    1100,  // rank 6
+    PVPRANK_NONE        = 0,
+    PVPRANK_SCOUT       = 1,
+    PVPRANK_PRIVATE     = 2,
+    PVPRANK_WARMONGER   = 3,
+    PVPRANK_COMMANDER   = 4,
+    PVPRANK_GENERAL     = 5,
+    PVPRANK_MARSHAL     = 6,
+    PVPRANK_WARLORD     = 7,
+    PVPRANK_LEGEND      = 8,
+    PVPRANK_MAX         = 8
 };
 
-const uint32 PvpRankEff[6] =
+uint32 PvpPointsFloor[PVPRANK_MAX] =
 {
-    200, // rank 1
-    20, // rank 2
-    8, // rank 3
-    5, // rank 4
-    3, // rank 5
-    1  // rank 6
+    50, // Scout
+    150, // Private
+    250, // Warmonger
+    350, // Commander
+    500, // General
+    700,  // Marshal
+    1000, // Warlord
+    2800, // Legend
+};
+
+const uint32 PvpRankEff[PVPRANK_MAX] =
+{
+    3000000, // Scout
+    1000000, // Private
+    300, // Warmonger
+    100, // Commander
+    30, // General
+    10,  // Marshal
+    3, // Warlord
+    1, // Legend
 };
 
 void World::UpdateRanksText()
@@ -84,56 +104,17 @@ bool World::DistributeRanks()
 {
     sWorld->SendWorldText(LANG_DIST_RANKS_START);
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PVP_ALL); // 0guid, 1pvprank, 2pvptotal, 3pvplast
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+    // Update pvppoints from pvptotal and pvplast
+    CharacterDatabase.DirectExecute("UPDATE characters SET pvppoints = FLOOR(pvptotal / 6 + pvplast), pvptotal = pvptotal + pvplast, pvplast = 0 "
+                                    "WHERE pvprank > 0 OR pvptotal > 0 OR pvplast > 0");
+    // promote (pvprank) if enough pvppoints
+    for (uint32 i = 0; i < PVPRANK_MAX; i++)
+        CharacterDatabase.DirectPExecute("UPDATE characters SET pvprank = pvprank + (pvppoints > '%d') WHERE pvprank = '%d'", PvpPointsFloor[i], i);
+    // demote the worst if the pvprank is full
+    for (uint32 i = PVPRANK_MAX; i > 0; i--)
+        CharacterDatabase.DirectPExecute("UPDATE characters SET pvprank = pvprank - 1 WHERE pvprank = '%d' AND pvppoints < (SELECT MIN(pvppoints) "
+                                         "FROM (SELECT pvppoints FROM characters WHERE pvprank = '%d' ORDER BY pvppoints DESC LIMIT %d) AS t)", i, i, PvpRankEff[i - 1]);
 
-    if (!result)
-        return false;
-
-    int8 i = 0;
-    do {
-        uint64 guid = result->Fetch()[i, 0].GetUInt64();
-        uint32 rank = result->Fetch()[i, 1].GetUInt32();
-        uint32 total = result->Fetch()[i, 2].GetUInt32();
-        uint32 last = result->Fetch()[i, 3].GetUInt32();
-        int32 points = floor(10*sqrt((float)total/10)+last);
-
-        SQLTransaction trans2 = CharacterDatabase.BeginTransaction();
-        PreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PVP_POINTS);
-        stmt2->setUInt32(0, (uint32)points > PvpPointsFloor[rank] && rank != 6);
-        stmt2->setUInt32(1, points);
-        stmt2->setUInt64(2, guid);
-        trans2->Append(stmt2);
-        CharacterDatabase.CommitTransaction(trans2);
-
-        ++i;
-    }
-    while (result->NextRow());
-
-    for (uint32 rankId = 6; rankId = 0; rankId--)
-    {
-        PreparedStatement* stmt3 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PLA_BY_RANK);
-        stmt3->setUInt32(0, rankId);
-        stmt3->setUInt32(0, rankId-1);
-        PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-        if (!result)
-            continue;
-
-        uint8 i = 0;
-        do {
-            uint64 guid = result->Fetch()[i].GetUInt64();
-            SQLTransaction trans4 = CharacterDatabase.BeginTransaction();
-            PreparedStatement* stmt4 = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PVP_RANK);
-            stmt4->setUInt32(0, rankId);
-            stmt4->setUInt32(1, i>=PvpRankEff[rankId-1]);
-            stmt4->setUInt64(2, guid);
-            trans4->Append(stmt4);
-            CharacterDatabase.CommitTransaction(trans4);
-            ++i;
-        }
-        while (result->NextRow());
-    }
     sWorld->SendWorldText(LANG_DIST_RANKS_TITLEACH);
 
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
