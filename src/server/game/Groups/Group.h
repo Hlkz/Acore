@@ -249,6 +249,7 @@ class Group
         void SetBattlegroundGroup(Battleground* bg);
         void SetBattleAOGroup(BattleAO* bao);
         void SetNodeGroup(NodeGroup* ng);
+        NodeGroup* ToNodeGroup() { return m_nodeGroup; }
         GroupJoinBattlegroundResult CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot);
 
         void ChangeMembersGroup(ObjectGuid guid, uint8 group);

@@ -2164,6 +2164,49 @@ void World::SendZoneText(uint32 zone, const char* text, WorldSession* self, uint
     SendZoneMessage(zone, &data, self, team);
 }
 
+void World::SendZoneSound(uint32 zone, uint32 soundId)
+{
+    WorldPacket data(SMSG_PLAY_SOUND, 4);
+    data << uint32(soundId);
+    SendZoneMessage(zone, &data);
+}
+
+/// Send a packet to all players (or players selected team) in the zone (except self if mentioned)
+bool World::SendZoneLocMessage(uint32 zone, std::map<uint8, WorldPacket*> packets, WorldSession* self, uint32 team)
+{
+    bool foundPlayerToSend = false;
+    SessionMap::const_iterator itr;
+
+    for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+    {
+        if (itr->second &&
+            itr->second->GetPlayer() &&
+            itr->second->GetPlayer()->IsInWorld() &&
+            itr->second->GetPlayer()->GetZoneId() == zone &&
+            itr->second != self &&
+            (team == 0 || itr->second->GetPlayer()->GetTeam() == team))
+        {
+            itr->second->SendPacket(packets[itr->second->GetSessionDbcLocale()]);
+            foundPlayerToSend = true;
+        }
+    }
+
+    return foundPlayerToSend;
+}
+
+/// Send a System Message to all players in the zone (except self if mentioned)
+void World::SendZoneLocText(uint32 zone, LocString text, WorldSession* self, uint32 team)
+{
+    std::map<uint8, WorldPacket*> packets;
+    for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
+    {
+        WorldPacket data;
+        ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, text[i]);
+        packets[i] = &data;
+    }
+    SendZoneLocMessage(zone, packets, self, team);
+}
+
 /// Kick (and save) all players
 void World::KickAll()
 {

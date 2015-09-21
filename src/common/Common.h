@@ -127,6 +127,16 @@ const uint8 TOTAL_LOCALES = 9;
 
 extern char const* localeNames[TOTAL_LOCALES];
 
+struct LocString : std::map<uint8, std::string>
+{
+    LocString() { }
+    LocString(std::string str) { for (uint8 i = 0; i < TOTAL_LOCALES; ++i) insert(std::pair<uint8, std::string>(i, str)); }
+    LocString(const char* c_str) { std::string str(c_str); for (uint8 i = 0; i < TOTAL_LOCALES; ++i) insert(std::pair<uint8, std::string>(i, str)); }
+    //LocString() { std::string str(); for (uint8 i = 0; i < TOTAL_LOCALES; ++i) insert(std::pair<uint8, std::string>(i, str)); }
+    //LocString(const LocString&) = delete;             //disable copy-constructor
+    //LocString& operator=(const LocString&) = delete;  //disable copy-assignment
+};
+
 LocaleConstant GetLocaleByName(const std::string& name);
 
 typedef std::vector<std::string> StringVector;

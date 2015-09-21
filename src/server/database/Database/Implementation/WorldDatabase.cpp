@@ -108,6 +108,10 @@ void WorldDatabaseConnection::DoPrepareStatements()
     PrepareStatement(WORLD_SEL_SPELLDBC_SIZE, "SELECT Entry FROM spelldbc ORDER BY Entry DESC LIMIT 1", CONNECTION_SYNCH);
     PrepareStatement(WORLD_UPD_CREATURE_ZONE_AREA_DATA, "UPDATE creature SET zoneId = ?, areaId = ? WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_UPD_GAMEOBJECT_ZONE_AREA_DATA, "UPDATE gameobject SET zoneId = ?, areaId = ? WHERE guid = ?", CONNECTION_ASYNC);
+
+    // Nodes
+    PrepareStatement(WORLD_UPD_NODE_STATUS, "UPDATE nodes SET status = ? WHERE id = ?", CONNECTION_ASYNC);
+    PrepareStatement(WORLD_UPD_NODE_STATUS_OWNER, "UPDATE nodes SET status = ?, faction = ?, guild = ? WHERE id = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_DEL_NODE_CREATURE, "DELETE FROM node_creatures WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_INS_NODE_CREATURE, "INSERT INTO node_creatures (guid, node, type) VALUES (?, ?, ?)", CONNECTION_ASYNC);
 }

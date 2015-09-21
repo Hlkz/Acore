@@ -1,4 +1,6 @@
 
+#include "Common.h"
+#include "DBCStores.h"
 #include "FactionMgr.h"
 #include "GuildMgr.h"
 
@@ -16,10 +18,10 @@ enum NodeType
 
 enum NodeStatus
 {
-    NODE_AT_PEACE, // Guild | Faction | FactionGuild
-    NODE_OCCUPIED, // Guild | Faction | FactionGuild
-    NODE_AT_WAR,   // vs FactionEnnemies
-    NODE_CONTESTED
+    NODE_AT_PEACE,  // Guild | Faction
+    NODE_TAKEN,     // Guild | Faction
+    NODE_ATTACKED,
+    NODE_NEUTRAL
 };
 
 enum NodeLeadType
@@ -34,12 +36,68 @@ enum NodeLeadType
     NODE_LEAD_FACTION_IN_GUILD
 };
 
+enum NodeAttackFlags
+{
+    NODE_ATTACK_IMMUNE,
+    NODE_ATTACK_OFFICIAL,
+    NODE_ATTACK_PICKUP,
+    NODE_ATTACK_COMMANDER
+};
+
+enum NodeLooseType
+{
+    NODE_LOOSE_IMMUNE,
+    NODE_LOOSE_BY_CREATURE_KILLED,
+    NODE_LOOSE_BY_GUARD_KILLED,
+    NODE_LOOSE_BY_ACE,
+    NODE_LOOSE_BY_BASE_ATTACK
+};
+
+enum NodeCaptureType
+{
+    NODE_CAPTURE_IMMUNE,
+    NODE_CAPTURE_BY_TRIGGER,
+    NODE_CAPTURE_BY_AREA,
+    NODE_CAPTURE_BY_BASE,
+    NODE_CAPTURE_BY_MULTI_BASE
+};
+
+enum NodeRelationLink
+{
+    NODE_LINK_DETACHED      = 0,
+    NODE_LINK_PEDESTRIAN    = 1
+};
+
+enum NodeRelationRep
+{
+    NODE_REP_EXALTED    = -2,
+    NODE_REP_HONORED    = -1,
+    NODE_REP_NEUTRAL    = 0,
+    NODE_REP_HOSTILE    = 1,
+    NODE_REP_HATED      = 2
+};
+
+enum NodeBannerStatus
+{
+    NODE_BANNER_NEUTRAL,
+    NODE_BANNER_CONTESTED,
+    NODE_BANNER_TAKEN,
+    NODE_BANNER_MAX
+};
+
+enum NodeObjectId
+{
+    NODE_OBJECTID_BANNER_CONTESTED  = 180114,
+    NODE_OBJECTID_BANNER_ATTACKED   = 180118,
+    NODE_OBJECTID_BANNER_TAKEN      = 180117
+};
+
 class Node;
 struct NodeCreature
 {
     Creature* Creature;
     Node* Node;
-    uint32 Type;
+    uint32 Type; // unused for now
 };
 struct NodeRelation
 {
@@ -50,6 +108,7 @@ struct NodeRelation
 };
 
 typedef std::map<ObjectGuid, Player*> PlayerMap;
+typedef std::map<uint32, PlayerMap> NodeFactionPlayersMap;
 typedef std::map<uint32, Guild*> GuildMap;
 struct NodeBattleFaction
 {
@@ -74,10 +133,24 @@ typedef std::map<uint32, NodeBattleFaction*> NodeBattleFactionMap;
 typedef std::map<uint32, NodeBattleGuild*> NodeBattleGuildMap;
 typedef std::map<ObjectGuid, NodeGroup*> NodeGroupMap;
 
-class Faction;
 typedef std::map<uint32, Node*> NodeMap;
 typedef std::map<uint32, NodeCreature*> NodeCreatureMap;
 typedef std::map<uint32, NodeRelation*> NodeRelationMap;
+typedef std::map<uint32, GameObject*> NodeBannerObjectMap;
+struct NodeBanner
+{
+    Node* Node;
+    uint32 Index;
+    uint32 Status;
+    uint32 FactionId;
+    uint32 GuildId;
+    NodeBannerObjectMap Objects;
+    uint32 Timer;
+    uint32 SpawnTimer;
+    GameObject* GeGameObject(uint32 status) { NodeBannerObjectMap::iterator itr = Objects.find(status); if (itr != Objects.end()) return itr->second; return NULL; }
+};
+typedef std::map<uint32, NodeBanner*> NodeBannerMap;
+typedef std::map<ObjectGuid, NodeBanner*> NodeAllBannerMap;
 
 class Node
 {
@@ -90,6 +163,18 @@ class Node
         void Load();
         void Populate();
         void InitCreature(NodeCreature* nodeCrea);
+
+        void Update(uint32 diff);
+
+        uint32 GetId() { return m_id; }
+        void SetStatus(uint32 status);
+        bool SetStatusOwner(uint32 status, uint32 factionId, uint32 guildId = 0);
+        //std::string GetName() { return sDBCMgr->->sDBCMgr->GetAreaEntry(m_areaId)->; }
+
+        void GotDefended(); // Attacked to AtPeace
+        void GotAttacked(); // AtPeace/Taken/Contested to Attacked
+        void GotTaken(uint32 factionId, uint32 guildId = 0);    // Attacked to Taken
+        void GotPacified(); // Taken to AtPeace
 
         void AttackNode(Node* node);
         void StopAttackNode(Node* node);
@@ -112,11 +197,22 @@ class Node
         void SendWaves();
         void SendWave(NodeRelationMap::iterator itr);
 
+        void HandleKilledCreature(NodeCreature* victim);
+
         Map* GetMap() { return m_map; };
+
+        // Banner system
+        GameObject* AddBanner(uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime = 0, GOState goState = GO_STATE_READY);
+        void CreateBanner(NodeBanner* banner, bool delay = false);
+        void SpawnBanner(NodeBanner* banner, uint32 respawntime, uint8 incrStatus = 0);
+        void DelBanner(NodeBanner* banner, uint8 incrStatus = 0) { SpawnBanner(banner, 86400, incrStatus); }
+        void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj);
 
     private:
         uint32 m_id;
         Map* m_map;
+        uint32 m_areaId;
+        uint32 m_zoneId;
         uint32 m_type;
         uint32 m_status;
         uint32 m_leadType;
@@ -124,12 +220,28 @@ class Node
         Faction* m_faction;
         uint32 m_guildId;
         Guild* m_guild;
+        LocString m_name;
+
+        int32 m_attackFlags;
+        uint32 m_looseType;
+        int32 m_looseData;
+        uint32 m_captureType;
+        int32 m_captureData1;
+        int32 m_captureData2;
+
+		NodeFactionPlayersMap m_players;
+		NodeGroupMap m_groups;
+		NodeBattleFactionMap m_factions;
+		NodeBattleGuildMap m_guilds;
 
         Creature* m_base;
         CommanderMap m_commanders;
         uint32 m_flags;
         NodeCreatureMap m_creatures;
         NodeRelationMap m_relations;
+        NodeBannerMap m_banners;
+
+        uint32 m_justDiedCount;
 };
 
 class NodeBattle

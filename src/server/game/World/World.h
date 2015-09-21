@@ -571,6 +571,9 @@ class World
         void SendGlobalGMMessage(WorldPacket* packet, WorldSession* self = nullptr, uint32 team = 0);
         bool SendZoneMessage(uint32 zone, WorldPacket* packet, WorldSession* self = nullptr, uint32 team = 0);
         void SendZoneText(uint32 zone, const char *text, WorldSession* self = nullptr, uint32 team = 0);
+        bool SendZoneLocMessage(uint32 zone, std::map<uint8, WorldPacket*> packets, WorldSession* self = nullptr, uint32 team = 0);
+        void SendZoneLocText(uint32 zone, LocString text, WorldSession* self = nullptr, uint32 team = 0);
+        void SendZoneSound(uint32 zone, uint32 soundId);
 
         /// Are we in the middle of a shutdown?
         bool IsShuttingDown() const { return m_ShutdownTimer > 0; }

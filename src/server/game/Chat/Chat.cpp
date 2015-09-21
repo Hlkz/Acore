@@ -32,6 +32,23 @@
 #include "ScriptMgr.h"
 #include "ChatLink.h"
 
+namespace Trinity
+{
+
+LocString FormatLocString(LocString base, LocString arg1, LocString arg2, LocString arg3, LocString arg4)
+{
+    LocString locString;
+    for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
+    {
+        char buffer[2048];
+        snprintf(buffer, 2048, base[i].c_str(), arg1[i].c_str(), arg2[i].c_str(), arg3[i].c_str(), arg4[i].c_str());
+        locString[i] = buffer;
+    }
+    return locString;
+}
+
+} //namespace Trinity
+
 bool ChatHandler::load_command_table = true;
 
 // get number of commands in table

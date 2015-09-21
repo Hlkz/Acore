@@ -37,6 +37,7 @@
 #include "Log.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
+#include "NodeMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -15442,6 +15443,10 @@ void Unit::Kill(Unit* victim)
                 bg->HandleKillUnit(victim->ToCreature(), player);
         }
     }
+
+    if (Creature* creatureVictim = victim->ToCreature())
+        if (NodeCreature* nodeCreature = sNodeMgr->GetNodeCreatureByGuid(creatureVictim->GetGUIDLow()))
+            nodeCreature->Node->HandleKilledCreature(nodeCreature);
 
     if (player && sBattleAOMgr->GetBattleAO()->HasPlayer(player))
         if (victim->GetTypeId() == TYPEID_PLAYER)

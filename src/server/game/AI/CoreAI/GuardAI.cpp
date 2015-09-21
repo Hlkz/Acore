@@ -66,6 +66,6 @@ void GuardAI::EnterEvadeMode()
 
 void GuardAI::JustDied(Unit* killer)
 {
-    if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
-        me->SendZoneUnderAttackMessage(player);
+    //if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
+    //    me->SendZoneUnderAttackMessage(player);
 }

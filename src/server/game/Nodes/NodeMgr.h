@@ -7,22 +7,8 @@
 
 enum NodeTimeIntervals
 {
-    NODE_WAVE_INVERVAL = 10000      // ms
-};
-
-enum NodeTypeTypeTypeType
-{
-    NODE_DETACHED       = 0,
-    NODE_PEDESTRIAN     = 1
-};
-
-enum NodeHostile
-{
-    NODE_EXALTED    = -2,
-    NODE_HONORED    = -1,
-    NODE_NEUTRAL    =  0,
-    NODE_HOSTILE    =  1,
-    NODE_HATED      =  2
+    NODE_DECR_JUSTDIED_INVERVAL = 120000,
+    NODE_WAVE_INVERVAL          = 10000      // ms
 };
 
 class NodeMgr
@@ -49,6 +35,8 @@ class NodeMgr
         void AddNodeCreature(Creature* creature, Node* node, uint32 type);
         void RemoveNodeCreature(uint32 guid);
 
+        NodeBanner* GetNodeBannerByGuid(ObjectGuid guid) { for (NodeAllBannerMap::iterator itr = m_nodeBanners.begin(); itr != m_nodeBanners.end(); ++itr) if (itr->first == guid) return itr->second; return NULL; }
+
         //NodeGroup* GetNodeGroupByGuid(ObjectGuid guid) { for (NodeGroup::iterator itr = m_nodeGroup.begin(); itr != m_nodeGroup.end(); ++itr) if (itr->first == guid) return itr->second; return NULL; }
         void AddNodeGroup(Group* group, uint32 faction, uint32 guild);
         void AddNodeGroup(NodeGroup* nodeGroup);
@@ -59,11 +47,12 @@ class NodeMgr
         NodeCreatureMap m_nodeCreatures;
         NodeGroupMap m_nodeGroups;
 
+        NodeAllBannerMap m_nodeBanners;
+
         NodeBattleMap m_nodeBattles;
 
+        time_t m_justDiedCountResetTime;
         time_t m_lastWaveTime;
-
-
 };
 
 #define sNodeMgr NodeMgr::instance()

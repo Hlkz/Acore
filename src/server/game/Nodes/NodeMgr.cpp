@@ -5,6 +5,7 @@
 
 NodeMgr::NodeMgr()
 {
+    m_justDiedCountResetTime = 0;
     m_lastWaveTime = 0;
 }
 
@@ -15,7 +16,8 @@ void NodeMgr::InitNodes()
     uint32 oldMSTime = getMSTime();
     m_nodes.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT id, map, type, status, leadtype, faction, guild FROM nodes ORDER BY map ASC");
+    QueryResult result = WorldDatabase.Query("SELECT id, map, type, status, leadtype, faction, guild, name, name_loc2, area, "
+                                             "attackFlags, looseType, looseData, captureType, captureData1, captureData2 FROM nodes ORDER BY map ASC");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 Nodes. DB table `nodes` is empty.");
@@ -70,6 +72,53 @@ void NodeMgr::InitNodes()
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u NodeRelations in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    oldMSTime = getMSTime();
+    count = 0;
+
+    result = WorldDatabase.Query("SELECT node, id, position_x, position_y, position_z, position_o, rotation0, rotation1, rotation2, rotation3 FROM node_banners ORDER BY node ASC");
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 NodeBanner. DB table `node_banners` is empty.");
+        return;
+    }
+
+    prevNodeId = 0;
+    curNode = NULL;
+    do {
+        Field* fields = result->Fetch();
+        uint32 curNodeId = fields[0].GetUInt32();
+        if (curNodeId != prevNodeId)
+        {
+            curNode = GetNodeById(fields[0].GetUInt32());
+            prevNodeId = curNodeId;
+        }
+        if (!curNode)
+            continue;
+
+        NodeBanner* banner = new NodeBanner;
+        banner->Node = curNode;
+        banner->Index = fields[1].GetUInt32();
+        banner->Status = NODE_BANNER_TAKEN;
+        banner->FactionId = curNode->m_factionId;
+        banner->GuildId = curNode->m_guildId;
+        banner->Timer = 0;
+        banner->SpawnTimer = 0;
+        banner->Objects.clear();
+        for (uint32 i = 0; i < NODE_BANNER_MAX; ++i)
+            if (GameObject* go = curNode->AddBanner(NODE_OBJECTID_BANNER_CONTESTED + i, fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat(), fields[5].GetFloat(),
+                                                    fields[6].GetFloat(), fields[7].GetFloat(), fields[8].GetFloat(), fields[9].GetFloat(), 86400))
+            {
+                banner->Objects[i] = go;
+                m_nodeBanners[go->GetGUID()] = banner;
+            }
+            else
+                TC_LOG_ERROR("sql.sql", "NodeMgr::InitNodes cannot add banner gameobject index %u status %u to node %u", banner->Index, i, curNode->GetId());
+        curNode->m_banners[banner->Index] = banner;
+
+        count++;
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u NodeBanners in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     oldMSTime = getMSTime();
     count = 0;
 
@@ -157,6 +206,19 @@ void NodeMgr::RemoveNodeCreature(uint32 guid)
 
 void NodeMgr::Update(uint32 diff)
 {
+    for (NodeMap::iterator itr = m_nodes.begin(); itr != m_nodes.end(); ++itr)
+        itr->second->Update(diff);
+
+    m_justDiedCountResetTime += diff;
+    if (m_justDiedCountResetTime >= NODE_DECR_JUSTDIED_INVERVAL)
+    {
+        for (NodeMap::iterator itr = m_nodes.begin(); itr != m_nodes.end(); ++itr)
+            if (Node* node = itr->second)
+                if (node->m_justDiedCount > 0)
+                    node->m_justDiedCount--;
+        m_justDiedCountResetTime = 0;
+    }
+
     // Waves
     m_lastWaveTime += diff;
     if (m_lastWaveTime >= NODE_WAVE_INVERVAL)

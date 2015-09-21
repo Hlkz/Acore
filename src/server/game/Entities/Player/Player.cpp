@@ -54,6 +54,7 @@
 #include "Language.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "NodeMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -6705,6 +6706,27 @@ void Player::SetFaction(uint32 faction)
 void Player::ResetFaction()
 {
     SetFaction(FACTION_PLAYER);
+}
+
+void Player::GetFactionInBattle(uint32 &factionId, uint32 &guildId)
+{
+    if (Group* group = GetGroup())
+        if (NodeGroup* nodeGroup = group->ToNodeGroup())
+        {
+            factionId = nodeGroup->Faction;
+            guildId = nodeGroup->Guild;
+            return;
+        }
+
+    if (GetGuildId())
+    {
+        factionId = 0;
+        guildId = GetGuildId();
+        return;
+    }
+
+    factionId = GetFaction();
+    guildId = 0;
 }
 
 uint32 Player::TeamForRace(uint8 race)

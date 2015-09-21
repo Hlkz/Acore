@@ -67,6 +67,8 @@ namespace Trinity
             Language _language;
             WorldObject const* _target;
     };
+
+    LocString FormatLocString(LocString base, LocString arg1, LocString arg2 = LocString(), LocString arg3 = LocString(), LocString arg4 = LocString());
 }
 // namespace Trinity
 

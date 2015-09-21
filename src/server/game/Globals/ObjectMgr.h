@@ -1193,6 +1193,7 @@ class ObjectMgr
                 return nullptr;
             return &itr->second;
         }
+        LocString GetTrinityLocString(uint32 entry) const;
         char const* GetTrinityString(uint32 entry, LocaleConstant locale) const;
         char const* GetTrinityStringForDBCLocale(uint32 entry) const { return GetTrinityString(entry, DBCLocaleIndex); }
         LocaleConstant GetDBCLocaleIndex() const { return DBCLocaleIndex; }

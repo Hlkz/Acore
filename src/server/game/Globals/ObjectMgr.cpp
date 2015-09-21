@@ -7859,6 +7859,21 @@ bool ObjectMgr::LoadTrinityStrings()
     return true;
 }
 
+LocString ObjectMgr::GetTrinityLocString(uint32 entry) const
+{
+    if (TrinityString const* ts = GetTrinityString(entry))
+    {
+        LocString locString;
+        for (uint8 locale = 0; locale < TOTAL_LOCALES; ++locale)
+            if (ts->Content.size() > size_t(locale) && !ts->Content[locale].empty())
+                locString[locale] = ts->Content[locale];
+        return locString;
+    }
+
+    TC_LOG_ERROR("sql.sql", "Trinity string entry %u not found in DB.", entry);
+    return "<error>";
+}
+
 char const* ObjectMgr::GetTrinityString(uint32 entry, LocaleConstant locale) const
 {
     if (TrinityString const* ts = GetTrinityString(entry))
