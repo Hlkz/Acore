@@ -115,6 +115,9 @@ int32 ReputationMgr::GetReputation(FactionEntry const* factionEntry) const
 
 uint32 ReputationMgr::GetPlayerFactionTemplate(uint32 factionId)
 {
+    if (factionId == 3 || factionId == 35)
+        return factionId;
+
     uint32 templateId = FACTION_PLAYER; // PLAYER Faction = PLAYER FactionTemplate
 
     switch (factionId)

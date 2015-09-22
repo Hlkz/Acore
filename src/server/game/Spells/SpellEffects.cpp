@@ -42,6 +42,7 @@
 #include "Battleground.h"
 #include "BattlegroundEY.h"
 #include "BattlegroundWS.h"
+#include "NodeMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "Language.h"
 #include "SocialMgr.h"
@@ -1974,6 +1975,11 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
                 bg->EventPlayerClickedOnFlag(player, gameObjTarget);
                 return;
             }
+            if (NodeBanner* banner = sNodeMgr->GetNodeBannerByGuid(gameObjTarget->GetGUID()))
+            {
+                banner->Node->EventPlayerClickedOnFlag(player, gameObjTarget, banner);
+                return;
+            }
             //if (player->GetMapId() == BATTLEAO_MAP) // Arathi system
             //    if (BattleAO* bao = sBattleAOMgr->GetBattleAO())
             //        bao->EventPlayerClickedOnFlag(player, gameObjTarget);
@@ -1987,6 +1993,11 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
             {
                 if (bg->GetTypeID(true) == BATTLEGROUND_EY)
                     bg->EventPlayerClickedOnFlag(player, gameObjTarget);
+                return;
+            }
+            if (NodeBanner* banner = sNodeMgr->GetNodeBannerByGuid(gameObjTarget->GetGUID()))
+            {
+                banner->Node->EventPlayerClickedOnFlag(player, gameObjTarget, banner);
                 return;
             }
         }

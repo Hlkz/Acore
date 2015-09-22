@@ -24,6 +24,7 @@
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "GroupMgr.h"
+#include "NodeMgr.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "PoolMgr.h"
@@ -1017,6 +1018,8 @@ void GameObject::Respawn()
 {
     if (m_spawnedByDefault && m_respawnTime > 0)
     {
+        if (sNodeMgr->GetNodeBannerByGuid(GetGUID()))
+            return;
         m_respawnTime = time(NULL);
         GetMap()->RemoveGORespawnTime(m_DBTableGuid);
     }
@@ -1635,6 +1638,17 @@ void GameObject::Use(Unit* user)
 
             Player* player = user->ToPlayer();
 
+            if (NodeBanner* banner = sNodeMgr->CanUseNodeBanner(player, this))
+            {
+                if (player->GetVehicle())
+                    return;
+
+                player->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
+                player->RemoveAurasByType(SPELL_AURA_MOD_INVISIBILITY);
+                // BG flag click
+                banner->Node->EventPlayerClickedOnFlag(player, this, banner);
+                return;                                     //we don;t need to delete flag ... it is despawned!
+            }
             if (player->CanUseBattlegroundObject(this))
             {
                 // in battleground check
@@ -1679,7 +1693,20 @@ void GameObject::Use(Unit* user)
 
             Player* player = user->ToPlayer();
 
-            if (player->CanUseBattlegroundObject(this))
+            if (NodeBanner* banner = sNodeMgr->CanUseNodeBanner(player, this))
+            {
+                if (player->GetVehicle())
+                    return;
+
+                player->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
+                player->RemoveAurasByType(SPELL_AURA_MOD_INVISIBILITY);
+                // BG flag dropped
+                banner->Node->EventPlayerClickedOnFlag(player, this, banner);
+                //this cause to call return, all flags must be deleted here!!
+                spellId = 0;
+                Delete();
+            }
+            else if (player->CanUseBattlegroundObject(this))
             {
                 // in battleground check
                 Battleground* bg = player->GetBattleground();
@@ -2267,6 +2294,9 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
                 if ((goFlags & GO_FLAG_CANTA2 && target->GetTeam() == ALLIANCE) || (goFlags & GO_FLAG_CANTH2 && target->GetTeam() == HORDE)
                     || (goFlags & GO_FLAG_CANTNEUTRAL && target->GetTeam() != ALLIANCE && target->GetTeam() != HORDE))
                     goFlags |= GO_FLAG_NOT_SELECTABLE;
+                if (NodeBanner* banner = sNodeMgr->GetNodeBannerByGuid(GetGUID()))
+                    if (!sNodeMgr->CanUseNodeBanner(target, this, banner))
+                        goFlags |= GO_FLAG_NOT_SELECTABLE;
 
                 fieldBuffer << goFlags;
             }

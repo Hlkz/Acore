@@ -5,12 +5,6 @@
 #include "Common.h"
 #include "Node.h"
 
-enum NodeTimeIntervals
-{
-    NODE_DECR_JUSTDIED_INVERVAL = 120000,
-    NODE_WAVE_INVERVAL          = 10000      // ms
-};
-
 class NodeMgr
 {
     private:
@@ -27,6 +21,7 @@ class NodeMgr
         void Update(uint32 diff);
 
         void InitNodes();
+        void LoadNode(uint32 nodeId);
         Node* GetNodeById(uint32 id) { for (NodeMap::iterator itr = m_nodes.begin(); itr != m_nodes.end(); ++itr) if (itr->first == id) return itr->second; return NULL; }
 
         NodeCreature* GetNodeCreatureByGuid(uint32 guid) { for (NodeCreatureMap::iterator itr = m_nodeCreatures.begin(); itr != m_nodeCreatures.end(); ++itr) if (itr->first == guid) return itr->second; return NULL; }
@@ -36,9 +31,10 @@ class NodeMgr
         void RemoveNodeCreature(uint32 guid);
 
         NodeBanner* GetNodeBannerByGuid(ObjectGuid guid) { for (NodeAllBannerMap::iterator itr = m_nodeBanners.begin(); itr != m_nodeBanners.end(); ++itr) if (itr->first == guid) return itr->second; return NULL; }
+        NodeBanner* CanUseNodeBanner(Player* player, const GameObject* target_obj, NodeBanner* banner = nullptr);
 
         //NodeGroup* GetNodeGroupByGuid(ObjectGuid guid) { for (NodeGroup::iterator itr = m_nodeGroup.begin(); itr != m_nodeGroup.end(); ++itr) if (itr->first == guid) return itr->second; return NULL; }
-        void AddNodeGroup(Group* group, uint32 faction, uint32 guild);
+        NodeGroup* AddNodeGroup(Group* group, uint32 faction, uint32 guild, Node* node);
         void AddNodeGroup(NodeGroup* nodeGroup);
         void RemoveNodeGroup(ObjectGuid guid);
 

@@ -1,4 +1,5 @@
 
+#include "Battleground.h"
 #include "NodeMgr.h"
 #include "MapManager.h"
 #include "Group.h"
@@ -105,7 +106,7 @@ void NodeMgr::InitNodes()
         banner->SpawnTimer = 0;
         banner->Objects.clear();
         for (uint32 i = 0; i < NODE_BANNER_MAX; ++i)
-            if (GameObject* go = curNode->AddBanner(NODE_OBJECTID_BANNER_CONTESTED + i, fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat(), fields[5].GetFloat(),
+            if (GameObject* go = curNode->AddBanner(NodeObjectId[i], fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat(), fields[5].GetFloat(),
                                                     fields[6].GetFloat(), fields[7].GetFloat(), fields[8].GetFloat(), fields[9].GetFloat(), 86400))
             {
                 banner->Objects[i] = go;
@@ -140,7 +141,86 @@ void NodeMgr::InitNodes()
     TC_LOG_INFO("server.loading", ">> Loaded %u NodeCreatures in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
     for (NodeMap::iterator itr = m_nodes.begin(); itr != m_nodes.end(); ++itr)
-        itr->second->Load();
+        itr->second->Reset();
+}
+
+void NodeMgr::LoadNode(uint32 nodeId)
+{
+    uint32 oldMSTime = getMSTime();
+    m_nodes.clear();
+
+    QueryResult result = WorldDatabase.PQuery("SELECT id, map, type, status, leadtype, faction, guild, name, name_loc2, area, "
+                                             "attackFlags, looseType, looseData, captureType, captureData1, captureData2 FROM nodes WHERE id = '%d'", nodeId);
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> NodeMgr::LoadNode - Node id %u does not exist.", nodeId);
+        return;
+    }
+
+    Field* fields = result->Fetch();
+    Node* node = GetNodeById(nodeId);
+
+    if (!node)
+    {
+        if (Map* map = sMapMgr->CreateBaseMap(fields[1].GetUInt32()))
+        {
+            m_nodes[fields[0].GetUInt32()] = new Node(map, fields);
+        }
+    }
+    else
+        node->Load(fields);
+
+    node = GetNodeById(nodeId);
+    if (!node)
+        return;
+
+    result = WorldDatabase.PQuery("SELECT node, relation, type, hostile, path FROM node_relations WHERE node = '%d'", nodeId);
+    if (result)
+    {
+        do {
+            Field* fields = result->Fetch();
+            node->AddRelation(fields[1].GetUInt32(), fields[2].GetUInt32(), fields[3].GetInt32(), fields[4].GetUInt32());
+        } while (result->NextRow());
+    }
+
+    result = WorldDatabase.PQuery("SELECT node, id, position_x, position_y, position_z, position_o, rotation0, rotation1, rotation2, rotation3 FROM node_banners WHERE node = '%d'", nodeId);
+    if (result)
+    {
+        do {
+            Field* fields = result->Fetch();
+            NodeBanner* banner = new NodeBanner;
+            banner->Node = node;
+            banner->Index = fields[1].GetUInt32();
+            banner->Status = NODE_BANNER_TAKEN;
+            banner->FactionId = node->m_factionId;
+            banner->GuildId = node->m_guildId;
+            banner->Timer = 0;
+            banner->SpawnTimer = 0;
+            banner->Objects.clear();
+            for (uint32 i = 0; i < NODE_BANNER_MAX; ++i)
+                if (GameObject* go = node->AddBanner(NodeObjectId[i], fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat(), fields[5].GetFloat(),
+                                                        fields[6].GetFloat(), fields[7].GetFloat(), fields[8].GetFloat(), fields[9].GetFloat(), 86400))
+                {
+                    banner->Objects[i] = go;
+                    m_nodeBanners[go->GetGUID()] = banner;
+                }
+                else
+                    TC_LOG_ERROR("sql.sql", "NodeMgr::InitNodes cannot add banner gameobject index %u status %u to node %u", banner->Index, i, node->GetId());
+            node->m_banners[banner->Index] = banner;
+        } while (result->NextRow());
+    }
+
+    result = WorldDatabase.PQuery("SELECT guid, node, type FROM node_creatures WHERE node = '%d'", nodeId);
+    if (result)
+    {
+        do {
+            Field* fields = result->Fetch();
+            if (!AddNodeCreature(fields[0].GetUInt32(), fields[1].GetUInt32(), fields[2].GetUInt32()))
+                TC_LOG_ERROR("sql.sql", "Can't spawn Creature guid %u for Node id %u", fields[0].GetUInt32(), fields[1].GetUInt32());
+        } while (result->NextRow());
+    }
+
+    node->Reset();
 }
 
 void NodeMgr::SetCreatureNode(uint32 guid, uint32 node, uint32 type)
@@ -233,13 +313,15 @@ void NodeMgr::Update(uint32 diff)
         itr->second->Update();
 }
 
-void NodeMgr::AddNodeGroup(Group* group, uint32 faction, uint32 guild)
+NodeGroup* NodeMgr::AddNodeGroup(Group* group, uint32 faction, uint32 guild, Node* node)
 {
     NodeGroup* nodeGroup = new NodeGroup;
     nodeGroup->Group = group;
     nodeGroup->Faction = faction;
     nodeGroup->Guild = guild;
+    nodeGroup->Node = node;
     AddNodeGroup(nodeGroup);
+    return nodeGroup;
 }
 
 void NodeMgr::AddNodeGroup(NodeGroup* nodeGroup)
@@ -250,4 +332,37 @@ void NodeMgr::AddNodeGroup(NodeGroup* nodeGroup)
 void NodeMgr::RemoveNodeGroup(ObjectGuid guid)
 {
     m_nodeGroups.erase(guid);
+}
+
+NodeBanner* NodeMgr::CanUseNodeBanner(Player* player, const GameObject* target_obj, NodeBanner* banner)
+{
+    if (!banner)
+        banner = GetNodeBannerByGuid(target_obj->GetGUID());
+    if (!banner)
+        return NULL;
+
+    uint32 factionId = 0;
+    uint32 guildId = 0;
+    player->GetFactionInBattle(factionId, guildId);
+
+    if (!factionId && !guildId)
+        return NULL;
+
+    Node* node = banner->Node;
+
+    if (node->m_status == NODE_ATTACKED)
+    {
+        if (node->m_captureType == NODE_CAPTURE_BY_BASE || node->m_captureType == NODE_CAPTURE_BY_MULTI_BASE)
+            if (factionId == banner->FactionId && guildId == banner->GuildId)
+                return NULL;
+    }
+    else
+        return NULL;
+
+    if (!player->isTotalImmune() &&                            // Damage immune
+        !player->HasAura(SPELL_RECENTLY_DROPPED_FLAG) &&       // Still has recently held flag debuff
+        player->IsAlive())                                     // Alive
+        return banner;
+    else
+        return NULL;
 }

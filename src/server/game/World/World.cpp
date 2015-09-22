@@ -2198,11 +2198,11 @@ bool World::SendZoneLocMessage(uint32 zone, std::map<uint8, WorldPacket*> packet
 void World::SendZoneLocText(uint32 zone, LocString text, WorldSession* self, uint32 team)
 {
     std::map<uint8, WorldPacket*> packets;
+    WorldPacket data[TOTAL_LOCALES];
     for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
     {
-        WorldPacket data;
-        ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, text[i]);
-        packets[i] = &data;
+        ChatHandler::BuildChatPacket(data[i], CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, text[i]);
+        packets[i] = &data[i];
     }
     SendZoneLocMessage(zone, packets, self, team);
 }

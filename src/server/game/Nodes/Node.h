@@ -18,10 +18,20 @@ enum NodeType
 
 enum NodeStatus
 {
-    NODE_AT_PEACE,  // Guild | Faction
+    NODE_NEUTRAL,
+    NODE_ATTACKED,  // Guild | Faction
     NODE_TAKEN,     // Guild | Faction
-    NODE_ATTACKED,
-    NODE_NEUTRAL
+    NODE_AT_PEACE,  // Guild | Faction
+};
+
+enum NodeTransition
+{
+    NODE_TRANS_NONE,
+    NODE_TRANS_ATTACK,
+    NODE_TRANS_CAPTURE,
+    NODE_TRANS_PACIFY,
+    NODE_TRANS_DEFEND,
+    NODE_TRANS_LOOSE
 };
 
 enum NodeLeadType
@@ -62,6 +72,13 @@ enum NodeCaptureType
     NODE_CAPTURE_BY_MULTI_BASE
 };
 
+enum NodeTimeIntervals
+{                               // ms
+    NODE_BANNER_CAPTURING_TIME  = 60000,
+    NODE_DECR_JUSTDIED_INVERVAL = 120000,
+    NODE_WAVE_INVERVAL          = 10000 
+};
+
 enum NodeRelationLink
 {
     NODE_LINK_DETACHED      = 0,
@@ -85,12 +102,7 @@ enum NodeBannerStatus
     NODE_BANNER_MAX
 };
 
-enum NodeObjectId
-{
-    NODE_OBJECTID_BANNER_CONTESTED  = 180114,
-    NODE_OBJECTID_BANNER_ATTACKED   = 180118,
-    NODE_OBJECTID_BANNER_TAKEN      = 180117
-};
+const uint32 NodeObjectId[NODE_BANNER_MAX] = { 180119, 180120, 180121 };
 
 class Node;
 struct NodeCreature
@@ -160,21 +172,21 @@ class Node
         Node(Map* map, Field* fields);
         ~Node() { }
 
-        void Load();
+        void Load(Field* fields);
+        void Reset();
         void Populate();
         void InitCreature(NodeCreature* nodeCrea);
 
         void Update(uint32 diff);
 
         uint32 GetId() { return m_id; }
-        void SetStatus(uint32 status);
-        bool SetStatusOwner(uint32 status, uint32 factionId, uint32 guildId = 0);
+        uint32 GetStatus() { return m_status; };
+        void SetStatus(uint32 status, uint32 trans, uint32 factionId, uint32 guildId);
+        void SetStatus(uint32 status, uint32 trans = 0) { SetStatus(status, trans, m_factionId, m_guildId); }
+        void setStatus(uint32 status);
+        bool GetOwner(uint32 &factionId, uint32 guildId) { factionId = m_factionId; guildId = m_guildId; return factionId || guildId; }
+        bool setStatusOwner(uint32 status, uint32 factionId, uint32 guildId = 0);
         //std::string GetName() { return sDBCMgr->->sDBCMgr->GetAreaEntry(m_areaId)->; }
-
-        void GotDefended(); // Attacked to AtPeace
-        void GotAttacked(); // AtPeace/Taken/Contested to Attacked
-        void GotTaken(uint32 factionId, uint32 guildId = 0);    // Attacked to Taken
-        void GotPacified(); // Taken to AtPeace
 
         void AttackNode(Node* node);
         void StopAttackNode(Node* node);
@@ -202,11 +214,12 @@ class Node
         Map* GetMap() { return m_map; };
 
         // Banner system
+        NodeBanner* GetBanner(uint32 index) { for (NodeBannerMap::iterator itr = m_banners.begin(); itr != m_banners.end(); ++itr) if (itr->first == index) return itr->second; return NULL; }
         GameObject* AddBanner(uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime = 0, GOState goState = GO_STATE_READY);
         void CreateBanner(NodeBanner* banner, bool delay = false);
         void SpawnBanner(NodeBanner* banner, uint32 respawntime, uint8 incrStatus = 0);
         void DelBanner(NodeBanner* banner, uint8 incrStatus = 0) { SpawnBanner(banner, 86400, incrStatus); }
-        void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj);
+        void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj, NodeBanner* banner);
 
     private:
         uint32 m_id;

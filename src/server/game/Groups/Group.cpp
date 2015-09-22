@@ -30,6 +30,7 @@
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
 #include "MapManager.h"
+#include "NodeMgr.h"
 #include "InstanceSaveMgr.h"
 #include "Util.h"
 #include "LFGMgr.h"
@@ -265,6 +266,24 @@ void Group::ConvertToRaid()
             player->UpdateForQuestWorldObjects();
 }
 
+void Group::ConvertToNodeGroup(uint32 factionId, uint32 guildId, Node* node)
+{
+    NodeGroup* nodeGroup = sNodeMgr->AddNodeGroup(this, factionId, guildId, node);
+    if (!nodeGroup)
+        return;
+
+    SetNodeGroup(nodeGroup);
+
+    if (!isRaidGroup())
+        ConvertToRaid();
+    else
+        SendUpdate();
+
+    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
+        if (Player* player = ObjectAccessor::FindPlayer(citr->guid))
+            player->UpdateTriggerVisibility();
+}
+
 bool Group::AddInvite(Player* player)
 {
     if (!player || player->GetGroupInvite())
@@ -479,6 +498,9 @@ bool Group::AddMember(Player* player)
     if (m_maxEnchantingLevel < player->GetSkillValue(SKILL_ENCHANTING))
         m_maxEnchantingLevel = player->GetSkillValue(SKILL_ENCHANTING);
 
+    if (isNodeGroup())
+        player->UpdateTriggerVisibility();
+
     return true;
 }
 
@@ -511,6 +533,8 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
 
                 // quest related GO state dependent from raid membership
                 player->UpdateForQuestWorldObjects();
+                if (isNodeGroup())
+                    player->UpdateTriggerVisibility();
             }
 
             WorldPacket data;

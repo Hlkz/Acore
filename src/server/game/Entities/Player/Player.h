@@ -2015,9 +2015,9 @@ class Player : public Unit, public GridObject<Player>
 
         void CheckAreaExploreAndOutdoor(void);
 
-        void SetFaction(uint32 faction);
+        void SetFaction(uint32 factionId);
         void ResetFaction();
-        uint32 GetFaction() const { return m_faction; }
+        uint32 GetFaction() const { return m_factionId; }
         void GetFactionInBattle(uint32 &factionId, uint32 &guildId);
         static uint32 TeamForRace(uint8 race);
         TeamId GetTeamId() const { return GetTeam() == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
@@ -2573,7 +2573,7 @@ class Player : public Unit, public GridObject<Player>
         void outDebugValues() const;
         ObjectGuid m_lootGuid;
 
-        uint32 m_faction;
+        uint32 m_factionId;
         uint32 m_team;
         uint32 m_nextSave;
         time_t m_speakTime;

@@ -27,6 +27,7 @@
 
 class BattleAO;
 class Battleground;
+class Node;
 struct NodeGroup;
 class Creature;
 class InstanceSave;
@@ -245,6 +246,7 @@ class Group
 
         void ConvertToLFG();
         void ConvertToRaid();
+        void ConvertToNodeGroup(uint32 factionId, uint32 guildId, Node* node);
 
         void SetBattlegroundGroup(Battleground* bg);
         void SetBattleAOGroup(BattleAO* bao);

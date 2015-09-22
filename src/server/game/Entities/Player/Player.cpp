@@ -906,7 +906,7 @@ Player::Player(WorldSession* session): Unit(true)
     m_achievementMgr = new AchievementMgr(this);
     m_reputationMgr = new ReputationMgr(this);
 
-    m_faction = FACTION_PLAYER;
+    m_factionId = FACTION_PLAYER;
 
     m_ClmSlotid = 0;
     m_ClmSlty = 0;
@@ -6695,12 +6695,24 @@ void Player::CheckAreaExploreAndOutdoor()
     }
 }
 
-void Player::SetFaction(uint32 faction)
+void Player::SetFaction(uint32 factionId)
 {
-    m_faction = faction;
-    setFaction(GetReputationMgr().GetPlayerFactionTemplate(faction));
+    Faction* faction = sFactionMgr->GetFactionById(factionId);
+    if (!faction && factionId != 3 && factionId != 35)
+        return;
+
+    m_factionId = factionId;
+    setFaction(GetReputationMgr().GetPlayerFactionTemplate(factionId));
+    UpdateTriggerVisibility();
     //ForceValuesUpdateAtIndex(UNIT_FIELD_BYTES_2); // do we need that?
     //ForceValuesUpdateAtIndex(UNIT_FIELD_FACTIONTEMPLATE);
+    if (faction)
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_FACTION);
+        stmt->setUInt8(0, factionId);
+        stmt->setUInt32(1, GetGUID().GetCounter());
+        CharacterDatabase.Execute(stmt);
+    }
 }
 
 void Player::ResetFaction()
@@ -6725,7 +6737,8 @@ void Player::GetFactionInBattle(uint32 &factionId, uint32 &guildId)
         return;
     }
 
-    factionId = GetFaction();
+    if (Faction* faction = sFactionMgr->GetFactionById(GetFaction()))
+        factionId = GetFaction();
     guildId = 0;
 }
 
@@ -16643,16 +16656,16 @@ bool Player::IsLoading() const
 
 bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 {
-    ////                                                     0     1        2     3     4        5      6    7      8     9           10              11
+    ////                                                     0     1        2     3     4      5       6      7   8      9            10            11
     //QueryResult* result = CharacterDatabase.PQuery("SELECT guid, account, name, race, class, gender, level, xp, money, playerBytes, playerBytes2, playerFlags, "
-     // 12          13          14          15   16           17        18        19         20         21          22           23                 24
+    // 12          13          14          15   16           17         18        19         20         21          22           23                 24
     //"position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, "
-    // 25                 26       27       28       29       30         31           32             33        34    35      36                 37         38
+    // 25                 26       27       28       29       30         31           32            33        34    35      36                 37         38
     //"resettalents_time, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, instance_mode_mask, "
     // 39           40                41                 42                    43          44          45              46           47               48              49
     //"arenaPoints, totalHonorPoints, todayHonorPoints, yesterdayHonorPoints, totalKills, todayKills, yesterdayKills, chosenTitle, knownCurrencies, watchedFaction, drunk, "
-    // 50      51      52      53      54      55      56      57      58           59                 60                 61             62              63      64           65          66
-    //"health, power1, power2, power3, power4, power5, power6, power7, instance_id, talentGroupsCount, activeTalentGroup, exploredZones, equipmentCache, ammoId, knownTitles, actionBars, grantableLevels FROM characters WHERE guid = '%u'", guid);
+    // 50      51      52      53      54      55      56      57      58           59                 60                 61             62              63      64           65          66               67
+    //"health, power1, power2, power3, power4, power5, power6, power7, instance_id, talentGroupsCount, activeTalentGroup, exploredZones, equipmentCache, ammoId, knownTitles, actionBars, grantableLevels, faction FROM characters WHERE guid = '%u'", guid);
     PreparedQueryResult result = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_FROM);
     if (!result)
     {
@@ -16726,7 +16739,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     SetFakeRaceAndMorph(); // m_team must be set before this can be used.
     setFactionForRace(GetORace());//Need to call it to initialize m_team (m_team can be calculated from race)
 
-    ResetFaction();
+    //ResetFaction();
+    SetFaction(fields[67].GetUInt32());
 
     SetUInt32Value(UNIT_FIELD_LEVEL, fields[6].GetUInt8());
     SetUInt32Value(PLAYER_XP, fields[7].GetUInt32());
