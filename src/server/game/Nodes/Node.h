@@ -228,14 +228,13 @@ class Node
         uint32 m_zoneId;
         uint32 m_type;
         uint32 m_status;
-        uint32 m_leadType;
         uint32 m_factionId;
         Faction* m_faction;
         uint32 m_guildId;
         Guild* m_guild;
         LocString m_name;
 
-        int32 m_attackFlags;
+        int32 m_flags;
         uint32 m_looseType;
         int32 m_looseData;
         uint32 m_captureType;
@@ -249,7 +248,6 @@ class Node
 
         Creature* m_base;
         CommanderMap m_commanders;
-        uint32 m_flags;
         NodeCreatureMap m_creatures;
         NodeRelationMap m_relations;
         NodeBannerMap m_banners;

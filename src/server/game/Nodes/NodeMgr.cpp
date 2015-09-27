@@ -17,8 +17,8 @@ void NodeMgr::InitNodes()
     uint32 oldMSTime = getMSTime();
     m_nodes.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT id, map, type, status, leadtype, faction, guild, name, name_loc2, area, "
-                                             "attackFlags, looseType, looseData, captureType, captureData1, captureData2 FROM nodes ORDER BY map ASC");
+    QueryResult result = WorldDatabase.Query("SELECT id, map, type, status, faction, guild, name, name_loc2, area, "
+                                             "flags, looseType, looseData, captureType, captureData1, captureData2 FROM nodes ORDER BY map ASC");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 Nodes. DB table `nodes` is empty.");
@@ -149,8 +149,8 @@ void NodeMgr::LoadNode(uint32 nodeId)
     uint32 oldMSTime = getMSTime();
     m_nodes.clear();
 
-    QueryResult result = WorldDatabase.PQuery("SELECT id, map, type, status, leadtype, faction, guild, name, name_loc2, area, "
-                                             "attackFlags, looseType, looseData, captureType, captureData1, captureData2 FROM nodes WHERE id = '%d'", nodeId);
+    QueryResult result = WorldDatabase.PQuery("SELECT id, map, type, status, faction, guild, name, name_loc2, area, "
+                                             "flags, looseType, looseData, captureType, captureData1, captureData2 FROM nodes WHERE id = '%d'", nodeId);
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> NodeMgr::LoadNode - Node id %u does not exist.", nodeId);

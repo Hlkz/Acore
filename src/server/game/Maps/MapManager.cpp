@@ -147,7 +147,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     if (player->IsGameMaster())
         return true;
 
-    char const* mapName = entry->name[player->GetSession()->GetSessionDbcLocale()];
+    char const* mapName = entry->Name[player->GetSession()->GetSessionDbcLocale()].c_str();
 
     Group* group = player->GetGroup();
     if (entry->IsRaid())

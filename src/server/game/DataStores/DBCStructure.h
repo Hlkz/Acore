@@ -1275,7 +1275,7 @@ struct MapEntry
     uint32  map_type;                                       // 2
     uint32  Flags;                                          // 3
                                                             // 4 0 or 1 for battlegrounds (not arenas)
-    char*   name[16];                                       // 5-20
+    LocString Name;                                         // 5-20
                                                             // 21 name flags, unused
     uint32  linked_zone;                                    // 22 common zone for instance and continent map
     //char*     hordeIntro[16];                             // 23-38 text for PvP Zones

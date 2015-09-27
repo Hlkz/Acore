@@ -6720,7 +6720,7 @@ void Player::ResetFaction()
     SetFaction(FACTION_PLAYER);
 }
 
-void Player::GetFactionInBattle(uint32 &factionId, uint32 &guildId)
+void Player::GetFactionInBattle(uint32 &factionId, uint32 &guildId, bool pickUp)
 {
     if (Group* group = GetGroup())
         if (NodeGroup* nodeGroup = group->ToNodeGroup())
@@ -6729,6 +6729,13 @@ void Player::GetFactionInBattle(uint32 &factionId, uint32 &guildId)
             guildId = nodeGroup->Guild;
             return;
         }
+
+    if (!pickUp)
+    {
+        factionId = 0;
+        guildId = 0;
+        return;
+    }
 
     if (GetGuildId())
     {
@@ -18225,7 +18232,7 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
             bool deleteInstance = false;
 
             MapEntry const* mapEntry = sDBCMgr->GetMapEntry(mapId);
-            std::string mapname = mapEntry ? mapEntry->name[sWorld->GetDefaultDbcLocale()] : "Unknown";
+            std::string mapname = mapEntry ? mapEntry->Name[sWorld->GetDefaultDbcLocale()] : "Unknown";
 
             if (!mapEntry || !mapEntry->IsDungeon())
             {

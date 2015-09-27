@@ -2513,10 +2513,7 @@ void DBCMgr::LoadMapStore()
         newMap->MapID = fields[0].GetUInt32();
         newMap->map_type = fields[1].GetUInt32();
         newMap->Flags = fields[2].GetUInt32();
-        for (uint8 i = 0; i < 16; i++)
-            newMap->name[i] = NULL;
-        newMap->name[0] = (char*)fields[3].GetCString();
-        newMap->name[2] = (char*)fields[4].GetCString();
+        newMap->Name = LocString(fields[3].GetString(), fields[4].GetString());
         newMap->linked_zone = fields[5].GetUInt32();
         newMap->multimap_id = fields[6].GetUInt32();
         newMap->entrance_map = fields[7].GetInt32();

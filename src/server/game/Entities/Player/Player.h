@@ -2018,7 +2018,7 @@ class Player : public Unit, public GridObject<Player>
         void SetFaction(uint32 factionId);
         void ResetFaction();
         uint32 GetFaction() const { return m_factionId; }
-        void GetFactionInBattle(uint32 &factionId, uint32 &guildId);
+        void GetFactionInBattle(uint32 &factionId, uint32 &guildId, bool pickUp = false);
         static uint32 TeamForRace(uint8 race);
         TeamId GetTeamId() const { return GetTeam() == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
         // void SetTeam(uint32 team, bool todb = false);

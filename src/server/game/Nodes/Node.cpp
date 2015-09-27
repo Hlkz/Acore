@@ -16,10 +16,9 @@ Node::Node(Map* map, Field* fields)
     m_map = map;
     m_type = fields[2].GetUInt32();
     m_status = fields[3].GetUInt32();
-    m_leadType = fields[4].GetUInt32();
-    m_factionId = fields[5].GetUInt32();
+    m_factionId = fields[4].GetUInt32();
     m_faction = sFactionMgr->GetFactionById(m_factionId); // NULL if dont exist or 0
-    m_guildId = fields[6].GetUInt32();
+    m_guildId = fields[5].GetUInt32();
     m_guild = sGuildMgr->GetGuildById(m_guildId); // NULL if dont exist or 0
 
     Load(fields);
@@ -27,19 +26,19 @@ Node::Node(Map* map, Field* fields)
 
 void Node::Load(Field* fields)
 {
-    m_name = LocString(fields[7].GetString());
-    m_name[2] = fields[8].GetString();
-    m_areaId = fields[9].GetUInt32();
+    m_name = LocString(fields[6].GetString());
+    m_name[2] = fields[7].GetString();
+    m_areaId = fields[8].GetUInt32();
     m_zoneId = 0;
     if (const AreaTableEntry* area = sDBCMgr->GetAreaTableEntry(m_areaId))
         m_zoneId = area->zone;
 
-    m_attackFlags = fields[10].GetInt32();
-    m_looseType = fields[11].GetUInt32();
-    m_looseData = fields[12].GetInt32();
-    m_captureType = fields[13].GetUInt32();
-    m_captureData1 = fields[14].GetInt32();
-    m_captureData2 = fields[15].GetInt32();
+    m_flags = fields[9].GetInt32();
+    m_looseType = fields[10].GetUInt32();
+    m_looseData = fields[11].GetInt32();
+    m_captureType = fields[12].GetUInt32();
+    m_captureData1 = fields[13].GetInt32();
+    m_captureData2 = fields[14].GetInt32();
 
     m_banners.clear();
     m_creatures.clear();

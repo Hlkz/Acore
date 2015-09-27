@@ -130,8 +130,15 @@ extern char const* localeNames[TOTAL_LOCALES];
 struct LocString : std::map<uint8, std::string>
 {
     LocString() { }
-    LocString(std::string str) { for (uint8 i = 0; i < TOTAL_LOCALES; ++i) insert(std::pair<uint8, std::string>(i, str)); }
-    LocString(const char* c_str) { std::string str(c_str); for (uint8 i = 0; i < TOTAL_LOCALES; ++i) insert(std::pair<uint8, std::string>(i, str)); }
+    mapped_type& operator[] (const key_type& k) { return (*((insert(make_pair(k, mapped_type()))).first)).second;  }
+    mapped_type& operator[] (key_type&& k) { return (*((insert(make_pair(k, mapped_type()))).first)).second; }
+    mapped_type operator[] (const key_type& k) const { LocString::const_iterator itr = find(k); if (itr != end()) return itr->second; return mapped_type(); }
+    LocString(std::string str) { insert(std::pair<uint8, std::string>(LOCALE_enUS, str)); insert(std::pair<uint8, std::string>(LOCALE_frFR, str)); }
+    LocString(const char* c_str) { insert(std::pair<uint8, std::string>(LOCALE_enUS, c_str)); insert(std::pair<uint8, std::string>(LOCALE_frFR, c_str)); }
+    LocString(std::string str, std::string str_loc2) { insert(std::pair<uint8, std::string>(LOCALE_enUS, str)); insert(std::pair<uint8, std::string>(LOCALE_frFR, str_loc2)); }
+    LocString(const char* c_str, const char* c_str_loc2) { insert(std::pair<uint8, std::string>(LOCALE_enUS, c_str)); insert(std::pair<uint8, std::string>(LOCALE_frFR, c_str_loc2)); }
+    //LocString(std::string str) { for (uint8 i = 0; i < TOTAL_LOCALES; ++i) insert(std::pair<uint8, std::string>(i, str)); }
+    //LocString(const char* c_str) { std::string str(c_str); for (uint8 i = 0; i < TOTAL_LOCALES; ++i) insert(std::pair<uint8, std::string>(i, str)); }
     //LocString() { std::string str(); for (uint8 i = 0; i < TOTAL_LOCALES; ++i) insert(std::pair<uint8, std::string>(i, str)); }
     //LocString(const LocString&) = delete;             //disable copy-constructor
     //LocString& operator=(const LocString&) = delete;  //disable copy-assignment

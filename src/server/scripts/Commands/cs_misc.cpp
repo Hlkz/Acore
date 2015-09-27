@@ -231,7 +231,7 @@ public:
         char const* unknown = handler->GetTrinityString(LANG_UNKNOWN);
 
         handler->PSendSysMessage(LANG_MAP_POSITION,
-            mapId, (mapEntry ? mapEntry->name[handler->GetSessionDbcLocale()] : unknown),
+            mapId, (mapEntry ? mapEntry->Name[handler->GetSessionDbcLocale()].c_str() : unknown),
             zoneId, (zoneEntry ? zoneEntry->area_name[handler->GetSessionDbcLocale()].c_str() : unknown),
             areaId, (areaEntry ? areaEntry->area_name[handler->GetSessionDbcLocale()].c_str() : unknown),
             object->GetPhaseMask(),
@@ -1781,7 +1781,7 @@ public:
         }
 
         if (target)
-            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->name[locale],
+            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->Name[locale].c_str(),
                 (!zoneName.empty() ? zoneName.c_str() : handler->GetTrinityString(LANG_UNKNOWN)),
                 (!areaName.empty() ? areaName.c_str() : handler->GetTrinityString(LANG_UNKNOWN)));
 

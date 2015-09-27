@@ -1262,7 +1262,7 @@ public:
         {
             if (MapEntry const* mapInfo = itr->second)
             {
-                std::string name = mapInfo->name[locale];
+                std::string name = mapInfo->Name[locale];
                 if (name.empty())
                     continue;
 
