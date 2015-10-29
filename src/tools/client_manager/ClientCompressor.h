@@ -64,7 +64,6 @@ class ClientCompressor
         po::variables_map mVm;
         int32 mFlags;
 
-        fs::path PatchOutputPath;
         fs::path ReleasePath;
         fs::path GameDataPath;
 };

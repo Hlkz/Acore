@@ -65,7 +65,7 @@ ClientSelector::ClientSelector(po::variables_map vm)
 bool ClientSelector::Proceed()
 {
     uint32 oldMSTime = getMSTime();
-    TC_LOG_INFO("client.selector", "\n  ClientSelector");
+    TC_LOG_INFO("client.selector", "  ClientSelector");
     TC_LOG_INFO("client.selector", "    Extracting Adts: %s", (mFlags & EXTRACT_ADTS ? "yes" : "no"));
     TC_LOG_INFO("client.selector", "    Extracting Database: %s", (mFlags & EXTRACT_DATABASE ? "yes" : "no"));
     TC_LOG_INFO("client.selector", "    Extracting Sounds: %s", (mFlags & EXTRACT_SOUNDS ? "yes" : "no"));
@@ -294,12 +294,18 @@ void ClientSelector::Completion()
     Xtrct_XFile(".*\\.blp", "Interface\\WorldMap");
 
     // WorldMap
-    QueryResult result = WorldDatabase.Query("SELECT InternalName FROM worldmapareadbc");
+    TC_LOG_INFO("client.selector", "    Building ZMP files");
+    QueryResult result = WorldDatabase.Query("SELECT Id, InternalName FROM worldmapareadbc");
     do {
         Field* fields = result->Fetch();
-        std::string name = fields[0].GetString();
+        uint32 id = fields[0].GetUInt32();
+        std::string name = fields[1].GetString();
+
+        if (QueryResult result2 = UnusedDatabase.PQuery("SELECT id FROM zmp_files WHERE id = %u LIMIT 1", id))
+            BuildZMP(id, name);
+
         if (name.length())
-            AddExactFile(BlpMap, "Interface\\WorldMap" + name);
+            AddExactFile(BlpMap, "Interface\\WorldMap\\" + name);
     } while (result->NextRow());
     Xtrct_eFiles("World Maps", BlpMap);
 

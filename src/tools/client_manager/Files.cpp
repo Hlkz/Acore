@@ -392,3 +392,30 @@ void ClientSelector::NamesFromTRS(std::string path)
 
     fclose(trsFile);
 }
+
+void ClientSelector::BuildZMP(uint32 id, std::string name)
+{
+    uint32 areas[16384];
+    for (uint32 i = 0; i < 16384; ++i)
+        areas[i] = 0;
+    if (QueryResult result = UnusedDatabase.PQuery("SELECT x, y, area FROM zmp_files WHERE id = %u ORDER BY x, y", id))
+        do {
+            Field* fields = result->Fetch();
+            uint32 x = fields[0].GetUInt32();
+            uint32 y = fields[1].GetUInt32();
+            uint32 area = fields[2].GetUInt32();
+            if (x < 128 && y < 128 && area)
+                areas[128 * x + y] = area;
+        } while (result->NextRow());
+
+    fs::path zmpFileEnPath = TinyDataPathEn / "Interface" / "WorldMap" / (name + ".zmp");
+    fs::path zmpFileFrPath = TinyDataPathFr / "Interface" / "WorldMap" / (name + ".zmp");
+
+    FILE* zmpFileEn;
+    fopen_s(&zmpFileEn, zmpFileEnPath.string().c_str(), "wb");
+    for (uint32 i = 0; i < 16384; ++i)
+        fwrite((const void*)&(uint32)areas[i], sizeof(uint32), 1, zmpFileEn);
+    fclose(zmpFileEn);
+
+    Util::CpyFile(zmpFileEnPath, zmpFileFrPath, true);
+}

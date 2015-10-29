@@ -47,7 +47,6 @@ ClientCompressor::ClientCompressor(po::variables_map vm)
 
     mVm = vm;
 
-    PatchOutputPath = sConfigMgr->GetStringDefault("PatchOutputPath", "D:\\A\\Client\\Manager\\Output");
     ReleasePath = sConfigMgr->GetStringDefault("ReleasePath", "D:\\A\\Client\\Manager\\Release");
     GameDataPath = sConfigMgr->GetStringDefault("GameDataPath", "D:\\A\\Client\\Aviana\\Data");
 
@@ -59,7 +58,7 @@ bool ClientCompressor::Proceed()
     if (PatchOutputPath.string().length() < 10)
         return false;
     uint32 oldMSTime = getMSTime();
-    std::cout << "\nCompressor";
+    TC_LOG_INFO("client.selector", "ClientCompressor");
 
     // Compress TinyData &| TinyLoc &| TinyPatch
     if (mFlags & COMPRESS_ALL)
@@ -81,7 +80,7 @@ bool ClientCompressor::Proceed()
             UpdatePatchMPQ(LOCALE_enUS);
     }
 
-    printf("\nCompressor executed in %u ms\n", GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("client.compressor", "Compressor executed in %u ms\n", GetMSTimeDiffToNow(oldMSTime));
     return true;
 }
 
@@ -130,7 +129,7 @@ bool ClientCompressor::SaveOutput()
 
     if (save)
     {
-        printf("\n  Saving Output");
+        TC_LOG_INFO("client.compressor", "  Saving Output");
         time_t t;
         time(&t);
         tm* time = localtime(&t);
@@ -157,7 +156,7 @@ bool ClientCompressor::SaveOutput()
 
 void ClientCompressor::GenerateCommonMPQ()
 {
-    printf("\n  Starting Common generation");
+    TC_LOG_INFO("client.compressor", "  Starting Common generation");
     fs::path commonPath(PatchOutputPath / "common.mpq");
     HANDLE common;
     SFileCreateArchive(commonPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, mFlags & COMPRESS_FULLDATA ? FULLCOMMONMAXFILES : COMMONMAXFILES, &common);
@@ -181,12 +180,12 @@ void ClientCompressor::GenerateCommonMPQ()
     Manager::AddFileToMPQ(dataPath / "component.wow-data.txt", "component.wow-data.txt", &common);
 
     SFileCloseArchive(common);
-    printf("\n  Ending Common generation");
+    TC_LOG_INFO("client.compressor", "  Ending Common generation");
 }
 
 void ClientCompressor::GenerateCommon2MPQ()
 {
-    printf("\n  Starting Common2 generation");
+    TC_LOG_INFO("client.compressor", "  Starting Common2 generation");
     fs::path common2Path(PatchOutputPath / "common-2.mpq");
     HANDLE common2;
     SFileCreateArchive(common2Path.string().c_str(), MPQ_CREATE_ARCHIVE_V2, COMMON2MAXFILES, &common2);
@@ -195,12 +194,12 @@ void ClientCompressor::GenerateCommon2MPQ()
     Manager::AddDirToMPQ(dataPath / "Sound", "Sound", &common2);
 
     SFileCloseArchive(common2);
-    printf("\n  Ending Common2 generation");
+    TC_LOG_INFO("client.compressor", "  Ending Common2 generation");
 }
 
 void ClientCompressor::GenerateLichkingMPQ()
 {
-    printf("\n  Starting Lichking generation");
+    TC_LOG_INFO("client.compressor", "  Starting Lichking generation");
     fs::path lichkingPath(PatchOutputPath / "lichking.mpq");
     HANDLE lichking;
     SFileCreateArchive(lichkingPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, mFlags & COMPRESS_FULLDATA ? FULLLICHKINGMAXFILES : LICHKINGMAXFILES, &lichking);
@@ -211,14 +210,13 @@ void ClientCompressor::GenerateLichkingMPQ()
     Manager::AddDirToMPQ(dataPath / "World", "World", &lichking);
 
     SFileCloseArchive(lichking);
-    printf("\n  Ending Lichking generation");
+    TC_LOG_INFO("client.compressor", "  Ending Lichking generation");
 }
 
 void ClientCompressor::GenerateLocaleMPQ(uint8 loc)
 {
-    printf("\n  Starting Locale generation ");
     std::string locs = loc ? "frFR" : "enUS";
-    std::cout << locs;
+    TC_LOG_INFO("client.compressor", "  Starting Locale generation %s", locs.c_str());
     fs::path localePath(PatchOutputPath / locs / ("locale-" + locs + ".mpq"));
     HANDLE locale;
     SFileCreateArchive(localePath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, PATCHMAXFILES, &locale);
@@ -230,14 +228,13 @@ void ClientCompressor::GenerateLocaleMPQ(uint8 loc)
     Manager::AddFileToMPQ(dataPath / ("component.wow-" + locs + ".txt"), "component.wow-" + locs + ".txt", &locale);
 
     SFileCloseArchive(locale);
-    printf("\n  Ending Locale generation");
+    TC_LOG_INFO("client.compressor", "  Ending Locale generation");
 }
 
 void ClientCompressor::GenerateSpeechMPQ(uint8 loc)
 {
-    printf("\n  Starting Speech generation ");
     std::string locs = loc ? "frFR" : "enUS";
-    std::cout << locs;
+    TC_LOG_INFO("client.compressor", "  Starting Speech generation %s", locs.c_str());
     fs::path speechPath(PatchOutputPath / locs / ("speech-" + locs + ".mpq"));
     HANDLE speech;
     SFileCreateArchive(speechPath.string().c_str(), MPQ_CREATE_ARCHIVE_V2, PATCHMAXFILES, &speech);
@@ -246,20 +243,19 @@ void ClientCompressor::GenerateSpeechMPQ(uint8 loc)
     Manager::AddDirToMPQ(dataPath / "Sound", "Sound", &speech);
 
     SFileCloseArchive(speech);
-    printf("\n  Ending Speech generation");
+    TC_LOG_INFO("client.compressor", "  Ending Speech generation");
 }
 
 void ClientCompressor::GeneratePatchMPQ(uint8 loc)
 {
     if (mFlags & COMPRESS_FULLDATA)
     {
-        printf("\n  Can't generate Patch for FullData");
+        TC_LOG_INFO("client.compressor", "  Can't generate Patch for FullData");
         return;
     }
 
-    printf("\n  Starting Patch generation ");
     std::string locs = loc ? "frFR" : "enUS";
-    std::cout << locs;
+    TC_LOG_INFO("client.compressor", "  Starting Patch generation %s", locs.c_str());
     std::string prefix = TinyPatchPath + "\\" + locs;
     fs::path patchPath(PatchOutputPath / locs / ("patch-" + locs + ".mpq"));
     HANDLE patch;
@@ -269,44 +265,34 @@ void ClientCompressor::GeneratePatchMPQ(uint8 loc)
     Manager::AddDirToMPQ(prefix + "\\Interface", "Interface", &patch);
 
     SFileCloseArchive(patch);
-    printf("\n  Ending Patch generation");
+    TC_LOG_INFO("client.compressor", "  Ending Patch generation");
 }
 
 void ClientCompressor::UpdatePatchMPQ(uint8 loc)
 {
-    printf("\n  Updating Patch ");
     std::string locs = loc ? "frFR" : "enUS";
-    std::cout << locs;
+    TC_LOG_INFO("client.compressor", "  Updating Patch %s", locs.c_str());
     std::string prefix = TinyPatchPath + "\\" + locs;
     fs::path patchPath(GameDataPath / locs / ("patch-" + locs + ".mpq"));
     HANDLE patch;
 
-    if (SFileOpenArchive(patchPath.string().c_str(), 0, 0, &patch))
+    if (Manager::OpenMPQ(patchPath.string(), &patch))
     {
         if (mFlags & UPDATE_DBC)
-        {
-            std::cout << " dbc";
             Manager::AddDirToMPQ(prefix + "\\DBFilesClient", "DBFilesClient", &patch, true);
-        }
         if (mFlags & UPDATE_LUA)
-        {
-            std::cout << " lua";
             Manager::AddDirToMPQ(prefix + "\\Interface", "Interface", &patch, true);
-        }
-        printf("\n  Compacting...");
+        TC_LOG_INFO("client.compressor", "  Compacting...");
         SFileCompactArchive(patch, NULL, 0);
         SFileCloseArchive(patch);
     }
-    else
-        printf("\n  Error opening the archive (code: %u)", GetLastError());
-
-    //printf("\n  Ending Patch update");
+    //TC_LOG_INFO("client.compressor", "  Ending Patch update");
 }
 
 void ClientCompressor::InstallPatches()
 {
     fs::path installTo = GameDataPath;
-    printf("\n  Installing Patches");
+    TC_LOG_INFO("client.compressor", "  Installing Patches");
     boost::filesystem::directory_iterator end_itr;
     for (boost::filesystem::directory_iterator i(PatchOutputPath); i != end_itr; ++i)
         if (!fs::is_directory(i->status()) || !boost::regex_match(i->path().filename().string(), boost::regex("[0-9]{4}-[0-9]{2}-[0-9]{2}.*")))
@@ -334,13 +320,13 @@ void ClientCompressor::InstallPatches()
                 fs::rename(from, to);
             }
         }
-    //printf("\n  Ending Patches installation");
+    //TC_LOG_INFO("client.compressor", "  Ending Patches installation");
 }
 
 bool ClientCompressor::ReleaseFullVersion()
 {
 #ifndef WIN32
-    printf("\nThis programm only works on windows");
+    TC_LOG_INFO("client.compressor", "This programm only works on windows");
     return;
 #endif
     SetCurrentDirectory(ReleasePath.string().c_str());
@@ -367,7 +353,7 @@ bool ClientCompressor::ReleaseFullVersion()
 
 void ClientCompressor::PrepareFullVersion(FullVersion* fv, std::string loc)
 {
-    printf(std::string("\n  Generating FullVersion " + loc).c_str());
+    TC_LOG_INFO("client.compressor", "  Generating FullVersion %s", loc.c_str());
     std::stringstream ssName;
     ssName << fv->ClientName << "-" << fv->Major << "." << fv->Minor << "." << fv->Bugfix << "-" << loc;
     std::string clientName(ssName.str());
@@ -385,7 +371,7 @@ void ClientCompressor::PrepareFullVersion(FullVersion* fv, std::string loc)
     std::ofstream(fs::path(dataPath / loc / "realmlist.wtf").string(), std::ios_base::out | std::ios_base::app)
         << "set realmlist " << sConfigMgr->GetStringDefault("RealmlistAddress", "auth.aviana-online.com");
 
-    printf("\n    Generating Torrent");
+    TC_LOG_INFO("client.compressor", "    Generating Torrent");
     std::string torrentName(clientName + ".torrent");
     fs::path torrentPath(ReleasePath / torrentName);
     std::string announcePath(sConfigMgr->GetStringDefault("AnnounceAddress", "http://localhost/announce"));

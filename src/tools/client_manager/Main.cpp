@@ -13,14 +13,53 @@ std::string TinyPatchPath;
 
 std::string FullDataPathEn;
 std::string FullDataPathFr;
-std::string TinyDataPathEn;
-std::string TinyDataPathFr;
+fs::path TinyDataPathEn;
+fs::path TinyDataPathFr;
 
 fs::path ManagerDataPath;
+fs::path PatchOutputPath;
 fs::path UpdatePath;
 
 int main(int argc, char *argv[])
 {
+    // Config
+    std::string configFile = "clientmanager.conf";
+    std::string configError;
+    if (!sConfigMgr->LoadInitial(configFile, configError))
+    {
+        printf("Error in config file: %s\n", configError.c_str());
+        return 1;
+    }
+    sLog->Initialize(nullptr);
+
+    // Database
+    MySQL::Library_Init();
+    DatabaseLoader loader("clientmanager", DatabaseLoader::DATABASE_NONE);
+    loader
+        .AddDatabase(WorldDatabase, "World")
+        .AddDatabase(LoginDatabase, "Login")
+        .AddDatabase(UnusedDatabase, "Unused");
+    if (!loader.Load())
+        return 1;
+
+    Manager::Init();
+
+    if (argc < 2)
+    {
+        Manager::Console();
+        return 0;
+    }
+
+    bool files = false;
+    for (int32 i = 1; i < argc; ++i)
+        if (fs::exists(argv[i]))
+        {
+            Manager::ManageFile(argv[i]);
+            files = true;
+        }
+    if (files)
+        return 0;
+
     po::options_description desc("Allowed options");
     desc.add_options()
         ("help", "produce help message")
@@ -62,25 +101,6 @@ int main(int argc, char *argv[])
         std::cout << desc << "\n";
         return 1;
     }
-
-    // Config
-    std::string configFile = "clientmanager.conf";
-    std::string configError;
-    if (!sConfigMgr->LoadInitial(configFile, configError))
-    {
-        printf("Error in config file: %s\n", configError.c_str());
-        return 1;
-    }
-
-    // Database
-    MySQL::Library_Init();
-    DatabaseLoader loader("clientmanager", DatabaseLoader::DATABASE_NONE);
-    loader
-        .AddDatabase(WorldDatabase, "World")
-        .AddDatabase(LoginDatabase, "Login")
-        .AddDatabase(UnusedDatabase, "Unused");
-    if (!loader.Load())
-        return 1;
 
     ClientManager* Manager = new ClientManager(vm);
 

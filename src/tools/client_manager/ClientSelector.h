@@ -83,6 +83,8 @@ class ClientSelector
         void NamesFromWMO(std::string path);
         void NamesFromM2(std::string path);
         void NamesFromTRS(std::string path);
+        // Files extra
+        void BuildZMP(uint32 id, std::string name);
 
         // Util
         void SplitPath(std::string &name, std::string &path);
