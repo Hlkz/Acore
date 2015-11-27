@@ -260,6 +260,18 @@ void ChatHandler::SendSysMessage(uint32 entry)
     SendSysMessage(GetTrinityString(entry));
 }
 
+LocString ChatHandler::BuildIconUpdateString(uint32 type, uint32 id, uint32 iconId, float scale, uint32 mapId, float x, float y, LocString title, LocString desc, int32 flags)
+{
+    LocString locString;
+    for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
+    {
+        char buff[256];
+        sprintf(buff, "AOI,%u,%u,%u,%f,%u,%f,%f,%s,%s,%i", type, id, iconId, scale, mapId, x, y, title[i].c_str(), desc[i].c_str(), flags);
+        locString[i] = buff;
+    }
+    return locString;
+}
+
 bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, std::string const& fullcmd)
 {
     char const* oldtext = text;
@@ -1165,7 +1177,7 @@ void ChatHandler::extractOptFirstArg(char* args, char** arg1, char** arg2)
 
 char* ChatHandler::extractQuotedArg(char* args)
 {
-    if (!*args)
+    if (!args || !*args)
         return NULL;
 
     if (*args == '"')

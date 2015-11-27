@@ -110,6 +110,23 @@ void FactionMgr::LoadRelations()
     TC_LOG_INFO("server.loading", ">> Loaded %u FactionGuildRelations in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+Faction* FactionMgr::GetFactionByName(const std::string& factionName) const
+{
+    std::string search = factionName;
+    std::transform(search.begin(), search.end(), search.begin(), ::toupper);
+    for (FactionMap::const_iterator itr = m_factions.begin(); itr != m_factions.end(); ++itr)
+    {
+        for (uint8 i = 0; i < MAX_LOCALES; ++i)
+        {
+            std::string gname = itr->second->GetName()[i];
+            std::transform(gname.begin(), gname.end(), gname.begin(), ::toupper);
+            if (search == gname)
+                return itr->second;
+        }
+    }
+    return NULL;
+}
+
 void FactionMgr::Update(uint32 diff)
 {
 }

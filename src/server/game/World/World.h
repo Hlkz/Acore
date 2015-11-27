@@ -569,10 +569,15 @@ class World
         void SendServerMessage(ServerMessageType type, const char *text = "", Player* player = NULL);
         void SendGlobalMessage(WorldPacket* packet, WorldSession* self = nullptr, uint32 team = 0);
         void SendGlobalGMMessage(WorldPacket* packet, WorldSession* self = nullptr, uint32 team = 0);
+        void SendGlobalAddonMessage(const char *text);
+        void SendGlobalLocAddonMessage(LocString text);
+        void SendIconUpdate(uint32 type, uint32 id, uint32 iconId = 0, float scale = 1, uint32 mapId = 0, float x = 0, float y = 0, LocString title = "", LocString desc = "", int32 flags = 0);
+        void SendIconUpdateToPlayer(Player* player, uint32 type, uint32 id, uint32 iconId = 0, float scale = 1, uint32 mapId = 0, float x = 0, float y = 0, LocString title = "", LocString desc = "", int32 flags = 0);
         bool SendZoneMessage(uint32 zone, WorldPacket* packet, WorldSession* self = nullptr, uint32 team = 0);
         void SendZoneText(uint32 zone, const char *text, WorldSession* self = nullptr, uint32 team = 0);
         bool SendZoneLocMessage(uint32 zone, std::map<uint8, WorldPacket*> packets, WorldSession* self = nullptr, uint32 team = 0);
         void SendZoneLocText(uint32 zone, LocString text, WorldSession* self = nullptr, uint32 team = 0);
+        void SendZoneLocText2(uint32 zone, LocString fmt, LocString arg1 = "", LocString arg2 = "", WorldSession* self = nullptr, uint32 team = 0);
         void SendZoneSound(uint32 zone, uint32 soundId);
 
         /// Are we in the middle of a shutdown?

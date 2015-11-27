@@ -133,6 +133,16 @@ struct LocString : std::map<uint8, std::string>
     mapped_type& operator[] (const key_type& k) { return (*((insert(make_pair(k, mapped_type()))).first)).second;  }
     mapped_type& operator[] (key_type&& k) { return (*((insert(make_pair(k, mapped_type()))).first)).second; }
     mapped_type operator[] (const key_type& k) const { LocString::const_iterator itr = find(k); if (itr != end()) return itr->second; return mapped_type(); }
+    LocString operator+(const LocString &c)
+    {
+        LocString ls;
+        for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
+        {
+            LocString::const_iterator itr = find(i);
+            if (itr != end()) ls[i] = itr->second + c[i]; else ls[i] = c[i];
+        }
+        return ls;
+    }
     LocString(std::string str) { insert(std::pair<uint8, std::string>(LOCALE_enUS, str)); insert(std::pair<uint8, std::string>(LOCALE_frFR, str)); }
     LocString(const char* c_str) { insert(std::pair<uint8, std::string>(LOCALE_enUS, c_str)); insert(std::pair<uint8, std::string>(LOCALE_frFR, c_str)); }
     LocString(std::string str, std::string str_loc2) { insert(std::pair<uint8, std::string>(LOCALE_enUS, str)); insert(std::pair<uint8, std::string>(LOCALE_frFR, str_loc2)); }

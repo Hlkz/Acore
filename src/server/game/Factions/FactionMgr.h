@@ -23,6 +23,7 @@ class FactionMgr
         void Update(uint32 diff);
 
         Faction* GetFactionById(uint32 id) { if (m_factions.find(id) != m_factions.end()) return m_factions[id]; return NULL; }
+        Faction* GetFactionByName(const std::string& factionName) const;
 
     private:
         FactionMap m_factions;

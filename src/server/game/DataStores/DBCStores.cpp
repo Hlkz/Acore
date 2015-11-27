@@ -1968,10 +1968,7 @@ void DBCMgr::LoadFactionStore()
         newFaction->spilloverRateIn = fields[19].GetFloat();
         newFaction->spilloverRateOut = fields[20].GetFloat();
         newFaction->spilloverMaxRankIn = fields[21].GetUInt32();
-        for (uint8 i = 0; i < 16; i++)
-            newFaction->name[i] = "";
-        newFaction->name[0] = fields[22].GetString();
-        newFaction->name[2] = fields[23].GetString();
+        newFaction->name = LocString(fields[22].GetString(), fields[23].GetString());
         newFaction->Flags = fields[24].GetInt32();
         for (uint8 i = 0; i < 3; i++)
             newFaction->LinkedTemplates[i] = fields[25 + i].GetUInt32();

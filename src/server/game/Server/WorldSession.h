@@ -39,6 +39,7 @@ class GameObject;
 class InstanceSave;
 class Item;
 class LoginQueryHolder;
+class Node;
 class Object;
 class Player;
 class Quest;
@@ -424,6 +425,9 @@ class WorldSession
         // Recruit-A-Friend Handling
         uint32 GetRecruiterId() const { return recruiterId; }
         bool IsARecruiter() const { return isRecruiter; }
+
+        bool SetSelectedNode(uint32 id);
+        Node* GetSelectedNode() { return m_selectedNode; }
 
     public:                                                 // opcodes handlers
 
@@ -1041,6 +1045,7 @@ class WorldSession
         uint32 expireTime;
         bool forceExit;
         ObjectGuid m_currentBankerGUID;
+        Node* m_selectedNode;
 
         WorldSession(WorldSession const& right) = delete;
         WorldSession& operator=(WorldSession const& right) = delete;

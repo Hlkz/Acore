@@ -3,6 +3,8 @@
 #include "NodeMgr.h"
 #include "MapManager.h"
 #include "Group.h"
+#include "Chat.h"
+#include "WorldSession.h"
 
 NodeMgr::NodeMgr()
 {
@@ -17,8 +19,8 @@ void NodeMgr::InitNodes()
     uint32 oldMSTime = getMSTime();
     m_nodes.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT id, map, type, status, faction, guild, name, name_loc2, area, "
-                                             "flags, looseType, looseData, captureType, captureData1, captureData2 FROM nodes ORDER BY map ASC");
+    QueryResult result = WorldDatabase.Query("SELECT id, name, name_loc2, type, status, faction, guild, map, position_x, position_y, "
+                                             "flags, looseType, looseData, captureType, captureData1, captureData2, pacifyTimer, oldfaction, oldguild FROM nodes ORDER BY map ASC");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 Nodes. DB table `nodes` is empty.");
@@ -29,7 +31,7 @@ void NodeMgr::InitNodes()
     Map* curMap = sMapMgr->CreateBaseMap(0);
     do {
         Field* fields = result->Fetch();
-        uint32 curMapId = fields[1].GetUInt32();
+        uint32 curMapId = fields[7].GetUInt32();
         if (curMapId != prevMapId)
         {
             curMap = sMapMgr->CreateBaseMap(curMapId);
@@ -146,11 +148,8 @@ void NodeMgr::InitNodes()
 
 void NodeMgr::LoadNode(uint32 nodeId)
 {
-    uint32 oldMSTime = getMSTime();
-    m_nodes.clear();
-
-    QueryResult result = WorldDatabase.PQuery("SELECT id, map, type, status, faction, guild, name, name_loc2, area, "
-                                             "flags, looseType, looseData, captureType, captureData1, captureData2 FROM nodes WHERE id = '%d'", nodeId);
+    QueryResult result = WorldDatabase.PQuery("SELECT id, name, name_loc2, type, status, faction, guild, map, position_x, position_y, "
+                                             "flags, looseType, looseData, captureType, captureData1, captureData2, pacifyTimer, oldfaction, oldguild FROM nodes WHERE id = '%d'", nodeId);
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> NodeMgr::LoadNode - Node id %u does not exist.", nodeId);
@@ -162,10 +161,8 @@ void NodeMgr::LoadNode(uint32 nodeId)
 
     if (!node)
     {
-        if (Map* map = sMapMgr->CreateBaseMap(fields[1].GetUInt32()))
-        {
+        if (Map* map = sMapMgr->CreateBaseMap(fields[7].GetUInt32()))
             m_nodes[fields[0].GetUInt32()] = new Node(map, fields);
-        }
     }
     else
         node->Load(fields);
@@ -221,6 +218,42 @@ void NodeMgr::LoadNode(uint32 nodeId)
     }
 
     node->Reset();
+}
+
+Node* NodeMgr::CreateNode(uint32 id, LocString name, uint32 type, Map* map, float positionX, float positionY)
+{
+    if (!map || type >= NODE_MAX_TYPE)
+        return NULL;
+
+    if (GetNodeById(id))
+        return NULL;
+
+    DeleteNode(id);
+    Node* node = new Node(id, name, type, map, positionX, positionY);
+    if (!node)
+        return NULL;
+
+    m_nodes[id] = node;
+    node->Reset();
+
+    WorldDatabase.EscapeString(name[0]);
+    WorldDatabase.EscapeString(name[2]);
+    WorldDatabase.PExecute("INSERT INTO nodes (id, name, name_loc2, type, map, position_x, position_y) VALUES (%u, '%s', '%s', %u, %u, %f, %f)",
+                            id, name[0].c_str(), name[2].c_str(), type, map->GetId(), positionX, positionY);
+    return node;
+}
+
+void NodeMgr::DeleteNode(uint32 id)
+{
+    if (Node* node = GetNodeById(id))
+    {
+        node->Delete();
+    }
+
+    WorldDatabase.PExecute("DELETE FROM nodes WHERE id = %u", id);
+    WorldDatabase.PExecute("DELETE FROM node_banners WHERE node = %u", id);
+    WorldDatabase.PExecute("DELETE FROM node_creatures WHERE node = %u", id);
+    WorldDatabase.PExecute("DELETE FROM node_relations WHERE node = %u OR relation = %u", id, id);
 }
 
 void NodeMgr::SetCreatureNode(uint32 guid, uint32 node, uint32 type)
@@ -294,8 +327,12 @@ void NodeMgr::Update(uint32 diff)
     {
         for (NodeMap::iterator itr = m_nodes.begin(); itr != m_nodes.end(); ++itr)
             if (Node* node = itr->second)
+            {
                 if (node->m_justDiedCount > 0)
                     node->m_justDiedCount--;
+                else if (node->GetStatus() == NODE_STATUS_ATTACKED)
+                    node->SetStatus(NODE_STATUS_AT_PEACE, NODE_TRANS_DEFEND);
+            }
         m_justDiedCountResetTime = 0;
     }
 
@@ -350,7 +387,7 @@ NodeBanner* NodeMgr::CanUseNodeBanner(Player* player, const GameObject* target_o
 
     Node* node = banner->Node;
 
-    if (node->m_status == NODE_ATTACKED)
+    if (node->m_status == NODE_STATUS_ATTACKED)
     {
         if (node->m_captureType == NODE_CAPTURE_BY_BASE || node->m_captureType == NODE_CAPTURE_BY_MULTI_BASE)
             if (factionId == banner->FactionId && guildId == banner->GuildId)
@@ -365,4 +402,14 @@ NodeBanner* NodeMgr::CanUseNodeBanner(Player* player, const GameObject* target_o
         return banner;
     else
         return NULL;
+}
+
+void NodeMgr::SendIconsUpdateToPlayer(Player* player)
+{
+    WorldPacket data;
+    for (NodeMap::iterator itr = m_nodes.begin(); itr != m_nodes.end(); ++itr)
+    {
+        ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_ADDON, player, player, itr->second->m_iconUpdate[player->GetSession()->GetSessionDbcLocale()]);
+        player->GetSession()->SendPacket(&data);
+    }
 }

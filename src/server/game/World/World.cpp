@@ -2207,6 +2207,20 @@ void World::SendZoneLocText(uint32 zone, LocString text, WorldSession* self, uin
     SendZoneLocMessage(zone, packets, self, team);
 }
 
+/// Send a System Message to all players in the zone (except self if mentioned)
+void World::SendZoneLocText2(uint32 zone, LocString fmt, LocString arg1, LocString arg2, WorldSession* self, uint32 team)
+{
+    std::map<uint8, WorldPacket*> packets;
+    WorldPacket data[TOTAL_LOCALES];
+    for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
+    {
+        std::string text = Trinity::StringFormat(fmt[i], arg1[i], arg2[i]);
+        ChatHandler::BuildChatPacket(data[i], CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, NULL, text);
+        packets[i] = &data[i];
+    }
+    SendZoneLocMessage(zone, packets, self, team);
+}
+
 /// Kick (and save) all players
 void World::KickAll()
 {
@@ -2524,6 +2538,62 @@ void World::SendServerMessage(ServerMessageType type, const char *text, Player* 
         player->GetSession()->SendPacket(&data);
     else
         SendGlobalMessage(&data);
+}
+
+void World::SendGlobalAddonMessage(const char *text)
+{
+    WorldPacket data;
+    // need copy to prevent corruption by strtok call in LineFromMessage original string
+    char* buf = strdup(text);
+    char* pos = buf;
+
+    if (char* line = ChatHandler::LineFromMessage(pos))
+    {
+        SessionMap::const_iterator itr;
+        for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+        {
+            if (itr->second &&
+                itr->second->GetPlayer() &&
+                itr->second->GetPlayer()->IsInWorld())
+            {
+                Player* player = itr->second->GetPlayer();
+                ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_ADDON, player, player, line);
+                itr->second->SendPacket(&data);
+            }
+        }
+    }
+    free(buf);
+}
+
+void World::SendGlobalLocAddonMessage(LocString text)
+{
+    WorldPacket data;
+    SessionMap::const_iterator itr;
+    for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+    {
+        if (itr->second &&
+            itr->second->GetPlayer() &&
+            itr->second->GetPlayer()->IsInWorld())
+        {
+            Player* player = itr->second->GetPlayer();
+            ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_ADDON, player, player, text[itr->second->GetSessionDbcLocale()]);
+            itr->second->SendPacket(&data);
+        }
+    }
+}
+
+void World::SendIconUpdate(uint32 type, uint32 id, uint32 iconId, float scale, uint32 mapId, float x, float y, LocString title, LocString desc, int32 flags)
+{
+    LocString iconUpdate = ChatHandler::BuildIconUpdateString(type, id, iconId, scale, mapId, x, y, title, desc, flags);
+    SendGlobalLocAddonMessage(iconUpdate);
+}
+
+void World::SendIconUpdateToPlayer(Player* player, uint32 type, uint32 id, uint32 iconId, float scale, uint32 mapId, float x, float y, LocString title, LocString desc, int32 flags)
+{
+    LocString iconUpdate = ChatHandler::BuildIconUpdateString(type, id, iconId, scale, mapId, x, y, title, desc, flags);
+    WorldPacket data;
+    ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_ADDON, player, player, iconUpdate[player->GetSession()->GetSessionDbcLocale()]);
+    player->GetSession()->SendPacket(&data);
 }
 
 void World::UpdateSessions(uint32 diff)

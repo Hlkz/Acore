@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "AccountMgr.h"
 #include "Chat.h"
+#include "FactionMgr.h"
 #include "ObjectMgr.h"
 #include "PlayerDump.h"
 #include "Player.h"
@@ -51,6 +52,11 @@ public:
             { "old",            SEC_ADMINISTRATOR,  true,  &HandleCharacterDeletedOldCommand,      "", NULL },
             { NULL,             0,                  false, NULL,                                   "", NULL }
         };
+        static ChatCommand characterSetCommandTable[] =
+        {
+            { "faction",        SEC_GAMEMASTER,     true,  &HandleCharacterSetFactionCommand,      "", NULL },
+            { NULL,             0,                  false, NULL,                                   "", NULL }
+        };
 
         static ChatCommand characterCommandTable[] =
         {
@@ -62,6 +68,7 @@ public:
             { "level",          SEC_ADMINISTRATOR,  true,  &HandleCharacterLevelCommand,           "", NULL },
             { "rename",         SEC_GAMEMASTER,     true,  &HandleCharacterRenameCommand,          "", NULL },
             { "reputation",     SEC_GAMEMASTER,     true,  &HandleCharacterReputationCommand,      "", NULL },
+            { "set",            SEC_GAMEMASTER,     true,  NULL,                                   "", characterSetCommandTable },
             { "titles",         SEC_GAMEMASTER,     true,  &HandleCharacterTitlesCommand,          "", NULL },
             { NULL,             0,                  false, NULL,                                   "", NULL }
         };
@@ -1008,6 +1015,18 @@ public:
                 return false;
         }
 
+        return true;
+    }
+
+    static bool HandleCharacterSetFactionCommand(ChatHandler* handler, char const* args)
+    {
+        Player* target = handler->getSelectedPlayer();
+        uint32 factionId = atoi(strtok((char*)args, " "));
+
+        if (target && factionId)
+            target->SetFaction(factionId);
+        else
+            return false;
         return true;
     }
 };

@@ -25,6 +25,13 @@ enum FactionStatus
     FACTION_CONTESTED
 };
 
+enum FactionFlag
+{
+    FACTION_FLAG_FACTION    = 0x01,
+    FACTION_FLAG_ALLIANCE   = 0x02,
+    FACTION_FLAG_HORDE      = 0x04
+};
+
 enum FactionRelationStatusFlags
 {
     FACTION_RELATION_FLAG_NONE      = 0,
@@ -78,6 +85,8 @@ class Faction
         FactionGuildRelation* GetGuildRelation(uint32 id) { FactionGuildRelationMap::iterator itr = m_guildRelations.find(id); if (itr != m_guildRelations.end()) return itr->second; return NULL; }
 
         FactionEntry const* GetEntry() { return m_factionEntry; }
+        LocString GetName() { return m_factionEntry->name; }
+        int32 GetFlags() { return m_factionEntry->Flags; }
 
         uint32 GetId() { return m_factionEntry->ID; }
       //ObjectGuid GetLeaderGuid() { return m_leaderGuid; }

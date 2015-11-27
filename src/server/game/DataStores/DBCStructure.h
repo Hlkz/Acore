@@ -942,7 +942,7 @@ struct FactionEntry
     float       spilloverRateOut;                           // 20       Faction outputs rep * spilloverRateOut as spillover reputation
     uint32      spilloverMaxRankIn;                         // 21       The highest rank the faction will profit from incoming spillover
     //uint32    spilloverRank_unk;                          // 22       It does not seem to be the max standing at which a faction outputs spillover ...so no idea
-    std::string name[16];                                   // 23-39    m_name_lang
+    LocString   name;                                   // 23-39    m_name_lang
     //std::string description[16];                            // 40-56    m_description_lang
     int32       Flags;                                      // custom, not in dbc
     uint32      LinkedTemplates[3];                         // idem

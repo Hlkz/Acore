@@ -35,6 +35,7 @@
 #include "GuildMgr.h"
 #include "Group.h"
 #include "Guild.h"
+#include "NodeMgr.h"
 #include "World.h"
 #include "BattlegroundMgr.h"
 #include "BattleAOMgr.h"
@@ -122,7 +123,8 @@ WorldSession::WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, Account
     isRecruiter(isARecruiter),
     expireTime(60000), // 1 min after socket loss, session is deleted
     forceExit(false),
-    m_currentBankerGUID()
+    m_currentBankerGUID(),
+    m_selectedNode(NULL)
 {
     memset(m_Tutorials, 0, sizeof(m_Tutorials));
 
@@ -633,6 +635,16 @@ void WorldSession::SendNotification(uint32 string_id, ...)
 char const* WorldSession::GetTrinityString(uint32 entry) const
 {
     return sObjectMgr->GetTrinityString(entry, GetSessionDbLocaleIndex());
+}
+
+bool WorldSession::SetSelectedNode(uint32 id)
+{
+    if (Node* node = sNodeMgr->GetNodeById(id))
+    {
+        m_selectedNode = node;
+        return true;
+    }
+    return false;
 }
 
 void WorldSession::Handle_NULL(WorldPacket& recvPacket)

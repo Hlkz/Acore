@@ -14,14 +14,33 @@ enum NodeType
     NODE_TOWN = 2, // Razor Hill
     NODE_CITY = 3,
     NODE_CAPITAL = 4, // Orgrimmar/Theramore etc.
+    NODE_MAX_TYPE
+};
+
+const LocString NodeTypeString[NODE_MAX_TYPE] =
+{
+    ("Point", "Point"),
+    ("Camp", "Camp"),
+    ("Town", "Village"),
+    ("City", "Ville"),
+    ("Capital", "Capitale"),
 };
 
 enum NodeStatus
 {
-    NODE_NEUTRAL,
-    NODE_ATTACKED,  // Guild | Faction
-    NODE_TAKEN,     // Guild | Faction
-    NODE_AT_PEACE,  // Guild | Faction
+    NODE_STATUS_NEUTRAL,
+    NODE_STATUS_ATTACKED,  // Guild | Faction
+    NODE_STATUS_TAKEN,     // Guild | Faction
+    NODE_STATUS_AT_PEACE,  // Guild | Faction
+    NODE_MAX_STATUS
+};
+
+const LocString NodeStatusString[NODE_MAX_STATUS] =
+{
+    ("Contested", "Contesté"),
+    ("Under attack", "Attaqué"),
+    ("Occupied", "Occupé"),
+    ("At peace", "En paix")
 };
 
 enum NodeTransition
@@ -34,6 +53,7 @@ enum NodeTransition
     NODE_TRANS_LOOSE
 };
 
+// unused
 enum NodeLeadType
 {
     NODE_LEAD_NONE,                 // No leader
@@ -46,6 +66,7 @@ enum NodeLeadType
     NODE_LEAD_FACTION_IN_GUILD
 };
 
+// unused
 enum NodeAttackFlags
 {
     NODE_ATTACK_IMMUNE,
@@ -70,6 +91,16 @@ enum NodeCaptureType
     NODE_CAPTURE_BY_AREA,
     NODE_CAPTURE_BY_BASE,
     NODE_CAPTURE_BY_MULTI_BASE
+};
+
+#define NODE_PACIFY_TIME_STAGE 300000
+const time_t NodePacifyTime[NODE_MAX_TYPE] =
+{
+    30 * MINUTE * IN_MILLISECONDS,
+    30 * MINUTE * IN_MILLISECONDS,
+    HOUR * IN_MILLISECONDS,
+    HOUR * IN_MILLISECONDS,
+    4 * HOUR * IN_MILLISECONDS
 };
 
 enum NodeTimeIntervals
@@ -159,7 +190,7 @@ struct NodeBanner
     NodeBannerObjectMap Objects;
     uint32 Timer;
     uint32 SpawnTimer;
-    GameObject* GeGameObject(uint32 status) { NodeBannerObjectMap::iterator itr = Objects.find(status); if (itr != Objects.end()) return itr->second; return NULL; }
+    GameObject* GetGameObject(uint32 status) { NodeBannerObjectMap::iterator itr = Objects.find(status); if (itr != Objects.end()) return itr->second; return NULL; }
 };
 typedef std::map<uint32, NodeBanner*> NodeBannerMap;
 typedef std::map<ObjectGuid, NodeBanner*> NodeAllBannerMap;
@@ -169,24 +200,39 @@ class Node
     friend class NodeMgr;
 
     public:
+        Node(uint32 id, LocString name, uint32 type, Map* map, float positionX, float positionY);
         Node(Map* map, Field* fields);
         ~Node() { }
 
         void Load(Field* fields);
         void Reset();
+        void Delete();
         void Populate();
+        void Depopulate();
         void InitCreature(NodeCreature* nodeCrea);
 
         void Update(uint32 diff);
 
         uint32 GetId() { return m_id; }
+        uint32 GetType() { return m_type; }
+        // Status
         uint32 GetStatus() { return m_status; };
         void SetStatus(uint32 status, uint32 trans, uint32 factionId, uint32 guildId);
         void SetStatus(uint32 status, uint32 trans = 0) { SetStatus(status, trans, m_factionId, m_guildId); }
         void setStatus(uint32 status);
-        bool GetOwner(uint32 &factionId, uint32 guildId) { factionId = m_factionId; guildId = m_guildId; return factionId || guildId; }
         bool setStatusOwner(uint32 status, uint32 factionId, uint32 guildId = 0);
-        //std::string GetName() { return sDBCMgr->->sDBCMgr->GetAreaEntry(m_areaId)->; }
+        void SetFaction(uint32 factionId);
+        void SetGuild(uint32 guildId);
+        bool GetOwner(uint32 &factionId, uint32 &guildId) { factionId = m_factionId; guildId = m_guildId; return factionId || guildId; }
+        void GetOwnerInfos(uint32 &factionId, uint32 &guildId, LocString &ownerName, uint32 &oldfactionId, uint32 &oldguildId, LocString &oldownerName);
+        LocString GetOwnerName() { return m_faction ? m_faction->GetName() : m_guild ? m_guild->GetName() : LocString("Nobody", "Personne"); }
+        Faction* GetFaction() { return m_faction; }
+        Guild* GetGuild() { return m_guild; }
+        LocString GetName() { return m_name; }
+        void SetName(LocString name);
+        float GetPositionX() { return m_position_x; }
+        float GetPositionY() { return m_position_y; }
+        void SetPosition(float positionX, float positionY);
 
         void AttackNode(Node* node);
         void StopAttackNode(Node* node);
@@ -221,18 +267,28 @@ class Node
         void DelBanner(NodeBanner* banner, uint8 incrStatus = 0) { SpawnBanner(banner, 86400, incrStatus); }
         void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj, NodeBanner* banner);
 
+        void UpdateIcon(bool del = false);
+        void UpdateIconUpdateString(bool del = false);
+
     private:
+        // database: nodes table
         uint32 m_id;
+        LocString m_name;
         Map* m_map;
-        uint32 m_areaId;
-        uint32 m_zoneId;
+        float m_position_x;
+        float m_position_y;
         uint32 m_type;
         uint32 m_status;
         uint32 m_factionId;
         Faction* m_faction;
         uint32 m_guildId;
         Guild* m_guild;
-        LocString m_name;
+        uint32 m_oldfactionId;
+        Faction* m_oldfaction;
+        uint32 m_oldguildId;
+        Guild* m_oldguild;
+
+        LocString m_iconUpdate;
 
         int32 m_flags;
         uint32 m_looseType;
@@ -240,6 +296,11 @@ class Node
         uint32 m_captureType;
         int32 m_captureData1;
         int32 m_captureData2;
+        time_t m_pacifyTimer;
+        time_t m_pacifyTimerNext;
+
+        uint32 m_areaId;
+        uint32 m_zoneId;
 
 		NodeFactionPlayersMap m_players;
 		NodeGroupMap m_groups;

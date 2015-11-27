@@ -23,6 +23,8 @@ class NodeMgr
         void InitNodes();
         void LoadNode(uint32 nodeId);
         Node* GetNodeById(uint32 id) { for (NodeMap::iterator itr = m_nodes.begin(); itr != m_nodes.end(); ++itr) if (itr->first == id) return itr->second; return NULL; }
+        Node* CreateNode(uint32 id, LocString name, uint32 type, Map* map, float positionX, float positionY);
+        void DeleteNode(uint32 id);
 
         NodeCreature* GetNodeCreatureByGuid(uint32 guid) { for (NodeCreatureMap::iterator itr = m_nodeCreatures.begin(); itr != m_nodeCreatures.end(); ++itr) if (itr->first == guid) return itr->second; return NULL; }
         void SetCreatureNode(uint32 guid, uint32 node, uint32 type);
@@ -37,6 +39,8 @@ class NodeMgr
         NodeGroup* AddNodeGroup(Group* group, uint32 faction, uint32 guild, Node* node);
         void AddNodeGroup(NodeGroup* nodeGroup);
         void RemoveNodeGroup(ObjectGuid guid);
+
+        void SendIconsUpdateToPlayer(Player* player);
 
     private:
         NodeMap m_nodes;
