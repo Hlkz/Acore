@@ -283,7 +283,8 @@ void ClientCompressor::UpdatePatchMPQ(uint8 loc)
         if (mFlags & UPDATE_LUA)
             Manager::AddDirToMPQ(prefix + "\\Interface", "Interface", &patch, true);
         TC_LOG_INFO("client.compressor", "  Compacting...");
-        SFileCompactArchive(patch, NULL, 0);
+        //SFileFlushArchive(patch);
+        //SFileCompactArchive(patch, NULL, 0);
         SFileCloseArchive(patch);
     }
     //TC_LOG_INFO("client.compressor", "  Ending Patch update");
