@@ -41,15 +41,6 @@ namespace Trinity
     {
         return fmt.empty();
     }
-
-    /// Default TC localized string format function.
-    template<typename... Args>
-    inline LocString LocStringFormat(LocString fmt, Args&&... args)
-    {
-        for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
-            fmt[i] = fmt[i]::sprintf(std::forward<Format>(fmt[i]), std::forward<Args>(args)...);
-        return fmt;
-    }
 }
 
 #endif
