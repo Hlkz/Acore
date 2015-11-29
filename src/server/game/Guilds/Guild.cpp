@@ -25,6 +25,7 @@
 #include "GuildMgr.h"
 #include "Language.h"
 #include "Log.h"
+#include "NodeMgr.h"
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
 #include "Opcodes.h"
@@ -1207,6 +1208,8 @@ void Guild::Disband()
 {
     // Call scripts before guild data removed from database
     sScriptMgr->OnGuildDisband(this);
+
+    sNodeMgr->HandleGuildDisband(this);
 
     _BroadcastEvent(GE_DISBANDED, ObjectGuid::Empty);
     // Remove all members

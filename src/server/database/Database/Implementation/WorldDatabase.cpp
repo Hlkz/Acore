@@ -110,8 +110,7 @@ void WorldDatabaseConnection::DoPrepareStatements()
     PrepareStatement(WORLD_UPD_GAMEOBJECT_ZONE_AREA_DATA, "UPDATE gameobject SET zoneId = ?, areaId = ? WHERE guid = ?", CONNECTION_ASYNC);
 
     // Nodes
-    PrepareStatement(WORLD_UPD_NODE_STATUS, "UPDATE nodes SET status = ? WHERE id = ?", CONNECTION_ASYNC);
-    PrepareStatement(WORLD_UPD_NODE_STATUS_OWNER, "UPDATE nodes SET status = ?, faction = ?, guild = ? WHERE id = ?", CONNECTION_ASYNC);
+    PrepareStatement(WORLD_UPD_NODE_STATUS_OWNER, "UPDATE nodes SET status = ?, faction = ?, guild = ?, oldfaction = ?, oldguild = ? WHERE id = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_DEL_NODE_CREATURE, "DELETE FROM node_creatures WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_INS_NODE_CREATURE, "INSERT INTO node_creatures (guid, node, type) VALUES (?, ?, ?)", CONNECTION_ASYNC);
 }

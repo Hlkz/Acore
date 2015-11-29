@@ -46,11 +46,17 @@ const LocString NodeStatusString[NODE_MAX_STATUS] =
 enum NodeTransition
 {
     NODE_TRANS_NONE,
-    NODE_TRANS_ATTACK,
-    NODE_TRANS_CAPTURE,
-    NODE_TRANS_PACIFY,
-    NODE_TRANS_DEFEND,
-    NODE_TRANS_LOOSE
+    NODE_TRANS_ATTACK,  // all except ATTACKED to ATTACKED
+    NODE_TRANS_CAPTURE, // ATTACKED to TAKEN
+    NODE_TRANS_PACIFY,  // TAKEN to AT_PEACE
+    NODE_TRANS_GETBACK, // TAKEN to AT_PEACE
+    NODE_TRANS_DEFEND,  // ATTACKED to AT_PEACE
+    NODE_TRANS_LOOSE,   // all except NEUTRAL to NEUTRAL || ATTACKED to ATTACKED
+};
+
+enum NodeFlags
+{
+    NODE_FLAG_CONTINENT_ICON    = 0x04
 };
 
 // unused
@@ -219,8 +225,7 @@ class Node
         uint32 GetStatus() { return m_status; };
         void SetStatus(uint32 status, uint32 trans, uint32 factionId, uint32 guildId);
         void SetStatus(uint32 status, uint32 trans = 0) { SetStatus(status, trans, m_factionId, m_guildId); }
-        void setStatus(uint32 status);
-        bool setStatusOwner(uint32 status, uint32 factionId, uint32 guildId = 0);
+        void setStatusOwner(uint32 status, uint32 trans, uint32 factionId, uint32 guildId);
         void SetFaction(uint32 factionId);
         void SetGuild(uint32 guildId);
         bool GetOwner(uint32 &factionId, uint32 &guildId) { factionId = m_factionId; guildId = m_guildId; return factionId || guildId; }
@@ -269,6 +274,10 @@ class Node
 
         void UpdateIcon(bool del = false);
         void UpdateIconUpdateString(bool del = false);
+        bool CanBeAStartForPlayer(Player* player);
+        WorldLocation GetStartLocation() { return m_startLocation; }
+        void SetStartLocation(WorldLocation location);
+        void RemoveStartLocation();
 
     private:
         // database: nodes table
@@ -312,6 +321,9 @@ class Node
         NodeCreatureMap m_creatures;
         NodeRelationMap m_relations;
         NodeBannerMap m_banners;
+
+        bool m_isStart;
+        WorldLocation m_startLocation;
 
         uint32 m_justDiedCount;
 };

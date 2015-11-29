@@ -142,6 +142,18 @@ void NodeMgr::InitNodes()
 
     TC_LOG_INFO("server.loading", ">> Loaded %u NodeCreatures in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
+
+    result = WorldDatabase.Query("SELECT position_x, position_y, position_z, orientation, node FROM node_start");
+    if (result)
+        do {
+            Field* fields = result->Fetch();
+            if (Node* node = GetNodeById(fields[4].GetUInt32()))
+            {
+                node->m_isStart = true;
+                node->m_startLocation = WorldLocation(node->GetMap()->GetId(), fields[0].GetFloat(), fields[1].GetFloat(), fields[2].GetFloat(), fields[3].GetFloat());
+            }
+        } while (result->NextRow());
+
     for (NodeMap::iterator itr = m_nodes.begin(); itr != m_nodes.end(); ++itr)
         itr->second->Reset();
 }
@@ -215,6 +227,14 @@ void NodeMgr::LoadNode(uint32 nodeId)
             if (!AddNodeCreature(fields[0].GetUInt32(), fields[1].GetUInt32(), fields[2].GetUInt32()))
                 TC_LOG_ERROR("sql.sql", "Can't spawn Creature guid %u for Node id %u", fields[0].GetUInt32(), fields[1].GetUInt32());
         } while (result->NextRow());
+    }
+
+    result = WorldDatabase.PQuery("SELECT position_x, position_y, position_z, orientation FROM node_start WHERE node = '%d'", nodeId);
+    if (result)
+    {
+        Field* fields = result->Fetch();
+        node->m_isStart = true;
+        node->m_startLocation = WorldLocation(node->GetMap()->GetId(), fields[0].GetFloat(), fields[1].GetFloat(), fields[2].GetFloat(), fields[3].GetFloat());
     }
 
     node->Reset();
@@ -404,12 +424,50 @@ NodeBanner* NodeMgr::CanUseNodeBanner(Player* player, const GameObject* target_o
         return NULL;
 }
 
-void NodeMgr::SendIconsUpdateToPlayer(Player* player)
+void NodeMgr::SendIconsUpdateToPlayer(Player* player, bool firstLogin)
 {
     WorldPacket data;
     for (NodeMap::iterator itr = m_nodes.begin(); itr != m_nodes.end(); ++itr)
+        if (Node* node = itr->second)
     {
-        ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_ADDON, player, player, itr->second->m_iconUpdate[player->GetSession()->GetSessionDbcLocale()]);
+        std::string message = node->m_iconUpdate[player->GetSession()->GetSessionDbcLocale()];
+        if (firstLogin && node->CanBeAStartForPlayer(player))
+            message = message + "9";
+        ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_ADDON, player, player, message);
         player->GetSession()->SendPacket(&data);
     }
+}
+
+void NodeMgr::HandleGuildDisband(Guild* guild)
+{
+    if (!guild)
+        return;
+    uint32 guildId = guild->GetId();
+
+    for (NodeMap::iterator itr = m_nodes.begin(); itr != m_nodes.end(); ++itr)
+        if (Node* node = itr->second)
+        {
+            if (node->m_oldguildId && node->m_oldguildId == guildId)
+            {
+                if (node->m_status == NODE_STATUS_ATTACKED)
+                    node->SetStatus(NODE_STATUS_ATTACKED, NODE_TRANS_PACIFY);
+                else if (node->m_status == NODE_STATUS_TAKEN)
+                    node->SetStatus(NODE_STATUS_AT_PEACE, NODE_TRANS_PACIFY);
+            }
+
+            if (node->m_guildId && node->m_guildId == guildId)
+            {
+                if (node->m_oldguildId || node->m_oldfactionId)
+                {
+                    if (node->m_status == NODE_STATUS_ATTACKED)
+                        node->SetStatus(NODE_STATUS_ATTACKED, NODE_TRANS_GETBACK);
+                    else if (node->m_status == NODE_STATUS_TAKEN)
+                        node->SetStatus(NODE_STATUS_AT_PEACE, NODE_TRANS_GETBACK);
+                }
+                else if (node->m_status == NODE_STATUS_ATTACKED)
+                    node->SetStatus(NODE_STATUS_ATTACKED, NODE_TRANS_LOOSE, 0, 0);
+                else
+                    node->SetStatus(NODE_STATUS_NEUTRAL, NODE_TRANS_LOOSE, 0, 0);
+            }
+        }
 }

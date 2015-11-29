@@ -32,15 +32,22 @@ public:
         {
             { "name",           SEC_ADMINISTRATOR, false,  &HandleNodeSetNameCommand,        "", NULL },
             { "position",       SEC_ADMINISTRATOR, false,  &HandleNodeSetPositionCommand,    "", NULL },
+            { "start",          SEC_ADMINISTRATOR, false,  &HandleNodeSetStartCommand,       "", NULL },
             { "status",         SEC_ANIMATOR,      false,  &HandleNodeSetStatusCommand,      "", NULL },
             { "faction",        SEC_ANIMATOR,      false,  &HandleNodeSetFactionCommand,     "", NULL },
             { "guild",          SEC_ANIMATOR,      false,  &HandleNodeSetGuildCommand,       "", NULL },
+            { NULL,             0,                  false,  NULL,                             "", NULL }
+        };
+        static ChatCommand nodeRemoveCommandTable[] =
+        {
+            { "start",          SEC_ADMINISTRATOR, false,  &HandleNodeRemoveStartCommand,    "", NULL },
             { NULL,             0,                  false,  NULL,                             "", NULL }
         };
         static ChatCommand nodeCommandTable[] =
         {
             { "add",            SEC_ANIMATOR,      false,  NULL,              "", nodeAddCommandTable },
             { "set",            SEC_ANIMATOR,      false,  NULL,              "", nodeSetCommandTable },
+            { "remove",         SEC_ANIMATOR,      false,  NULL,           "", nodeRemoveCommandTable },
             { "create",         SEC_ADMINISTRATOR, false,  &HandleNodeCreateCommand,         "", NULL },
             { "delete",         SEC_ADMINISTRATOR, false,  &HandleNodeDeleteCommand,         "", NULL },
             { "getinfos",       SEC_PLAYER,        false,  &HandleNodeGetInfosCommand,       "", NULL },
@@ -295,6 +302,29 @@ public:
         return true;
     }
 
+    static bool HandleNodeSetStartCommand(ChatHandler* handler, char const* args)
+    {
+        Node* node = handler->GetSession()->GetSelectedNode();
+        if (!node)
+            return false;
+
+        if (*args)
+            node->RemoveStartLocation();
+        else
+            node->SetStartLocation(handler->GetSession()->GetPlayer()->GetWorldLocation());
+        return true;
+    }
+
+    static bool HandleNodeRemoveStartCommand(ChatHandler* handler, char const* args)
+    {
+        Node* node = handler->GetSession()->GetSelectedNode();
+        if (!node)
+            return false;
+
+        node->RemoveStartLocation();
+        return true;
+    }
+
     static bool HandleNodeSetStatusCommand(ChatHandler* handler, char const* args)
     {
         Node* node = handler->GetSession()->GetSelectedNode();
@@ -387,7 +417,28 @@ public:
 
     static bool HandleNodeGetInfosCommand(ChatHandler* handler, char const* args)
     {
-        sNodeMgr->SendIconsUpdateToPlayer(handler->GetSession()->GetPlayer());
+        Player* player = handler->GetSession()->GetPlayer();
+        if (*args)
+        {
+            if (player->GetMapId() == 606)
+                if (uint32 id = atoi(strtok((char*)args, " ")))
+                    if (Node* node = sNodeMgr->GetNodeById(id))
+                        if (node->CanBeAStartForPlayer(player))
+                        {
+                            player->TeleportTo(node->GetStartLocation());
+                            WorldPacket data;
+                            ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_ADDON, player, player, "AON,0"); // serv confirm that client can hide worldmap
+                            handler->GetSession()->SendPacket(&data);
+                            return true;
+                        }
+        }
+
+        char* AONewCharString = (player->GetMapId() == 606) ? "AON,1" : "AON,0";
+        WorldPacket data;
+        ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_ADDON, player, player, AONewCharString);
+        handler->GetSession()->SendPacket(&data);
+
+        sNodeMgr->SendIconsUpdateToPlayer(player, (player->GetMapId() == 606));
         return true;
     }
 

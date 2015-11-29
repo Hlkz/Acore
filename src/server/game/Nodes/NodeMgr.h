@@ -40,7 +40,9 @@ class NodeMgr
         void AddNodeGroup(NodeGroup* nodeGroup);
         void RemoveNodeGroup(ObjectGuid guid);
 
-        void SendIconsUpdateToPlayer(Player* player);
+        void SendIconsUpdateToPlayer(Player* player, bool firstLogin = false);
+
+        void HandleGuildDisband(Guild* guild);
 
     private:
         NodeMap m_nodes;

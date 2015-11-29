@@ -6,6 +6,7 @@
 #include "Node.h"
 #include "Opcodes.h"
 #include "ChatTextBuilder.h"
+#include "ReputationMgr.h"
 
 // Used in NodeMgr::CreateNode
 Node::Node(uint32 id, LocString name, uint32 type, Map* map, float positionX, float positionY)
@@ -13,7 +14,7 @@ Node::Node(uint32 id, LocString name, uint32 type, Map* map, float positionX, fl
     m_factionId(0), m_faction(NULL), m_guildId(0), m_guild(NULL), m_oldfactionId(0), m_oldfaction(NULL), m_oldguildId(0), m_oldguild(NULL),
     m_map(map), m_position_x(positionX), m_position_y(positionY),
     m_flags(0), m_looseType(0), m_looseData(0), m_captureType(0), m_captureData1(0), m_captureData2(0),
-    m_justDiedCount(0)
+    m_justDiedCount(0), m_isStart(false), m_startLocation(NULL)
 {
     m_map->GetZoneAndAreaId(m_zoneId, m_areaId, positionX, positionY, 0.0f);
 
@@ -27,7 +28,7 @@ Node::Node(uint32 id, LocString name, uint32 type, Map* map, float positionX, fl
 
 // Used in NodeMgr::InitNodes()                              7                            10
 // SELECT id, name, name_loc2, type, status, faction, guild, map, position_x, position_y, flags, looseType, looseData, captureType, captureData1, captureData2
-Node::Node(Map* map, Field* fields) : m_justDiedCount(0)
+Node::Node(Map* map, Field* fields) : m_justDiedCount(0), m_isStart(false), m_startLocation(NULL)
 {
     m_id = fields[0].GetUInt32();
     m_map = map;
@@ -111,34 +112,39 @@ void Node::Delete()
 
 void Node::SetStatus(uint32 status, uint32 trans, uint32 factionId, uint32 guildId)
 {
+    if (factionId && guildId)
+        return;
+
+    if (trans == NODE_TRANS_GETBACK)
+    {
+        if (!m_oldfactionId && !m_oldguildId)
+            return;
+        factionId = m_oldfactionId;
+        guildId = m_oldguildId;
+    }
+
     if (status == m_status)
     {
         if (status == NODE_STATUS_NEUTRAL)
             return;
         else if (factionId == m_factionId && guildId == m_guildId)
-            return;
+        {
+            if (status != NODE_STATUS_ATTACKED && trans != NODE_TRANS_PACIFY) // check if oldguild disband
+                return;
+        }
     }
 
-    switch (status)
+    if (status == NODE_STATUS_TAKEN)
     {
-        case NODE_STATUS_NEUTRAL:
-            break;
-        case NODE_STATUS_ATTACKED:
-            break;
-        case NODE_STATUS_TAKEN:
-            m_pacifyTimer = NodePacifyTime[m_type];
-            m_pacifyTimerNext = uint32(m_pacifyTimer / NODE_PACIFY_TIME_STAGE) * NODE_PACIFY_TIME_STAGE;
-            WorldDatabase.PExecute("UPDATE nodes SET pacifyTimer = %u WHERE id = %u", m_pacifyTimer, m_id);
-            break;
-        case NODE_STATUS_AT_PEACE:
-            break;
+        m_pacifyTimer = NodePacifyTime[m_type];
+        m_pacifyTimerNext = uint32(m_pacifyTimer / NODE_PACIFY_TIME_STAGE) * NODE_PACIFY_TIME_STAGE;
+        WorldDatabase.PExecute("UPDATE nodes SET pacifyTimer = %u WHERE id = %u", m_pacifyTimer, m_id);
     }
 
-    if (factionId == m_factionId && guildId == guildId)
-        setStatus(status);
-    else
-        setStatusOwner(status, factionId, guildId);
-    
+    LocString oldownerName = GetOwnerName();
+    setStatusOwner(status, trans, factionId, guildId);
+    LocString ownerName = GetOwnerName();
+
     LocString message;
     switch (trans)
     {
@@ -151,19 +157,26 @@ void Node::SetStatus(uint32 status, uint32 trans, uint32 factionId, uint32 guild
             break;
         case NODE_TRANS_DEFEND:
             message = LocString("%s has defended %s!", "%s a défendu %s !");
-            sWorld->SendZoneLocText2(m_zoneId, message, GetOwnerName(), GetName());
+            sWorld->SendZoneLocText2(m_zoneId, message, ownerName, GetName());
             break;
         case NODE_TRANS_CAPTURE:
             message = LocString("%s has taken %s!", "%s a pris %s !");
-            sWorld->SendZoneLocText2(m_zoneId, message, GetOwnerName(), GetName());
+            sWorld->SendZoneLocText2(m_zoneId, message, ownerName, GetName());
             break;
         case NODE_TRANS_PACIFY:
-            message = LocString("%s is at peace.", "%s est en paix.");
-            sWorld->SendZoneLocText2(m_zoneId, message, GetName());
+            if (m_status == NODE_STATUS_AT_PEACE) // can still be under attack if oldguild disbands
+            {
+                message = LocString("%s is at peace.", "%s est en paix.");
+                sWorld->SendZoneLocText2(m_zoneId, message, GetName());
+            }
+            break;
+        case NODE_TRANS_GETBACK:
+            message = LocString("%s retreived the control of %s!", "%s a récupéré le contrôle de %s !");
+            sWorld->SendZoneLocText2(m_zoneId, message, ownerName, GetName());
             break;
         case NODE_TRANS_LOOSE:
-            message = LocString("%s has lost control of %s!", "%s a perdu le contrôle de %s !");
-            sWorld->SendZoneLocText2(m_zoneId, message, GetOwnerName(), GetName());
+            message = LocString("%s has lost the control of %s!", "%s a perdu le contrôle de %s !");
+            sWorld->SendZoneLocText2(m_zoneId, message, oldownerName, GetName());
             break;
     }
 
@@ -179,49 +192,55 @@ void Node::SetStatus(uint32 status, uint32 trans, uint32 factionId, uint32 guild
     UpdateIcon();
 }
 
-void Node::setStatus(uint32 status)
+void Node::setStatusOwner(uint32 status, uint32 trans, uint32 factionId, uint32 guildId)
 {
-    m_status = status;
-    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_NODE_STATUS);;
-    stmt->setUInt32(0, m_status);
-    stmt->setUInt32(1, m_id);
-    WorldDatabase.Execute(stmt);
-}
-
-bool Node::setStatusOwner(uint32 status, uint32 factionId, uint32 guildId)
-{
-    if (factionId && guildId)
-        return false;
-
-    if (factionId)
+    // Owner change?
+    if (factionId != m_factionId || guildId != guildId)
     {
-        if (Faction* faction = sFactionMgr->GetFactionById(factionId))
+        if (factionId)
         {
-            m_factionId = factionId;
-            m_faction = faction;
-        }
-        else
-        {
-            m_factionId = 0;
-            m_faction = NULL;
-        }
-        m_guildId = 0;
-        m_guild = NULL;
-    }
-    else
-    {
-        if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-        {
-            m_guildId = guildId;
-            m_guild = guild;
-        }
-        else
-        {
+            if (Faction* faction = sFactionMgr->GetFactionById(factionId))
+            {
+                m_factionId = factionId;
+                m_faction = faction;
+            }
+            else
+            {
+                m_factionId = 0;
+                m_faction = NULL;
+            }
             m_guildId = 0;
             m_guild = NULL;
         }
-        m_factionId = 0;
-        m_faction = NULL;
+        else
+        {
+            if (Guild* guild = sGuildMgr->GetGuildById(guildId))
+            {
+                m_guildId = guildId;
+                m_guild = guild;
+            }
+            else
+            {
+                m_guildId = 0;
+                m_guild = NULL;
+            }
+            m_factionId = 0;
+            m_faction = NULL;
+        }
+    }
+
+    if (status == NODE_STATUS_NEUTRAL || status == NODE_STATUS_AT_PEACE || (status == NODE_STATUS_ATTACKED && trans == NODE_TRANS_PACIFY))
+    {
+        if (m_oldfactionId)
+        {
+            m_oldfactionId = 0;
+            m_oldfaction = NULL;
+        }
+        if (m_oldguildId)
+        {
+            m_oldguildId = 0;
+            m_oldguild = NULL;
+        }
     }
 
     m_status = status;
@@ -229,9 +248,11 @@ bool Node::setStatusOwner(uint32 status, uint32 factionId, uint32 guildId)
     stmt->setUInt32(0, m_status);
     stmt->setUInt32(1, m_factionId);
     stmt->setUInt32(2, m_guildId);
-    stmt->setUInt32(3, m_id);
+    stmt->setUInt32(3, m_oldfactionId);
+    stmt->setUInt32(4, m_oldguildId);
+    stmt->setUInt32(5, m_id);
     WorldDatabase.Execute(stmt);
-    return true;
+    return;
 }
 
 void Node::SetFaction(uint32 factionId)
@@ -596,7 +617,7 @@ void Node::UpdateIconUpdateString(bool del)
         ownedBy = controle + m_faction->GetName();
     uint32 iconId = 0;
     uint32 scale = 18; // not actually scale but size in pixels
-    uint32 flags = (m_type == NODE_CAPITAL) ? 1 : 0;
+    uint32 flags = (m_type == NODE_CAPITAL || m_flags & NODE_FLAG_CONTINENT_ICON) ? 1 : 0;
 
     switch (m_status)
     {
@@ -609,20 +630,21 @@ void Node::UpdateIconUpdateString(bool del)
             break;
         case NODE_STATUS_TAKEN:
             if (m_guild)
-                iconId = 157;
+                iconId = 155;
             else if (m_faction)
             {
                 uint32 flags = m_faction->GetFlags();
                 if (flags & FACTION_FLAG_ALLIANCE)
                 {
                     if (flags & FACTION_FLAG_HORDE)
-                        iconId = 158;
-                    iconId = 9;
+                        iconId = 156;
+                    else
+                        iconId = 9;
                 }
                 else if (flags & FACTION_FLAG_HORDE)
                     iconId = 12;
                 else
-                    iconId = 156;
+                    iconId = 157;
             }
             break;
         case NODE_STATUS_AT_PEACE:
@@ -635,15 +657,42 @@ void Node::UpdateIconUpdateString(bool del)
                 {
                     if (flags & FACTION_FLAG_HORDE)
                         iconId = 131;
-                    iconId = 11;
+                    else
+                        iconId = 11;
                 }
                 else if (flags & FACTION_FLAG_HORDE)
                     iconId = 10;
                 else
-                    iconId = 155;
+                    iconId = 158;
             }
             break;
     }
 
     m_iconUpdate = ChatHandler::BuildIconUpdateString(1, GetId(), iconId, scale, GetMap()->GetId(), m_position_x, m_position_y, m_name, ownedBy, flags);
+}
+
+bool Node::CanBeAStartForPlayer(Player* player)
+{
+    if (!m_isStart || m_status != NODE_STATUS_AT_PEACE || m_guildId)
+        return false;
+
+    if (m_faction)
+        if (player->GetReputationMgr().GetReputation(m_faction->GetEntry()) > 999)
+            return true;
+    return false;
+}
+
+void Node::SetStartLocation(WorldLocation location)
+{
+    m_isStart = true;
+    m_startLocation = WorldLocation(GetMap()->GetId(), location.GetPositionX(), location.GetPositionY(), location.GetPositionZ(), location.GetOrientation());
+    WorldDatabase.PExecute("DELETE FROM node_start WHERE node = %u", m_id);
+    WorldDatabase.PExecute("INSERT INTO node_start (node, position_x, position_y, position_z, orientation) VALUES (%u, %f, %f, %f, %f)",
+        m_id, location.GetPositionX(), location.GetPositionY(), location.GetPositionZ(), location.GetOrientation());
+}
+
+void Node::RemoveStartLocation()
+{
+    m_isStart = false;
+    WorldDatabase.PExecute("DELETE FROM node_start WHERE node = %u", m_id);
 }
