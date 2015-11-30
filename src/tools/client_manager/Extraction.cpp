@@ -125,13 +125,20 @@ bool ClientSelector::XtrctDir(fs::path from, fs::path to)
 }
 
 // Exact
-uint32 ClientSelector::Xtrct(fs::path from, fs::path to, bool nolog)
+uint32 ClientSelector::Xtrct(fs::path from, fs::path to, bool nolog, bool correctCase)
 {
     if (!nolog)
         TC_LOG_INFO("client.extract.lookup", std::string(from.string() + " TO:" + to.string()).c_str());
 
     if (boost::filesystem::exists(from))
     {
+        if (correctCase)
+        {
+            fs::path file(Util::GetActualPathName(from.wstring().c_str()));
+            to = to.parent_path() / Util::RemovePrefix(file.string(), to.parent_path().string());
+            TCLC("yooo <<%s>>", to.string().c_str());
+        }
+
         if (!boost::filesystem::is_directory(from))
             return XtrctFile(from, to);
         else if (mXtrctFlags & XTRCT_CPYDIR)
@@ -243,10 +250,10 @@ void ClientSelector::Xtrct_XFile(fs::path name, fs::path path, fs::path in)
 void ClientSelector::Xtrct_eFile(fs::path file)
 {
     if (!(mXtrctFlags & XTRCT_LOC))
-        Xtrct(FullDataPath / file, TinyDataPath / file);
+        Xtrct(FullDataPath / file, TinyDataPath / file, false, true);
     if (!(mXtrctFlags & XTRCT_MIX))
     {
-        Xtrct(FullDataPathEn / file, TinyDataPathEn / file);
-        Xtrct(FullDataPathFr / file, TinyDataPathFr / file);
+        Xtrct(FullDataPathEn / file, TinyDataPathEn / file, false, true);
+        Xtrct(FullDataPathFr / file, TinyDataPathFr / file, false, true);
     }
 }

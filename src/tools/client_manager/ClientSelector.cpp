@@ -295,7 +295,7 @@ void ClientSelector::Completion()
 
     // WorldMap
     TC_LOG_INFO("client.selector", "    Building ZMP files");
-    QueryResult result = WorldDatabase.Query("SELECT Id, InternalName FROM worldmapareadbc");
+    QueryResult result = WorldDatabase.Query("SELECT Id, InternalName FROM worldmapareadbc WHERE TinyClient");
     do {
         Field* fields = result->Fetch();
         uint32 id = fields[0].GetUInt32();

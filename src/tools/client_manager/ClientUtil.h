@@ -12,6 +12,7 @@ namespace Util
     std::string exec(std::string cmd);
     std::ifstream::pos_type filesize(fs::path path);
     std::string GetLastErrorAsString();
+    std::wstring GetActualPathName(const wchar_t* path);
 }
 
 #endif

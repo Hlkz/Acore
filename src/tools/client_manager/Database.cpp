@@ -189,13 +189,14 @@ void ClientSelector::NamesFromWorldDatabase()
                 } while (result->NextRow());
 
             if (result = WorldDatabase.Query("SELECT idi.LeftModel, idi.RightModel, idi.LeftModelTexture, idi.RightModelTexture, idi.Icon1, idi.Icon2, idi.UpperArmTexture, idi.LowerArmTexture, idi.HandsTexture, "
-                "idi.UpperTorsoTexture, idi.LowerTorsoTexture, idi.UpperLegTexture, idi.LowerLegTexture, idi.FootTexture, it.InventoryType, it.Entry FROM itemdisplayinfodbc idi, item_template it WHERE it.DisplayId = idi.Id"))
+                "idi.UpperTorsoTexture, idi.LowerTorsoTexture, idi.UpperLegTexture, idi.LowerLegTexture, idi.FootTexture, it.class, it.InventoryType, it.Entry FROM itemdisplayinfodbc idi, item_template it WHERE it.DisplayId = idi.Id"))
                 do {
                 Field* fields = result->Fetch();
                 std::string path = "";
                 //if (mFlags & EXTRACT_MODELS)
                 {
-                    if (uint32 invType = fields[14].GetUInt32())
+                    uint32 Class = fields[14].GetUInt32();
+                    if (uint32 invType = fields[15].GetUInt32())
                     {
                         switch (invType) // InventoryType
                         {
@@ -230,6 +231,8 @@ void ClientSelector::NamesFromWorldDatabase()
                             default:
                                 break;
                         }
+                        if (Class == 11)
+                            path = "Quiver\\";
                         if (!path.empty())
                         {
                             XFiles &vec = (invType == 1) ? MdxItemHead : MdxItem;

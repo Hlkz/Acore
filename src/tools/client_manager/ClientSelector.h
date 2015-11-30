@@ -106,7 +106,7 @@ class ClientSelector
         bool XCommitFile(std::string path);
         bool XtrctFile(fs::path from, fs::path to);
         bool XtrctDir(fs::path from, fs::path to);
-        uint32 Xtrct(fs::path from, fs::path to, bool nolog = false);
+        uint32 Xtrct(fs::path from, fs::path to, bool nolog = false, bool correctCase = false);
         uint32 Xtrct(std::string name, fs::path in, fs::path from, fs::path to, bool inAbs = false);
         void Xtrct_XFile(fs::path name, fs::path path = "", fs::path in = "");
         void Xtrct_eFile(fs::path file);
