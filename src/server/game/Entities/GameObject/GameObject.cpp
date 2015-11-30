@@ -1646,7 +1646,7 @@ void GameObject::Use(Unit* user)
                 player->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                 player->RemoveAurasByType(SPELL_AURA_MOD_INVISIBILITY);
                 // BG flag click
-                banner->Node->EventPlayerClickedOnFlag(player, this, banner);
+                banner->node->EventPlayerClickedOnFlag(player, this, banner);
                 return;                                     //we don;t need to delete flag ... it is despawned!
             }
             if (player->CanUseBattlegroundObject(this))
@@ -1701,7 +1701,7 @@ void GameObject::Use(Unit* user)
                 player->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                 player->RemoveAurasByType(SPELL_AURA_MOD_INVISIBILITY);
                 // BG flag dropped
-                banner->Node->EventPlayerClickedOnFlag(player, this, banner);
+                banner->node->EventPlayerClickedOnFlag(player, this, banner);
                 //this cause to call return, all flags must be deleted here!!
                 spellId = 0;
                 Delete();

@@ -433,7 +433,7 @@ public:
                         }
         }
 
-        char* AONewCharString = (player->GetMapId() == 606) ? "AON,1" : "AON,0";
+        const char* AONewCharString = (player->GetMapId() == 606) ? "AON,1" : "AON,0";
         WorldPacket data;
         ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_ADDON, player, player, AONewCharString);
         handler->GetSession()->SendPacket(&data);

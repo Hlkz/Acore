@@ -99,7 +99,7 @@ void NodeMgr::InitNodes()
             continue;
 
         NodeBanner* banner = new NodeBanner;
-        banner->Node = curNode;
+        banner->node = curNode;
         banner->Index = fields[1].GetUInt32();
         banner->Status = NODE_BANNER_TAKEN;
         banner->FactionId = curNode->m_factionId;
@@ -198,7 +198,7 @@ void NodeMgr::LoadNode(uint32 nodeId)
         do {
             Field* fields = result->Fetch();
             NodeBanner* banner = new NodeBanner;
-            banner->Node = node;
+            banner->node = node;
             banner->Index = fields[1].GetUInt32();
             banner->Status = NODE_BANNER_TAKEN;
             banner->FactionId = node->m_factionId;
@@ -322,8 +322,8 @@ void NodeMgr::AddNodeCreature(Creature* creature, Node* node, uint32 type)
         return;
 
     NodeCreature* nodeCreature = new NodeCreature;
-    nodeCreature->Creature = creature;
-    nodeCreature->Node = node;
+    nodeCreature->creature = creature;
+    nodeCreature->node = node;
     nodeCreature->Type = type;
 
     node->AddCreature(creature->GetGUIDLow(), nodeCreature);
@@ -333,7 +333,7 @@ void NodeMgr::AddNodeCreature(Creature* creature, Node* node, uint32 type)
 void NodeMgr::RemoveNodeCreature(uint32 guid)
 {
     if (NodeCreature* nodeCreature = GetNodeCreatureByGuid(guid))
-        nodeCreature->Node->RemoveCreature(guid);
+        nodeCreature->node->RemoveCreature(guid);
     m_nodeCreatures.erase(guid);
 }
 
@@ -373,17 +373,17 @@ void NodeMgr::Update(uint32 diff)
 NodeGroup* NodeMgr::AddNodeGroup(Group* group, uint32 faction, uint32 guild, Node* node)
 {
     NodeGroup* nodeGroup = new NodeGroup;
-    nodeGroup->Group = group;
-    nodeGroup->Faction = faction;
-    nodeGroup->Guild = guild;
-    nodeGroup->Node = node;
+    nodeGroup->group = group;
+    nodeGroup->faction = faction;
+    nodeGroup->guild = guild;
+    nodeGroup->node = node;
     AddNodeGroup(nodeGroup);
     return nodeGroup;
 }
 
 void NodeMgr::AddNodeGroup(NodeGroup* nodeGroup)
 {
-    m_nodeGroups[nodeGroup->Group->GetGUID()] = nodeGroup;
+    m_nodeGroups[nodeGroup->group->GetGUID()] = nodeGroup;
 }
 
 void NodeMgr::RemoveNodeGroup(ObjectGuid guid)
@@ -405,7 +405,7 @@ NodeBanner* NodeMgr::CanUseNodeBanner(Player* player, const GameObject* target_o
     if (!factionId && !guildId)
         return NULL;
 
-    Node* node = banner->Node;
+    Node* node = banner->node;
 
     if (node->m_status == NODE_STATUS_ATTACKED)
     {

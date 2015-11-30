@@ -1977,7 +1977,7 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
             }
             if (NodeBanner* banner = sNodeMgr->GetNodeBannerByGuid(gameObjTarget->GetGUID()))
             {
-                banner->Node->EventPlayerClickedOnFlag(player, gameObjTarget, banner);
+                banner->node->EventPlayerClickedOnFlag(player, gameObjTarget, banner);
                 return;
             }
             //if (player->GetMapId() == BATTLEAO_MAP) // Arathi system
@@ -1997,7 +1997,7 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
             }
             if (NodeBanner* banner = sNodeMgr->GetNodeBannerByGuid(gameObjTarget->GetGUID()))
             {
-                banner->Node->EventPlayerClickedOnFlag(player, gameObjTarget, banner);
+                banner->node->EventPlayerClickedOnFlag(player, gameObjTarget, banner);
                 return;
             }
         }

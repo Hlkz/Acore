@@ -15446,7 +15446,7 @@ void Unit::Kill(Unit* victim)
 
     if (Creature* creatureVictim = victim->ToCreature())
         if (NodeCreature* nodeCreature = sNodeMgr->GetNodeCreatureByGuid(creatureVictim->GetGUIDLow()))
-            nodeCreature->Node->HandleKilledCreature(nodeCreature);
+            nodeCreature->node->HandleKilledCreature(nodeCreature);
 
     if (player && sBattleAOMgr->GetBattleAO()->HasPlayer(player))
         if (victim->GetTypeId() == TYPEID_PLAYER)

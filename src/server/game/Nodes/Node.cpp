@@ -14,7 +14,7 @@ Node::Node(uint32 id, LocString name, uint32 type, Map* map, float positionX, fl
     m_factionId(0), m_faction(NULL), m_guildId(0), m_guild(NULL), m_oldfactionId(0), m_oldfaction(NULL), m_oldguildId(0), m_oldguild(NULL),
     m_map(map), m_position_x(positionX), m_position_y(positionY),
     m_flags(0), m_looseType(0), m_looseData(0), m_captureType(0), m_captureData1(0), m_captureData2(0),
-    m_justDiedCount(0), m_isStart(false), m_startLocation(NULL)
+    m_justDiedCount(0), m_isStart(false), m_startLocation()
 {
     m_map->GetZoneAndAreaId(m_zoneId, m_areaId, positionX, positionY, 0.0f);
 
@@ -28,7 +28,7 @@ Node::Node(uint32 id, LocString name, uint32 type, Map* map, float positionX, fl
 
 // Used in NodeMgr::InitNodes()                              7                            10
 // SELECT id, name, name_loc2, type, status, faction, guild, map, position_x, position_y, flags, looseType, looseData, captureType, captureData1, captureData2
-Node::Node(Map* map, Field* fields) : m_justDiedCount(0), m_isStart(false), m_startLocation(NULL)
+Node::Node(Map* map, Field* fields) : m_justDiedCount(0), m_isStart(false), m_startLocation()
 {
     m_id = fields[0].GetUInt32();
     m_map = map;
@@ -324,13 +324,13 @@ void Node::Populate()
 void Node::Depopulate()
 {
     for (NodeCreatureMap::iterator itr = m_creatures.begin(); itr != m_creatures.end(); ++itr)
-        if (Creature* crea = itr->second->Creature)
+        if (Creature* crea = itr->second->creature)
             crea->Respawn(true);
 }
 
 void Node::InitCreature(NodeCreature* nodeCrea)
 {
-    if (nodeCrea->Creature)
+    if (nodeCrea->creature)
     {
         if (m_faction)
         {
@@ -338,7 +338,7 @@ void Node::InitCreature(NodeCreature* nodeCrea)
             {
                 if (uint32 factionTemplate = m_faction->GetEntry()->LinkedTemplates[0 /*nodeCrea->Type - 1 */])
                     if (sDBCMgr->GetFactionTemplateEntry(factionTemplate))
-                        nodeCrea->Creature->setFaction(factionTemplate);
+                        nodeCrea->creature->setFaction(factionTemplate);
             }
         }
     }
@@ -464,7 +464,7 @@ void Node::SendWave(NodeRelationMap::iterator itr)
 
 void Node::HandleKilledCreature(NodeCreature* nodeCreature)
 {
-    Creature* creature = nodeCreature->Creature;
+    Creature* creature = nodeCreature->creature;
     m_justDiedCount++;
 
     if (creature->IsGuard())

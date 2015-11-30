@@ -142,10 +142,11 @@ enum NodeBannerStatus
 const uint32 NodeObjectId[NODE_BANNER_MAX] = { 180119, 180120, 180121 };
 
 class Node;
+
 struct NodeCreature
 {
-    Creature* Creature;
-    Node* Node;
+    Creature* creature;
+    Node* node;
     uint32 Type; // unused for now
 };
 struct NodeRelation
@@ -161,22 +162,22 @@ typedef std::map<uint32, PlayerMap> NodeFactionPlayersMap;
 typedef std::map<uint32, Guild*> GuildMap;
 struct NodeBattleFaction
 {
-    Faction* Faction;
+    Faction* faction;
     FactionMap FactionAllies;
     GuildMap GuildAllies;
 };
 struct NodeBattleGuild
 {
-    Guild* Guild;
+    Guild* guild;
     FactionMap FactionAllies;
     GuildMap GuildAllies;
 };
 struct NodeGroup
 {
-    Group* Group;
-    Node* Node;
-    uint32 Faction;
-    uint32 Guild;
+    Group* group;
+    Node* node;
+    uint32 faction;
+    uint32 guild;
 };
 typedef std::map<uint32, NodeBattleFaction*> NodeBattleFactionMap;
 typedef std::map<uint32, NodeBattleGuild*> NodeBattleGuildMap;
@@ -188,7 +189,7 @@ typedef std::map<uint32, NodeRelation*> NodeRelationMap;
 typedef std::map<uint32, GameObject*> NodeBannerObjectMap;
 struct NodeBanner
 {
-    Node* Node;
+    Node* node;
     uint32 Index;
     uint32 Status;
     uint32 FactionId;

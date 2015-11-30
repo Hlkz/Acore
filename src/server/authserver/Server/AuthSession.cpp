@@ -205,25 +205,19 @@ void Patcher::LoadPatchesInfo()
 {
     DIR *dirp;
     struct dirent *dp;
-    dirp = opendir(m_dataDir);
-
+    dirp = opendir(m_dataDir.c_str());
     if (!dirp)
         return;
-
     while (dirp)
     {
         errno = 0;
         if ((dp = readdir(dirp)) != NULL)
         {
             int l = strlen(dp->d_name);
-
             if (l < 8)
                 continue;
-
             if (!memcmp(&dp->d_name[l - 4], ".mpq", 4))
-            {
                 LoadPatchMD5(m_dataDir.c_str(), dp->d_name);
-            }
         }
         else
         {
@@ -239,7 +233,6 @@ void Patcher::LoadPatchesInfo()
     if (dirp)
         closedir(dirp);
 }
-
 #else
 
 void Patcher::LoadPatchesInfo()
@@ -360,7 +353,8 @@ void PatcherRunnable::run()
 
         pos += send;
 
-        _sleep(sConfigMgr->GetIntDefault("PatchPacketDelay", 100));
+        std::chrono::milliseconds timespan(sConfigMgr->GetIntDefault("PatchPacketDelay", 100));
+        std::this_thread::sleep_for(timespan);
     }
 
     if (!stopped)

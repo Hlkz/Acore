@@ -6725,8 +6725,8 @@ void Player::GetFactionInBattle(uint32 &factionId, uint32 &guildId, bool pickUp)
     if (Group* group = GetGroup())
         if (NodeGroup* nodeGroup = group->ToNodeGroup())
         {
-            factionId = nodeGroup->Faction;
-            guildId = nodeGroup->Guild;
+            factionId = nodeGroup->faction;
+            guildId = nodeGroup->guild;
             return;
         }
 
