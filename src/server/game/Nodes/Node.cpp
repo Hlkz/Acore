@@ -334,7 +334,7 @@ void Node::InitCreature(NodeCreature* nodeCrea)
     {
         if (m_faction)
         {
-            if (nodeCrea->Type)
+            if (nodeCrea->Type != 3)
             {
                 if (uint32 factionTemplate = m_faction->GetEntry()->LinkedTemplates[0 /*nodeCrea->Type - 1 */])
                     if (sDBCMgr->GetFactionTemplateEntry(factionTemplate))

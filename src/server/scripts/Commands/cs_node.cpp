@@ -26,6 +26,8 @@ public:
         static ChatCommand nodeAddCommandTable[] =
         {
             { "creature",       SEC_ANIMATOR,      false,  &HandleNodeAddCreatureCommand,    "", NULL },
+            { "guard",          SEC_ANIMATOR,      false,  &HandleNodeAddGuardCommand,       "", NULL },
+            { "civilian",       SEC_ANIMATOR,      false,  &HandleNodeAddCivilianCommand,    "", NULL },
             { NULL,             0,                  false,  NULL,                             "", NULL }
         };
         static ChatCommand nodeSetCommandTable[] =
@@ -361,6 +363,31 @@ public:
         return true;
     }
 
+    static bool HandleNodeAddGuardCommand(ChatHandler* handler, char const* args)
+    {
+        Node* node = handler->GetSession()->GetSelectedNode();
+        if (!node)
+            return false;
+
+        if (Creature* crea = handler->getSelectedCreature())
+            sNodeMgr->SetCreatureNode(crea->GetGUIDLow(), node->GetId(), 1);
+        else
+            return false;
+        return true;
+    }
+
+    static bool HandleNodeAddCivilianCommand(ChatHandler* handler, char const* args)
+    {
+        Node* node = handler->GetSession()->GetSelectedNode();
+        if (!node)
+            return false;
+
+        if (Creature* crea = handler->getSelectedCreature())
+            sNodeMgr->SetCreatureNode(crea->GetGUIDLow(), node->GetId(), 2);
+        else
+            return false;
+        return true;
+    }
 
     static bool HandleJoinNodeBattleCommand(ChatHandler* handler, char const* args)
     {

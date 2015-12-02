@@ -284,8 +284,9 @@ void NodeMgr::SetCreatureNode(uint32 guid, uint32 node, uint32 type)
 
     RemoveNodeCreature(guid);
 
-    if (AddNodeCreature(guid, node, type))
+    if (NodeCreature* nodeCrea = AddNodeCreature(guid, node, type))
     {
+        sNodeMgr->GetNodeById(node)->InitCreature(nodeCrea);
         PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_NODE_CREATURE);
         stmt->setUInt32(0, guid);
         stmt->setUInt32(1, node);
@@ -294,11 +295,11 @@ void NodeMgr::SetCreatureNode(uint32 guid, uint32 node, uint32 type)
     }
 }
 
-bool NodeMgr::AddNodeCreature(uint32 guid, uint32 nodeId, uint32 type)
+NodeCreature* NodeMgr::AddNodeCreature(uint32 guid, uint32 nodeId, uint32 type)
 {
     Node* node = sNodeMgr->GetNodeById(nodeId);
     if (!node)
-        return false;
+        return NULL;
 
     Creature* creature;
     if (!(creature = node->GetMap()->GetCreature(ObjectGuid(HIGHGUID_UNIT, sObjectMgr->GetCreatureData(guid)->id, guid))))
@@ -308,18 +309,17 @@ bool NodeMgr::AddNodeCreature(uint32 guid, uint32 nodeId, uint32 type)
         {
             TC_LOG_ERROR("sql.sql", "Failed to load creature guid %u from node_creatures in map %u", guid, node->GetMap()->GetId());
             delete creature;
-            return false;
+            return NULL;
         }
     }
 
-    AddNodeCreature(creature, node, type);
-    return true;
+    return AddNodeCreature(creature, node, type);
 }
 
-void NodeMgr::AddNodeCreature(Creature* creature, Node* node, uint32 type)
+NodeCreature* NodeMgr::AddNodeCreature(Creature* creature, Node* node, uint32 type)
 {
     if (!creature || !node)
-        return;
+        return NULL;
 
     NodeCreature* nodeCreature = new NodeCreature;
     nodeCreature->creature = creature;
@@ -328,6 +328,7 @@ void NodeMgr::AddNodeCreature(Creature* creature, Node* node, uint32 type)
 
     node->AddCreature(creature->GetGUIDLow(), nodeCreature);
     m_nodeCreatures[creature->GetGUIDLow()] = nodeCreature;
+    return nodeCreature;
 }
 
 void NodeMgr::RemoveNodeCreature(uint32 guid)

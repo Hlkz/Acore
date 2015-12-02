@@ -28,8 +28,8 @@ class NodeMgr
 
         NodeCreature* GetNodeCreatureByGuid(uint32 guid) { for (NodeCreatureMap::iterator itr = m_nodeCreatures.begin(); itr != m_nodeCreatures.end(); ++itr) if (itr->first == guid) return itr->second; return NULL; }
         void SetCreatureNode(uint32 guid, uint32 node, uint32 type);
-        bool AddNodeCreature(uint32 guid, uint32 nodeId, uint32 type);
-        void AddNodeCreature(Creature* creature, Node* node, uint32 type);
+        NodeCreature* AddNodeCreature(uint32 guid, uint32 nodeId, uint32 type);
+        NodeCreature* AddNodeCreature(Creature* creature, Node* node, uint32 type);
         void RemoveNodeCreature(uint32 guid);
 
         NodeBanner* GetNodeBannerByGuid(ObjectGuid guid) { for (NodeAllBannerMap::iterator itr = m_nodeBanners.begin(); itr != m_nodeBanners.end(); ++itr) if (itr->first == guid) return itr->second; return NULL; }
