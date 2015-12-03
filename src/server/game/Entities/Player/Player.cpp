@@ -6706,18 +6706,29 @@ void Player::SetFaction(uint32 factionId)
     UpdateTriggerVisibility();
     //ForceValuesUpdateAtIndex(UNIT_FIELD_BYTES_2); // do we need that?
     //ForceValuesUpdateAtIndex(UNIT_FIELD_FACTIONTEMPLATE);
-    if (faction)
-    {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_FACTION);
-        stmt->setUInt8(0, factionId);
-        stmt->setUInt32(1, GetGUID().GetCounter());
-        CharacterDatabase.Execute(stmt);
-    }
+    SendFaction();
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_FACTION);
+    stmt->setUInt8(0, factionId);
+    stmt->setUInt32(1, GetGUID().GetCounter());
+    CharacterDatabase.Execute(stmt);
 }
 
 void Player::ResetFaction()
 {
     SetFaction(FACTION_PLAYER);
+}
+
+void Player::SendFaction()
+{
+    Faction* faction = sFactionMgr->GetFactionById(m_factionId);
+    if (faction)
+    {
+        std::string name = faction->GetName()[GetSession()->GetSessionDbcLocale()];
+        ChatHandler(GetSession()).PSendAddonMessage("AOF,%s", name.c_str());
+    }
+    else
+        ChatHandler(GetSession()).SendAddonMessage("AOF,0");
 }
 
 void Player::GetFactionInBattle(uint32 &factionId, uint32 &guildId, bool pickUp)

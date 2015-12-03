@@ -272,6 +272,26 @@ LocString ChatHandler::BuildIconUpdateString(uint32 type, uint32 id, uint32 icon
     return locString;
 }
 
+void ChatHandler::SendAddonMessage(const char *str)
+{
+    if (!m_session)
+        return;
+
+    WorldPacket data;
+
+    // need copy to prevent corruption by strtok call in LineFromMessage original string
+    char* buf = strdup(str);
+    char* pos = buf;
+
+    while (char* line = LineFromMessage(pos))
+    {
+        BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_ADDON, m_session->GetPlayer(), m_session->GetPlayer(), line);
+        m_session->SendPacket(&data);
+    }
+
+    free(buf);
+}
+
 bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, std::string const& fullcmd)
 {
     char const* oldtext = text;

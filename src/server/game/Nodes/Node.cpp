@@ -677,7 +677,7 @@ bool Node::CanBeAStartForPlayer(Player* player)
         return false;
 
     if (m_faction)
-        if (player->GetReputationMgr().GetReputation(m_faction->GetEntry()) > 999)
+        if (player->GetReputationMgr().GetReputation(m_faction->GetEntry()) > 2999)
             return true;
     return false;
 }

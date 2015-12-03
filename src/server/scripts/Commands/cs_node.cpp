@@ -14,6 +14,7 @@ EndScriptData */
 #include "NodeMgr.h"
 #include "Player.h"
 #include "Opcodes.h"
+#include "ReputationMgr.h"
 #include "Group.h"
 
 class node_commandscript : public CommandScript
@@ -64,6 +65,7 @@ public:
             { "node",           SEC_PLAYER,        true,   NULL,                 "", nodeCommandTable },
             { "join",           SEC_PLAYER,        false,  &HandleJoinNodeBattleCommand,     "", NULL },
             { "gj",             SEC_PLAYER,        false,  &HandleGroupJoinNodeBattleCommand,"", NULL },
+            { "rpz",            SEC_PLAYER,        false,  &HandleRepresentCommand,          "", NULL },
             { "testiconself",   SEC_ANIMATOR,      false,  &HandleTestIconSelfCommand,       "", NULL },
             { "sendicon",       SEC_ANIMATOR,      false,  &HandleSendIconCommand,           "", NULL },
             { NULL,             0,                  false,  NULL,                              "", NULL }
@@ -466,6 +468,27 @@ public:
         handler->GetSession()->SendPacket(&data);
 
         sNodeMgr->SendIconsUpdateToPlayer(player, (player->GetMapId() == 606));
+        return true;
+    }
+
+    static bool HandleRepresentCommand(ChatHandler* handler, char const* args)
+    {
+        Player* player = handler->GetSession()->GetPlayer();
+        if (*args)
+        {
+            if (args[0] == '?')
+                player->SendFaction();
+            else if (char const* name = handler->extractQuotedArg((char*)args))
+                if (Faction* faction = sFactionMgr->GetFactionByName(name))
+                {
+                    if (faction->GetId() == player->GetFaction())
+                        player->ResetFaction();
+                    else if (player->GetReputationMgr().GetReputation(faction->GetId()) > 2999)
+                        player->SetFaction(faction->GetId());
+                }
+        }
+        else
+            player->ResetFaction();
         return true;
     }
 

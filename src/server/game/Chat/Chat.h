@@ -100,6 +100,7 @@ class ChatHandler
         void SendSysMessage(uint32 entry);
 
         static LocString BuildIconUpdateString(uint32 type, uint32 id, uint32 iconId = 0, float scale = 1, uint32 mapId = 0, float x = 0, float y = 0, LocString title = "", LocString desc = "", int32 flags = 0);
+        void SendAddonMessage(char const* str);
 
         template<typename... Args>
         void PSendSysMessage(const char* fmt, Args&&... args)
@@ -117,6 +118,12 @@ class ChatHandler
         std::string PGetParseString(uint32 entry, Args&&... args) const
         {
             return Trinity::StringFormat(GetTrinityString(entry), std::forward<Args>(args)...);
+        }
+
+        template<typename... Args>
+        void PSendAddonMessage(const char* fmt, Args&&... args)
+        {
+            SendAddonMessage(Trinity::StringFormat(fmt, std::forward<Args>(args)...).c_str());
         }
 
         bool ParseCommands(const char* text);
