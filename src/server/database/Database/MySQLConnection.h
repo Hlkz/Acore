@@ -84,6 +84,7 @@ class MySQLConnection
         PreparedResultSet* Query(PreparedStatement* stmt);
         bool _Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD **pFields, uint64* pRowCount, uint32* pFieldCount);
         bool _Query(PreparedStatement* stmt, MYSQL_RES **pResult, uint64* pRowCount, uint32* pFieldCount);
+        std::string QueryToString(PreparedStatement* stmt);
 
         void BeginTransaction();
         void RollbackTransaction();

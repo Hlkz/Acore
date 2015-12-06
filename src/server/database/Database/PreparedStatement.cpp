@@ -198,10 +198,11 @@ void PreparedStatement::setNull(const uint8 index)
     statement_data[index].type = TYPE_NULL;
 }
 
-MySQLPreparedStatement::MySQLPreparedStatement(MYSQL_STMT* stmt) :
+MySQLPreparedStatement::MySQLPreparedStatement(MYSQL_STMT* stmt, bool goodSynch) :
 m_stmt(NULL),
 m_Mstmt(stmt),
-m_bind(NULL)
+m_bind(NULL),
+m_goodSynch(goodSynch)
 {
     /// Initialize variable parameters
     m_paramCount = mysql_stmt_param_count(stmt);

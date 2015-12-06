@@ -187,6 +187,7 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
     {
         MySQLPreparedStatement* m_mStmt = GetPreparedStatement(index);
         ASSERT(m_mStmt);            // Can only be null if preparation failed, server side error or bad query
+        ASSERT(m_mStmt->m_goodSynch);
         m_mStmt->m_stmt = stmt;     // Cross reference them for debug output
         stmt->m_stmt = m_mStmt;     /// @todo Cleaner way
 
@@ -237,6 +238,7 @@ bool MySQLConnection::_Query(PreparedStatement* stmt, MYSQL_RES **pResult, uint6
     {
         MySQLPreparedStatement* m_mStmt = GetPreparedStatement(index);
         ASSERT(m_mStmt);            // Can only be null if preparation failed, server side error or bad query
+        ASSERT(m_mStmt->m_goodSynch);
         m_mStmt->m_stmt = stmt;     // Cross reference them for debug output
         stmt->m_stmt = m_mStmt;     /// @todo Cleaner way
 
@@ -342,6 +344,32 @@ bool MySQLConnection::_Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD *
     return true;
 }
 
+std::string MySQLConnection::QueryToString(PreparedStatement* stmt)
+{
+    if (!m_Mysql)
+        return "<error>";
+
+    uint32 index = stmt->m_index;
+    {
+        MySQLPreparedStatement* m_mStmt = GetPreparedStatement(index);
+        ASSERT(m_mStmt);            // Can only be null if preparation failed, server side error or bad query
+        m_mStmt->m_stmt = stmt;     // Cross reference them for debug output
+        stmt->m_stmt = m_mStmt;     /// @todo Cleaner way
+
+        stmt->BindParameters();
+
+        MYSQL_STMT* msql_STMT = m_mStmt->GetSTMT();
+        MYSQL_BIND* msql_BIND = m_mStmt->GetBind();
+
+        uint32 _s = getMSTime();
+
+        if (mysql_stmt_bind_param(msql_STMT, msql_BIND))
+            return "<error>";
+
+        return m_mStmt->getQueryString(m_queries[index].first);
+    }
+}
+
 void MySQLConnection::BeginTransaction()
 {
     Execute("START TRANSACTION");
@@ -431,11 +459,12 @@ void MySQLConnection::PrepareStatement(uint32 index, const char* sql, Connection
     // Check if specified query should be prepared on this connection
     // i.e. don't prepare async statements on synchronous connections
     // to save memory that will not be used.
-    if (!(m_connectionFlags & flags))
-    {
-        m_stmts[index] = NULL;
-        return;
-    }
+    // => Replaced by m_goodSynch so we can convert query to string
+    //if (!(m_connectionFlags & flags))
+    //{
+    //    m_stmts[index] = NULL;
+    //    return;
+    //}
 
     MYSQL_STMT* stmt = mysql_stmt_init(m_Mysql);
     if (!stmt)
@@ -455,7 +484,7 @@ void MySQLConnection::PrepareStatement(uint32 index, const char* sql, Connection
         }
         else
         {
-            MySQLPreparedStatement* mStmt = new MySQLPreparedStatement(stmt);
+            MySQLPreparedStatement* mStmt = new MySQLPreparedStatement(stmt, (m_connectionFlags & flags) != 0);
             m_stmts[index] = mStmt;
         }
     }

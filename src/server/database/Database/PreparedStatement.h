@@ -115,7 +115,7 @@ class MySQLPreparedStatement
     friend class PreparedStatement;
 
     public:
-        MySQLPreparedStatement(MYSQL_STMT* stmt);
+        MySQLPreparedStatement(MYSQL_STMT* stmt, bool goodSynch);
         ~MySQLPreparedStatement();
 
         void setBool(const uint8 index, const bool value);
@@ -148,6 +148,7 @@ class MySQLPreparedStatement
         uint32 m_paramCount;
         std::vector<bool> m_paramsSet;
         MYSQL_BIND* m_bind;
+        bool m_goodSynch;
 
         MySQLPreparedStatement(MySQLPreparedStatement const& right) = delete;
         MySQLPreparedStatement& operator=(MySQLPreparedStatement const& right) = delete;

@@ -424,6 +424,15 @@ class DatabaseWorkerPool
                 trans->Append(sql);
         }
 
+        //! Convert a prepared statement with its parameters to string
+        std::string QueryToString(PreparedStatement* stmt)
+        {
+            T* t = GetFreeConnection();
+            std::string str = t->QueryToString(stmt);
+            t->Unlock();
+            return str;
+        }
+
         /**
             Other
         */
