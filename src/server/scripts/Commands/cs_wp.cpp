@@ -90,7 +90,11 @@ public:
         if (!path_number)
         {
             if (target)
+            {
                 pathid = target->GetWaypointPath();
+                if (!pathid)
+                    pathid = target->GetGUIDLow();
+            }
             else
             {
                 PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_MAX_ID);
@@ -140,9 +144,6 @@ public:
 
     static bool HandleWpLoadCommand(ChatHandler* handler, const char* args)
     {
-        if (!*args)
-            return false;
-
         // optional
         char* path_number = NULL;
 
@@ -152,10 +153,6 @@ public:
         uint32 pathid = 0;
         uint32 guidLow = 0;
         Creature* target = handler->getSelectedCreature();
-
-        // Did player provide a path_id?
-        if (!path_number)
-            return false;
 
         if (!target)
         {
@@ -173,6 +170,10 @@ public:
 
         pathid = atoi(path_number);
 
+        if (!pathid)
+            pathid = target->GetWaypointPath();
+        if (!pathid)
+            pathid = target->GetGUIDLow();
         if (!pathid)
         {
             handler->PSendSysMessage("%s%s|r", "|cffff33ff", "No valid path number provided.");
@@ -221,10 +222,20 @@ public:
 
     static bool HandleWpReloadCommand(ChatHandler* handler, const char* args)
     {
-        if (!*args)
-            return false;
+        uint32 id = 0;
 
-        uint32 id = atoi(args);
+        if (*args)
+            id = atoi(args);
+
+        if (!id)
+        {
+            if (Creature* target = handler->getSelectedCreature())
+            {
+                id = target->GetWaypointPath();
+                if (!id)
+                    id = target->GetGUIDLow();
+            }
+        }
 
         if (!id)
             return false;
