@@ -455,18 +455,12 @@ public:
                         if (node->CanBeAStartForPlayer(player))
                         {
                             player->TeleportTo(node->GetStartLocation());
-                            WorldPacket data;
-                            ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_ADDON, player, player, "AON,0"); // serv confirm that client can hide worldmap
-                            handler->GetSession()->SendPacket(&data);
+                            handler->SendAddonMessage(PREFIX_AON, 0);
                             return true;
                         }
         }
 
-        const char* AONewCharString = (player->GetMapId() == 606) ? "AON,1" : "AON,0";
-        WorldPacket data;
-        ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_ADDON, player, player, AONewCharString);
-        handler->GetSession()->SendPacket(&data);
-
+        handler->SendAddonMessage(PREFIX_AON, (player->GetMapId() == 606) != 0);
         sNodeMgr->SendIconsUpdateToPlayer(player, (player->GetMapId() == 606));
         return true;
     }

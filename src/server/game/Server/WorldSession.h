@@ -428,6 +428,8 @@ class WorldSession
 
         bool SetSelectedNode(uint32 id);
         Node* GetSelectedNode() { return m_selectedNode; }
+        WorldSession* SaveDatabaseChanges() { return m_saveDatabaseChanges ? this : NULL; }
+        void SaveDatabaseChanges(bool newValue) { m_saveDatabaseChanges = newValue; }
 
     public:                                                 // opcodes handlers
 
@@ -1046,6 +1048,7 @@ class WorldSession
         bool forceExit;
         ObjectGuid m_currentBankerGUID;
         Node* m_selectedNode;
+        bool m_saveDatabaseChanges;
 
         WorldSession(WorldSession const& right) = delete;
         WorldSession& operator=(WorldSession const& right) = delete;

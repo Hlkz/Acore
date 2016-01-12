@@ -2582,10 +2582,8 @@ void World::SendIconUpdate(uint32 type, uint32 id, uint32 iconId, float scale, u
 
 void World::SendIconUpdateToPlayer(Player* player, uint32 type, uint32 id, uint32 iconId, float scale, uint32 mapId, float x, float y, LocString title, LocString desc, int32 flags)
 {
-    LocString iconUpdate = ChatHandler::BuildIconUpdateString(type, id, iconId, scale, mapId, x, y, title, desc, flags);
-    WorldPacket data;
-    ChatHandler::BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_ADDON, player, player, iconUpdate[player->GetSession()->GetSessionDbcLocale()]);
-    player->GetSession()->SendPacket(&data);
+    LocaleConstant loc = player->GetSession()->GetSessionDbcLocale();
+    ChatHandler(player->GetSession()).SendAddonMessage(PREFIX_AOI, type, id, iconId, scale, mapId, x, y, title[loc].c_str(), desc[loc].c_str(), flags);
 }
 
 void World::UpdateSessions(uint32 diff)

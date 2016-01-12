@@ -275,7 +275,7 @@ public:
 
             Creature* creature = trans->CreateNPCPassenger(guid, &data);
 
-            creature->SaveToDB(trans->GetGOInfo()->moTransport.mapID, 1 << map->GetSpawnMode(), chr->GetPhaseMaskForSpawn());
+            creature->SaveToDB(trans->GetGOInfo()->moTransport.mapID, 1 << map->GetSpawnMode(), chr->GetPhaseMaskForSpawn(), handler->GetSession()->SaveDatabaseChanges());
 
             sObjectMgr->AddCreatureToGrid(guid, &data);
             return true;
@@ -288,7 +288,7 @@ public:
             return false;
         }
 
-        creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
+        creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn(), handler->GetSession()->SaveDatabaseChanges());
 
         uint32 db_guid = creature->GetDBTableGUIDLow();
 
@@ -512,7 +512,7 @@ public:
 
         // Delete the creature
         unit->CombatStop();
-        unit->DeleteFromDB();
+        unit->DeleteFromDB(handler->GetSession()->SaveDatabaseChanges());
         unit->AddObjectToRemoveList();
 
         handler->SendSysMessage(LANG_COMMAND_DELCREATMESSAGE);

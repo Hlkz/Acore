@@ -260,18 +260,6 @@ void ChatHandler::SendSysMessage(uint32 entry)
     SendSysMessage(GetTrinityString(entry));
 }
 
-LocString ChatHandler::BuildIconUpdateString(uint32 type, uint32 id, uint32 iconId, float scale, uint32 mapId, float x, float y, LocString title, LocString desc, int32 flags)
-{
-    LocString locString;
-    for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
-    {
-        char buff[256];
-        sprintf(buff, "AOI,%u,%u,%u,%f,%u,%f,%f,%s,%s,%i", type, id, iconId, scale, mapId, x, y, title[i].c_str(), desc[i].c_str(), flags);
-        locString[i] = buff;
-    }
-    return locString;
-}
-
 void ChatHandler::SendAddonMessage(const char *str)
 {
     if (!m_session)
@@ -290,6 +278,40 @@ void ChatHandler::SendAddonMessage(const char *str)
     }
 
     free(buf);
+}
+
+char const* ChatHandler::GetAddonMessageFmt(uint32 prefix)
+{
+    switch (prefix)
+    {
+    case PREFIX_AOF:
+        return "AOF,%s,%u";
+    case PREFIX_AOI:
+        return "AOI,%u,%u,%u,%f,%u,%f,%f,%s,%s,%i";
+    case PREFIX_AON:
+        return "AON,%u";
+    case PREFIX_AOQ:
+        return "AOQ,%s";
+    }
+    return "";
+}
+
+LocString ChatHandler::BuildIconUpdateString(uint32 type, uint32 id, uint32 iconId, float scale, uint32 mapId, float x, float y, LocString title, LocString desc, int32 flags)
+{
+    LocString locString;
+    for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
+    {
+        char buff[256];
+        sprintf(buff, "AOI,%u,%u,%u,%f,%u,%f,%f,%s,%s,%i", type, id, iconId, scale, mapId, x, y, title[i].c_str(), desc[i].c_str(), flags);
+        locString[i] = buff;
+    }
+    return locString;
+}
+
+void ChatHandler::SaveQueryString(std::string query)
+{
+    query += ";";
+    SendAddonMessage(PREFIX_AOQ, query.c_str());
 }
 
 bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, std::string const& fullcmd)

@@ -41,6 +41,7 @@ public:
         static ChatCommand gmCommandTable[] =
         {
             { "chat",           SEC_ANIMATOR,       false, &HandleGMChatCommand,              "", NULL },
+            { "database",       SEC_ANIMATOR,       false, &HandleGMDatabaseCommand,          "", NULL },
             { "fly",            SEC_ADMINISTRATOR,  false, &HandleGMFlyCommand,               "", NULL },
             { "ingame",         SEC_PLAYER,         true,  &HandleGMListIngameCommand,        "", NULL },
             { "list",           SEC_ADMINISTRATOR,  true,  &HandleGMListFullCommand,          "", NULL },
@@ -84,6 +85,42 @@ public:
             {
                 session->GetPlayer()->SetGMChat(false);
                 session->SendNotification(LANG_GM_CHAT_OFF);
+                return true;
+            }
+        }
+
+        handler->SendSysMessage(LANG_USE_BOL);
+        handler->SetSentErrorMessage(true);
+        return false;
+    }
+
+    // Enables or disables database query save in client savevariables
+    static bool HandleGMDatabaseCommand(ChatHandler* handler, char const* args)
+    {
+        if (WorldSession* session = handler->GetSession())
+        {
+            if (!*args)
+            {
+                if (session->SaveDatabaseChanges())
+                    handler->PSendSysMessage("GM Database on");
+                else
+                    handler->PSendSysMessage("GM Database off");
+                return true;
+            }
+
+            std::string param = (char*)args;
+
+            if (param == "on")
+            {
+                session->SaveDatabaseChanges(true);
+                handler->PSendSysMessage("GM Database on");
+                return true;
+            }
+
+            if (param == "off")
+            {
+                session->SaveDatabaseChanges(false);
+                handler->PSendSysMessage("GM Database off");
                 return true;
             }
         }

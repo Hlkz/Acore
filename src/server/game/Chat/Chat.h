@@ -99,8 +99,10 @@ class ChatHandler
 
         void SendSysMessage(uint32 entry);
 
-        static LocString BuildIconUpdateString(uint32 type, uint32 id, uint32 iconId = 0, float scale = 1, uint32 mapId = 0, float x = 0, float y = 0, LocString title = "", LocString desc = "", int32 flags = 0);
         void SendAddonMessage(char const* str);
+        char const* GetAddonMessageFmt(uint32 prefix);
+        static LocString BuildIconUpdateString(uint32 type, uint32 id, uint32 iconId = 0, float scale = 1, uint32 mapId = 0, float x = 0, float y = 0, LocString title = "", LocString desc = "", int32 flags = 0);
+        void SaveQueryString(std::string query);
 
         template<typename... Args>
         void PSendSysMessage(const char* fmt, Args&&... args)
@@ -123,6 +125,13 @@ class ChatHandler
         template<typename... Args>
         void PSendAddonMessage(const char* fmt, Args&&... args)
         {
+            SendAddonMessage(Trinity::StringFormat(fmt, std::forward<Args>(args)...).c_str());
+        }
+
+        template<typename... Args>
+        void SendAddonMessage(uint32 prefix, Args&&... args)
+        {
+            const char* fmt = GetAddonMessageFmt(prefix);
             SendAddonMessage(Trinity::StringFormat(fmt, std::forward<Args>(args)...).c_str());
         }
 

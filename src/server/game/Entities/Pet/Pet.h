@@ -157,11 +157,11 @@ class Pet : public Guardian
         DeclinedName *m_declinedname;
 
     private:
-        void SaveToDB(uint32, uint8, uint32) override                // override of Creature::SaveToDB     - must not be called
+        void SaveToDB(uint32, uint8, uint32, WorldSession*) override // override of Creature::SaveToDB     - must not be called
         {
             ASSERT(false);
         }
-        void DeleteFromDB() override                                 // override of Creature::DeleteFromDB - must not be called
+        void DeleteFromDB(WorldSession*) override                    // override of Creature::DeleteFromDB - must not be called
         {
             ASSERT(false);
         }

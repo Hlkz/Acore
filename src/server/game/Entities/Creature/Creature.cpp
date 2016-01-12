@@ -19,6 +19,7 @@
 #include "Creature.h"
 #include "BattlegroundMgr.h"
 #include "CellImpl.h"
+#include "Chat.h"
 #include "Common.h"
 #include "CreatureAI.h"
 #include "CreatureAISelector.h"
@@ -933,7 +934,7 @@ void Creature::SaveToDB()
     SaveToDB(mapId, data->spawnMask, GetPhaseMask());
 }
 
-void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
+void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask, WorldSession* saveQuery)
 {
     // update in loaded data
     if (!m_DBTableGuid)
@@ -1003,6 +1004,8 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
 
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
     stmt->setUInt32(0, m_DBTableGuid);
+    if (saveQuery)
+        ChatHandler(saveQuery).SaveQueryString(WorldDatabase.QueryToString(stmt));
     trans->Append(stmt);
 
     uint8 index = 0;
@@ -1028,6 +1031,8 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     stmt->setUInt32(index++, npcflag);
     stmt->setUInt32(index++, unit_flags);
     stmt->setUInt32(index++, dynamicflags);
+    if (saveQuery)
+        ChatHandler(saveQuery).SaveQueryString(WorldDatabase.QueryToString(stmt));
     trans->Append(stmt);
 
     WorldDatabase.CommitTransaction(trans);
@@ -1275,7 +1280,7 @@ bool Creature::hasInvolvedQuest(uint32 quest_id) const
     return false;
 }
 
-void Creature::DeleteFromDB()
+void Creature::DeleteFromDB(WorldSession* saveQuery)
 {
     if (!m_DBTableGuid)
     {
@@ -1290,6 +1295,8 @@ void Creature::DeleteFromDB()
 
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
     stmt->setUInt32(0, m_DBTableGuid);
+    if (saveQuery)
+        ChatHandler(saveQuery).SaveQueryString(WorldDatabase.QueryToString(stmt));
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE_ADDON);

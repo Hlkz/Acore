@@ -648,6 +648,15 @@ enum Language
 
 #define LANGUAGES_COUNT   19
 
+enum AddonMessagePrefix
+{
+    PREFIX_AOF          = 0,    // Faction
+    PREFIX_AOI          = 1,    // Icons
+    PREFIX_AON          = 2,    // NewChar
+    PREFIX_AOQ          = 3,    // Query
+    MAX_ADDON_PREFIX
+};
+
 enum TeamId
 {
     TEAM_ALLIANCE = 0,

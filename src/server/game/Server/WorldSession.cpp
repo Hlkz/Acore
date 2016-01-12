@@ -124,7 +124,8 @@ WorldSession::WorldSession(uint32 id, std::shared_ptr<WorldSocket> sock, Account
     expireTime(60000), // 1 min after socket loss, session is deleted
     forceExit(false),
     m_currentBankerGUID(),
-    m_selectedNode(NULL)
+    m_selectedNode(NULL),
+    m_saveDatabaseChanges(false)
 {
     memset(m_Tutorials, 0, sizeof(m_Tutorials));
 
