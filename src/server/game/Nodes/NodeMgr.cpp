@@ -301,8 +301,12 @@ NodeCreature* NodeMgr::AddNodeCreature(uint32 guid, uint32 nodeId, uint32 type)
     if (!node)
         return NULL;
 
+    CreatureData const* data = sObjectMgr->GetCreatureData(guid);
+    if (!data)
+        return NULL;
+
     Creature* creature;
-    if (!(creature = node->GetMap()->GetCreature(ObjectGuid(HIGHGUID_UNIT, sObjectMgr->GetCreatureData(guid)->id, guid))))
+    if (!(creature = node->GetMap()->GetCreature(ObjectGuid(HIGHGUID_UNIT, data->id, guid))))
     {
         creature = new Creature();
         if (!creature->LoadCreatureFromDB(guid, node->GetMap(), true))
